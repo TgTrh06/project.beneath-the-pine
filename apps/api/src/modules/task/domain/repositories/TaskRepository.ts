@@ -1,0 +1,3 @@
+import type { Task, TaskState } from "../entities/Task.js";
+export interface TaskRepository { create(task: Task): Promise<Task>; findByIdForUser(id: string, userId: string): Promise<Task | null>; listReady(userId: string, limit: number): Promise<Task[]>; listAll(userId: string): Promise<Task[]>; update(task: Task): Promise<Task>; }
+export interface FocusRepository { start(input: { userId: string; taskId: string; plannedMinutes: number }): Promise<{ id: string; userId: string; taskId: string | null; plannedMinutes: number; startedAt: Date }>; finish(id: string, userId: string, outcome: "done" | "still_stuck" | "paused"): Promise<{ id: string; taskId: string | null; outcome: string | null } | null>; }

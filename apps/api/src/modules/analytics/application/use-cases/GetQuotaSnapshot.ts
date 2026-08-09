@@ -1,0 +1,3 @@
+import { weeklyQuota, type AiQuotaKind } from "@beneath-the-pine/contracts";
+import type { AnalyticsRepository } from "../../domain/AnalyticsRepository.js";
+export class GetQuotaSnapshot { public constructor(private readonly analytics: AnalyticsRepository, private readonly weekStart: () => string) {} public async execute(userId: string) { const week = this.weekStart(); return Object.fromEntries(await Promise.all((Object.keys(weeklyQuota) as AiQuotaKind[]).map(async (kind) => { const used = await this.analytics.countAiUse(userId, kind, week); return [kind, { used, remaining: Math.max(0, weeklyQuota[kind] - used) }]; }))); } }

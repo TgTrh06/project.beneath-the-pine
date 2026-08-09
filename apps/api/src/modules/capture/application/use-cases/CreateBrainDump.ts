@@ -1,0 +1,6 @@
+import type { BrainDumpAiOutput } from "@beneath-the-pine/contracts";
+import type { ConsumeAiQuota } from "../../../analytics/application/use-cases/ConsumeAiQuota.js";
+import type { RecordProductEvent } from "../../../analytics/application/use-cases/RecordProductEvent.js";
+import type { ContentCipher } from "../../../../shared/types/PrivateContent.js";
+import type { CaptureRepository, GrowthAssistant } from "../../domain/CapturePorts.js";
+export class CreateBrainDump { public constructor(private readonly captures: CaptureRepository, private readonly cipher: ContentCipher, private readonly assistant: GrowthAssistant, private readonly quota: ConsumeAiQuota, private readonly events: RecordProductEvent, private readonly now: () => Date) {} public async execute(userId: string, content: string): Promise<{ brainDump: { id: string; expiresAt: Date }; suggestion: BrainDumpAiOutput }> { await this.quota.check(userId, "brain_dump"); const brainDump = await this.captures.saveBrainDump({ userId, content: this.cipher.encrypt(content), expiresAt: new Date(this.now().getTime() + 30 * 24 * 60 * 60 * 1000) }); const suggestion = await this.assistant.extractBrainDump(content); await this.quota.commit(userId, "brain_dump"); await this.events.execute(userId, "brain_dump_submitted"); return { brainDump, suggestion }; } }
