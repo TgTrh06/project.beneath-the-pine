@@ -1,7 +1,7 @@
 node_modules/
 dist/
-.next/
-.vinext/
+dist-web/
+release/
 .wrangler/
 .env
 .env.*
