@@ -1,14 +1,14 @@
 # Product Requirements Document — MVP
 
 - **Status:** Draft
-- **Version:** 0.1
+- **Version:** 0.2
 - **Owner:** Product
 - **Target:** Private beta
-- **Last updated:** 2026-08-04
+- **Last updated:** 2026-08-09
 
 ## 1. Summary
 
-Beneath the Pine MVP giúp người dùng đang quá tải chuyển brain dump thành một next action có thể bắt đầu, hỗ trợ reset khi ngày bị gián đoạn và tạo đường quay lại nhẹ nhàng sau thời gian không sử dụng.
+Beneath the Pine là prototype web/mobile bằng tiếng Việt giúp người dùng đang quá tải chuyển brain dump thành một next action có thể bắt đầu. MVP kiểm chứng thời gian từ stuck state đến start event; không xây một bộ công cụ productivity đầy đủ.
 
 ## 2. Goals
 
@@ -16,12 +16,14 @@ Beneath the Pine MVP giúp người dùng đang quá tải chuyển brain dump t
 - Giảm số quyết định cần thiết để bắt đầu.
 - Cho phép người dùng sửa/kiểm soát mọi kết quả AI.
 - Kiểm chứng Reset và Return flow trong sử dụng thật.
+- Chạy trên web responsive và Android; online-only trong giai đoạn nghiên cứu.
 
 ## 3. Non-goals
 
 - Thay thế task/calendar/notes platform đầy đủ.
 - Điều trị hoặc chẩn đoán ADHD.
 - Tự động lập toàn bộ lịch sống.
+- Weekly review, habit tracking, goals và growth system sâu.
 - Tối ưu doanh thu trước khi có retention signal.
 
 ## 4. Primary use cases
@@ -55,13 +57,6 @@ Beneath the Pine MVP giúp người dùng đang quá tải chuyển brain dump t
 2. Người dùng chọn tiếp tục, làm mới hôm nay hoặc xem backlog.
 3. Không tự động dồn task quá hạn vào hôm nay.
 
-### UC-05 — Weekly reflection
-
-1. Hệ thống tổng hợp dữ kiện tuần.
-2. AI tạo observation, hypothesis và một experiment.
-3. Người dùng xác nhận/chỉnh sửa/bác bỏ.
-4. Experiment được lưu cho tuần tiếp theo.
-
 ## 5. Functional requirements
 
 | ID | Requirement | Priority |
@@ -74,20 +69,20 @@ Beneath the Pine MVP giúp người dùng đang quá tải chuyển brain dump t
 | FR-06 | Focus session và start/completion events | Must |
 | FR-07 | Reset My Day | Must |
 | FR-08 | Return flow sau khoảng nghỉ | Must |
-| FR-09 | Weekly review và insight feedback | Must |
-| FR-10 | Export/delete account | Must |
-| FR-11 | Voice input | Should |
-| FR-12 | Growth visualization | Should |
+| FR-09 | Export/delete account | Must |
+| FR-10 | Voice input | Should |
+| FR-11 | Pine/Marten visual cue nhẹ, không gamification | Should |
 
 ## 6. Non-functional requirements
 
-- Web responsive, ưu tiên mobile viewport.
+- Web responsive, ưu tiên mobile viewport; Android là target native đầu tiên.
 - P95 API không-AI < 500 ms trong điều kiện beta.
 - AI action có loading state, timeout và retry an toàn.
 - Mọi AI output được schema validation trước khi lưu/hiển thị.
 - Không gửi raw content vào product analytics.
 - Keyboard navigation và focus state rõ ràng.
 - Mọi thời gian lưu UTC, hiển thị theo user timezone.
+- Không có offline sync trong prototype đầu.
 - Người dùng có thể sử dụng chức năng task cơ bản khi tắt AI.
 
 ## 7. Analytics
@@ -107,10 +102,9 @@ Theo `00-foundation/metrics.md`; event payload chỉ chứa ID nội bộ, enum 
 - Trigger Return flow sau 3 hay 7 ngày?
 - Focus timer có cần chạy background ở phiên bản đầu?
 - Có lưu raw brain dump sau extraction không; nếu có, mặc định bao lâu?
-- Weekly Review có opt-in riêng ngoài AI consent không?
+- Ngưỡng thời gian phù hợp để kích hoạt Return flow là 3 hay 7 ngày?
 - Pine Marten xuất hiện ở tất cả flow hay chỉ trợ giúp?
 
 ## 10. Release criteria
 
 Theo MVP exit criteria, AI evaluation threshold và release checklist trong `09-release/`.
-

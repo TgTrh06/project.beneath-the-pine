@@ -11,7 +11,7 @@ Kiểm chứng rằng Beneath the Pine có thể giúp người dùng đang bị
 
 ## Vòng lặp duy nhất
 
-`Brain dump → AI làm rõ → Chọn next action → Bắt đầu → Ghi nhận/reset → Quay lại`
+`Brain dump → AI làm rõ → Chọn next action → Chia nhỏ nếu bị kẹt → Bắt đầu → Reset/Return`
 
 ## Must have
 
@@ -51,12 +51,6 @@ Kiểm chứng rằng Beneath the Pine có thể giúp người dùng đang bị
 - Không hiển thị backlog quá hạn trước khi hỏi ý định hiện tại.
 - Cung cấp “Start fresh from today”.
 
-### Reflection tối thiểu
-
-- Check-in cuối phiên dưới 30 giây.
-- Weekly summary dựa trên dữ liệu có thật.
-- Một weekly experiment; người dùng xác nhận hoặc chỉnh sửa.
-
 ### An toàn và dữ liệu
 
 - AI disclosure rõ ràng.
@@ -67,28 +61,26 @@ Kiểm chứng rằng Beneath the Pine có thể giúp người dùng đang bị
 ## Should have
 
 - Voice-to-text cho brain dump.
-- Tối đa 3 thói quen đơn giản.
-- Pine tree/growth ring ở mức trực quan nhẹ.
 - Reminder do người dùng chủ động bật.
-- Offline draft cho brain dump.
+- Pine tree/Pine Marten ở mức nhận diện và động viên nhẹ.
 
 ## Could have
 
-- Google Calendar read-only.
-- Body-doubling/focus room.
-- Đồng bộ Todoist/Notion.
+- Habits, growth ring và weekly reflection.
+- Google Calendar read-only, body-doubling/focus room và đồng bộ Todoist/Notion.
 - AI coach theo yêu cầu có quota.
 
 ## Won't have trong MVP
 
 - Calendar riêng đầy đủ.
-- Notes/knowledge base.
+- Notes/knowledge base, habits và goals đầy đủ.
 - Project management cho đội nhóm.
 - Chatbot mở vô hạn.
 - Shop, economy, pinecones hoặc leaderboard.
 - Social feed.
 - Chẩn đoán, đánh giá lâm sàng hoặc điều trị ADHD.
-- Phân tích tâm trạng không có consent.
+- Phân tích tâm trạng/journal tự động, kể cả khi có consent, trong prototype đầu.
+- Offline sync, iOS và desktop.
 
 ## Exit criteria cho private beta
 
@@ -98,4 +90,3 @@ Kiểm chứng rằng Beneath the Pine có thể giúp người dùng đang bị
 - Có export/delete và consent revocation.
 - Có monitoring lỗi, latency và chi phí AI.
 - Ít nhất 10 người hoàn thành hai tuần pilot.
-

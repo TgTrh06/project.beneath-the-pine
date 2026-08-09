@@ -1,12 +1,12 @@
 # AI Product Specification
 
 - **Status:** Draft
-- **Version:** 0.1
-- **Last updated:** 2026-08-04
+- **Version:** 0.2
+- **Last updated:** 2026-08-09
 
 ## Vai trò AI
 
-AI giảm công sức làm rõ và bắt đầu. AI không có thẩm quyền tự thay đổi cam kết của người dùng và không đóng vai chuyên gia y tế.
+AI giảm công sức làm rõ và bắt đầu. AI không có thẩm quyền tự thay đổi cam kết của người dùng, không đóng vai chuyên gia y tế và không phải chatbot tự do.
 
 ## Capabilities trong MVP
 
@@ -22,17 +22,9 @@ AI giảm công sức làm rõ và bắt đầu. AI không có thẩm quyền t�
 **Output:** một next action cụ thể ≤ 15 phút, rationale ngắn và lựa chọn “nhỏ hơn nữa”.  
 **Không được:** moralize, gây áp lực hoặc giả định năng lực người dùng.
 
-### AIC-03 — Reset My Day
+### Deferred capabilities
 
-**Input:** cam kết còn lại, available time, energy.  
-**Output:** đề xuất keep/defer/drop và một next action.  
-**Không được:** tự cập nhật task; mọi thay đổi cần confirmation.
-
-### AIC-04 — Weekly Reflection
-
-**Input:** deterministic facts và feedback trước đó; raw journal chỉ khi có consent riêng.  
-**Output:** observation, evidence, hypothesis, confidence, experiment.  
-**Không được:** trình bày hypothesis như fact hoặc đưa chẩn đoán tâm lý.
+Reset My Day dùng rule-based flow trong prototype. Weekly reflection, journal analysis, mood inference và AI coach theo yêu cầu chỉ được xem xét sau khi Brain Dump Extraction và Help Me Start được kiểm chứng với người dùng.
 
 ## Product rules
 
@@ -46,13 +38,10 @@ AI giảm công sức làm rõ và bắt đầu. AI không có thẩm quyền t�
 ## Latency targets
 
 - Extraction/Help Me Start: P95 mục tiêu ≤ 8 giây trong beta.
-- Weekly Review: asynchronous; hoàn thành trước thời điểm hiển thị dự kiến.
 - Sau timeout: giữ input, cho retry hoặc manual fallback.
 
 ## Success signals
 
 - Extraction edit rate giảm theo thời gian nhưng không vì người dùng bỏ xác nhận.
 - Stuck-to-Start Rate đạt ngưỡng.
-- ≥ 60% insight được đánh dấu accurate/useful trong pilot.
 - Không có safety violation nghiêm trọng trên evaluation set.
-

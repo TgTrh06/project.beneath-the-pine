@@ -4,6 +4,7 @@ Nhóm tài liệu trả lời “vì sao dự án tồn tại, dành cho ai, th�
 
 ## Tài liệu
 
+- [Product Direction — Web + Mobile Prototype](product-direction.md) — định nghĩa sản phẩm đã chốt.
 - [Product Vision](product-vision.md)
 - [Problem Statement](problem-statement.md)
 - [Personas & Jobs-to-be-Done](personas-and-jobs.md)
@@ -20,4 +21,3 @@ Nhóm tài liệu trả lời “vì sao dự án tồn tại, dành cho ai, th�
 - Có một vòng lặp sản phẩm duy nhất cho MVP.
 - Có danh sách “không xây” rõ ràng.
 - Có metric đo được giá trị thay vì chỉ đo lượt mở app.
-

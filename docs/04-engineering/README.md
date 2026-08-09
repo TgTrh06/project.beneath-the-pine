@@ -2,6 +2,7 @@
 
 ## Tài liệu
 
+- [Technology Stack](technology-stack.md)
 - [System Architecture](system-architecture.md)
 - [Data Model](data-model.md)
 - [API Guidelines](api-guidelines.md)
@@ -9,5 +10,4 @@
 - [Engineering Standards](engineering-standards.md)
 - [Architecture Decision Records](adr/README.md)
 
-Kiến trúc trong tài liệu là đề xuất ban đầu. Trước khi scaffold code, các lựa chọn stack cần được chốt bằng ADR.
-
+Định hướng hiện tại là Expo/React Native Web cho web + Android, Node API và PostgreSQL/Drizzle. Desktop đã bị loại khỏi phạm vi; chi tiết và các mốc migration nằm trong `technology-stack.md`.

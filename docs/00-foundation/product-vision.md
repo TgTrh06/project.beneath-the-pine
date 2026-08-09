@@ -1,13 +1,13 @@
 # Product Vision
 
-- **Status:** Draft
-- **Version:** 0.1
-- **Last updated:** 2026-08-04
+- **Status:** Aligned with approved product direction
+- **Version:** 0.2
+- **Last updated:** 2026-08-09
 - **Owner:** Product
 
 ## Vision
 
-Beneath the Pine tạo ra một không gian bình tĩnh để người gặp khó khăn về chức năng điều hành có thể trút bỏ sự hỗn độn trong đầu, nhìn thấy một bước tiếp theo đủ nhỏ và bắt đầu mà không bị phán xét.
+Beneath the Pine tạo ra một không gian bình tĩnh để người gặp khó khăn về chức năng điều hành có thể trút bớt sự hỗn độn trong đầu, nhìn thấy một bước tiếp theo đủ nhỏ và bắt đầu mà không bị phán xét.
 
 ## One-line proposition
 
@@ -34,22 +34,20 @@ Khi có quá nhiều việc hoặc kế hoạch bị gián đoạn, người dù
 - AI chuyển brain dump thành hành động có thể bắt đầu.
 - Kế hoạch thích nghi với thời gian và năng lượng hiện tại.
 - Reset không mang nợ task và không trừng phạt mất streak.
-- Reflection có bằng chứng; người dùng có quyền sửa hoặc bác bỏ suy luận của AI.
+- AI có output có cấu trúc; người dùng có quyền sửa hoặc bác bỏ mọi đề xuất.
 
 ## Product loop
 
-`Brain dump → Clarify → Choose one next action → Start → Reset/Reflect → Return`
+`Brain dump → Clarify → Choose one next action → Start → Reset → Return`
 
 ## Beneath the Pine không phải là
 
 - Công cụ chẩn đoán hoặc điều trị ADHD.
 - Nhà trị liệu tâm lý hoặc dịch vụ khẩn cấp.
-- Project management cho đội nhóm.
-- Calendar thay thế Google Calendar/Outlook.
-- Knowledge base thay thế Notion/Obsidian.
+- Project management cho đội nhóm, calendar, notes hoặc knowledge base.
+- Hệ thống habit/goal/gamification đầy đủ trong prototype nghiên cứu.
 - Chatbot trò chuyện tự do không mục tiêu.
 
 ## Trải nghiệm mong muốn
 
 Người dùng nên cảm thấy nhẹ hơn sau khi mở ứng dụng. Giao diện và Pine Marten phải truyền đạt: “Bạn không cần làm hết. Chúng ta chỉ cần tìm một bước tiếp theo.”
-

@@ -1,62 +1,48 @@
 # Test Strategy
 
-- **Status:** Baseline
-- **Target:** MVP private beta
+- **Status:** Baseline for the research prototype
+- **Target:** Web + Android pilot
 
 ## Test layers
 
-### Unit
+### Unit and contract
 
-- Domain rules, state transitions, date/timezone logic.
-- AI output validators và evidence checks.
-- Consent feature gating.
+- Core task transitions: ready, done and deferred.
+- Stuck-to-start event timing and timezone handling.
+- Consent gates and AI structured-output validators.
+- AI result never mutates user data without confirmation.
 
 ### Integration
 
-- API + database.
-- Auth/ownership.
-- Migrations.
-- AI provider adapter với recorded/synthetic fixtures.
-- Export/delete workflow.
+- API, Drizzle migrations, authentication and ownership.
+- Brain Dump Extraction and Help Me Start using synthetic fixtures.
+- Export/delete and consent withdrawal.
 
 ### End-to-end
 
-- Onboarding/consent.
-- Brain Dump → confirm → start.
-- Help Me Start.
-- Reset My Day.
-- Return flow.
-- Weekly Review feedback.
+- Brain Dump → confirmation → Start.
+- Help Me Start → smaller action → Start.
+- Reset My Day and Return flow.
+- Manual fallback after AI timeout.
+- Responsive web and Android smoke paths.
 
 ### Non-functional
 
-- Accessibility: automated + keyboard/screen reader smoke test.
-- Performance: key API và AI latency.
-- Security: dependency, secrets, authz và basic abuse cases.
-- Privacy: log inspection và analytics payload tests.
-- AI evaluation: schema, quality, safety, regression.
+- Mobile touch targets, keyboard navigation and screen-reader smoke test.
+- Analytics payload inspection: no raw brain dump/journal content.
+- AI quality, safety and schema regression evaluation.
 
-## Test data
+## Research validation
 
-- Synthetic by default.
-- Không copy production database.
-- Vietnamese, mixed-language và timezone edge cases.
-- Clock control cho daily/weekly logic.
-
-## CI gates
-
-- Lint/typecheck/unit/integration/build.
-- API contract validation.
-- Migration check.
-- Secret/dependency scan.
-- AI offline eval cho prompt changes.
+- Run moderated usability sessions with the target audience before pilot.
+- Run a small pilot of roughly 10 users.
+- Measure the interval from `brain_dump_submitted` or `still_stuck` to `start_event`.
+- Collect a short post-session rating of whether the suggested step felt concrete and non-judgmental.
 
 ## Release gates
 
-- 0 open P0/P1.
-- Critical E2E pass trên staging.
-- AI thresholds pass.
-- Export/delete smoke test.
-- Backup/restore gần nhất pass.
-- Monitoring và rollback sẵn sàng.
-
+- No open P0/P1 in the core loop.
+- Core web and Android paths pass.
+- AI failures retain user input and expose manual fallback.
+- Consent, export and delete smoke tests pass.
+- No medical claim appears in product copy or AI output templates.

@@ -1,89 +1,46 @@
 # System Architecture
 
-- **Status:** Proposed
-- **Version:** 0.1
-- **Last updated:** 2026-08-04
+- **Status:** Approved for the web + Android research prototype
+- **Version:** 2.0
+- **Last updated:** 2026-08-09
 
-## Mục tiêu kiến trúc
-
-- Tối ưu cho tốc độ học trong private beta.
-- Tách deterministic product logic khỏi generative AI logic.
-- Privacy-by-design và khả năng xóa dữ liệu.
-- Mọi AI workflow có schema validation, timeout và fallback.
-- Tránh distributed complexity trước khi có nhu cầu thực.
-
-## Proposed stack
-
-| Layer | Đề xuất |
-|---|---|
-| Web | React + TypeScript + Vite |
-| UI | Tailwind CSS + accessible primitives |
-| Server state | TanStack Query |
-| Local UI state | Zustand khi thực sự cần |
-| API | Node.js + TypeScript + Express/Fastify |
-| Database | PostgreSQL |
-| ORM/query | Chốt bằng ADR; ưu tiên migrations rõ ràng |
-| Auth | Managed provider |
-| AI | Provider abstraction + structured output |
-| Jobs | Scheduler/cron ở MVP; queue khi có nhu cầu |
-| Observability | Structured logs + error tracking + metrics |
-
-## Logical components
+## Logical architecture
 
 ```text
-Web Client
-  ├─ Auth/UI
-  ├─ Core workflows
-  └─ Product analytics (no raw content)
+Expo app (Web + Android)
+  ├─ Brain Dump, Now, Help Me Start, Reset and Return flows
+  ├─ Consent and account UI
+  └─ Privacy-safe analytics
         │
-API Application
-  ├─ Auth/authorization
-  ├─ Task & workflow service
-  ├─ Consent & data rights service
-  ├─ Review/aggregation service
-  └─ AI orchestration service
-        ├─ Prompt registry
-        ├─ Schema validator
-        ├─ Safety layer
-        └─ Provider adapter
+Node API
+  ├─ Authentication and authorization
+  ├─ Workflow service
+  ├─ Consent and data-rights service
+  └─ AI orchestration
+       ├─ Prompt version
+       ├─ Structured schema validation
+       └─ Safety and fallback policy
         │
-PostgreSQL + Scheduled jobs + Observability
+PostgreSQL via Drizzle
 ```
 
-## AI request lifecycle
+## AI lifecycle
 
-1. Kiểm tra authentication, ownership và consent.
-2. Lấy tối thiểu dữ liệu cần thiết.
-3. Redact dữ liệu không cần gửi.
-4. Gọi provider với prompt version và schema.
-5. Validate output; retry có giới hạn nếu lỗi schema.
-6. Safety filter/policy check.
-7. Lưu output, model, prompt version, latency, token usage.
-8. Hiển thị cùng disclosure và khả năng feedback.
+1. Verify user identity, ownership and AI consent.
+2. Send only context needed for Brain Dump Extraction or Help Me Start.
+3. Request a structured result and validate it before storing or showing it.
+4. Present the result as a suggestion requiring confirmation.
+5. Preserve the user input and offer a manual path if the request fails or times out.
 
-## Background jobs MVP
+## Core event boundaries
 
-- Tạo weekly facts deterministic.
-- Tạo weekly review khi người dùng opt-in.
-- Xóa dữ liệu đến hạn retention.
-- Xử lý export/delete.
+- `brain_dump_submitted` begins a stuck-to-start observation.
+- `next_action_confirmed` records user choice, not AI choice.
+- `start_event` is the primary outcome event.
+- `still_stuck`, `reset_completed` and `return_flow_completed` show recovery behaviour.
 
-Jobs phải idempotent. Cron là đủ ở beta; chuyển sang queue khi cần retry/concurrency/visibility tốt hơn.
+Raw personal content is excluded from analytics. All product times are stored in UTC and rendered in the user timezone.
 
-## Boundary rules
+## Deferred architecture
 
-- Client không gọi AI provider trực tiếp.
-- AI không ghi task hoặc thay đổi lịch nếu chưa có user confirmation.
-- Analytics không nhận raw text.
-- Secrets chỉ tồn tại ở server/secret manager.
-- Thời gian lưu UTC; timezone ở user profile.
-
-## Open decisions
-
-- Monorepo hay separate repositories.
-- Fastify vs Express.
-- ORM/query builder.
-- Auth provider.
-- Hosting và region dữ liệu.
-- AI provider/model routing.
-
+Weekly aggregation, reminders, offline sync, iOS, desktop, habit/goal services and long-lived AI coaching are not part of the prototype architecture.

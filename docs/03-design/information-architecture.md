@@ -1,58 +1,47 @@
 # Information Architecture
 
-- **Status:** Draft
-- **Version:** 0.1
+- **Status:** Approved for research prototype
+- **Version:** 0.2
+- **Last updated:** 2026-08-09
 
 ## Primary navigation
 
-1. **Now** — một next action và trạng thái hiện tại.
-2. **Capture** — brain dump và inbox chưa làm rõ.
-3. **Review** — end-of-session, weekly review và experiments.
-4. **Growth** — vòng sinh trưởng và insight lịch sử; có thể ẩn trong MVP sớm.
-5. **Settings** — profile, consent, data, notification, accessibility.
+1. **Now** — một next action, focus state và Recovery actions.
+2. **Capture** — Brain Dump, AI clarification và user confirmation.
+3. **Settings** — account, AI consent, data rights, language/timezone and support resources.
 
-## Now screen
+Không có Review, Growth, Habits, Goals, Notes hoặc Calendar ở navigation của prototype.
 
-- Current next action.
-- Start button và ước lượng thời gian.
-- “Tôi bị kẹt”.
-- “Kế hoạch hôm nay đã vỡ”.
-- Secondary queue được thu gọn.
+## Screen responsibilities
 
-## Capture
+### Now
 
-- Brain dump composer.
-- Pending clarifications.
-- Extracted items chờ xác nhận.
-- Archive/raw input theo retention policy.
+- One next action với thời lượng gợi ý 5–15 phút.
+- Start, Done, Pause và “Vẫn bị kẹt”.
+- Entry point tới Reset My Day và Return flow.
+- Không hiển thị backlog, overdue count hoặc streak loss khi mở màn hình.
 
-## Review
+### Capture
 
-- Session check-in.
-- Weekly facts.
-- AI observation/hypothesis/evidence.
-- Insight feedback.
-- Current weekly experiment.
+- Composer brain dump tiếng Việt.
+- Disclosure rằng AI chỉ đề xuất và cần user confirmation.
+- Extracted items, clarification tối thiểu và một next-action suggestion.
+- Manual fallback khi AI không khả dụng hoặc không có consent.
 
-## Settings
+### Settings
 
-- AI disclosure và consent.
-- Export/delete.
-- Notification controls.
-- Timezone/language.
-- Crisis/support resources.
+- Consent AI và rút consent.
+- Export/delete data.
+- Profile, timezone, language, notification controls khi tính năng này được bật.
+- Crisis/support resources; không có tính năng chẩn đoán.
 
 ## URL proposal
 
 ```text
 /now
 /capture
-/capture/:id/review
-/review
-/review/:week
-/growth
+/capture/:id/confirm
 /settings
 /settings/privacy
 /settings/data
 ```
-

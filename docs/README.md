@@ -33,16 +33,17 @@ Sản phẩm hỗ trợ tổ chức và thực hiện công việc hằng ngày.
 
 ## Tài liệu cần đọc trước khi bắt đầu code
 
-1. [Product Vision](00-foundation/product-vision.md)
-2. [Problem Statement](00-foundation/problem-statement.md)
-3. [Personas & Jobs-to-be-Done](00-foundation/personas-and-jobs.md)
-4. [Product Principles](00-foundation/product-principles.md)
+1. [Product Direction — Web + Mobile Prototype](00-foundation/product-direction.md)
+2. [Product Vision](00-foundation/product-vision.md)
+3. [Problem Statement](00-foundation/problem-statement.md)
+4. [Personas & Jobs-to-be-Done](00-foundation/personas-and-jobs.md)
 5. [MVP Scope](00-foundation/mvp-scope.md)
 6. [PRD](02-product/prd.md)
-7. [System Architecture](04-engineering/system-architecture.md)
-8. [AI Product Spec](05-ai/ai-product-spec.md)
-9. [AI Safety Policy](05-ai/ai-safety-policy.md)
-10. [Test Strategy](07-testing/test-strategy.md)
+7. [Technology Stack](04-engineering/technology-stack.md)
+8. [System Architecture](04-engineering/system-architecture.md)
+9. [AI Product Spec](05-ai/ai-product-spec.md)
+10. [AI Safety Policy](05-ai/ai-safety-policy.md)
+11. [Test Strategy](07-testing/test-strategy.md)
 
 ## Quy ước trạng thái
 
@@ -57,4 +58,3 @@ Sản phẩm hỗ trợ tổ chức và thực hiện công việc hằng ngày.
 - Kiểm chứng ba giả định rủi ro cao trong `assumptions-and-risks.md`.
 - Vẽ wireframe cho bốn flow lõi.
 - Chốt stack bằng ADR trước khi scaffold mã nguồn.
-
