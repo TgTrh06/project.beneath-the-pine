@@ -76,3 +76,10 @@ export const eventNames = [
   "return_flow_completed",
 ] as const;
 export type ProductEventName = (typeof eventNames)[number];
+
+export const studyConditionSchema = z.enum(["control", "intervention"]);
+export type StudyCondition = z.infer<typeof studyConditionSchema>;
+export const studyEnrollmentSchema = z.object({ consent: z.literal(true) });
+export const studySessionSchema = z.object({ frictionBefore: z.number().int().min(1).max(5) });
+export const studySessionStartSchema = z.object({ startedAt: z.string().datetime().optional() });
+export const studySessionCompleteSchema = z.object({ frictionAfter: z.number().int().min(1).max(5), focusOutcome: z.enum(["done", "still_stuck", "not_recorded"]) });

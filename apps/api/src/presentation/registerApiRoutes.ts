@@ -17,8 +17,10 @@ import { CreateWeeklyReview } from "../modules/capture/application/use-cases/Cre
 import { ExportPrivateData } from "../modules/capture/application/use-cases/ExportPrivateData.js";
 import { HelpMeStart } from "../modules/capture/application/use-cases/HelpMeStart.js";
 import { DrizzleCaptureRepository } from "../modules/capture/infrastructure/DrizzleCaptureRepository.js";
-import { OpenAiGrowthAssistant } from "../modules/capture/infrastructure/OpenAiGrowthAssistant.js";
+import { createGrowthAssistant } from "../modules/capture/infrastructure/createGrowthAssistant.js";
 import { CaptureController } from "../modules/capture/presentation/CaptureController.js";
+import { DrizzleResearchRepository } from "../modules/research/infrastructure/DrizzleResearchRepository.js";
+import { ResearchController } from "../modules/research/presentation/ResearchController.js";
 import { CompleteHabit } from "../modules/habit/application/use-cases/CompleteHabit.js";
 import { CreateHabit } from "../modules/habit/application/use-cases/CreateHabit.js";
 import { DrizzleHabitRepository } from "../modules/habit/infrastructure/repositories/DrizzleHabitRepository.js";
@@ -46,13 +48,14 @@ type MemberHandler = (request: FastifyRequest, reply: FastifyReply, user: Awaite
 const token = (request: FastifyRequest): string | undefined => request.headers.authorization?.startsWith("Bearer ") ? request.headers.authorization.slice(7) : undefined;
 
 function compose(db: Database) {
-  const users = new DrizzleUserRepository(db); const tasks = new DrizzleTaskRepository(db); const habits = new DrizzleHabitRepository(db); const analytics = new DrizzleAnalyticsRepository(db); const captures = new DrizzleCaptureRepository(db); const identities = new SupabaseAuthIdentityProvider(new SupabaseClientFactory()); const cipher = new AesGcmContentCipher(); const weekStart = () => currentWeekStart(); const quota = new ConsumeAiQuota(analytics, weekStart); const events = new RecordProductEvent(analytics); const getQuota = new GetQuotaSnapshot(analytics, weekStart);
+  const users = new DrizzleUserRepository(db); const tasks = new DrizzleTaskRepository(db); const habits = new DrizzleHabitRepository(db); const analytics = new DrizzleAnalyticsRepository(db); const captures = new DrizzleCaptureRepository(db); const research = new DrizzleResearchRepository(db); const identities = new SupabaseAuthIdentityProvider(new SupabaseClientFactory()); const cipher = new AesGcmContentCipher(); const weekStart = () => currentWeekStart(); const quota = new ConsumeAiQuota(analytics, weekStart); const events = new RecordProductEvent(analytics); const getQuota = new GetQuotaSnapshot(analytics, weekStart); const assistant = createGrowthAssistant();
   return {
     authorize: new AuthorizeBetaMember(identities, users, adminEmails),
     beta: new BetaController(new JoinWaitlist(new DrizzleWaitlistRepository(db)), new ApproveWaitlistMember(new DrizzleWaitlistRepository(db), identities, users, env.WEB_ORIGIN), new DrizzleWaitlistRepository(db)),
     user: new UserController(new RecordConsent(users)), bootstrap: new BootstrapController(new BootstrapUser(users, tasks, habits, analytics, weekStart)), account: new AccountController(new DeleteAccount(users), new ExportAccountData(users, tasks, habits, new ExportPrivateData(captures, cipher))),
     task: new TaskController(new CreateTask(tasks), new StartFocusSession(tasks, tasks), new FinishFocusSession(tasks, tasks)), habit: new HabitController(new CreateHabit(habits), new CompleteHabit(habits, () => new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Ho_Chi_Minh" }))),
-    capture: new CaptureController(new CreateBrainDump(captures, cipher, new OpenAiGrowthAssistant(), quota, events, () => new Date()), new HelpMeStart(tasks, captures, new OpenAiGrowthAssistant(), quota), new CreateCheckin(captures, cipher), new CreateWeeklyReview(captures, new OpenAiGrowthAssistant(), quota, weekStart), captures, getQuota),
+    capture: new CaptureController(new CreateBrainDump(captures, cipher, assistant, quota, events, () => new Date()), new HelpMeStart(tasks, captures, assistant, quota), new CreateCheckin(captures, cipher), new CreateWeeklyReview(captures, assistant, quota, weekStart), captures, getQuota),
+    research: new ResearchController(research),
     analytics: new AnalyticsController(events),
   };
 }
@@ -77,6 +80,12 @@ export async function registerApiRoutes(app: FastifyInstance): Promise<void> {
   app.post("/api/v1/weekly-reviews", member((request, reply, user) => controllers.capture.weeklyReview(request, reply, user)));
   app.post("/api/v1/experiments/:id/approve", member((request, reply, user) => controllers.capture.approveExperiment(request, reply, user)));
   app.post("/api/v1/events", member((request, reply, user) => controllers.analytics.event(request, reply, user)));
+  app.get("/api/v1/study", member((request, reply, user) => controllers.research.get(request, reply, user)));
+  app.post("/api/v1/study/enroll", member((request, reply, user) => controllers.research.enroll(request, reply, user)));
+  app.post("/api/v1/study/sessions", member((request, reply, user) => controllers.research.begin(request, reply, user)));
+  app.post("/api/v1/study/sessions/:id/start", member((request, reply, user) => controllers.research.markStarted(request, reply, user)));
+  app.patch("/api/v1/study/sessions/:id", member((request, reply, user) => controllers.research.complete(request, reply, user)));
+  app.delete("/api/v1/study", member((request, reply, user) => controllers.research.withdraw(request, reply, user)));
   app.get("/api/v1/export", member((request, reply, user) => controllers.account.export(request, reply, user)));
   app.delete("/api/v1/account", member((request, reply, user) => controllers.account.delete(request, reply, user)));
   app.get("/api/v1/admin/waitlist", member((request, reply, user) => controllers.beta.list(request, reply, user)));
