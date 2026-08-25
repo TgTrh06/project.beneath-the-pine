@@ -4,6 +4,7 @@
 
 - [Technology Stack](technology-stack.md)
 - [System Architecture](system-architecture.md)
+- [Local Inference Architecture](local-inference-architecture.md)
 - [Data Model](data-model.md)
 - [API Guidelines](api-guidelines.md)
 - [Environment & Configuration](environment-and-config.md)

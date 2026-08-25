@@ -5,4 +5,4 @@
 - [Test Strategy](test-strategy.md)
 - [Critical Test Cases](critical-test-cases.md)
 - [Private Beta Plan](private-beta-plan.md)
-
+- [Pilot and Inference Test Plan](pilot-and-inference-test-plan.md)

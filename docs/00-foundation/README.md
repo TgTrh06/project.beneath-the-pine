@@ -11,6 +11,7 @@ Nhóm tài liệu trả lời “vì sao dự án tồn tại, dành cho ai, th�
 - [Product Principles](product-principles.md)
 - [MVP Scope](mvp-scope.md)
 - [Roadmap](roadmap.md)
+- [Parallel Delivery Plan](parallel-delivery-plan.md)
 - [Metrics](metrics.md)
 - [Glossary](glossary.md)
 
