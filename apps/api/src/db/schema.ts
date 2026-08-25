@@ -157,3 +157,27 @@ export const productEvents = pgTable("product_events", {
   name: varchar("name", { length: 64 }).notNull(),
   occurredAt: timestamp("occurred_at", { withTimezone: true }).defaultNow().notNull(),
 });
+
+export const researchEnrollments = pgTable("research_enrollments", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  userId: uuid("user_id").notNull().references(() => profiles.id, { onDelete: "cascade" }),
+  participantCode: varchar("participant_code", { length: 24 }).notNull(),
+  sequence: varchar("sequence", { length: 32 }).notNull(),
+  consentedAt: timestamp("consented_at", { withTimezone: true }).notNull().defaultNow(),
+  withdrawnAt: timestamp("withdrawn_at", { withTimezone: true }),
+  retentionUntil: timestamp("retention_until", { withTimezone: true }).notNull(),
+  ...timestamps,
+}, (table) => [uniqueIndex("research_enrollment_user_unique").on(table.userId), uniqueIndex("research_enrollment_code_unique").on(table.participantCode)]);
+
+export const researchSessions = pgTable("research_sessions", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  enrollmentId: uuid("enrollment_id").notNull().references(() => researchEnrollments.id, { onDelete: "cascade" }),
+  condition: varchar("condition", { length: 20 }).notNull(),
+  stuckAt: timestamp("stuck_at", { withTimezone: true }).notNull().defaultNow(),
+  startedAt: timestamp("started_at", { withTimezone: true }),
+  completedAt: timestamp("completed_at", { withTimezone: true }),
+  frictionBefore: integer("friction_before").notNull(),
+  frictionAfter: integer("friction_after"),
+  focusOutcome: varchar("focus_outcome", { length: 20 }),
+  ...timestamps,
+});
