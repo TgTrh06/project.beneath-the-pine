@@ -37,3 +37,10 @@ export async function exportData(session: Session) { return request<unknown>("/e
 export async function deleteAccount(session: Session) { await request("/account", { method: "DELETE" }, session); }
 export async function getAdminWaitlist(session: Session) { return request<{ entries: Array<{ id: string; email: string; name: string | null; status: string; createdAt: string }> }>("/admin/waitlist", {}, session); }
 export async function approveWaitlist(session: Session, id: string) { return request(`/admin/waitlist/${id}/approve`, { method: "POST" }, session); }
+export type StudyState = { enrollment: { id: string; participantCode: string; sequence: "control_first" | "intervention_first"; retentionUntil: string } | null; condition: "control" | "intervention" | null };
+export async function getStudy(session: Session) { return request<StudyState>("/study", {}, session); }
+export async function enrollStudy(session: Session) { return request<StudyState>("/study/enroll", { method: "POST", body: JSON.stringify({ consent: true }) }, session); }
+export async function beginStudySession(session: Session, frictionBefore: number) { return request<{ session: { id: string; condition: "control" | "intervention"; stuckAt: string } }>("/study/sessions", { method: "POST", body: JSON.stringify({ frictionBefore }) }, session); }
+export async function markStudyStarted(session: Session, id: string) { return request<{ session: { id: string; startedAt: string } }>(`/study/sessions/${id}/start`, { method: "POST", body: JSON.stringify({}) }, session); }
+export async function completeStudySession(session: Session, id: string, input: { frictionAfter: number; focusOutcome: "done" | "still_stuck" | "not_recorded" }) { return request<{ session: { id: string } }>(`/study/sessions/${id}`, { method: "PATCH", body: JSON.stringify(input) }, session); }
+export async function withdrawStudy(session: Session) { await request("/study", { method: "DELETE" }, session); }

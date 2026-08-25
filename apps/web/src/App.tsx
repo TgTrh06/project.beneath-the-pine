@@ -1,8 +1,9 @@
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import type { Session } from "@supabase/supabase-js";
 import { approveWaitlist, completeHabit, createHabit, createNextAction, createWeeklyReview, deleteAccount, exportData, finishFocus, getAdminWaitlist, getBootstrap, helpMeStart, isConfigured, joinWaitlist, recordConsent, saveCheckin, sendMagicLink, startFocus, submitBrainDump, supabase } from "./api";
+import { StudyView } from "./StudyView";
 
-type View = "now" | "capture" | "habits" | "review" | "settings" | "admin";
+type View = "now" | "capture" | "habits" | "review" | "study" | "settings" | "admin";
 type TaskStatus = "ready" | "done" | "deferred";
 type Task = { id: string; title: string; minutes: number; status: TaskStatus };
 type Habit = { id: string; title: string; completed: boolean };
@@ -101,6 +102,7 @@ export function App() {
       <aside className="navigation" aria-label="Điều hướng">
         <p className="nav-label">DÀNH CHO LÚC NÀY</p>
         {([["now", "Ngay lúc này"], ["capture", "Brain Dump"], ["habits", "Nhịp nhẹ mỗi ngày"], ["review", "Nhìn lại tuần"], ["settings", "Cài đặt"]] as [View, string][]).map(([key, label]) => <button key={key} className={view === key ? "nav-item active" : "nav-item"} onClick={() => navigate(key)}>{label}</button>)}
+        <button className={view === "study" ? "nav-item active" : "nav-item"} onClick={() => navigate("study")}>Pilot study</button>
       </aside>
       <section className="content" aria-live="polite">
         {!isConfigured && <div className="demo-banner">Bạn đang xem bản local demo. Dữ liệu ở đây chỉ nằm trên thiết bị này; private beta sẽ yêu cầu đăng nhập và mã hóa nội dung.</div>}
@@ -109,6 +111,7 @@ export function App() {
         {view === "capture" && <CaptureView dump={dump} setDump={setDump} suggestions={suggestions} onCapture={capture} onChoose={acceptSuggestion} />}
         {view === "habits" && <HabitsView habits={habits} setHabits={setHabits} energy={energy} setEnergy={setEnergy} note={checkinNote} setNote={setCheckinNote} remoteSession={session} onNotice={setNotice} />}
         {view === "review" && <ReviewView created={weeklyReview} content={reviewContent} onCreate={async () => { try { setLoading(true); const review = isConfigured && session ? await createWeeklyReview(session) : null; setReviewContent(review ? { summary: review.review.summary, insight: review.review.insight, experiment: review.experiment } : { summary: "Đây là một tuần có dữ liệu để quan sát, không phải để chấm điểm.", insight: "Khi bước đầu được thu nhỏ, việc bắt đầu ít nặng hơn.", experiment: { title: "Thử bắt đầu bằng 2 phút", why: "Giảm ma sát trước khi đòi hỏi hoàn thành." } }); setWeeklyReview(true); } catch (error) { setNotice(error instanceof Error ? error.message : "Không thể tạo review."); } finally { setLoading(false); } }} />}
+        {view === "study" && <StudyView remoteSession={session} onNotice={setNotice} />}
         {view === "settings" && <SettingsView onAdmin={() => navigate("admin")} remoteSession={session} onNotice={setNotice} />}
         {view === "admin" && <AdminView remoteSession={session} onNotice={setNotice} />}
       </section>
