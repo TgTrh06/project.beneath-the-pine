@@ -1,0 +1,5 @@
+import type { ExportPrivateData } from "../../../capture/application/use-cases/ExportPrivateData.js";
+import type { HabitRepository } from "../../../habit/domain/repositories/HabitRepository.js";
+import type { TaskRepository } from "../../../task/domain/repositories/TaskRepository.js";
+import type { UserRepository } from "../../domain/UserRepository.js";
+export class ExportAccountData { public constructor(private readonly users: UserRepository, private readonly tasks: TaskRepository, private readonly habits: HabitRepository, private readonly privateData: ExportPrivateData) {} public async execute(userId: string) { return { exportedAt: new Date().toISOString(), profile: await this.users.getProfile(userId), tasks: (await this.tasks.listAll(userId)).map((task) => ({ id: task.id, userId: task.userId, title: task.getTitle(), minutes: task.getMinutes(), status: task.getStatus(), sourceBrainDumpId: task.sourceBrainDumpId })), habits: (await this.habits.listAll(userId)).map((habit) => ({ id: habit.id, userId: habit.userId, title: habit.getTitle() })), brainDumps: await this.privateData.execute(userId) }; } }

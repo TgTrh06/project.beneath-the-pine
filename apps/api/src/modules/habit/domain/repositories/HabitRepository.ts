@@ -1,0 +1,2 @@
+import type { Habit } from "../entities/Habit.js";
+export interface HabitRepository { countActive(userId: string): Promise<number>; create(habit: Habit): Promise<Habit>; findOwned(id: string, userId: string): Promise<Habit | null>; completeForDate(habitId: string, userId: string, date: string): Promise<void>; listActive(userId: string): Promise<Habit[]>; listAll(userId: string): Promise<Habit[]>; }

@@ -1,0 +1,39 @@
+services:
+  - type: web
+    name: beneath-the-pine-api
+    runtime: node
+    buildCommand: pnpm install --frozen-lockfile && pnpm --filter @beneath-the-pine/api build
+    startCommand: pnpm --filter @beneath-the-pine/api start
+    healthCheckPath: /health
+    autoDeploy: false
+    envVars:
+      - key: NODE_VERSION
+        value: 22
+      - key: WEB_ORIGIN
+        sync: false
+      - key: DATABASE_URL
+        sync: false
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: CONTENT_ENCRYPTION_KEY
+        sync: false
+      - key: ADMIN_EMAILS
+        sync: false
+
+  - type: cron
+    name: beneath-the-pine-purge
+    runtime: node
+    schedule: "0 17 * * *"
+    buildCommand: pnpm install --frozen-lockfile && pnpm --filter @beneath-the-pine/api build
+    startCommand: pnpm --filter @beneath-the-pine/api job:purge
+    envVars:
+      - key: NODE_VERSION
+        value: 22
+      - key: DATABASE_URL
+        sync: false
+      - key: CONTENT_ENCRYPTION_KEY
+        sync: false

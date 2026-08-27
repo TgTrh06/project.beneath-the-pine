@@ -1,0 +1,3 @@
+import type { FocusRepository, TaskRepository } from "../../domain/repositories/TaskRepository.js";
+import { NotFoundError } from "../../../../shared/errors/NotFoundError.js";
+export class FinishFocusSession { public constructor(private readonly focus: FocusRepository, private readonly tasks: TaskRepository) {} public async execute(userId: string, sessionId: string, outcome: "done" | "still_stuck" | "paused") { const session = await this.focus.finish(sessionId, userId, outcome); if (!session) throw new NotFoundError("Session not found"); if (outcome === "done" && session.taskId) { const task = await this.tasks.findByIdForUser(session.taskId, userId); if (task) { task.complete(); await this.tasks.update(task); } } return session; } }
