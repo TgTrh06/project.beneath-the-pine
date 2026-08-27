@@ -24,4 +24,4 @@ Mỗi ADR dùng mẫu `NNNN-short-title.md`.
 - `0003-auth-provider.md`
 - `0004-ai-provider-abstraction.md`
 - `0005-hosting-and-data-region.md`
-
+- `0006-gentle-retention-and-reminders.md`
