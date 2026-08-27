@@ -1,4 +1,6 @@
-# 05 — AI
+# 05 — Machine Learning
+
+Tài liệu trong phần này dành cho người xây dựng, đánh giá và vận hành model/dataset. Hướng dẫn coding agent triển khai ứng dụng nằm riêng ở [`../ai/`](../ai/README.md).
 
 ## Tài liệu
 

@@ -5,6 +5,7 @@
 - [Information Architecture](information-architecture.md)
 - [Core User Flows](core-user-flows.md)
 - [Focus Studio](focus-studio.md)
+- [UI/UX Blueprint](ui-ux-blueprint.md)
 - [ADHD-friendly UX Guidelines](adhd-friendly-ux.md)
 - [Wireframe Checklist](wireframe-checklist.md)
 - [Design System Foundations](design-system-foundations.md)

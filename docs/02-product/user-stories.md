@@ -1,42 +1,30 @@
-# User Stories
+# User Stories — Focus & Gentle Retention
 
-## Epic A — Account & trust
+## Focus Studio
 
-- Là người dùng, tôi muốn biết rõ khi nào AI xử lý dữ liệu của tôi để có thể quyết định đồng ý.
-- Là người dùng, tôi muốn rút consent AI mà vẫn sử dụng được task cơ bản.
-- Là người dùng, tôi muốn xuất hoặc xóa dữ liệu của mình.
+- As a user, I can focus with a timer even if I do not choose music or a theme.
+- As a user, I can use an optional audio source without it autoplaying or blocking my session.
 
-## Epic B — Clear my head
+## Open Seed
 
-- Khi đầu óc hỗn độn, tôi muốn nhập mọi thứ bằng ngôn ngữ tự nhiên.
-- Tôi muốn xem và sửa những gì AI trích xuất trước khi chúng trở thành task.
-- Tôi muốn AI hỏi ít câu nhất có thể.
+- As a user, I can leave one tiny entry point for my next visit.
+- As a user, I can dismiss or replace that seed without penalty.
 
-## Epic C — Help me start
+## Reminder
 
-- Khi bị kẹt, tôi muốn nhận một bước nhỏ có thể làm ngay.
-- Tôi muốn yêu cầu “nhỏ hơn nữa” nếu bước vẫn quá khó.
-- Tôi muốn thay đổi đề xuất mà không bị coi là thất bại.
+- As a user, I explicitly choose whether and when I want reminders.
+- As a user, I can disable a reminder immediately and know my timezone is used.
 
-## Epic D — Reset and return
+## Return
 
-- Khi kế hoạch bị phá vỡ, tôi muốn giữ lại những việc thực tế còn làm được.
-- Khi quay lại sau vài ngày, tôi muốn bắt đầu từ hôm nay.
-- Tôi muốn chủ động xem backlog thay vì bị backlog chặn màn hình.
+- As a returning user, I can start fresh, open my seed, or only check in.
+- As a returning user, I do not see a missed streak or backlog before choosing my intention.
 
-## Epic E — Reflect
+## Weekly letter
 
-- Tôi muốn biết AI dựa vào dữ liệu nào để đưa ra insight.
-- Tôi muốn đánh dấu insight đúng, sai hoặc chưa chắc.
-- Tôi muốn chọn một thay đổi nhỏ cho tuần tiếp theo.
+- As a user, I can see the facts behind a weekly observation.
+- As a user, I can say an observation is useful or inaccurate.
 
-## Mẫu acceptance criteria
+## Acceptance rule for every story
 
-Mỗi story phải bổ sung:
-
-- Given/When/Then cho happy path.
-- Empty, loading, error, offline/timeout state.
-- Accessibility acceptance criteria.
-- Analytics event và privacy check.
-- AI fallback nếu có.
-
+Specify Given/When/Then plus empty, loading, error, authorization, privacy and keyboard/mobile acceptance criteria. Use `docs/ai/retention/acceptance-matrix.md` as the minimum matrix.

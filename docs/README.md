@@ -16,6 +16,12 @@ Sản phẩm hỗ trợ tổ chức và thực hiện công việc hằng ngày.
 - Thay đổi hành vi AI phải cập nhật prompt, evaluation và safety policy cùng lúc.
 - Không đưa thông tin nhận dạng hoặc dữ liệu sức khỏe thật của người tham gia nghiên cứu vào repository.
 
+### Đọc để ra quyết định và đọc để triển khai
+
+- Các thư mục đánh số là **nguồn quyết định cho con người**: product, UX, engineering, ML, privacy và quality.
+- [ai/](ai/README.md) là **handbook cho coding AI**: thứ tự đọc, scope, contract, lát cắt triển khai và test matrix. Nó không thay thế PRD hoặc ADR.
+- Nếu handbook và tài liệu đánh số mâu thuẫn, tài liệu đánh số/ADR thắng; agent phải dừng để xin quyết định thay vì tự chọn.
+
 ## Chỉ mục
 
 | Thư mục | Nội dung | Trạng thái ban đầu |
@@ -25,7 +31,7 @@ Sản phẩm hỗ trợ tổ chức và thực hiện công việc hằng ngày.
 | [02-product](02-product/README.md) | PRD, user stories, backlog và acceptance criteria | Đã có bản v0.1 |
 | [03-design](03-design/README.md) | Kiến trúc thông tin, user flow, nguyên tắc UX | Đã có khung |
 | [04-engineering](04-engineering/README.md) | Kiến trúc, dữ liệu, API, môi trường, ADR | Đã có định hướng |
-| [05-ai](05-ai/README.md) | Phạm vi AI, output contract, prompt, evaluation, safety | Đã có định hướng |
+| [05-machine-learning](05-machine-learning/README.md) | Model, dataset, prompt, evaluation, safety và training | Đã có định hướng |
 | [06-security-privacy](06-security-privacy/README.md) | Privacy-by-design, consent, threat model | Đã có baseline |
 | [07-testing](07-testing/README.md) | Chiến lược test, test case, beta plan | Đã có baseline |
 | [08-operations](08-operations/README.md) | Hạ tầng, CI/CD, deploy, quan sát, backup | Đã có khung |
@@ -41,9 +47,10 @@ Sản phẩm hỗ trợ tổ chức và thực hiện công việc hằng ngày.
 6. [PRD](02-product/prd.md)
 7. [Technology Stack](04-engineering/technology-stack.md)
 8. [System Architecture](04-engineering/system-architecture.md)
-9. [AI Product Spec](05-ai/ai-product-spec.md)
-10. [AI Safety Policy](05-ai/ai-safety-policy.md)
-11. [Test Strategy](07-testing/test-strategy.md)
+9. [AI Product Spec](05-machine-learning/ai-product-spec.md)
+10. [AI Safety Policy](05-machine-learning/ai-safety-policy.md)
+11. [AI implementation handbook](ai/README.md)
+12. [Test Strategy](07-testing/test-strategy.md)
 
 ## Quy ước trạng thái
 
