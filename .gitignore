@@ -8,7 +8,8 @@ release/
 !.env.example
 *.log
 .openai/
-ml/data/private/*.jsonl
+ml/data/private/
 ml/artifacts/
+__pycache__/
+*.pyc
 apps/inference/.venv/
-apps/inference/__pycache__/
