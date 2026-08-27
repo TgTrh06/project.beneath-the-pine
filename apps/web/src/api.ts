@@ -1,4 +1,5 @@
 import { createClient, type Session } from "@supabase/supabase-js";
+import { logFrontendError } from "./logger";
 
 const apiUrl = import.meta.env.VITE_API_URL as string | undefined;
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string | undefined;
@@ -7,21 +8,29 @@ export const isConfigured = Boolean(apiUrl && supabaseUrl && supabaseKey);
 export const supabase = isConfigured ? createClient(supabaseUrl!, supabaseKey!, { auth: { flowType: "pkce" } }) : null;
 
 type ApiError = { error?: string; message?: string };
+class ApiRequestError extends Error { constructor(message: string, readonly status?: number, readonly code?: string) { super(message); } }
 async function request<T>(path: string, options: RequestInit = {}, session?: Session | null): Promise<T> {
-  if (!apiUrl) throw new Error("API chưa được cấu hình.");
-  const token = session?.access_token ?? (await supabase?.auth.getSession())?.data.session?.access_token;
-  const response = await fetch(`${apiUrl}${path}`, { ...options, headers: { "content-type": "application/json", ...(token ? { authorization: `Bearer ${token}` } : {}), ...options.headers } });
-  if (response.status === 204) return undefined as T;
-  const body = await response.json() as T & ApiError;
-  if (!response.ok) throw new Error(body.message ?? "Không thể hoàn thành yêu cầu lúc này.");
-  return body;
+  const method = options.method ?? "GET";
+  if (!apiUrl) { logFrontendError({ event: "api_not_configured", area: "api", method, path }); throw new ApiRequestError("API chưa được cấu hình.", undefined, "API_NOT_CONFIGURED"); }
+  try {
+    const token = session?.access_token ?? (await supabase?.auth.getSession())?.data.session?.access_token;
+    const response = await fetch(`${apiUrl}${path}`, { ...options, headers: { "content-type": "application/json", ...(token ? { authorization: `Bearer ${token}` } : {}), ...options.headers } });
+    if (response.status === 204) return undefined as T;
+    const body = await response.json() as T & ApiError;
+    if (!response.ok) throw new ApiRequestError(body.message ?? "Không thể hoàn thành yêu cầu lúc này.", response.status, body.error);
+    return body;
+  } catch (error) {
+    const apiError = error instanceof ApiRequestError ? error : new ApiRequestError("Không thể kết nối API.");
+    logFrontendError({ event: "api_request_failed", area: "api", method, path, status: apiError.status, code: apiError.code });
+    throw error;
+  }
 }
 
 export type RemoteTask = { id: string; title: string; minutes: number; status: "ready" | "done" | "deferred"; userId?: string; sourceBrainDumpId?: string | null };
 export type Bootstrap = { profile: unknown; consent: { aiProcessing: boolean; contentRetention: boolean } | null; tasks: RemoteTask[]; habits: { id: string; title: string }[]; isAdmin: boolean; quota: Record<string, { used: number; remaining: number }> };
 
 export async function joinWaitlist(input: { email: string; name?: string; context?: string }) { if (!apiUrl) return { ok: true, demo: true }; return request<{ ok: boolean }>("/waitlist", { method: "POST", body: JSON.stringify(input) }); }
-export async function sendMagicLink(email: string): Promise<void> { if (!supabase) throw new Error("Đăng nhập beta sẽ sẵn sàng khi cấu hình Supabase."); const { error } = await supabase.auth.signInWithOtp({ email, options: { emailRedirectTo: `${window.location.origin}/auth/callback` } }); if (error) throw error; }
+export async function sendMagicLink(email: string): Promise<void> { if (!supabase) { logFrontendError({ event: "auth_not_configured", area: "auth" }); throw new Error("Đăng nhập beta sẽ sẵn sàng khi cấu hình Supabase."); } const { error } = await supabase.auth.signInWithOtp({ email, options: { emailRedirectTo: `${window.location.origin}/auth/callback` } }); if (error) { logFrontendError({ event: "magic_link_failed", area: "auth", code: error.code }); throw error; } }
 export async function getBootstrap(session: Session): Promise<Bootstrap> { return request<Bootstrap>("/me/bootstrap", {}, session); }
 export async function recordConsent(session: Session): Promise<void> { await request("/consents", { method: "POST", body: JSON.stringify({ aiProcessing: true, contentRetention: true, researchAnalytics: false }) }, session); }
 export async function submitBrainDump(session: Session, content: string) { return request<{ suggestion: { candidates: Array<{ title: string; minutes: number }> } }>("/brain-dumps", { method: "POST", body: JSON.stringify({ content }) }, session); }

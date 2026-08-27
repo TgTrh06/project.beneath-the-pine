@@ -1,6 +1,9 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { App } from "./App";
+import { ErrorBoundary } from "./ErrorBoundary";
+import { installGlobalErrorLogging } from "./logger";
 import "./styles.css";
 
-createRoot(document.getElementById("root")!).render(<StrictMode><App /></StrictMode>);
+installGlobalErrorLogging();
+createRoot(document.getElementById("root")!).render(<StrictMode><ErrorBoundary><App /></ErrorBoundary></StrictMode>);
