@@ -1,17 +1,12 @@
 # Definition of Done
 
-Một story chỉ được xem là hoàn thành khi:
+A story is complete only when:
 
-- Acceptance criteria đã được đáp ứng.
-- Code review hoàn tất.
-- Typecheck, lint và automated tests pass.
-- Có test cho logic quan trọng và regression phù hợp.
-- Loading, empty, error và timeout state được xử lý.
-- Keyboard/focus/accessibility được kiểm tra.
-- Không log dữ liệu nhạy cảm ngoài thiết kế.
-- Analytics event đúng schema, không chứa raw content.
-- API/documentation được cập nhật.
-- Nếu có AI: schema validation, fallback, evaluation và prompt version đã cập nhật.
-- Đã deploy staging và smoke test.
-- Không còn bug P0/P1 liên quan story.
-
+- Its acceptance criteria and `docs/ai/retention/acceptance-matrix.md` row are met.
+- Focused tests and applicable lint/typecheck/build pass.
+- Loading, empty, recoverable error, authorization and mobile/keyboard states are handled.
+- New persistence has additive migration, RLS, export/delete behavior and forward-fix note.
+- Reminder has explicit opt-in, immediate opt-out, timezone behavior and idempotency test.
+- Analytics/logging exclude raw content, task title, audio URL and notification copy.
+- API/contract, privacy inventory, data model and ADR are updated when affected.
+- No provider, dependency, external delivery or production rollout occurs without separate approval.

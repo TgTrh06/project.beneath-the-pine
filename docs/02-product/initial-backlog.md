@@ -1,46 +1,31 @@
-# Initial Product Backlog
+# Initial Backlog — Retention Delivery
 
-## P0 — Discovery và design
+## P0 — Contracts and safety
 
-- [ ] Hoàn thành 8–12 interviews.
-- [ ] Tổng hợp findings và cập nhật problem statement.
-- [ ] Wireframe Brain Dump, Now, Reset, Return.
-- [ ] Usability test với 5 người.
-- [ ] Chốt ADR về stack và auth.
+- [ ] Engagement schemas, event names and migration/RLS plan.
+- [ ] Export/delete coverage and privacy inventory update.
+- [ ] Contract, authorization and timezone tests.
 
-## P0 — Engineering foundation
+## P0 — Backend state
 
-- [ ] Scaffold monorepo/app structure.
-- [ ] Local PostgreSQL và migration workflow.
-- [ ] Auth + user profile + timezone.
-- [ ] Consent record và AI feature gate.
-- [ ] Logging/error handling không lộ raw content.
-- [ ] CI lint, typecheck, test và build.
+- [ ] Preferences, slots, seeds and feedback repository/use cases/controllers.
+- [ ] Bootstrap return/open-seed/weekly-letter state.
+- [ ] Aggregate facts query and no-raw-content events.
 
-## P0 — Core loop
+## P0 — User experience
 
-- [ ] Task/next action CRUD tối thiểu.
-- [ ] Brain dump input và confirmation UI.
-- [ ] AI extraction contract + validation.
-- [ ] Help Me Start.
-- [ ] Focus start/completion event.
-- [ ] Reset My Day.
-- [ ] Return flow.
+- [ ] Focus Studio with optional local theme/audio.
+- [ ] Open Seed lifecycle.
+- [ ] Return ritual and Settings reminder controls.
+- [ ] Weekly letter and feedback.
 
-## P1 — Reflection
+## P1 — Operations
 
-- [ ] End-of-session check-in.
-- [ ] Weekly aggregation.
-- [ ] AI insight + evidence.
-- [ ] Insight feedback.
-- [ ] Weekly experiment.
+- [ ] In-app reminder job/query with idempotency.
+- [ ] Delivery/opt-out/return aggregate dashboard.
+- [ ] Pilot measurement and usability review.
 
-## P1 — Trust & release
+## Deferred
 
-- [ ] Export data.
-- [ ] Delete account.
-- [ ] Crisis response.
-- [ ] Observability dashboard.
-- [ ] Backup/restore test.
-- [ ] Private beta checklist.
-
+- [ ] Email provider adapter activation.
+- [ ] Push/native notification, preference sync and social/body-doubling.
