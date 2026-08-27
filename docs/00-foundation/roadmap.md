@@ -1,65 +1,48 @@
-# Roadmap
+# Roadmap — Focus & Retention Loop
 
 - **Status:** Draft
-- **Planning horizon:** 15 tuần đến private beta
-- **Last updated:** 2026-08-04
+- **Planning horizon:** Private beta đến quyết định scale
+- **Last updated:** 2026-08-27
 
-## Phase 0 — Discovery (Tuần 1–2)
+## Phase 0 — Alignment & safeguards
 
-- Phỏng vấn 8–12 người.
-- Nhật ký tự quan sát của founder trong 7–10 ngày.
-- Wizard-of-Oz: tạo thủ công kết quả Brain Dump/Help Me Start.
-- Chốt problem statement và primary JTBD.
+- Chốt product direction, PRD, metrics, data model và ADR retention/reminders.
+- Thiết kế consent, opt-out, data inventory và event taxonomy.
 
-**Gate:** ít nhất 6 người mô tả vấn đề lặp lại và chủ động muốn thử prototype.
+**Gate:** không còn mâu thuẫn giữa scope, UX, privacy và schema dự kiến.
 
-## Phase 1 — Product & UX definition (Tuần 3–4)
+## Phase 1 — Reliable core focus loop
 
-- Hoàn thiện PRD.
-- User flow và wireframe cho Brain Dump, Now, Reset, Return.
-- Usability test với 5 người.
-- Chốt architecture và ADR.
+- Hoàn thiện Brain Dump → next action → focus session → done/still stuck.
+- Focus Studio: timer, theme local, audio optional và accessibility states.
 
-**Gate:** 4/5 người hoàn thành flow prototype không cần hướng dẫn trực tiếp.
+**Gate:** người test hoàn thành focus flow trên mobile không cần hướng dẫn; không phụ thuộc audio/theme để hoàn thành task.
 
-## Phase 2 — Core implementation (Tuần 5–8)
+## Phase 2 — Gentle retention loop
 
-- Auth, profile và consent.
-- Task/next action tối thiểu.
-- Brain dump không AI trước, sau đó nối AI extraction.
-- Now và focus session.
-- Reset/Return flow.
-- Events và analytics baseline.
+- Open Seed và in-app reminder opt-in.
+- Return ritual sau 3 ngày không có core event.
+- Instrument seed/reminder/return events và guardrails.
 
-**Gate:** core loop chạy end-to-end trên staging.
+**Gate:** user có thể tắt reminder dễ dàng; seed/return flow không lộ backlog hoặc nội dung riêng.
 
-## Phase 3 — AI quality & safety (Tuần 9–10)
+## Phase 3 — Reflection with evidence
 
-- Structured output và validation.
-- Prompt versioning.
-- Evaluation dataset.
-- Safety policy và crisis flow.
-- Cost/latency telemetry.
+- Weekly letter, insight feedback và experiment tùy chọn.
+- Pine/Marten cue chỉ dùng như acknowledgment, không reward economy.
 
-**Gate:** đạt AI quality thresholds và không có safety failure nghiêm trọng trong test set.
+**Gate:** insight có evidence, feedback path và không có claim lâm sàng.
 
-## Phase 4 — Reflection & visual identity (Tuần 11–12)
+## Phase 4 — Private beta measurement
 
-- End-of-session check-in.
-- Weekly review có evidence.
-- Weekly experiment.
-- Pine tree/growth ring tối giản.
+- Pilot 10–20 người trong 2–4 tuần.
+- Theo dõi activation, stuck-to-start, D3/D7 return, seed conversion, reminder opt-out và safety/privacy guardrails.
 
-## Phase 5 — Private beta (Tuần 13–15)
+**Gate:** quyết định giữ, điều chỉnh hoặc loại từng retention mechanic theo cohort evidence.
 
-- 10–20 người dùng trong 2–4 tuần.
-- Theo dõi activation, start rate, return rate và feedback.
-- Sửa lỗi và đánh giá go/no-go cho public beta.
+## Phase 5 — Scale only after evidence
 
-## Ngoài roadmap hiện tại
+- Chọn email provider và triển khai outbound reminder adapter nếu in-app reminder có tín hiệu.
+- Cân nhắc preference sync, native notification hoặc soundscape first-party.
 
-- Billing/freemium.
-- Calendar/task integrations.
-- Mobile native.
-- Marketplace hoặc social features.
-
+**Gate:** provider review, consent update, delivery reliability và cost/benefit được duyệt riêng.

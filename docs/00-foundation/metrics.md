@@ -1,65 +1,44 @@
-# Product Metrics
+# Product Metrics — Focus & Gentle Retention
 
 - **Status:** Draft
-- **Version:** 0.1
-- **Last updated:** 2026-08-04
+- **Version:** 0.2
+- **Last updated:** 2026-08-27
 
 ## North-star metric
 
-**Stuck-to-Start Rate:** tỷ lệ phiên người dùng chọn “Tôi bị kẹt” và bắt đầu một next action trong vòng 10 phút.
+**Stuck-to-Start Rate:** tỷ lệ stuck session có `start_event` trong 10 phút.
 
-### Công thức
-
-`Số stuck sessions có start_event trong 10 phút / Tổng stuck sessions hợp lệ`
+`stuck sessions with start_event ≤ 10 minutes / valid stuck sessions`
 
 ## Activation
 
-Người dùng được xem là activated khi trong 24 giờ đầu họ:
+Activated user trong 24 giờ đầu hoàn thành: Brain Dump hoặc manual capture, xác nhận next action và bắt đầu focus session.
 
-1. Hoàn thành một brain dump.
-2. Xác nhận một next action.
-3. Ghi nhận đã bắt đầu action đó.
+## Retention metrics
 
-## Core metrics
-
-| Metric | Ý nghĩa | Ngưỡng pilot ban đầu |
+| Metric | Definition | Pilot signal |
 |---|---|---|
-| Time to first value | Từ mở app đến next action đầu tiên | Median < 3 phút |
-| Stuck-to-Start Rate | Hiệu quả giúp bắt đầu | ≥ 50% |
-| First-step completion | Hoàn thành bước AI đề xuất | ≥ 40% |
-| Reset salvage rate | Reset dẫn đến ít nhất một start | ≥ 40% |
-| Return rate | Quay lại sau 3+ ngày vắng mặt | Theo dõi baseline |
-| Insight acceptance | Insight được xác nhận đúng/hữu ích | ≥ 60% |
-| Week-2 retained | Có core action trong tuần thứ hai | ≥ 30% pilot |
+| D3 return | Có core event 3 ngày sau activation | Theo dõi baseline |
+| D7 return | Có core event 7 ngày sau activation | Theo dõi baseline |
+| Seed conversion | Open Seed được mở và dẫn tới start trong 24h | ≥ 25% là giả thuyết ban đầu |
+| Reminder-to-start | Reminder opened dẫn tới start trong 10 phút | Theo dõi theo channel |
+| Return recovery | Return ritual hoàn thành dẫn tới core event cùng ngày | ≥ 40% là giả thuyết ban đầu |
+| Weekly letter usefulness | Feedback “hữu ích” / total feedback | ≥ 60% khi có đủ mẫu |
 
-Các ngưỡng trên là giả thuyết để ra quyết định, không phải benchmark ngành.
+Các ngưỡng là giả thuyết để học, không phải mục tiêu áp lực cho người dùng.
 
-## Guardrail metrics
+## Guardrails
 
-- Tỷ lệ AI output bị schema validation từ chối.
-- Tỷ lệ insight không có evidence.
-- Tỷ lệ người dùng sửa kết quả extraction.
-- Safety flag false positive/false negative trên eval set.
-- P95 latency cho AI action.
-- Chi phí AI trên activated user.
-- Tỷ lệ tắt notification và rút consent AI.
-- Tỷ lệ xóa tài khoản sau tuần đầu.
+- Reminder opt-out, disable rate và delivery failure rate.
+- Tỷ lệ user dismiss/skip return ritual; không diễn giải dismiss là failure cá nhân.
+- Tỷ lệ insight “chưa đúng” và insight thiếu evidence.
+- P95 latency, AI cost, schema validation failure và error rate.
+- Zero raw content trong product analytics hoặc notification payload.
 
-## Events tối thiểu
+## Event taxonomy
 
-- `brain_dump_created`
-- `brain_dump_confirmed`
-- `next_action_selected`
-- `focus_started`
-- `focus_completed`
-- `stuck_declared`
-- `reset_started`
-- `reset_completed`
-- `return_flow_started`
-- `return_flow_completed`
-- `insight_shown`
-- `insight_feedback_submitted`
-- `weekly_experiment_created`
+Core events: `brain_dump_submitted`, `next_action_confirmed`, `start_event`, `focus_completed`, `still_stuck`, `reset_completed`.
 
-Không gửi raw brain dump, task title hoặc reflection text vào analytics bên thứ ba.
+Retention events: `open_seed_created`, `open_seed_opened`, `open_seed_dismissed`, `reminder_preference_enabled`, `reminder_preference_disabled`, `reminder_shown`, `reminder_opened`, `return_flow_started`, `return_flow_completed`, `weekly_letter_shown`, `weekly_letter_feedback_submitted`.
 
+Payload chỉ gồm pseudonymous ID, event name, timestamp, enum, duration và channel. Không có task title, Brain Dump, note, URL audio hoặc nội dung notification.

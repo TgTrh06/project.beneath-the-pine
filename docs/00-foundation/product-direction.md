@@ -1,60 +1,68 @@
-# Product Direction — Web + Mobile Prototype
+# Product Direction — Focus Companion & Gentle Return
 
 - **Status:** Approved direction
-- **Last updated:** 2026-08-09
-- **Scope:** Academic research prototype
+- **Last updated:** 2026-08-27
+- **Scope:** Private-beta research prototype
 
 ## Product definition
 
-> **Beneath the Pine là AI companion bằng tiếng Việt giúp người thường xuyên bị mắc kẹt chuyển trạng thái quá tải thành một hành động nhỏ có thể bắt đầu trong 10 phút.**
+> **Beneath the Pine là focus companion bằng tiếng Việt giúp người đang quá tải bắt đầu một hành động nhỏ, tạo một điểm vào cho lần sau và quay lại mà không bị phán xét.**
 
-Đây không phải là một Personal Growth Operating System nhiều module. Prototype tập trung kiểm chứng một vấn đề duy nhất: người dùng có bắt đầu được hành động cụ thể nhanh hơn khi có một cấu trúc hỗ trợ bên ngoài hay không.
+Sản phẩm không tối ưu việc làm nhiều hơn. Sản phẩm giảm ma sát để bắt đầu, tiếp tục hoặc trở lại với một việc phù hợp ở hiện tại.
 
 ## Audience
 
-Người Việt 20–30 tuổi đang học hoặc làm công việc trí óc, có ADHD đã được chẩn đoán hoặc tự nhận thấy khó khăn kéo dài về ưu tiên, khởi động, duy trì và quay lại với công việc.
+Người Việt 20–30 tuổi học tập hoặc làm việc trí óc, thường gặp khó khăn với ưu tiên, khởi động, duy trì và quay lại với công việc. Đây là phân khúc hành vi; sản phẩm không chẩn đoán, điều trị hoặc đưa ra tư vấn y khoa.
 
-Đây là phân khúc theo hành vi, không phải tiêu chí chẩn đoán. Sản phẩm không đưa ra chẩn đoán, điều trị hoặc tư vấn y khoa.
+## Product loop
 
-## Core loop
+`Brain Dump → làm rõ → chọn next action → Focus Studio → Open Seed → reminder đã chọn → Return ritual → Weekly letter → next action`
 
-`Brain dump → Làm rõ → Chọn một next action → Chia nhỏ nếu bị kẹt → Start → Pause/Done/Still stuck → Reset/Return`
-
-Một phiên thành công là khi người dùng chuyển từ cảm giác bị kẹt sang một `start event` cho hành động có thời lượng gợi ý 5–15 phút.
+Một phiên có giá trị khi người dùng đi từ trạng thái bị kẹt đến `start_event` trong khoảng 10 phút. Một vòng lặp retention có giá trị khi người dùng có thể quay lại mà không phải nhớ mình đã dừng ở đâu hoặc đối mặt với backlog.
 
 ## What makes it distinct
 
-- Chỉ ưu tiên một hành động phù hợp ở hiện tại, không làm người dùng đối diện cả backlog.
-- Ngôn ngữ và flow không phán xét; luôn có đường reset và quay lại.
-- AI đề xuất có cấu trúc, người dùng xác nhận mọi thay đổi.
-- Cây thông và Pine Marten tạo cảm giác đồng hành, không phải cơ chế thưởng/phạt hay lý do chính để quay lại.
+- Luôn ưu tiên một hành động phù hợp ở hiện tại thay vì hiển thị toàn bộ backlog.
+- Người dùng duyệt mọi gợi ý AI và có thể bỏ qua chúng.
+- Mỗi phiên có thể để lại một **Open Seed**: điểm vào cực nhỏ cho lần sau.
+- Reminder là opt-in, theo giờ và timezone người dùng chọn; không dùng ngôn ngữ gây tội lỗi.
+- Return ritual chào đón việc quay lại, không hiển thị streak loss hay task quá hạn trước.
+- Cây thông/Pine Marten tạo cảm giác đồng hành nhẹ, không là cơ chế thưởng phạt.
+
+## Engagement principles
+
+1. Ghi nhận sự quay lại và khởi động, không xếp hạng năng suất.
+2. Không streak, leaderboard, virtual currency, phạt vắng mặt hoặc thông báo dồn dập.
+3. Mỗi reminder phải do người dùng bật, dễ tắt và có mục đích rõ ràng.
+4. Weekly letter chỉ nêu facts có thể kiểm chứng và cho phép phản hồi “hữu ích/chưa đúng”.
+5. Âm thanh, màu sắc và animation chỉ hỗ trợ focus; không phải điều kiện để hoàn thành flow.
 
 ## Product boundaries
 
-### In the research prototype
+### In scope for private beta
 
-- Brain dump tiếng Việt.
-- AI extraction và Help Me Start có người dùng duyệt.
-- Một next action, focus session nhẹ, Reset My Day và Return flow.
-- Managed authentication, consent AI, export/delete dữ liệu cơ bản.
-- Web responsive và Android; dữ liệu online-only.
+- Brain Dump tiếng Việt, AI extraction và Help Me Start có user confirmation.
+- Một next action, timer và Focus Studio tối giản.
+- Open Seed, reminder opt-in, Return ritual và Weekly letter dựa trên facts tổng hợp.
+- Managed authentication, consent AI, export/delete dữ liệu và analytics tối thiểu.
+- Web responsive, online-only; Android web là target ưu tiên.
 
 ### Explicitly deferred
 
-- Habits, goals, notes, calendar và project management đầy đủ.
-- Streak, leaderboard, social feed, economy hoặc gamification sâu.
-- Phân tích mood/journal tự động và chatbot AI tự do.
-- Offline sync, iOS và desktop.
+- Task/calendar/notes/project management đầy đủ.
+- Social feed, leaderboard, streak, economy, shop hoặc “daily quests”.
+- Chatbot AI tự do và phân tích mood/journal tự động.
+- Push notification, iOS, desktop native và offline sync.
+- Đồng bộ preferences giữa nhiều thiết bị trước khi có tín hiệu beta rõ ràng.
 
 ## Research hypotheses
 
-- **H1:** Một next action duy nhất giảm thời gian từ stuck state đến start event.
-- **H2:** Bước khởi động dưới 15 phút tăng khả năng bắt đầu task mơ hồ hoặc lớn.
-- **H3:** Reset không phán xét hỗ trợ người dùng quay lại sau gián đoạn.
-- **H4:** AI có người dùng duyệt hữu ích hơn AI tự động thay đổi kế hoạch.
+- **H1:** Một next action dưới 15 phút giảm thời gian từ stuck state đến start event.
+- **H2:** Open Seed tăng khả năng người dùng bắt đầu phiên kế tiếp.
+- **H3:** Return ritual không phán xét tăng tỷ lệ quay lại sau gián đoạn.
+- **H4:** Reminder opt-in theo ý định người dùng tăng start rate mà không làm tăng opt-out bất thường.
+- **H5:** Weekly letter dựa trên evidence giúp người dùng thấy tiến bộ mà không tạo áp lực năng suất.
 
-## Success measure
+## Direction changes
 
-Chỉ số chính là thời gian từ lúc người dùng gửi brain dump hoặc báo “vẫn bị kẹt” đến `start_event`. Prototype hướng đến việc giúp người dùng bắt đầu trong khoảng 10 phút.
-
-Các event tối thiểu: `brain_dump_submitted`, `next_action_confirmed`, `start_event`, `focus_completed`, `still_stuck`, `reset_completed`, `return_flow_completed`. Analytics chỉ lưu ID, enum và duration cần thiết; không lưu raw brain dump hoặc journal.
+Hướng này mở rộng prototype ban đầu bằng một retention loop có chủ đích. Đây không phải chuyển hướng thành productivity suite: mọi tính năng mới phải phục vụ việc bắt đầu, quay lại hoặc giảm ma sát cho vòng lặp trên.
