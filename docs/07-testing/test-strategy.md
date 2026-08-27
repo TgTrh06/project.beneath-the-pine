@@ -1,48 +1,19 @@
-# Test Strategy
+# Test Strategy — Focus & Gentle Retention
 
-- **Status:** Baseline for the research prototype
-- **Target:** Web + Android pilot
+- **Status:** Approved baseline
+- **Last updated:** 2026-08-27
 
 ## Test layers
 
-### Unit and contract
+- **Unit/contract:** schemas, timezone threshold, seed state transitions, weekly evidence gating.
+- **Integration:** migration/RLS, API authorization, bootstrap derivation, export/delete, idempotent reminder window.
+- **UI:** Focus Studio audio-failure fallback, seed/reminder/return/letter states, keyboard and 320px behavior.
+- **Non-functional:** analytics/log inspection for prohibited content, reduced motion, provider-unavailable behavior.
 
-- Core task transitions: ready, done and deferred.
-- Stuck-to-start event timing and timezone handling.
-- Consent gates and AI structured-output validators.
-- AI result never mutates user data without confirmation.
+## Required scenarios
 
-### Integration
+The executable planning matrix is [`../ai/retention/acceptance-matrix.md`](../ai/retention/acceptance-matrix.md). Add a regression test for every privacy, timezone or opt-out defect.
 
-- API, Drizzle migrations, authentication and ownership.
-- Brain Dump Extraction and Help Me Start using synthetic fixtures.
-- Export/delete and consent withdrawal.
+## Release gate
 
-### End-to-end
-
-- Brain Dump → confirmation → Start.
-- Help Me Start → smaller action → Start.
-- Reset My Day and Return flow.
-- Manual fallback after AI timeout.
-- Responsive web and Android smoke paths.
-
-### Non-functional
-
-- Mobile touch targets, keyboard navigation and screen-reader smoke test.
-- Analytics payload inspection: no raw brain dump/journal content.
-- AI quality, safety and schema regression evaluation.
-
-## Research validation
-
-- Run moderated usability sessions with the target audience before pilot.
-- Run a small pilot of roughly 10 users.
-- Measure the interval from `brain_dump_submitted` or `still_stuck` to `start_event`.
-- Collect a short post-session rating of whether the suggested step felt concrete and non-judgmental.
-
-## Release gates
-
-- No open P0/P1 in the core loop.
-- Core web and Android paths pass.
-- AI failures retain user input and expose manual fallback.
-- Consent, export and delete smoke tests pass.
-- No medical claim appears in product copy or AI output templates.
+No P0/P1 in core focus or return; reminders cannot deliver after opt-out; Focus works without audio; no raw user content appears in analytics/logging; contract/migration tests and affected web/API checks pass.
