@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import type { Session } from "@supabase/supabase-js";
-import { beginStudySession, completeStudySession, enrollStudy, getStudy, isConfigured, markStudyStarted, withdrawStudy } from "./api";
+import { beginStudySession, completeStudySession, enrollStudy, getStudy, isConfigured, markStudyStarted, withdrawStudy } from "../../shared/api/api";
 
 type Condition = "control" | "intervention";
 export function StudyView({ remoteSession, onNotice }: { remoteSession: Session | null; onNotice: (message: string) => void }) {
