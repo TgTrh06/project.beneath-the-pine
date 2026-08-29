@@ -6,4 +6,10 @@ import { installGlobalErrorLogging } from "./shared/logging/logger";
 import "./shared/styles/global.css";
 
 installGlobalErrorLogging();
-createRoot(document.getElementById("root")!).render(<StrictMode><ErrorBoundary><App /></ErrorBoundary></StrictMode>);
+createRoot(document.getElementById("root")!).render(
+    <StrictMode>
+        <ErrorBoundary>
+            <App />
+        </ErrorBoundary>
+    </StrictMode>
+);
