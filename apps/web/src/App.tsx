@@ -1,6 +1,8 @@
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import type { Session } from "@supabase/supabase-js";
-import { approveWaitlist, completeHabit, createHabit, createNextAction, createWeeklyReview, deleteAccount, exportData, finishFocus, getAdminWaitlist, getBootstrap, helpMeStart, isConfigured, joinWaitlist, recordConsent, saveCheckin, sendMagicLink, startFocus, submitBrainDump, supabase } from "./api";
+import { approveWaitlist, completeHabit, createHabit, createNextAction, createWeeklyReview, deleteAccount, exportData, finishFocus as finishFocusSession, getAdminWaitlist, getBootstrap, helpMeStart, isConfigured, joinWaitlist, recordConsent, saveCheckin, sendMagicLink, startFocus, submitBrainDump, supabase } from "./api";
+import { FocusRoom } from "./FocusRoom";
+import { formatFocusTime, useFocusTimer } from "./focusTimer";
 import { StudyView } from "./StudyView";
 
 type View = "now" | "capture" | "habits" | "review" | "study" | "settings" | "admin";
@@ -34,9 +36,8 @@ export function App() {
   const [notice, setNotice] = useState("");
   const [activeTaskId, setActiveTaskId] = useState<string | null>(null);
   const [focusSessionId, setFocusSessionId] = useState<string | null>(null);
+  const [focusRoomOpen, setFocusRoomOpen] = useState(false);
   const [helpSuggestion, setHelpSuggestion] = useState<{ taskId: string; title: string; minutes: number } | null>(null);
-  const [seconds, setSeconds] = useState(0);
-  const [running, setRunning] = useState(false);
   const [energy, setEnergy] = useState<Energy>("medium");
   const [checkinNote, setCheckinNote] = useState("");
   const [consented, setConsented] = useState(false);
@@ -49,6 +50,7 @@ export function App() {
   const [loginOpen, setLoginOpen] = useState(false);
   const [loginMessage, setLoginMessage] = useState("");
   const [loading, setLoading] = useState(false);
+  const focusTimer = useFocusTimer();
 
   useEffect(() => { location.hash = view; }, [view]);
   useEffect(() => {
@@ -65,15 +67,9 @@ export function App() {
       setConsented(Boolean(data.consent?.aiProcessing && data.consent?.contentRetention));
     }).catch((error: Error) => setNotice(error.message));
   }, [session]);
-  useEffect(() => {
-    if (!running) return;
-    const timer = window.setInterval(() => setSeconds((value) => value <= 1 ? (setRunning(false), 0) : value - 1), 1000);
-    return () => window.clearInterval(timer);
-  }, [running]);
-
   const readyTasks = useMemo(() => tasks.filter((task) => task.status === "ready"), [tasks]);
   const activeTask = tasks.find((task) => task.id === activeTaskId) ?? readyTasks[0];
-  const format = `${String(Math.floor(seconds / 60)).padStart(2, "0")}:${String(seconds % 60).padStart(2, "0")}`;
+  const format = formatFocusTime(focusTimer.seconds);
 
   function navigate(next: View) { setView(next); setNotice(""); }
   async function capture() {
@@ -82,8 +78,20 @@ export function App() {
     try { setLoading(true); const candidates = isConfigured && session ? (await submitBrainDump(session, dump)).suggestion.candidates.map((candidate) => ({ id: id(), ...candidate, status: "ready" as const })) : makeCandidates(dump); if (!candidates.length) { setNotice("Bạn chỉ cần viết một điều đang chiếm tâm trí. Không cần sắp xếp trước."); return; } setSuggestions(candidates); setDump(""); setNotice("Mình đã biến điều bạn viết thành vài bước nhỏ. Bạn chọn một bước phù hợp nhất nhé."); } catch (error) { setNotice(error instanceof Error ? error.message : "Không thể tạo gợi ý lúc này."); } finally { setLoading(false); }
   }
   async function acceptSuggestion(task: Task) { try { setLoading(true); const confirmed = isConfigured && session ? (await createNextAction(session, task)).task : task; setTasks((current) => [{ ...confirmed, status: "ready" }, ...current]); setSuggestions([]); setView("now"); setNotice("Đã giữ lại bước này. Chỉ cần bắt đầu trong vài phút thôi."); } catch (error) { setNotice(error instanceof Error ? error.message : "Không thể lưu bước này."); } finally { setLoading(false); } }
-  async function start(task: Task) { try { setLoading(true); const remote = isConfigured && session ? await startFocus(session, task.id, task.minutes) : null; setFocusSessionId(remote?.session.id ?? null); setActiveTaskId(task.id); setSeconds(task.minutes * 60); setRunning(true); setNotice("Bạn đã bắt đầu. Không cần làm hoàn hảo."); } catch (error) { setNotice(error instanceof Error ? error.message : "Không thể bắt đầu phiên này."); } finally { setLoading(false); } }
-  async function complete() { if (!activeTask) return; try { setLoading(true); if (isConfigured && session && focusSessionId) await finishFocus(session, focusSessionId, "done"); setTasks((current) => current.map((task) => task.id === activeTask.id ? { ...task, status: "done" } : task)); setRunning(false); setActiveTaskId(null); setFocusSessionId(null); setSeconds(0); setNotice("Đủ rồi. Bạn đã đưa việc này đi thêm một đoạn."); } catch (error) { setNotice(error instanceof Error ? error.message : "Không thể lưu phiên này."); } finally { setLoading(false); } }
+  async function start(task: Task) {
+    if (activeTaskId === task.id && focusTimer.status !== "idle") { focusTimer.resume(); setFocusRoomOpen(true); return; }
+    try { setLoading(true); const remote = isConfigured && session ? await startFocus(session, task.id, task.minutes) : null; setFocusSessionId(remote?.session.id ?? null); setActiveTaskId(task.id); focusTimer.start(task.minutes * 60); setFocusRoomOpen(true); setNotice("Bạn đã bắt đầu. Không cần làm hoàn hảo."); } catch (error) { setNotice(error instanceof Error ? error.message : "Không thể bắt đầu phiên này."); } finally { setLoading(false); }
+  }
+  async function finishFocus(outcome: "done" | "still_stuck") {
+    if (!activeTask) return;
+    try {
+      setLoading(true);
+      if (isConfigured && session && focusSessionId) await finishFocusSession(session, focusSessionId, outcome);
+      if (outcome === "done") setTasks((current) => current.map((task) => task.id === activeTask.id ? { ...task, status: "done" } : task));
+      focusTimer.reset(); setActiveTaskId(null); setFocusSessionId(null); setFocusRoomOpen(false);
+      setNotice(outcome === "done" ? "Đủ rồi. Bạn đã đưa việc này đi thêm một đoạn." : "Không sao. Mình có thể làm bước này nhỏ hơn khi bạn sẵn sàng.");
+    } catch (error) { setNotice(error instanceof Error ? error.message : "Không thể lưu phiên này."); } finally { setLoading(false); }
+  }
   function smaller() { if (!activeTask) return; setTasks((current) => current.map((task) => task.id === activeTask.id ? { ...task, title: `Chỉ mở phần liên quan đến “${task.title.slice(0, 55)}”`, minutes: 2 } : task)); setNotice("Đã làm nhỏ bước tiếp theo xuống 2 phút."); }
   async function askForHelp(task: Task) { try { setLoading(true); const suggestion = isConfigured && session ? (await helpMeStart(session, task.id)).suggestion : { tinyStep: `Chỉ mở phần liên quan đến “${task.title.slice(0, 55)}”`, minutes: 2, options: [] }; setHelpSuggestion({ taskId: task.id, title: suggestion.tinyStep, minutes: suggestion.minutes }); setNotice("Mình có một bước nhỏ hơn. Bạn chọn có dùng nó hay không."); } catch (error) { setNotice(error instanceof Error ? error.message : "Không thể tạo bước nhỏ hơn."); } finally { setLoading(false); } }
   function acceptHelp() { if (!helpSuggestion) return; setTasks((current) => current.map((task) => task.id === helpSuggestion.taskId ? { ...task, title: helpSuggestion.title, minutes: helpSuggestion.minutes } : task)); setHelpSuggestion(null); setNotice("Đã thay bằng bước bạn vừa duyệt."); }
@@ -108,7 +116,7 @@ export function App() {
       <section className="content" aria-live="polite">
         {!isConfigured && <div className="demo-banner">Bạn đang xem bản local demo. Dữ liệu ở đây chỉ nằm trên thiết bị này; private beta sẽ yêu cầu đăng nhập và mã hóa nội dung.</div>}
         {notice && <div className="notice">{notice}</div>}{loading && <div className="notice">Đang chuẩn bị một bước nhỏ cho bạn…</div>}
-        {view === "now" && <NowView task={activeTask} running={running} format={format} helpSuggestion={helpSuggestion} onCapture={() => navigate("capture")} onStart={(task) => void start(task)} onPause={() => setRunning(false)} onComplete={() => void complete()} onSmaller={(task) => void askForHelp(task)} onAcceptHelp={acceptHelp} onReset={reset} onReturn={returnToToday} />}
+        {view === "now" && <NowView task={activeTask} focusStatus={focusTimer.status} format={format} helpSuggestion={helpSuggestion} onCapture={() => navigate("capture")} onStart={(task) => void start(task)} onPause={focusTimer.pause} onComplete={() => void finishFocus("done")} onSmaller={(task) => void askForHelp(task)} onAcceptHelp={acceptHelp} onReset={reset} onReturn={returnToToday} />}
         {view === "capture" && <CaptureView dump={dump} setDump={setDump} suggestions={suggestions} onCapture={capture} onChoose={acceptSuggestion} />}
         {view === "habits" && <HabitsView habits={habits} setHabits={setHabits} energy={energy} setEnergy={setEnergy} note={checkinNote} setNote={setCheckinNote} remoteSession={session} onNotice={setNotice} />}
         {view === "review" && <ReviewView created={weeklyReview} content={reviewContent} onCreate={async () => { try { setLoading(true); const review = isConfigured && session ? await createWeeklyReview(session) : null; setReviewContent(review ? { summary: review.review.summary, insight: review.review.insight, experiment: review.experiment } : { summary: "Đây là một tuần có dữ liệu để quan sát, không phải để chấm điểm.", insight: "Khi bước đầu được thu nhỏ, việc bắt đầu ít nặng hơn.", experiment: { title: "Thử bắt đầu bằng 2 phút", why: "Giảm ma sát trước khi đòi hỏi hoàn thành." } }); setWeeklyReview(true); } catch (error) { setNotice(error instanceof Error ? error.message : "Không thể tạo review."); } finally { setLoading(false); } }} />}
@@ -121,13 +129,14 @@ export function App() {
     {showConsent && <ConsentDialog onClose={() => setShowConsent(false)} onAgree={() => void approveConsent()} />}
     {waitlistOpen && <WaitlistDialog message={waitlistMessage} onClose={() => { setWaitlistOpen(false); setWaitlistMessage(""); }} onSubmit={submitWaitlist} />}
     {loginOpen && <LoginDialog message={loginMessage} onClose={() => { setLoginOpen(false); setLoginMessage(""); }} onSubmit={submitLogin} />}
+    {focusRoomOpen && activeTask && <FocusRoom task={activeTask} seconds={focusTimer.seconds} status={focusTimer.status} saving={loading} onPause={focusTimer.pause} onResume={focusTimer.resume} onDone={() => void finishFocus("done")} onStillStuck={() => void finishFocus("still_stuck")} onExit={() => { focusTimer.pause(); setFocusRoomOpen(false); setNotice("Phiên đã tạm dừng. Bạn có thể quay lại khi sẵn sàng."); }} />}
   </div>;
 }
 
-function NowView({ task, running, format, helpSuggestion, onCapture, onStart, onPause, onComplete, onSmaller, onAcceptHelp, onReset, onReturn }: { task?: Task; running: boolean; format: string; helpSuggestion: { taskId: string; title: string; minutes: number } | null; onCapture: () => void; onStart: (task: Task) => void; onPause: () => void; onComplete: () => void; onSmaller: (task: Task) => void; onAcceptHelp: () => void; onReset: () => void; onReturn: () => void }) {
+function NowView({ task, focusStatus, format, helpSuggestion, onCapture, onStart, onPause, onComplete, onSmaller, onAcceptHelp, onReset, onReturn }: { task?: Task; focusStatus: "idle" | "running" | "paused" | "finished"; format: string; helpSuggestion: { taskId: string; title: string; minutes: number } | null; onCapture: () => void; onStart: (task: Task) => void; onPause: () => void; onComplete: () => void; onSmaller: (task: Task) => void; onAcceptHelp: () => void; onReset: () => void; onReturn: () => void }) {
   return <><section className="hero"><p className="eyebrow">KHI MỌI THỨ ĐANG HƠI NHIỀU</p><h1>Bạn không cần xử lý hết.<br />Mình chỉ tìm một bước tiếp theo.</h1><p>Không cần viết đẹp hay sắp xếp trước. Bắt đầu bằng điều đang chiếm tâm trí bạn nhất.</p><button className="primary" onClick={onCapture}>Trút bớt trong đầu <span>→</span></button></section>
-    <section className="feature-card next-action"><div className="card-heading"><div><p className="eyebrow">NGAY LÚC NÀY</p><h2>Một bước có thể bắt đầu</h2></div><span className="symbol">♧</span></div>{task ? <><span className="minutes">{task.minutes} phút là đủ</span><h3>{task.title}</h3><p>Bạn không cần hoàn hảo. Hết thời gian, bạn có thể dừng, đổi bước nhỏ hơn hoặc tiếp tục.</p>{helpSuggestion?.taskId === task.id && <div className="notice"><strong>Gợi ý nhỏ hơn:</strong> {helpSuggestion.title}<div className="button-row"><button className="secondary" onClick={onAcceptHelp}>Dùng bước này</button></div></div>}<div className="button-row"><button className="primary" onClick={() => running ? onPause() : onStart(task)}>{running ? "Tạm dừng" : "Bắt đầu ngay"}</button><button className="secondary" onClick={() => onSmaller(task)}>Vẫn bị kẹt</button></div></> : <><h3>Hiện không có việc nào cần chen vào.</h3><button className="primary" onClick={onCapture}>Mở Brain Dump</button></>}</section>
-    <section className="two-up"><article className="feature-card timer-card"><p className="eyebrow">PHIÊN BẮT ĐẦU</p><div className="timer">{format}</div><p>{task?.title ?? "Chọn một bước phía trên để bắt đầu."}</p><div className="button-row"><button className="primary" disabled={!task || running} onClick={() => task && onStart(task)}>{running ? "Đang tập trung" : "Bắt đầu"}</button><button className="secondary" disabled={!task} onClick={onComplete}>Đã xong</button></div></article><article className="feature-card reset-card"><p className="eyebrow">KHI KẾ HOẠCH VỠ</p><h2>Reset hôm nay</h2><p>Chọn lại điều còn thực tế với năng lượng và thời gian hiện tại.</p><div className="button-row"><button className="text-action" onClick={onReset}>Lập lại nhẹ nhàng →</button><button className="text-action" onClick={onReturn}>Bắt đầu lại từ hôm nay</button></div></article></section></>;
+    <section className="feature-card next-action"><div className="card-heading"><div><p className="eyebrow">NGAY LÚC NÀY</p><h2>Một bước có thể bắt đầu</h2></div><span className="symbol">♧</span></div>{task ? <><span className="minutes">{task.minutes} phút là đủ</span><h3>{task.title}</h3><p>Bạn không cần hoàn hảo. Hết thời gian, bạn có thể dừng, đổi bước nhỏ hơn hoặc tiếp tục.</p>{helpSuggestion?.taskId === task.id && <div className="notice"><strong>Gợi ý nhỏ hơn:</strong> {helpSuggestion.title}<div className="button-row"><button className="secondary" onClick={onAcceptHelp}>Dùng bước này</button></div></div>}<div className="button-row"><button className="primary" onClick={() => focusStatus === "running" ? onPause() : onStart(task)}>{focusStatus === "running" ? "Tạm dừng" : focusStatus === "paused" || focusStatus === "finished" ? "Quay lại phiên" : "Bắt đầu ngay"}</button><button className="secondary" onClick={() => onSmaller(task)}>Vẫn bị kẹt</button></div></> : <><h3>Hiện không có việc nào cần chen vào.</h3><button className="primary" onClick={onCapture}>Mở Brain Dump</button></>}</section>
+    <section className="two-up"><article className="feature-card timer-card"><p className="eyebrow">PHIÊN BẮT ĐẦU</p><div className="timer">{format}</div><p>{task?.title ?? "Chọn một bước phía trên để bắt đầu."}</p><div className="button-row"><button className="primary" disabled={!task || focusStatus === "running"} onClick={() => task && onStart(task)}>{focusStatus === "running" ? "Đang tập trung" : focusStatus === "paused" || focusStatus === "finished" ? "Quay lại" : "Bắt đầu"}</button><button className="secondary" disabled={!task} onClick={onComplete}>Đã xong</button></div></article><article className="feature-card reset-card"><p className="eyebrow">KHI KẾ HOẠCH VỠ</p><h2>Reset hôm nay</h2><p>Chọn lại điều còn thực tế với năng lượng và thời gian hiện tại.</p><div className="button-row"><button className="text-action" onClick={onReset}>Lập lại nhẹ nhàng →</button><button className="text-action" onClick={onReturn}>Bắt đầu lại từ hôm nay</button></div></article></section></>;
 }
 
 function CaptureView({ dump, setDump, suggestions, onCapture, onChoose }: { dump: string; setDump: (value: string) => void; suggestions: Task[]; onCapture: () => void | Promise<void>; onChoose: (task: Task) => void | Promise<void> }) { return <><section className="page-intro"><p className="eyebrow">BRAIN DUMP</p><h1>Cứ đặt xuống đây.</h1><p>Công cụ sẽ đề xuất vài bước nhỏ; không có gì được lưu thành task cho đến khi bạn chọn.</p></section><section className="feature-card"><label htmlFor="brain-dump">Điều đang chiếm tâm trí bạn</label><textarea id="brain-dump" value={dump} onChange={(e) => setDump(e.target.value)} placeholder="Ví dụ: phải nộp báo cáo; gọi cho mẹ; phòng hơi bừa; chưa biết bắt đầu từ đâu…" /><button className="primary full" onClick={() => void onCapture()}>Gợi ý một bước đầu tiên →</button></section>{suggestions.length > 0 && <section className="suggestions"><p className="eyebrow">BẠN CHỌN, CÔNG CỤ KHÔNG QUYẾT ĐỊNH THAY</p>{suggestions.map((task) => <article className="suggestion" key={task.id}><div><span className="minutes">{task.minutes} phút</span><h3>{task.title}</h3></div><button className="secondary" onClick={() => void onChoose(task)}>Chọn bước này</button></article>)}</section>}</> }
