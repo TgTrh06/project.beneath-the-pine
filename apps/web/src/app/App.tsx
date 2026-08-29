@@ -21,24 +21,345 @@ const id = () => crypto.randomUUID();
 const makeCandidates = (content: string): Task[] => content.split(/[\n;]+/).map((line) => line.replace(/^[\s\-•\d.)]+/, "").trim()).filter((line) => line.length > 2).slice(0, 4).map((title, index) => ({ id: id(), title: index === 0 ? `Mở phần liên quan đến “${title}” và viết một gạch đầu dòng` : title, minutes: index === 0 ? 5 : 10, status: "ready" }));
 
 export function App() {
-  const { view, navigate: routeTo } = useHashRouter(); const [tasks, setTasks] = useState<Task[]>(initialTasks); const [habits, setHabits] = useState<Habit[]>(initialHabits); const [dump, setDump] = useState(""); const [suggestions, setSuggestions] = useState<Task[]>([]); const [notice, setNotice] = useState(""); const [activeTaskId, setActiveTaskId] = useState<string | null>(null); const [focusSessionId, setFocusSessionId] = useState<string | null>(null); const [focusRoomOpen, setFocusRoomOpen] = useState(false); const [helpSuggestion, setHelpSuggestion] = useState<HelpSuggestion | null>(null); const [energy, setEnergy] = useState<Energy>("medium"); const [checkinNote, setCheckinNote] = useState(""); const [consented, setConsented] = useState(false); const [showConsent, setShowConsent] = useState(false); const [waitlistOpen, setWaitlistOpen] = useState(false); const [waitlistMessage, setWaitlistMessage] = useState(""); const [weeklyReview, setWeeklyReview] = useState(false); const [reviewContent, setReviewContent] = useState<WeeklyReviewContent | null>(null); const [session, setSession] = useState<Session | null>(null); const [loginOpen, setLoginOpen] = useState(false); const [loginMessage, setLoginMessage] = useState(""); const [loading, setLoading] = useState(false); const focusTimer = useFocusTimer();
+  const { view, navigate: routeTo } = useHashRouter();
 
-  useEffect(() => { if (!supabase) return; void supabase.auth.getSession().then(({ data }) => setSession(data.session)); const { data: listener } = supabase.auth.onAuthStateChange((_event, nextSession) => setSession(nextSession)); return () => listener.subscription.unsubscribe(); }, []);
-  useEffect(() => { if (!session || !isConfigured) return; void getBootstrap(session).then((data) => { setTasks(data.tasks.length ? data.tasks : []); setHabits(data.habits.map((habit) => ({ ...habit, completed: false }))); setConsented(Boolean(data.consent?.aiProcessing && data.consent?.contentRetention)); }).catch((error: Error) => setNotice(error.message)); }, [session]);
-  const readyTasks = useMemo(() => tasks.filter((task) => task.status === "ready"), [tasks]); const activeTask = tasks.find((task) => task.id === activeTaskId) ?? readyTasks[0]; const format = formatFocusTime(focusTimer.seconds);
-  const navigate = (next: View) => { routeTo(next); setNotice(""); };
-  async function capture() { if (!consented) { setShowConsent(true); return; } if (isConfigured && !session) { setLoginOpen(true); return; } try { setLoading(true); const candidates = isConfigured && session ? (await submitBrainDump(session, dump)).suggestion.candidates.map((candidate) => ({ id: id(), ...candidate, status: "ready" as const })) : makeCandidates(dump); if (!candidates.length) { setNotice("Bạn chỉ cần viết một điều đang chiếm tâm trí. Không cần sắp xếp trước."); return; } setSuggestions(candidates); setDump(""); setNotice("Mình đã biến điều bạn viết thành vài bước nhỏ. Bạn chọn một bước phù hợp nhất nhé."); } catch (error) { setNotice(error instanceof Error ? error.message : "Không thể tạo gợi ý lúc này."); } finally { setLoading(false); } }
-  async function acceptSuggestion(task: Task) { try { setLoading(true); const confirmed = isConfigured && session ? (await createNextAction(session, task)).task : task; setTasks((current) => [{ ...confirmed, status: "ready" }, ...current]); setSuggestions([]); routeTo("now"); setNotice("Đã giữ lại bước này. Chỉ cần bắt đầu trong vài phút thôi."); } catch (error) { setNotice(error instanceof Error ? error.message : "Không thể lưu bước này."); } finally { setLoading(false); } }
-  async function start(task: Task) { if (activeTaskId === task.id && focusTimer.status !== "idle") { focusTimer.resume(); setFocusRoomOpen(true); return; } try { setLoading(true); const remote = isConfigured && session ? await startFocus(session, task.id, task.minutes) : null; setFocusSessionId(remote?.session.id ?? null); setActiveTaskId(task.id); focusTimer.start(task.minutes * 60); setFocusRoomOpen(true); setNotice("Bạn đã bắt đầu. Không cần làm hoàn hảo."); } catch (error) { setNotice(error instanceof Error ? error.message : "Không thể bắt đầu phiên này."); } finally { setLoading(false); } }
-  async function finishFocus(outcome: "done" | "still_stuck") { if (!activeTask) return; try { setLoading(true); if (isConfigured && session && focusSessionId) await finishFocusSession(session, focusSessionId, outcome); if (outcome === "done") setTasks((current) => current.map((task) => task.id === activeTask.id ? { ...task, status: "done" } : task)); focusTimer.reset(); setActiveTaskId(null); setFocusSessionId(null); setFocusRoomOpen(false); setNotice(outcome === "done" ? "Đủ rồi. Bạn đã đưa việc này đi thêm một đoạn." : "Không sao. Mình có thể làm bước này nhỏ hơn khi bạn sẵn sàng."); } catch (error) { setNotice(error instanceof Error ? error.message : "Không thể lưu phiên này."); } finally { setLoading(false); } }
-  const askForHelp = async (task: Task) => { try { setLoading(true); const suggestion = isConfigured && session ? (await helpMeStart(session, task.id)).suggestion : { tinyStep: `Chỉ mở phần liên quan đến “${task.title.slice(0, 55)}”`, minutes: 2, options: [] }; setHelpSuggestion({ taskId: task.id, title: suggestion.tinyStep, minutes: suggestion.minutes }); setNotice("Mình có một bước nhỏ hơn. Bạn chọn có dùng nó hay không."); } catch (error) { setNotice(error instanceof Error ? error.message : "Không thể tạo bước nhỏ hơn."); } finally { setLoading(false); } };
-  const acceptHelp = () => { if (!helpSuggestion) return; setTasks((current) => current.map((task) => task.id === helpSuggestion.taskId ? { ...task, title: helpSuggestion.title, minutes: helpSuggestion.minutes } : task)); setHelpSuggestion(null); setNotice("Đã thay bằng bước bạn vừa duyệt."); };
-  const reset = () => { const keep = energy === "low" ? 1 : energy === "medium" ? 2 : 3; setTasks((current) => current.map((task, index) => task.status === "ready" && index >= keep ? { ...task, status: "deferred" } : task)); setNotice("Kế hoạch hôm nay đã nhẹ hơn. Những việc khác có thể chờ."); };
-  const returnToToday = () => { setTasks((current) => current.map((task) => task.status === "deferred" ? { ...task, status: "ready" } : task)); routeTo("now"); setNotice("Mình bắt đầu lại từ hôm nay. Chọn một bước nhỏ là đủ."); };
-  const submitWaitlist: SubmitEventHandler<HTMLFormElement> = async (event) => { event.preventDefault(); const data = new FormData(event.currentTarget); try { await joinWaitlist({ email: String(data.get("email")), name: String(data.get("name") || "") }); setWaitlistMessage("Bạn đã có trong waitlist. Mình sẽ gửi lời mời khi private beta mở."); event.currentTarget.reset(); } catch { setWaitlistMessage("Chưa thể gửi lúc này. Hãy thử lại sau nhé."); } };
-  const approveConsent = async () => { try { setLoading(true); setShowConsent(false); if (isConfigured && session) await recordConsent(session); setConsented(true); setNotice("Cảm ơn bạn đã đồng ý. Giờ bạn có thể Brain Dump."); } catch (error) { setNotice(error instanceof Error ? error.message : "Không thể lưu consent."); } finally { setLoading(false); } };
-  const submitLogin: SubmitEventHandler<HTMLFormElement> = async (event) => { event.preventDefault(); const email = String(new FormData(event.currentTarget).get("email")); try { await sendMagicLink(email); setLoginMessage("Đã gửi magic link. Hãy mở email để tiếp tục."); } catch (error) { setLoginMessage(error instanceof Error ? error.message : "Không thể gửi magic link."); } };
-  const createReview = async () => { try { setLoading(true); const review = isConfigured && session ? await createWeeklyReview(session) : null; setReviewContent(review ? { summary: review.review.summary, insight: review.review.insight, experiment: review.experiment } : { summary: "Đây là một tuần có dữ liệu để quan sát, không phải để chấm điểm.", insight: "Khi bước đầu được thu nhỏ, việc bắt đầu ít nặng hơn.", experiment: { title: "Thử bắt đầu bằng 2 phút", why: "Giảm ma sát trước khi đòi hỏi hoàn thành." } }); setWeeklyReview(true); } catch (error) { setNotice(error instanceof Error ? error.message : "Không thể tạo review."); } finally { setLoading(false); } };
+  const [tasks, setTasks] = useState<Task[]>(initialTasks);
+  const [habits, setHabits] = useState<Habit[]>(initialHabits);
+  const [dump, setDump] = useState("");
+  const [suggestions, setSuggestions] = useState<Task[]>([]);
+  const [notice, setNotice] = useState("");
+  const [activeTaskId, setActiveTaskId] = useState<string | null>(null);
+  const [focusSessionId, setFocusSessionId] = useState<string | null>(null);
+  const [focusRoomOpen, setFocusRoomOpen] = useState(false);
+  const [helpSuggestion, setHelpSuggestion] = useState<HelpSuggestion | null>(null);
+  const [energy, setEnergy] = useState<Energy>("medium");
+  const [checkinNote, setCheckinNote] = useState("");
+  const [consented, setConsented] = useState(false);
+  const [showConsent, setShowConsent] = useState(false);
+  const [waitlistOpen, setWaitlistOpen] = useState(false);
+  const [waitlistMessage, setWaitlistMessage] = useState("");
+  const [weeklyReview, setWeeklyReview] = useState(false);
+  const [reviewContent, setReviewContent] = useState<WeeklyReviewContent | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
+  const [loginOpen, setLoginOpen] = useState(false);
+  const [loginMessage, setLoginMessage] = useState("");
+  const [loading, setLoading] = useState(false);
+  const focusTimer = useFocusTimer();
 
-  return <AppLayout view={view} onNavigate={navigate} session={session} onOpenLogin={() => setLoginOpen(true)} onOpenWaitlist={() => setWaitlistOpen(true)}>{!isConfigured && <div className="demo-banner">Bạn đang xem bản local demo. Dữ liệu ở đây chỉ nằm trên thiết bị này; private beta sẽ yêu cầu đăng nhập và mã hóa nội dung.</div>}{notice && <div className="notice">{notice}</div>}{loading && <div className="notice">Đang chuẩn bị một bước nhỏ cho bạn…</div>}{view === "now" && <NowView task={activeTask} focusStatus={focusTimer.status} format={format} helpSuggestion={helpSuggestion} onCapture={() => navigate("capture")} onStart={(task) => void start(task)} onPause={focusTimer.pause} onComplete={() => void finishFocus("done")} onSmaller={(task) => void askForHelp(task)} onAcceptHelp={acceptHelp} onReset={reset} onReturn={returnToToday} />}{view === "capture" && <CaptureView dump={dump} setDump={setDump} suggestions={suggestions} onCapture={capture} onChoose={acceptSuggestion} />}{view === "habits" && <HabitsView habits={habits} setHabits={setHabits} energy={energy} setEnergy={setEnergy} note={checkinNote} setNote={setCheckinNote} remoteSession={session} onNotice={setNotice} />}{view === "review" && <ReviewView created={weeklyReview} content={reviewContent} onCreate={createReview} />}{view === "study" && <StudyView remoteSession={session} onNotice={setNotice} />}{view === "settings" && <SettingsView onAdmin={() => navigate("admin")} remoteSession={session} onNotice={setNotice} />}{view === "admin" && <AdminView remoteSession={session} onNotice={setNotice} />}{showConsent && <ConsentDialog onClose={() => setShowConsent(false)} onAgree={() => void approveConsent()} />}{waitlistOpen && <WaitlistDialog message={waitlistMessage} onClose={() => { setWaitlistOpen(false); setWaitlistMessage(""); }} onSubmit={submitWaitlist} />}{loginOpen && <LoginDialog message={loginMessage} onClose={() => { setLoginOpen(false); setLoginMessage(""); }} onSubmit={submitLogin} />}{focusRoomOpen && activeTask && <FocusRoom task={activeTask} seconds={focusTimer.seconds} status={focusTimer.status} saving={loading} onPause={focusTimer.pause} onResume={focusTimer.resume} onDone={() => void finishFocus("done")} onStillStuck={() => void finishFocus("still_stuck")} onExit={() => { focusTimer.pause(); setFocusRoomOpen(false); setNotice("Phiên đã tạm dừng. Bạn có thể quay lại khi sẵn sàng."); }} />}</AppLayout>;
+  useEffect(() => {
+    if (!supabase) return;
+    void supabase.auth.getSession().then(({ data }) => setSession(data.session));
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, nextSession) => setSession(nextSession));
+    return () => listener.subscription.unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    if (!session || !isConfigured) return;
+    void getBootstrap(session).then((data) => {
+      setTasks(data.tasks.length ? data.tasks : []);
+      setHabits(data.habits.map((habit) => ({ ...habit, completed: false })));
+      setConsented(Boolean(data.consent?.aiProcessing && data.consent?.contentRetention));
+    }).catch((error: Error) => setNotice(error.message));
+  }, [session]);
+
+  const readyTasks = useMemo(() => tasks.filter((task) => task.status === "ready"), [tasks]);
+  const activeTask = tasks.find((task) => task.id === activeTaskId) ?? readyTasks[0];
+  const format = formatFocusTime(focusTimer.seconds);
+
+  const navigate = (next: View) => {
+    routeTo(next);
+    setNotice("");
+  };
+
+  async function capture() {
+    if (!consented) {
+      setShowConsent(true); return;
+    }
+    if (isConfigured && !session) {
+      setLoginOpen(true);
+      return;
+    }
+    try {
+      setLoading(true);
+      const candidates = isConfigured && session ?
+        (await submitBrainDump(session, dump)).suggestion.candidates.map((candidate) => ({ id: id(), ...candidate, status: "ready" as const })) :
+        makeCandidates(dump);
+      if (!candidates.length) {
+        setNotice("Bạn chỉ cần viết một điều đang chiếm tâm trí. Không cần sắp xếp trước.");
+        return;
+      }
+      setSuggestions(candidates);
+      setDump("");
+      setNotice("Mình đã biến điều bạn viết thành vài bước nhỏ. Bạn chọn một bước phù hợp nhất nhé.");
+    } catch (error) {
+      setNotice(error instanceof Error ? error.message : "Không thể tạo gợi ý lúc này.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function acceptSuggestion(task: Task) {
+    try {
+      setLoading(true);
+      const confirmed = isConfigured && session ? (await createNextAction(session, task)).task : task;
+      setTasks((current) => [{ ...confirmed, status: "ready" }, ...current]);
+      setSuggestions([]);
+      routeTo("now");
+      setNotice("Đã giữ lại bước này. Chỉ cần bắt đầu trong vài phút thôi.");
+    } catch (error) {
+      setNotice(error instanceof Error ? error.message : "Không thể lưu bước này.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function start(task: Task) {
+    if (activeTaskId === task.id && focusTimer.status !== "idle") {
+      focusTimer.resume();
+      setFocusRoomOpen(true);
+      return;
+    }
+    try {
+      setLoading(true);
+      const remote = isConfigured && session ? await startFocus(session, task.id, task.minutes) : null;
+      setFocusSessionId(remote?.session.id ?? null);
+      setActiveTaskId(task.id);
+      focusTimer.start(task.minutes * 60);
+      setFocusRoomOpen(true);
+      setNotice("Bạn đã bắt đầu. Không cần làm hoàn hảo.");
+    } catch (error) {
+      setNotice(error instanceof Error ? error.message : "Không thể bắt đầu phiên này.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function finishFocus(outcome: "done" | "still_stuck") {
+    if (!activeTask) return;
+    try {
+      setLoading(true);
+      if (isConfigured && session && focusSessionId) await finishFocusSession(session, focusSessionId, outcome);
+      if (outcome === "done") setTasks((current) => current.map((task) => task.id === activeTask.id ? { ...task, status: "done" } : task));
+      focusTimer.reset();
+      setActiveTaskId(null);
+      setFocusSessionId(null);
+      setFocusRoomOpen(false);
+      setNotice(outcome === "done" ? "Đủ rồi. Bạn đã đưa việc này đi thêm một đoạn." : "Không sao. Mình có thể làm bước này nhỏ hơn khi bạn sẵn sàng.");
+    } catch (error) {
+      setNotice(error instanceof Error ? error.message : "Không thể lưu phiên này.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  const askForHelp = async (task: Task) => {
+    try {
+      setLoading(true);
+      const suggestion = isConfigured && session ? (await helpMeStart(session, task.id)).suggestion : { tinyStep: `Chỉ mở phần liên quan đến “${task.title.slice(0, 55)}”`, minutes: 2, options: [] };
+      setHelpSuggestion({ taskId: task.id, title: suggestion.tinyStep, minutes: suggestion.minutes });
+      setNotice("Mình có một bước nhỏ hơn. Bạn chọn có dùng nó hay không.");
+    } catch (error) {
+      setNotice(error instanceof Error ? error.message : "Không thể tạo bước nhỏ hơn.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const acceptHelp = () => {
+    if (!helpSuggestion) return;
+    setTasks((current) => current.map((task) => task.id === helpSuggestion.taskId ? { ...task, title: helpSuggestion.title, minutes: helpSuggestion.minutes } : task));
+    setHelpSuggestion(null);
+    setNotice("Đã thay bằng bước bạn vừa duyệt.");
+  };
+
+  const reset = () => {
+    const keep = energy === "low" ? 1 : energy === "medium" ? 2 : 3;
+    setTasks((current) => current.map((task, index) => task.status === "ready" && index >= keep ? { ...task, status: "deferred" } : task));
+    setNotice("Kế hoạch hôm nay đã nhẹ hơn. Những việc khác có thể chờ.");
+  };
+
+  const returnToToday = () => {
+    setTasks((current) => current.map((task) => task.status === "deferred" ? { ...task, status: "ready" } : task));
+    routeTo("now");
+    setNotice("Mình bắt đầu lại từ hôm nay. Chọn một bước nhỏ là đủ.");
+  };
+
+  const submitWaitlist: SubmitEventHandler<HTMLFormElement> = async (event) => {
+    event.preventDefault(); const data = new FormData(event.currentTarget);
+    try {
+      await joinWaitlist({ email: String(data.get("email")), name: String(data.get("name") || "") });
+      setWaitlistMessage("Bạn đã có trong waitlist. Mình sẽ gửi lời mời khi private beta mở.");
+      event.currentTarget.reset();
+    } catch {
+      setWaitlistMessage("Chưa thể gửi lúc này. Hãy thử lại sau nhé.");
+    }
+  };
+
+  const approveConsent = async () => {
+    try {
+      setLoading(true);
+      setShowConsent(false);
+      if (isConfigured && session) await recordConsent(session);
+      setConsented(true);
+      setNotice("Cảm ơn bạn đã đồng ý. Giờ bạn có thể Brain Dump.");
+    } catch (error) {
+      setNotice(error instanceof Error ? error.message : "Không thể lưu consent.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const submitLogin: SubmitEventHandler<HTMLFormElement> = async (event) => {
+    event.preventDefault();
+    const email = String(new FormData(event.currentTarget).get("email"));
+    try {
+      await sendMagicLink(email);
+      setLoginMessage("Đã gửi magic link. Hãy mở email để tiếp tục.");
+    } catch (error) {
+      setLoginMessage(error instanceof Error ? error.message : "Không thể gửi magic link.");
+    }
+  };
+
+  const createReview = async () => {
+    try {
+      setLoading(true);
+      const review = isConfigured && session ? await createWeeklyReview(session) : null;
+      setReviewContent(review ? { summary: review.review.summary, insight: review.review.insight, experiment: review.experiment } : { summary: "Đây là một tuần có dữ liệu để quan sát, không phải để chấm điểm.", insight: "Khi bước đầu được thu nhỏ, việc bắt đầu ít nặng hơn.", experiment: { title: "Thử bắt đầu bằng 2 phút", why: "Giảm ma sát trước khi đòi hỏi hoàn thành." } });
+      setWeeklyReview(true);
+    } catch (error) {
+      setNotice(error instanceof Error ? error.message : "Không thể tạo review.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <AppLayout
+      view={view}
+      onNavigate={navigate}
+      session={session}
+      onOpenLogin={() => setLoginOpen(true)}
+      onOpenWaitlist={() => setWaitlistOpen(true)}
+    >
+      {!isConfigured && (
+        <div className="demo-banner">
+          Bạn đang xem bản local demo. Dữ liệu ở đây chỉ nằm trên thiết bị này;
+          private beta sẽ yêu cầu đăng nhập và mã hóa nội dung.
+        </div>
+      )}
+      {notice && <div className="notice">{notice}</div>}
+      {loading && <div className="notice">Đang chuẩn bị một bước nhỏ cho bạn…</div>}
+
+      {view === "now" && (
+        <NowView
+          task={activeTask}
+          focusStatus={focusTimer.status}
+          format={format}
+          helpSuggestion={helpSuggestion}
+          onCapture={() => navigate("capture")}
+          onStart={(task) => void start(task)}
+          onPause={focusTimer.pause}
+          onComplete={() => void finishFocus("done")}
+          onSmaller={(task) => void askForHelp(task)}
+          onAcceptHelp={acceptHelp}
+          onReset={reset}
+          onReturn={returnToToday}
+        />
+      )}
+
+      {view === "capture" && (
+        <CaptureView
+          dump={dump}
+          setDump={setDump}
+          suggestions={suggestions}
+          onCapture={capture}
+          onChoose={acceptSuggestion}
+        />
+      )}
+
+      {view === "habits" && (
+        <HabitsView
+          habits={habits}
+          setHabits={setHabits}
+          energy={energy}
+          setEnergy={setEnergy}
+          note={checkinNote}
+          setNote={setCheckinNote}
+          remoteSession={session}
+          onNotice={setNotice}
+        />
+      )}
+
+      {view === "review" && (
+        <ReviewView
+          created={weeklyReview}
+          content={reviewContent}
+          onCreate={createReview}
+        />
+      )}
+
+      {view === "study" && (
+        <StudyView
+          remoteSession={session}
+          onNotice={setNotice}
+        />
+      )}
+
+      {view === "settings" && (
+        <SettingsView
+          onAdmin={() => navigate("admin")}
+          remoteSession={session}
+          onNotice={setNotice}
+        />
+      )}
+
+      {view === "admin" && (
+        <AdminView
+          remoteSession={session}
+          onNotice={setNotice}
+        />
+      )}
+
+      {showConsent && (
+        <ConsentDialog
+          onClose={() => setShowConsent(false)}
+          onAgree={() => void approveConsent()}
+        />
+      )}
+
+      {waitlistOpen && (
+        <WaitlistDialog
+          message={waitlistMessage}
+          onClose={() => { setWaitlistOpen(false); setWaitlistMessage(""); }}
+          onSubmit={submitWaitlist}
+        />
+      )}
+
+      {loginOpen && (
+        <LoginDialog
+          message={loginMessage}
+          onClose={() => { setLoginOpen(false); setLoginMessage(""); }}
+          onSubmit={submitLogin}
+        />
+      )}
+
+      {focusRoomOpen && activeTask && (
+        <FocusRoom
+          task={activeTask}
+          seconds={focusTimer.seconds}
+          status={focusTimer.status}
+          saving={loading}
+          onPause={focusTimer.pause}
+          onResume={focusTimer.resume}
+          onDone={() => void finishFocus("done")}
+          onStillStuck={() => void finishFocus("still_stuck")}
+          onExit={() => {
+            focusTimer.pause();
+            setFocusRoomOpen(false);
+            setNotice("Phiên đã tạm dừng. Bạn có thể quay lại khi sẵn sàng.");
+          }}
+        />
+      )}
+    </AppLayout>
+  );
 }
