@@ -579,6 +579,85 @@ th {
     gap: .35rem;
 }
 
+.focus-room {
+    position: fixed;
+    z-index: 20;
+    inset: 0;
+    overflow-y: auto;
+    color: #edf4e9;
+    background: radial-gradient(circle at 82% 12%, rgba(117, 154, 111, .28), transparent 28rem), #16271e;
+}
+
+.focus-room__header,
+.focus-room__body {
+    width: min(100% - 2rem, 760px);
+    margin: 0 auto;
+}
+
+.focus-room__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 74px;
+    border-bottom: 1px solid rgba(237, 244, 233, .18);
+}
+
+.focus-room .eyebrow,
+.focus-room__status,
+.focus-room__hint {
+    color: #b8cbb8;
+}
+
+.focus-room .link-button,
+.focus-room .text-action {
+    color: #d8e7ce;
+}
+
+.focus-room__body {
+    display: grid;
+    align-content: center;
+    min-height: calc(100vh - 74px);
+    padding: clamp(2rem, 8vw, 6rem) 0;
+}
+
+.focus-room h1 {
+    max-width: 18ch;
+    margin: 1rem 0 1.4rem;
+    color: #fffdf8;
+    font-size: clamp(2.5rem, 7vw, 5.5rem);
+}
+
+.focus-room__status {
+    margin: 0 0 .45rem;
+    font-size: .9rem;
+    font-weight: 750;
+}
+
+.focus-room__timer {
+    color: #fffdf8;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: clamp(5rem, 18vw, 10rem);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -.08em;
+    line-height: .95;
+}
+
+.focus-room__hint {
+    max-width: 48ch;
+    margin: 1.5rem 0 0;
+    line-height: 1.6;
+}
+
+.focus-room__actions {
+    align-items: center;
+}
+
+.focus-room .secondary {
+    color: #e5f0df;
+    border-color: #8eae91;
+    background: transparent;
+}
+
 footer {
     padding: 0 0 2rem;
     color: #778277;
@@ -638,6 +717,21 @@ footer {
 
     .metric-grid {
         grid-template-columns: 1fr;
+    }
+
+    .focus-room__header,
+    .focus-room__body {
+        width: min(100% - 1.25rem, 760px);
+    }
+
+    .focus-room__header {
+        min-height: 64px;
+    }
+
+    .focus-room__body {
+        min-height: calc(100vh - 64px);
+        align-content: start;
+        padding-top: 2rem;
     }
 }
 
