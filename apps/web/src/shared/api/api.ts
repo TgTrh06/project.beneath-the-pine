@@ -1,5 +1,5 @@
 import { createClient, type Session } from "@supabase/supabase-js";
-import { logFrontendError } from "./logger";
+import { logFrontendError } from "../logging/logger";
 
 const apiUrl = import.meta.env.VITE_API_URL as string | undefined;
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string | undefined;

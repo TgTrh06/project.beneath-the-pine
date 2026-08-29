@@ -1,3 +1,4 @@
+// Client-safe frontend logging utilities.
 export type FrontendErrorContext = {
   event: string;
   area: "api" | "auth" | "runtime" | "react";

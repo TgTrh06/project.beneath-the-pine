@@ -1,5 +1,5 @@
 import { Component, type ErrorInfo, type ReactNode } from "react";
-import { logFrontendError } from "./logger";
+import { logFrontendError } from "../logging/logger";
 
 type Props = { children: ReactNode };
 type State = { hasError: boolean };
