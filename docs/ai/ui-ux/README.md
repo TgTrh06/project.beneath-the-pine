@@ -1,14 +1,14 @@
 # UI/UX Implementation Guide
 
-Read this only after the canonical product/design docs and before modifying a user-facing screen. This guide is implementation-oriented; [`../../03-design/ui-ux-blueprint.md`](../../03-design/ui-ux-blueprint.md) and the design system remain canonical.
+Đây là hướng dẫn thực hành cho user-facing implementation. Đọc sau tài liệu product/design canonical và trước khi sửa màn hình. [UI/UX Blueprint](../../03-design/ui-ux-blueprint.md) và design-system decisions vẫn là nguồn quyết định.
 
-## Read order
+## Tuyến đi rõ ràng qua giao diện
 
-1. [Screen specs](screen-specs.md)
-2. [Component contracts](component-contracts.md)
-3. [Responsive and accessibility](responsive-accessibility.md)
-4. [Visual QA checklist](visual-qa-checklist.md)
+1. [Screen specs](screen-specs.md) — mỗi surface phải giúp người dùng làm gì.
+2. [Component contracts](component-contracts.md) — trách nhiệm và states của component.
+3. [Responsive and accessibility](responsive-accessibility.md) — trải nghiệm còn dùng được trong điều kiện thực tế ra sao.
+4. [Visual QA checklist](visual-qa-checklist.md) — focused review trước khi bàn giao.
 
-## Rule
+## Lan can
 
-If a requested UI introduces a competing primary action, new visual language, external media behavior or a state not specified here, stop and request a design decision.
+Nếu request tạo competing primary action, visual language mới, external-media behavior hoặc state chưa được chỉ định ở đây, hãy dừng để xin design decision. Sự bình tĩnh là product requirement: dùng hierarchy, copy, spacing và state clarity trước khi thêm visual treatment.
