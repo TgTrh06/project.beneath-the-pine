@@ -1,40 +1,38 @@
 # CI/CD
 
-- **Status:** Baseline pipeline
+- **Status:** Current verification pipeline; deployment automation deferred
+- **Last updated:** 2026-09-09
 
-## Pull request pipeline
+## Current GitHub Actions pipeline
 
-1. Install với lockfile frozen.
-2. Format check.
-3. Lint.
-4. Typecheck.
-5. Unit/integration tests.
-6. Build.
-7. API/schema checks.
-8. Secret/dependency scanning.
-9. Preview environment nếu phù hợp.
+On pull requests and pushes to `main`, `.github/workflows/ci.yml`:
 
-## Main/staging pipeline
+1. Checks out the repository in separate web and Java jobs.
+2. Configures pnpm 10.32.1 and Node.js 22 with dependency caching.
+3. Runs a frozen pnpm install, lint, test and build.
+4. Configures Temurin Java 21 with Maven caching.
+5. Runs `services/mvnw -B -f services/pom.xml verify`, including PostgreSQL Testcontainers integration tests.
 
-- Tất cả PR checks.
-- Build immutable artifact.
-- Apply staging migration có log.
-- Deploy staging.
-- Smoke E2E.
+The pipeline verifies the web workspaces and Java foundation but does not deploy, run production database migrations, create a Supabase environment or perform dedicated secret/dependency scanning. Those are readiness gaps, not existing guarantees.
 
-## Production pipeline
+## Deployment policy
 
-- Manual approval trong beta.
-- Xác nhận backup và migration plan.
-- Deploy artifact đã kiểm tra ở staging.
-- Apply migration theo runbook.
-- Smoke checks và metric watch.
-- Rollback/forward-fix nếu vượt failure threshold.
+- No backend deployment manifest exists; CI never deploys the Java service.
+- Production release requires manual approval during beta.
+- Migrations are controlled release steps with logs and a compatibility plan.
+- Deploy only commits that passed the same verification commands used locally.
+- Environment secrets must never appear in workflow output or preview builds.
+- Prompt, model and provider configuration changes are versioned and reviewed like code.
 
-## Rules
+## Planned hardening
 
-- Không deploy từ máy cá nhân.
-- Không dùng `latest` tag cho artifact production.
-- Environment secrets không xuất hiện trong logs.
-- Prompt/model/config change phải có version và review như code.
+- Add compiler/style and coverage gates once the first Java business slice exists.
+- Run PostgreSQL, Redis and RabbitMQ integration tests in isolated CI dependencies for affected modules.
+- Validate message schemas and backward compatibility.
+- Build and identify each deployable independently while preserving one release correlation ID.
+- Add migration and RLS integration checks against an isolated database.
+- Add secret and dependency scanning.
+- Add staging smoke checks before production approval.
+- Preserve immutable build/release identifiers across the selected backend provider and Vercel.
 
+Each addition should be delivered as a focused change with a working failure signal; do not document a check as enforced before CI actually runs it.
