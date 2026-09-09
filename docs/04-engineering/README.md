@@ -1,24 +1,28 @@
 # 04 — Engineering
 
-Phần này giải thích cách sản phẩm trở thành một dịch vụ đáng tin cậy: stack hiện tại, system boundary, quyết định dữ liệu và quy tắc vận hành.
+This section explains how the product becomes a reliable service: its selected stack, system boundaries, data decisions and operating rules.
 
-## Hình dạng hiện tại
+## Current shape
 
-Implementation đang hoạt động gồm React 19/Vite web client, Fastify/Node API, shared Zod contracts và Supabase Postgres/Auth với Drizzle. Vercel host web build; Render được cấu hình cho API và purge job. Native mobile và desktop nằm ngoài scope hiện tại.
+The repository uses a React 19/Vite client and a Java 21/Spring Boot Core Service foundation, with retained Zod contracts and Supabase PostgreSQL/Auth migrations. Former backend business behavior still needs Java reimplementation. Redis, RabbitMQ and additional services remain later approved phases, not current dependencies.
 
-## Đọc theo công việc
+## Read by task
 
-| Khi cần… | Hãy đọc |
+| Need | Read |
 | --- | --- |
-| Hiểu runtime choices đã duyệt | [Technology Stack](technology-stack.md) |
-| Theo một request xuyên hệ thống | [System Architecture](system-architecture.md) |
-| Làm việc với API module hoặc dependency boundary | [Modular Backend Architecture](modular-backend-architecture.md) |
-| Làm việc với pilot inference service | [Local Inference Architecture](local-inference-architecture.md) |
-| Thay đổi data hoặc migrations | [Data Model](data-model.md) và [API Guidelines](api-guidelines.md) |
-| Cấu hình môi trường local/deployed | [Environment & Configuration](environment-and-config.md) |
-| Chuẩn bị hoặc review implementation | [Engineering Standards](engineering-standards.md) |
-| Ra một quyết định kiến trúc bền vững | [Architecture Decision Records](adr/README.md) |
+| Compare the current runtime with the approved Java target | [Technology Stack](technology-stack.md), [ADR-0008](adr/0008-java-spring-backend-migration.md) and [ADR-0009](adr/0009-redis-rabbitmq-microservices.md) |
+| Understand service boundaries and extraction order | [Target Microservices Architecture](microservices-architecture.md) |
+| Design commands, events, retries or cache usage | [Event-Driven Architecture](event-driven-architecture.md) and [Event Catalog](event-catalog.md) |
+| Follow a request through the system | [System Architecture](system-architecture.md) |
+| Inspect context, components, capabilities, domains and entitlement | [System Diagrams](system-diagrams.md) |
+| Follow core focus, gentle return or commercial flows | [Sequence Diagrams](sequences/README.md) |
+| Work with an API module or dependency boundary | [Modular Backend Architecture](modular-backend-architecture.md) |
+| Work with the pilot inference service | [Local Inference Architecture](local-inference-architecture.md) |
+| Change data or migrations | [Data Model](data-model.md) and [API Guidelines](api-guidelines.md) |
+| Configure local or deployed environments | [Environment and Configuration](environment-and-config.md) |
+| Prepare or review an implementation | [Engineering Standards](engineering-standards.md) |
+| Record a durable architecture choice | [Architecture Decision Records](adr/README.md) |
 
-## Ranh giới làm việc
+## Working boundary
 
-Tài liệu kiến trúc mô tả cả hình dạng mong muốn lẫn hiện tại. Khi code và tài liệu quyết định khác nhau, hãy tìm nguyên nhân và ghi ADR trước khi đổi kiến trúc đáng kể. Với delivery retention, đọc thêm [AI Implementation Handbook](../ai/README.md).
+Architecture documents describe both current and intended shapes. Diagram labels—`implemented`, `partial`, `designed`, `planned` and `future`—prevent intended capabilities from being mistaken for running code. When implementation and an accepted decision disagree, investigate and record a new ADR before making a significant architecture change. For retention delivery, also read the [AI Implementation Handbook](../ai/README.md).
