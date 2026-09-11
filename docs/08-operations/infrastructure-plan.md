@@ -1,7 +1,7 @@
 # Infrastructure Plan
 
 - **Status:** Java foundation; backend hosting undecided
-- **Last updated:** 2026-09-09
+- **Last updated:** 2026-09-10
 
 ## Current topology
 
@@ -11,7 +11,7 @@
 | Backend hosting | Not selected | Spring Boot image definition exists; no deployment manifest |
 | Scheduled lifecycle work | Not implemented | Reintroduce only with the owning Java module/worker |
 | Database | Supabase PostgreSQL target/local PostgreSQL | Retained SQL/RLS history plus new service-owned Flyway migrations |
-| Identity | Supabase Auth | Browser session plus server verification |
+| Identity | Core Service with Spring Security | First-party accounts and browser sessions implemented; production hardening pending |
 | AI | Isolated Python pilot | Provider integration into Java is not implemented |
 | CI | GitHub Actions | Web verification plus Maven/JUnit/Testcontainers verification |
 
@@ -45,7 +45,7 @@ The Core Service is a modular-monolith foundation, not a deployed product backen
 | AI processing | Java worker plus Python/external inference | Planned extraction |
 | Telemetry | Central logs, metrics and distributed traces | Required before service extraction is production-ready |
 
-The Vercel web configuration and Supabase assets remain. The obsolete Render manifest has been removed. Selecting and changing backend infrastructure requires a separately approved deployment plan. Kubernetes is not required for the planned service count.
+The Vercel web configuration and retained Supabase database assets remain. Browser sessions currently live in Core Service process memory; a multi-instance deployment must add a shared Spring Session store before horizontal scaling. Selecting and changing deployment infrastructure requires a separately approved deployment plan. Kubernetes is not required for the planned service count.
 
 ## Migration path
 

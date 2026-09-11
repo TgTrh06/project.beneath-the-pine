@@ -1,8 +1,8 @@
 # Technology Stack
 
 - **Status:** Current foundation plus approved expansion target
-- **Last updated:** 2026-09-09
-- **Decisions:** [ADR-0008](adr/0008-java-spring-backend-migration.md), [ADR-0009](adr/0009-redis-rabbitmq-microservices.md)
+- **Last updated:** 2026-09-10
+- **Decisions:** [ADR-0008](adr/0008-java-spring-backend-migration.md), [ADR-0009](adr/0009-redis-rabbitmq-microservices.md), [ADR-0010](adr/0010-first-party-spring-security-authentication.md)
 
 ## Current implemented stack
 
@@ -12,7 +12,8 @@
 | Backend foundation | Java 21 release target, Spring Boot 4.1.1, Maven 3.9.16 wrapper | Security, health, persistence foundation and service packaging | `services/pom.xml`, `services/core-service` |
 | Contracts | Zod 3 workspace package | Retained browser schemas and migration inputs | `packages/contracts` |
 | Data access | Spring Data JPA, PostgreSQL driver and Flyway | New service persistence and migrations | `services/core-service` |
-| Database/identity | Supabase PostgreSQL and Auth | Durable data, identity and RLS | Supabase configuration |
+| Identity | Spring Security, BCrypt, server-side HTTP session and CSRF protection | First-party account registration, login and authenticated identity | `services/core-service/.../identity`, `apps/web/src/shared/auth` |
+| Database history | Supabase PostgreSQL migrations | Retained schema and RLS design input | `supabase` |
 | Tests | Vitest, JUnit 5 and Testcontainers | Web checks plus Java unit/PostgreSQL integration evidence | Workspace scripts and Maven build |
 | Hosting | Vercel for the web; backend undecided | The repository does not currently define a backend deployment | `vercel.json` |
 
@@ -25,7 +26,7 @@ The Java foundation is implemented, but the former backend business routes have 
 | Web | React, Vite, TypeScript | Browser experience | Existing; retained |
 | Gateway/BFF | Java, Spring | Public routing, entry authentication, rate limiting and composition | Planned |
 | Core backend | Java 21, Spring Boot 4.1.1 | Consent, tasks, next actions, focus, capture, habits and data rights | Foundation implemented; business slices planned |
-| Security | Spring Security and Supabase JWT verification | Service-level authentication and authorization | Foundation implemented |
+| Security | Spring Security session authentication | Password verification, session/CSRF protection and service-level authorization | Implemented local baseline |
 | Persistence | PostgreSQL, Flyway, Spring Data JPA | Service-owned durable state and migrations | Foundation implemented; domain schema planned |
 | Cache/coordination | Redis | Rate limits, bounded cache, expiring idempotency, progress and locks | Planned after Java slice |
 | Broker | RabbitMQ | Durable commands/events, retry and dead-letter routing | Planned after Redis foundation |
@@ -51,7 +52,7 @@ See [Target Microservices Architecture](microservices-architecture.md) and [Even
 - Each service verifies authorization and owns its data; the gateway is not the sole security boundary.
 - PostgreSQL is the system of record. Redis stores only expiring or reconstructable state.
 - RabbitMQ delivery is at least once. Outbox/inbox and idempotent consumers are mandatory.
-- Private content and access tokens do not travel in messages by default.
+- Private content and browser session credentials do not travel in messages.
 - The core focus path degrades safely when cache, broker, Engagement or AI is unavailable.
 
 ## Explicitly excluded from the approved target

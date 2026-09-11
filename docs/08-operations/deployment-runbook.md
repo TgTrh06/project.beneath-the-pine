@@ -29,7 +29,7 @@ Do not run a migration merely because an application process starts. Do not depl
 
 1. Deploy the Java service without public routing and verify health/readiness.
 2. Apply only backward-compatible, service-owned migrations.
-3. Run contract, JWT, ownership and synthetic workflow checks against Java.
+3. Run contract, session/CSRF, ownership and synthetic workflow checks against Java.
 4. Confirm exactly one writer for every migrated entity.
 5. Expose routing for the approved slice only.
 6. Observe errors, latency, traces and data consistency through the agreed window.

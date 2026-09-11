@@ -1,8 +1,8 @@
 # Target Microservices Architecture
 
 - **Status:** Approved target; not the current runtime
-- **Last updated:** 2026-09-09
-- **Decisions:** [ADR-0008](adr/0008-java-spring-backend-migration.md), [ADR-0009](adr/0009-redis-rabbitmq-microservices.md)
+- **Last updated:** 2026-09-10
+- **Decisions:** [ADR-0008](adr/0008-java-spring-backend-migration.md), [ADR-0009](adr/0009-redis-rabbitmq-microservices.md), [ADR-0010](adr/0010-first-party-spring-security-authentication.md)
 
 ## Current and target states
 
@@ -12,7 +12,6 @@ The repository now has a React client and a Java/Spring Core Service foundation.
 flowchart TB
     Web[React and TypeScript Web]
     Gateway[Gateway or BFF\nJava and Spring]
-    Auth[Supabase Auth]
     Redis[(Redis)]
     Rabbit[RabbitMQ]
     Core[Core Service\nJava and Spring Boot]
@@ -25,8 +24,7 @@ flowchart TB
     AIDB[(AI Jobs PostgreSQL)]
     NotifyDB[(Notification PostgreSQL)]
 
-    Web -->|HTTPS JSON| Gateway
-    Gateway --> Auth
+    Web -->|HTTPS JSON, session cookie and CSRF| Gateway
     Gateway --> Redis
     Gateway --> Core
     Gateway --> Engagement
@@ -46,7 +44,7 @@ flowchart TB
 
 | Deployable | Owns | Must not own |
 | --- | --- | --- |
-| Gateway/BFF | Public routing, entry JWT verification, rate limiting, correlation IDs, response composition | Product rules, service databases, durable workflow state |
+| Gateway/BFF | Public routing, session authentication, CSRF, rate limiting, correlation IDs and response composition | Product rules, service databases, durable workflow state |
 | Core Service | Profile, consent, tasks, next actions, focus sessions, habits, capture, account data rights | Reminder delivery, provider-specific AI execution |
 | Engagement Service | Focus Seeds, return state, reminder preferences/schedules, Weekly Letter and feedback | Core task/focus records, external delivery credentials |
 | AI Service/Worker | AI jobs, provider selection, retry, schema/safety validation and result state | User authentication source, core product entities |
@@ -59,7 +57,7 @@ The first production-shaped Java backend is the Core Service as a modular monoli
 - Use synchronous HTTP when the caller needs an immediate result or explicit validation response.
 - Use RabbitMQ for durable work, fan-out events, retries and side effects that do not block the core request.
 - Do not create long synchronous service chains. Prefer a local read model or event-fed projection.
-- The browser communicates only with the Gateway/BFF and Supabase Auth.
+- The browser communicates only with the Gateway/BFF; the public entry boundary owns browser-session authentication.
 - Every internal request carries service identity, correlation context and the minimum user subject context.
 
 ## Data ownership

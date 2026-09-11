@@ -1,6 +1,6 @@
 # ADR-0008 — Java and Spring Boot Backend Replacement
 
-- **Status:** Accepted; foundation implemented
+- **Status:** Accepted; foundation implemented; identity portion superseded by [ADR-0010](0010-first-party-spring-security-authentication.md)
 - **Date:** 2026-09-09
 - **Supersedes:** [ADR-0007](0007-node-typescript-primary-stack.md) for the backend
 
@@ -14,7 +14,7 @@ The project owner chose Java as the primary backend direction to create a more d
 2. Java 21 and Spring Boot are the application-backend baseline.
 3. The former Fastify API is removed rather than kept as a parallel or fallback runtime.
 4. The Java backend begins as a modular monolith with domain-oriented modules, Spring Security, PostgreSQL, Flyway, JUnit and Testcontainers.
-5. Supabase Auth remains the identity provider. Java services verify JWTs and enforce authorization and ownership independently of any future gateway.
+5. Identity was initially assigned to Supabase Auth; [ADR-0010](0010-first-party-spring-security-authentication.md) supersedes this with first-party Spring Security sessions.
 6. Task, next action, capture, consent and focus remain together in a Core Service boundary. They are not split into entity-level services.
 7. Existing Supabase migrations are preserved as historical and product-schema inputs. No database migration or ownership transfer occurs as part of the repository restructure.
 8. The project-owned Python inference runtime remains an external model provider and never owns application authorization or business data.
@@ -44,7 +44,7 @@ Rejected. Service boundaries must first be proven inside the modular monolith. A
 
 ## Security and rollback
 
-- The foundation accepts Supabase JWTs through Spring Security and returns sanitized error envelopes with correlation IDs.
+- The foundation returns sanitized security error envelopes with correlation IDs; the current account/session mechanism is defined by ADR-0010.
 - Secrets remain environment-owned; browser-visible variables never contain privileged credentials.
 - The removed API and its history remain recoverable from Git. Restoring it would require a new decision and security review; it is not an automatic runtime rollback.
 - Schema changes must be backward compatible or have a reviewed forward-fix plan. This ADR does not authorize a production migration or deployment.

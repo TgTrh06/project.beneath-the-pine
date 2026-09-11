@@ -6,8 +6,8 @@ A person should see one primary action that fits the present moment. Retention m
 
 ## Current architecture
 
-- `apps/web`: React/Vite UI with local demo behavior when the API or Supabase is not configured.
-- `services/core-service`: Java/Spring Boot modular-monolith foundation; product modules are pending reimplementation.
+- `apps/web`: React/Vite UI with first-party session authentication and local demo behavior when the API is not configured.
+- `services/core-service`: Java/Spring Boot modular monolith with account/session authentication and the Task vertical slice.
 - `packages/contracts`: shared Zod schemas and event types.
 - `supabase`: versioned SQL migrations and row-level security.
 - Vercel: web build hosting.

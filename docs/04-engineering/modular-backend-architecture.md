@@ -1,13 +1,13 @@
 # Modular Backend Architecture
 
 - **Status:** Java foundation and module convention
-- **Last updated:** 2026-09-09
+- **Last updated:** 2026-09-10
 - **Historical stack record:** [ADR-0007](adr/0007-node-typescript-primary-stack.md)
 - **Migration decision:** [ADR-0008](adr/0008-java-spring-backend-migration.md)
 
 The backend foundation in `services/core-service` is a Spring Boot modular monolith. Product behavior will be rebuilt around these domain boundaries:
 
-- `auth`: Supabase identity adapter.
+- `identity`: first-party accounts, credential verification and browser sessions.
 - `user`: beta authorization, profile, consent, bootstrap and account data.
 - `beta`: waitlist, invitation and beta approval.
 - `task`: next actions and focus sessions.
@@ -31,7 +31,7 @@ infrastructure --------+
 - Presentation translates HTTP requests and responses.
 - Application coordinates authorization-aware use cases and ports.
 - Domain contains product rules and value semantics.
-- Infrastructure implements ports for PostgreSQL, Supabase and external providers.
+- Infrastructure implements ports for PostgreSQL and external providers; Spring Security supplies the authentication boundary.
 - Cross-module calls use explicit application contracts, not another module's infrastructure.
 
 ## Extraction rule

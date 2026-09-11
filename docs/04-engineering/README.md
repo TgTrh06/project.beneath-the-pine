@@ -4,7 +4,7 @@ This section explains how the product becomes a reliable service: its selected s
 
 ## Current shape
 
-The repository uses a React 19/Vite client and a Java 21/Spring Boot Core Service foundation, with retained Zod contracts and Supabase PostgreSQL/Auth migrations. Former backend business behavior still needs Java reimplementation. Redis, RabbitMQ and additional services remain later approved phases, not current dependencies.
+The repository uses a React 19/Vite client and a Java 21/Spring Boot Core Service with first-party account and session authentication, retained Zod contracts and Supabase PostgreSQL migration history. The Task module is the first complete business slice. Redis, RabbitMQ and additional services remain later approved phases, not current dependencies.
 
 ## Read by task
 
@@ -17,9 +17,12 @@ The repository uses a React 19/Vite client and a Java 21/Spring Boot Core Servic
 | Inspect context, components, capabilities, domains and entitlement | [System Diagrams](system-diagrams.md) |
 | Follow core focus, gentle return or commercial flows | [Sequence Diagrams](sequences/README.md) |
 | Work with an API module or dependency boundary | [Modular Backend Architecture](modular-backend-architecture.md) |
+| Study the first complete Java vertical slice | [Task Module](task-module.md) |
 | Work with the pilot inference service | [Local Inference Architecture](local-inference-architecture.md) |
 | Change data or migrations | [Data Model](data-model.md) and [API Guidelines](api-guidelines.md) |
+| Look up database fields, Java models, DTOs and frontend contracts | [Data Dictionary](data-dictionary.md) |
 | Configure local or deployed environments | [Environment and Configuration](environment-and-config.md) |
+| Run first-party registration and session authentication | [Local Spring Security Authentication](spring-security-local-development.md) |
 | Prepare or review an implementation | [Engineering Standards](engineering-standards.md) |
 | Record a durable architecture choice | [Architecture Decision Records](adr/README.md) |
 

@@ -1,7 +1,7 @@
 # System Diagrams — Public Focus Companion
 
 - **Status:** Draft aligned with PRD 1.0
-- **Last updated:** 2026-09-09
+- **Last updated:** 2026-09-10
 - **Legend:** `[I]` implemented, `[P]` partial, `[D]` designed, `[N]` planned, `[F]` future
 
 These diagrams describe logical boundaries and dependencies. They do not prescribe server sizing, database capacity, deployment topology or a payment provider.
@@ -18,7 +18,6 @@ flowchart LR
     api[Core Service foundation\nJava and Spring Boot]
     inference[Inference service\nPython pilot]
     db[(Application data\nPostgreSQL)]
-    identity[Identity provider\nSupabase Auth]
     model[AI model provider]
     payment[Payment provider\nFuture adapter]
     outbound[Outbound reminder provider\nFuture adapter]
@@ -26,7 +25,6 @@ flowchart LR
     user -->|capture, focus, return, settings| web
     operator -->|beta approval, support, release| web
     web -->|authenticated JSON contracts| api
-    api -->|identity verification| identity
     api -->|user-owned data| db
     api -->|structured inference request| inference
     api -.->|planned growth assistant path| model
@@ -35,7 +33,7 @@ flowchart LR
     api -.->|opted-in delivery only| outbound
 ```
 
-The Web and API own the product experience. Identity, model, payment and outbound services are external processors behind explicit boundaries. Dashed relationships are future capabilities.
+The Web and API own the product experience. The Core Service owns first-party accounts and Spring Security sessions. Model, payment and outbound services remain external processors behind explicit boundaries. Dashed relationships are future capabilities.
 
 ## 2. Runtime components and ownership
 

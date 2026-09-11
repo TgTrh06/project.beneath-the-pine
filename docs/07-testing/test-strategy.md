@@ -1,7 +1,7 @@
 # Test Strategy — Focus and Gentle Retention
 
 - **Status:** Approved baseline
-- **Last updated:** 2026-09-09
+- **Last updated:** 2026-09-10
 
 ## Stack verification
 
@@ -28,7 +28,7 @@ The approved Java target adds JUnit 5 and Testcontainers when its foundation is 
 ## Java and distributed-system gates
 
 - Contract compatibility between retained web schemas and each new Spring route.
-- Supabase JWT, role, ownership and private-content parity before route cutover.
+- Account registration, BCrypt verification, session fixation protection, CSRF, logout and ownership checks before route cutover.
 - PostgreSQL integration through isolated Testcontainers with Flyway migrations.
 - Redis TTL, namespace, cache-miss fallback, lock expiry and unavailable-cache behavior.
 - RabbitMQ publisher confirms, outbox recovery, duplicate delivery, out-of-order delivery, bounded retry and DLQ routing.
@@ -40,6 +40,8 @@ The approved Java target adds JUnit 5 and Testcontainers when its foundation is 
 ## Required scenarios
 
 The executable planning matrix is the [retention acceptance matrix](../ai/retention/acceptance-matrix.md). Add a regression test for every authorization, privacy, timezone, encryption or opt-out defect.
+
+Authentication changes additionally require registration validation, generic invalid-credential errors, password-hash checks, session creation/rotation, CSRF rejection and logout invalidation. The API must return the stable `401 UNAUTHENTICATED` envelope when no valid session exists. Ownership checks use two different account principals and prove that knowing another user's resource ID does not grant read, update or archive access. The local procedure is in [Local Spring Security Authentication](../04-engineering/spring-security-local-development.md).
 
 ## Data rules
 
