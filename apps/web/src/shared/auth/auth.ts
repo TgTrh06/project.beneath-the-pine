@@ -1,0 +1,116 @@
+import { logFrontendError } from "../logging/logger";
+
+const apiUrl = import.meta.env.VITE_API_URL as string | undefined;
+export const isAuthConfigured = Boolean(apiUrl);
+
+export type AuthSession = Readonly<{ subject: string; email: string }>;
+export type AuthCredentials = Readonly<{ email: string; password: string }>;
+
+type SessionPayload = {
+  authenticated: boolean;
+  user: { id: string; email: string } | null;
+  csrfToken: string;
+};
+type ApiError = { message?: string };
+type SessionListener = (session: AuthSession | null) => void;
+
+const listeners = new Set<SessionListener>();
+let initialization: Promise<AuthSession | null> | null = null;
+let csrfToken: string | null = null;
+
+function publishSession(session: AuthSession | null): AuthSession | null {
+  listeners.forEach((listener) => listener(session));
+  return session;
+}
+
+function readSession(payload: SessionPayload): AuthSession | null {
+  csrfToken = payload.csrfToken;
+  return payload.authenticated && payload.user
+    ? { subject: payload.user.id, email: payload.user.email }
+    : null;
+}
+
+async function parseSessionResponse(response: Response): Promise<AuthSession | null> {
+  const payload = await response.json() as SessionPayload & ApiError;
+  if (!response.ok) throw new Error(payload.message ?? "Không thể xác thực lúc này.");
+  return readSession(payload);
+}
+
+async function loadSession(): Promise<AuthSession | null> {
+  if (!apiUrl) return null;
+  const response = await fetch(`${apiUrl}/auth/session`, { credentials: "include" });
+  return parseSessionResponse(response);
+}
+
+async function submitCredentials(path: "login" | "register", credentials: AuthCredentials): Promise<AuthSession> {
+  if (!apiUrl) throw new Error("Đăng nhập chưa được cấu hình.");
+  const token = await getCsrfToken();
+  const response = await fetch(`${apiUrl}/auth/${path}`, {
+    method: "POST",
+    credentials: "include",
+    headers: { "content-type": "application/json", "X-XSRF-TOKEN": token },
+    body: JSON.stringify(credentials),
+  });
+  const session = await parseSessionResponse(response);
+  if (!session) throw new Error("Không thể tạo phiên đăng nhập.");
+  initialization = Promise.resolve(session);
+  publishSession(session);
+  return session;
+}
+
+export function subscribeToAuth(listener: SessionListener): () => void {
+  listeners.add(listener);
+  return () => listeners.delete(listener);
+}
+
+export function initializeAuth(): Promise<AuthSession | null> {
+  if (!isAuthConfigured) return Promise.resolve(null);
+  if (!initialization) {
+    initialization = loadSession()
+      .then(publishSession)
+      .catch((error: unknown) => {
+        initialization = null;
+        logFrontendError({ event: "auth_initialization_failed", area: "auth" });
+        throw error;
+      });
+  }
+  return initialization;
+}
+
+export async function login(credentials: AuthCredentials): Promise<AuthSession> {
+  try {
+    return await submitCredentials("login", credentials);
+  } catch (error) {
+    logFrontendError({ event: "login_failed", area: "auth" });
+    throw error;
+  }
+}
+
+export async function register(credentials: AuthCredentials): Promise<AuthSession> {
+  try {
+    return await submitCredentials("register", credentials);
+  } catch (error) {
+    logFrontendError({ event: "registration_failed", area: "auth" });
+    throw error;
+  }
+}
+
+export async function logout(): Promise<void> {
+  if (!apiUrl) return;
+  const token = await getCsrfToken();
+  const response = await fetch(`${apiUrl}/auth/logout`, {
+    method: "POST",
+    credentials: "include",
+    headers: { "X-XSRF-TOKEN": token },
+  });
+  if (!response.ok) throw new Error("Không thể đăng xuất lúc này.");
+  csrfToken = null;
+  initialization = null;
+  publishSession(null);
+}
+
+export async function getCsrfToken(): Promise<string> {
+  if (!csrfToken) await loadSession().then(publishSession);
+  if (!csrfToken) throw new Error("Không thể tạo mã bảo vệ yêu cầu.");
+  return csrfToken;
+}

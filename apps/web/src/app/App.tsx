@@ -1,6 +1,6 @@
 import { type SubmitEventHandler, useEffect, useMemo, useState } from "react";
-import type { Session } from "@supabase/supabase-js";
-import { approveWaitlist, createNextAction, createWeeklyReview, finishFocus as finishFocusSession, getBootstrap, helpMeStart, isConfigured, joinWaitlist, recordConsent, sendMagicLink, startFocus, submitBrainDump, supabase } from "../shared/api/api";
+import { approveWaitlist, createNextAction, createWeeklyReview, finishFocus as finishFocusSession, getBootstrap, helpMeStart, isConfigured, joinWaitlist, recordConsent, startFocus, submitBrainDump } from "../shared/api/api";
+import { initializeAuth, login, register, subscribeToAuth, type AuthSession } from "../shared/auth/auth";
 import { AdminView } from "../features/admin/AdminView";
 import { ConsentDialog, LoginDialog, WaitlistDialog } from "../features/auth/dialogs";
 import { CaptureView } from "../features/capture/CaptureView";
@@ -40,17 +40,18 @@ export function App() {
   const [waitlistMessage, setWaitlistMessage] = useState("");
   const [weeklyReview, setWeeklyReview] = useState(false);
   const [reviewContent, setReviewContent] = useState<WeeklyReviewContent | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
+  const [session, setSession] = useState<AuthSession | null>(null);
   const [loginOpen, setLoginOpen] = useState(false);
   const [loginMessage, setLoginMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const focusTimer = useFocusTimer();
 
   useEffect(() => {
-    if (!supabase) return;
-    void supabase.auth.getSession().then(({ data }) => setSession(data.session));
-    const { data: listener } = supabase.auth.onAuthStateChange((_event, nextSession) => setSession(nextSession));
-    return () => listener.subscription.unsubscribe();
+    const unsubscribe = subscribeToAuth(setSession);
+    void initializeAuth()
+      .then(setSession)
+      .catch(() => setNotice("Không thể kết nối dịch vụ đăng nhập. Hãy thử tải lại trang."));
+    return unsubscribe;
   }, []);
 
   useEffect(() => {
@@ -209,14 +210,22 @@ export function App() {
     }
   };
 
-  const submitLogin: SubmitEventHandler<HTMLFormElement> = async (event) => {
+  const submitAuth: SubmitEventHandler<HTMLFormElement> = async (event) => {
     event.preventDefault();
-    const email = String(new FormData(event.currentTarget).get("email"));
+    const form = event.currentTarget;
+    const data = new FormData(form);
+    const submitter = (event.nativeEvent as SubmitEvent).submitter as HTMLButtonElement | null;
+    const intent = submitter?.value === "register" ? "register" : "login";
     try {
-      await sendMagicLink(email);
-      setLoginMessage("Đã gửi magic link. Hãy mở email để tiếp tục.");
+      setLoginMessage(intent === "register" ? "Đang tạo tài khoản…" : "Đang đăng nhập…");
+      const credentials = { email: String(data.get("email")), password: String(data.get("password")) };
+      await (intent === "register" ? register(credentials) : login(credentials));
+      setLoginOpen(false);
+      setLoginMessage("");
+      form.reset();
+      setNotice(intent === "register" ? "Tài khoản đã được tạo và đăng nhập." : "Bạn đã đăng nhập.");
     } catch (error) {
-      setLoginMessage(error instanceof Error ? error.message : "Không thể gửi magic link.");
+      setLoginMessage(error instanceof Error ? error.message : "Không thể đăng nhập lúc này.");
     }
   };
 
@@ -339,7 +348,7 @@ export function App() {
         <LoginDialog
           message={loginMessage}
           onClose={() => { setLoginOpen(false); setLoginMessage(""); }}
-          onSubmit={submitLogin}
+          onSubmit={submitAuth}
         />
       )}
 

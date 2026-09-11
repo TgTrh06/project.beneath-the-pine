@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
-import type { Session } from "@supabase/supabase-js";
-import { isConfigured, supabase } from "../shared/api/api";
+import { isConfigured } from "../shared/api/api";
+import { logout, type AuthSession } from "../shared/auth/auth";
 import type { View } from "../shared/types/domain";
 import { navigationItems } from "./router";
 
@@ -14,7 +14,7 @@ export function AppLayout({
 }: {
   view: View;
   onNavigate: (view: View) => void;
-  session: Session | null;
+  session: AuthSession | null;
   onOpenLogin: () => void;
   onOpenWaitlist: () => void;
   children: ReactNode;
@@ -41,7 +41,7 @@ export function AppLayout({
           {session ? (
             <button
               className="link-button"
-              onClick={() => void supabase?.auth.signOut()}
+              onClick={() => void logout()}
             >
               Đăng xuất
             </button>
