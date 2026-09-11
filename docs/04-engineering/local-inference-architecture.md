@@ -2,19 +2,19 @@
 
 ## Boundary
 
-`services/inference-service` is an isolated pilot provider. It has no current application caller. A future Java AI adapter/worker will be its only caller; the browser must never receive the inference URL or token.
+`services/inference-service` is an isolated pilot provider. It has no current application caller. A future NestJS AI adapter/worker will be its only caller; the browser must never receive the inference URL or token.
 
 ```text
-React web → future Java AI adapter/worker → bearer-authenticated inference service
+React web → future NestJS AI adapter/worker → bearer-authenticated inference service
                                       └──→ local GGUF + adapter
 ```
 
 ## Runtime configuration
 
-- Application-side provider URL, token and timeout settings will be defined with the Java AI slice.
+- Application-side provider URL, token and timeout settings will be defined with the NestJS AI slice.
 - `BENEATH_PINE_SERVICE_TOKEN`, `BENEATH_PINE_GGUF_PATH` and `BENEATH_PINE_MODEL_VERSION` are inference-service-only.
 
-The eventual Java adapter must validate output and provide deterministic fallback behavior. No provider exception, prompt, raw output or bearer token may be logged.
+The eventual NestJS adapter must validate output and provide deterministic fallback behavior. No provider exception, prompt, raw output or bearer token may be logged.
 
 ## Pilot deployment
 

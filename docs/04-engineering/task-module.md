@@ -1,132 +1,58 @@
-# Task Module
+# Task Module — NestJS + Drizzle
 
-The Task module is the first complete vertical slice in the Java Core Service. It is intentionally small enough to study, but it includes the full path from HTTP input to domain rules and PostgreSQL persistence.
+- **Trạng thái:** Contract/nghiệp vụ cần giữ và thiết kế persistence đích; chưa hoàn tất triển khai Drizzle.
+- **Owner:** Task module trong Core modular monolith.
 
-## Scope
+## Phạm vi
 
-The module owns two records:
+Task là hành động riêng của người dùng, kéo dài 1–10 phút. Next-action là snapshot xác nhận ban đầu, được tạo cùng task. Hai bản ghi cùng một transaction và owner module.
 
-- `Task`: a user-owned tiny action that takes between 1 and 10 minutes.
-- `NextAction`: the immutable confirmation created with the initial task.
+Focus lifecycle cộng tác qua application interface; AI chỉ đề xuất, người dùng xác nhận. Không tạo service riêng cho task hoặc next-action.
 
-Focus sessions, AI generation, Redis, message queues and service-to-service events are outside this slice. They should integrate through explicit application ports later instead of being added directly to the Task domain.
-
-## Package map
+## Cấu trúc đích
 
 ```text
-task/
-├── domain/          Plain Java business state and rules
-├── application/     Use cases and the TaskRepository port
-├── infrastructure/  JPA entities, Spring Data adapters and bean wiring
-└── presentation/    REST controllers, request/response DTOs and HTTP error mapping
+apps/api/src/modules/task/
+  task.module.ts
+  presentation/       # controller, validation và response mapping
+  application/        # use cases, repository port
+  domain/             # invariant và state transition
+  infrastructure/     # Drizzle schema và repository
 ```
 
-The dependency direction is inward:
+HTTP adapter → use case → domain; Drizzle repository triển khai port. Domain không import Nest HTTP hoặc Drizzle. Thư mục đích chưa được tạo bởi lần cập nhật tài liệu.
 
-```text
-HTTP/session principal ──> application use case ──> domain
-                     │
-                     └──> TaskRepository port <── JPA/PostgreSQL adapter
-```
+## Nghiệp vụ
 
-Domain classes do not import Spring, JPA or HTTP types. Application tests therefore use an in-memory repository without starting Spring or Docker.
+- Title trim rồi dài 2–280 ký tự; minutes nguyên 1–10.
+- Task mới ready; PATCH cho ready/done/deferred.
+- Archive dùng operation riêng; archived là trạng thái terminal.
+- userId lấy từ principal; query theo cả task ID và owner ID.
+- Task của người khác trả not found.
+- Confirmation giữ title/minutes/thời điểm lúc tạo, không tự cập nhật theo task.
 
-## Business rules
+## API baseline
 
-- A task title is trimmed and must contain 2–280 characters.
-- A task must take 1–10 minutes.
-- New tasks start in `ready`.
-- `PATCH` can move a task between `ready`, `done` and `deferred`.
-- Archiving uses a dedicated operation.
-- An archived task is terminal and cannot be changed.
-- The UUID in the authenticated account principal is the only source of `userId`.
-- Reads and writes always query by both task ID and user ID. A task owned by another user is reported as not found.
+| Method/route dưới /api/v1 | Input | Response |
+| --- | --- | --- |
+| POST /next-actions | title, minutes, sourceBrainDumpId tùy chọn/null | 201: task và nextAction |
+| GET /tasks | status tùy chọn; limit mặc định 50, 1–100 | 200: tasks[] |
+| GET /tasks/:taskId | UUID | 200: task |
+| PATCH /tasks/:taskId | Ít nhất một title/minutes/status khác null | 200: task đã cập nhật |
+| POST /tasks/:taskId/archive | UUID | 200: task archived |
 
-## API
+Task response: id, userId, title, minutes, status, sourceBrainDumpId nullable, createdAt, updatedAt. Confirmation response: taskId, title, minutes, confirmedAt. Timestamp JSON dùng ISO-8601 UTC.
 
-All routes require a valid `BTP_SESSION` cookie. State-changing requests also require the CSRF token returned by the auth session endpoint.
+Browser baseline dùng session cookie và CSRF; React Native + Expo auth adapter cần quyết định riêng, cùng account/ownership. Cursor và mutation idempotency chưa có trong baseline; triển khai phải có compatibility plan.
 
-### Create a confirmed next action
+## Persistence đích
 
-```http
-POST /api/v1/next-actions
-Content-Type: application/json
+Drizzle map core.tasks và core.next_actions, giữ FK/unique/check constraints đã kiểm kê. core.tasks.user_id liên kết core.accounts; next_actions.task_id unique và cascade khi task bị xóa. source_brain_dump_id hiện không có FK trong core baseline.
 
-{
-  "title": "Open the notebook",
-  "minutes": 5,
-  "sourceBrainDumpId": null
-}
-```
+Transaction tạo task và confirmation cùng commit/rollback. Update/archive dùng conditional update hoặc row lock để bảo vệ terminal state khi đồng thời. Không gọi AI trong transaction. Xem [Drizzle Data Access](drizzle-data-access.md).
 
-The response is `201 Created` and contains both the task and its confirmation. The two rows are written in one database transaction.
+## Lỗi và kiểm chứng
 
-### List tasks
+401 UNAUTHENTICATED; 403 khi bị từ chối/CSRF; 400 VALIDATION_FAILED hoặc INVALID_TASK; 404 TASK_NOT_FOUND; 409 TASK_ARCHIVED. Error envelope có code/message/requestId/details, không có raw input hoặc SQL.
 
-```http
-GET /api/v1/tasks?status=ready&limit=50
-```
-
-`status` is optional and accepts `ready`, `done`, `deferred` or `archived`. `limit` defaults to 50 and must be between 1 and 100.
-
-### Read, update and archive
-
-```http
-GET /api/v1/tasks/{taskId}
-
-PATCH /api/v1/tasks/{taskId}
-Content-Type: application/json
-
-{
-  "title": "Write one line",
-  "minutes": 3,
-  "status": "done"
-}
-
-POST /api/v1/tasks/{taskId}/archive
-```
-
-At least one supported field is required in `PATCH`. Archiving is not accepted through `PATCH` so that this terminal transition stays explicit.
-
-## Error behavior
-
-Errors use the shared envelope with a stable `code`, safe `message`, `requestId` and optional validation details.
-
-| Situation | HTTP | Code |
-| --- | ---: | --- |
-| Missing or invalid authentication | 401 | `UNAUTHENTICATED` or `INVALID_IDENTITY` |
-| Invalid request fields or query parameters | 400 | `VALIDATION_FAILED` |
-| Domain rule violation | 400 | `INVALID_TASK` |
-| Missing task or another user's task | 404 | `TASK_NOT_FOUND` |
-| Attempt to change an archived task | 409 | `TASK_ARCHIVED` |
-
-Task titles are not written to application logs.
-
-## Persistence
-
-Flyway migration `V2__create_task_module.sql` creates `core.tasks` and `core.next_actions`. PostgreSQL check constraints repeat the most important domain invariants so invalid data cannot bypass the application layer.
-
-Flyway migration `V3__create_accounts.sql` links `tasks.user_id` to the first-party account record. The account UUID is the ownership boundary; profile details can remain a separate lifecycle when introduced.
-
-## How to study and extend this example
-
-Follow one operation end to end in this order:
-
-1. Start at `TaskController` or `NextActionController` to see boundary validation and authenticated-principal identity extraction.
-2. Open the corresponding class in `application` to see orchestration.
-3. Read `Task` for state transitions and invariants.
-4. Read `TaskRepository` before its JPA implementation to see how the application is isolated from persistence.
-5. Compare domain, application and integration tests to understand what each layer is responsible for proving.
-
-When implementing the next module, copy the dependency direction and testing strategy, not the Task-specific classes. Add cross-module behavior through a named application port or event after the business need is clear.
-
-## Validation commands
-
-From the repository root:
-
-```powershell
-.\services\mvnw.cmd -f .\services\pom.xml -B verify
-pnpm --filter @beneath-the-pine/contracts build
-```
-
-Docker Desktop must be running for the PostgreSQL Testcontainers tests. The integration test suite verifies Flyway, Hibernate schema validation, authentication, validation, ownership, CRUD behavior, archive behavior and database constraints.
+Test domain invariant, HTTP contract, hai account ownership, invalid input, transaction rollback, concurrent archive/update và DB failure. Drizzle integration phải chạy PostgreSQL thật. Không đưa lệnh tooling chưa triển khai vào tài liệu như thể đã dùng được.

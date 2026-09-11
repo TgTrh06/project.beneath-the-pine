@@ -2,6 +2,10 @@
 
 The sequence set translates PRD journeys into runtime responsibilities, including recoverable failures, privacy boundaries and idempotent side effects.
 
+## Platform and topology status
+
+Web is the first client; mobile will use the same backend contracts. The diagrams are capability designs, not a record of implemented routes. Distributed participants in AI/reminder examples are conditional; they do not mandate a gateway, broker or separate services. [Current analysis](../architecture-options.md), [API strategy](../web-mobile-api-strategy.md).
+
 ## Read by flow
 
 - [Core Focus Flow](core-focus-flow.md): capture, Brain Dump, focus lifecycle and stuck recovery.

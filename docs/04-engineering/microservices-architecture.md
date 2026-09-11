@@ -1,107 +1,28 @@
-# Target Microservices Architecture
+# Microservices — điều kiện áp dụng
 
-- **Status:** Approved target; not the current runtime
-- **Last updated:** 2026-09-10
-- **Decisions:** [ADR-0008](adr/0008-java-spring-backend-migration.md), [ADR-0009](adr/0009-redis-rabbitmq-microservices.md), [ADR-0010](adr/0010-first-party-spring-security-authentication.md)
+- **Ngày:** 2026-09-11
+- **Trạng thái:** Phương án có điều kiện, thay cho tài liệu target bắt buộc cũ.
+- **Quyết định:** ADR-0012 đã Accepted và thay thế ADR-0009. Core giữ modular monolith; tài liệu này mô tả điều kiện đánh giá lại trong tương lai.
 
-## Current and target states
+Bản so sánh chính nằm ở [Architecture Options](architecture-options.md). Mobile và web có thể dùng cùng modular monolith; số client không quyết định số service.
 
-The repository now has a React client and a Java/Spring Core Service foundation. Former backend business routes are not running and must be rebuilt as vertical slices. The distributed target remains incremental; documentation must not describe a planned dependency or service as deployed.
+## Lợi ích cần có bằng chứng
 
-```mermaid
-flowchart TB
-    Web[React and TypeScript Web]
-    Gateway[Gateway or BFF\nJava and Spring]
-    Redis[(Redis)]
-    Rabbit[RabbitMQ]
-    Core[Core Service\nJava and Spring Boot]
-    Engagement[Engagement Service\nJava and Spring Boot]
-    AI[AI Service and Worker\nJava and Spring Boot]
-    Notify[Notification Worker\nLater extraction]
-    Inference[Python Inference Service]
-    CoreDB[(Core PostgreSQL)]
-    EngagementDB[(Engagement PostgreSQL)]
-    AIDB[(AI Jobs PostgreSQL)]
-    NotifyDB[(Notification PostgreSQL)]
+Tách service khi một capability cần owner/release riêng, scale riêng có lợi ích đã đo, hoặc cần cô lập dữ liệu/quyền/lỗi mà process chung không đáp ứng. AI worker có thể là bước tách execution trước, không bắt buộc Engagement, Notification và Gateway xuất hiện cùng lúc.
 
-    Web -->|HTTPS JSON, session cookie and CSRF| Gateway
-    Gateway --> Redis
-    Gateway --> Core
-    Gateway --> Engagement
-    Gateway --> AI
-    Core --> CoreDB
-    Engagement --> EngagementDB
-    AI --> AIDB
-    Notify --> NotifyDB
-    Core <--> Rabbit
-    Engagement <--> Rabbit
-    AI <--> Rabbit
-    Notify <--> Rabbit
-    AI --> Inference
-```
+## Chi phí bắt buộc giải quyết
 
-## Service ownership
+Mỗi service phải có API/event compatibility, danh tính service, quyền dữ liệu tối thiểu, timeout/retry/backpressure, log/trace, deployment/rollback và backup/restore. Dữ liệu mỗi service có một writer; cross-service operation không được giả định là một PostgreSQL transaction.
 
-| Deployable | Owns | Must not own |
-| --- | --- | --- |
-| Gateway/BFF | Public routing, session authentication, CSRF, rate limiting, correlation IDs and response composition | Product rules, service databases, durable workflow state |
-| Core Service | Profile, consent, tasks, next actions, focus sessions, habits, capture, account data rights | Reminder delivery, provider-specific AI execution |
-| Engagement Service | Focus Seeds, return state, reminder preferences/schedules, Weekly Letter and feedback | Core task/focus records, external delivery credentials |
-| AI Service/Worker | AI jobs, provider selection, retry, schema/safety validation and result state | User authentication source, core product entities |
-| Notification Worker | External delivery attempts and provider responses | Reminder eligibility or product engagement policy |
+Cùng repository vẫn có thể là microservices; ngược lại nhiều container dùng chung bảng và phải deploy cùng lúc có thể chỉ là distributed monolith với chi phí mạng bổ sung.
 
-The first production-shaped Java backend is the Core Service as a modular monolith. The first asynchronous extraction is AI processing; the first business extraction is Engagement. Notification stays inside Engagement until outbound delivery volume and failure isolation justify separation.
+## Gate tách một service
 
-## Communication rules
+1. Xác định capability và owner, dữ liệu nó sở hữu và dữ liệu chỉ đọc qua API/projection.
+2. Chứng minh vấn đề bằng measurement hoặc yêu cầu isolation cụ thể.
+3. So sánh với tối ưu query, pool, module và worker riêng.
+4. Thiết kế contract version, migration/backfill, cutover một writer, kiểm tra consistency.
+5. Xác định failure state, recovery, reconciliation và rollback khi đã có job/message.
+6. Review tác động tới web và mobile đã phát hành; public API giữ ổn định khi internal topology thay đổi.
 
-- Use synchronous HTTP when the caller needs an immediate result or explicit validation response.
-- Use RabbitMQ for durable work, fan-out events, retries and side effects that do not block the core request.
-- Do not create long synchronous service chains. Prefer a local read model or event-fed projection.
-- The browser communicates only with the Gateway/BFF; the public entry boundary owns browser-session authentication.
-- Every internal request carries service identity, correlation context and the minimum user subject context.
-
-## Data ownership
-
-The target is database-per-service. During migration, one Supabase PostgreSQL instance may host isolated schemas and roles:
-
-```text
-core.*
-engagement.*
-ai_jobs.*
-notification.*
-integration.*
-```
-
-Each service owns its migrations and is the only writer for its schema. Cross-service foreign keys, direct joins and repository access are prohibited. A service receives required facts through a versioned API or event and stores a minimal projection.
-
-## Availability boundary
-
-Core capture, task and focus behavior must remain usable when Redis, RabbitMQ, Engagement, notification or an AI provider is unavailable. Optional systems degrade independently:
-
-- Redis failure becomes a cache miss or a controlled rate-limit degradation.
-- RabbitMQ failure leaves messages in the transactional outbox.
-- AI failure returns a safe deterministic fallback or a recoverable failed job.
-- Engagement failure delays derived return/reminder state without corrupting the completed focus session.
-- Notification failure cannot re-enable a disabled reminder.
-
-## Extraction gates
-
-A module becomes a deployable only when all gates are met:
-
-1. Ownership of behavior and data is unambiguous.
-2. Contracts and compatibility policy are versioned.
-3. Independent failure or scaling creates real value.
-4. Health, metrics, tracing, deployment and rollback exist.
-5. No shared-table writes or distributed transaction is required.
-6. Local development and integration tests remain reproducible.
-
-## Delivery phases
-
-| Phase | Result |
-| --- | --- |
-| 1 | Spring Boot foundation replaces the removed Node.js API skeleton |
-| 2 | Task/focus vertical slice implemented in Core Service with one data writer |
-| 3 | Redis for rate limiting, bounded idempotency, progress and locks |
-| 4 | RabbitMQ, outbox/inbox and asynchronous AI Worker |
-| 5 | Engagement Service consumes core events and owns engagement data |
-| 6 | Notification extraction and full distributed observability if evidence supports it |
+Không quy định trước thứ tự Redis → RabbitMQ → AI → Engagement. Broker/cache được chọn theo job/delivery requirement; thiết kế tham khảo ở [Event-Driven Architecture](event-driven-architecture.md) chưa phải hạ tầng được triển khai.

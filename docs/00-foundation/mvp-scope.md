@@ -2,11 +2,15 @@
 
 - **Status:** Draft for implementation
 - **Version:** 1.0
-- **Last updated:** 2026-09-08
+- **Last updated:** 2026-09-11
 
 ## Goal
 
 Kiểm chứng Beneath the Pine giúp người dùng bắt đầu một hành động cụ thể trong 10 phút, quay lại sau gián đoạn mà không gặp áp lực và có thể được sử dụng bởi người ngoài phạm vi đồ án.
+
+## Phân kỳ theo client
+
+MVP web là bước triển khai đầu của sản phẩm hướng mobile: dùng backend NestJS/Drizzle để kiểm chứng nghiệp vụ, account/ownership và API contracts. Mobile bắt đầu bằng cùng core loop sau [gate API](../04-engineering/web-mobile-api-strategy.md); không phải đợi tất cả tính năng public alpha hoặc trả phí trên web. SDK đã chốt React Native + Expo; hệ điều hành ra mắt đầu tiên chưa chốt.
 
 ## Must have before public alpha
 
@@ -36,7 +40,7 @@ Kiểm chứng Beneath the Pine giúp người dùng bắt đầu một hành đ
 
 - Streak, leaderboard, coins, shop, social feed hoặc gamification có tính phạt/thưởng.
 - Calendar riêng, task management đầy đủ, goals hoặc knowledge base.
-- Push notification, native mobile và offline sync.
+- Trong MVP web chưa triển khai native UI, push hoặc offline sync. Mobile UI là giai đoạn kế tiếp theo API gate; push/offline phải được duyệt riêng.
 - AI suy luận bệnh lý, mood hoặc đánh giá lâm sàng từ hành vi/nội dung.
 - Hardware sizing, database capacity topology hoặc multi-region deployment.
 
@@ -46,7 +50,7 @@ Kiểm chứng Beneath the Pine giúp người dùng bắt đầu một hành đ
 
 - Core loop và return loop chạy end-to-end trong test environment.
 - Preferences/reminders chỉ hoạt động sau opt-in; export/delete bao phủ dữ liệu mới.
-- Không có P0/P1 mở; migration có RLS và rollback note.
+- Không có P0/P1 mở; migration có ownership/constraint tests và rollback note; RLS được kiểm tra theo schema thực sự dùng, không mặc định đã có trên core.*.
 - Có baseline cho D3/D7 return, seed conversion và reminder-to-start.
 
 ### Public alpha gate

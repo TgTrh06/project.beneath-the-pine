@@ -1,8 +1,14 @@
 # Tiered Delivery Plan — Capability Map T0–T5
 
 - **Status:** Draft for implementation sequencing
-- **Last updated:** 2026-09-08
+- **Last updated:** 2026-09-11
 - **Scope:** Product and logical system design; infrastructure capacity is deferred
+
+## Client delivery overlay
+
+Mobile là nền tảng sản phẩm chính; web được xây trước với API NestJS/Drizzle dùng chung. T0–T5 là dependency capability, không phải thứ tự web hoàn tất rồi mới bắt đầu mobile. Sau API core gate, mobile triển khai một T1 vertical slice; T2–T5 tiếp tục theo evidence. Các trạng thái Implemented/Partial dưới đây phản ánh web hoặc baseline hiện có, không chứng minh mobile/Drizzle đã được triển khai.
+
+Trước mobile: chốt hệ điều hành đầu tiên cho React Native + Expo và auth lifecycle; kiểm tra cùng account đọc dữ liệu tạo trên web, contract/version, network retry và quyền sở hữu. Push/offline chưa tự động thuộc T1. Xem [Roadmap](../00-foundation/roadmap.md) và [API Strategy](../04-engineering/web-mobile-api-strategy.md).
 
 ## How to read this plan
 

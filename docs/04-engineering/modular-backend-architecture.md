@@ -1,54 +1,33 @@
 # Modular Backend Architecture
 
-- **Status:** Java foundation and module convention
-- **Last updated:** 2026-09-10
-- **Historical stack record:** [ADR-0007](adr/0007-node-typescript-primary-stack.md)
-- **Migration decision:** [ADR-0008](adr/0008-java-spring-backend-migration.md)
+- **Ngày:** 2026-09-11
+- **Trạng thái:** Accepted theo ADR-0012; đã có scaffold 12 module, chưa có business logic.
 
-The backend foundation in `services/core-service` is a Spring Boot modular monolith. Product behavior will be rebuilt around these domain boundaries:
+## Ranh giới module
 
-- `identity`: first-party accounts, credential verification and browser sessions.
-- `user`: beta authorization, profile, consent, bootstrap and account data.
-- `beta`: waitlist, invitation and beta approval.
-- `task`: next actions and focus sessions.
-- `habit`: the three-habit limit and daily completion.
-- `capture`: Brain Dump, check-in, weekly review, encrypted-content export and purge.
-- `analytics`: product events and AI quota.
+| Module/capability | Owner | Trạng thái |
+| --- | --- | --- |
+| identity | Account, credential policy, account lifecycle | Scaffold; auth còn mở |
+| profile, consent | Hai module riêng cho profile/timezone và purpose permission | Scaffold |
+| task, focus | Hai module riêng cho action và phiên focus | Scaffold; task có baseline cũ để review |
+| capture | Capture và xác nhận action thủ công | Scaffold; chưa có AI |
+| engagement | Seed, return, reminder preference trong app | Scaffold |
+| reflection, habit | Facts/template tuần và habit tối giản | Scaffold; triển khai sau core |
+| analytics | Event tối thiểu được allowlist | Scaffold; không quota/job |
+| privacy, access | Quyền dữ liệu và quyền tham gia beta, hai owner riêng | Scaffold |
 
-Each module uses `domain`, `application`, `infrastructure` and `presentation` packages only when behavior needs them. Spring configuration composes adapters and use cases. Domain and application code must not depend on Spring MVC, JPA, PostgreSQL, Supabase or provider SDKs; HTTP, persistence and provider details remain at the boundary.
+Chi tiết từng module và thứ tự triển khai: [Module Delivery Plan](module-delivery-plan.md). Chưa có nghiệp vụ, schema hoặc provider trong các business module. Platform và import checks đã có; không tạo bốn lớp thư mục rỗng.
 
-Do not create empty `workspace`, `project`, `note` or `notification` modules before the product has corresponding behavior and data. New capabilities follow the same boundaries instead of creating global controller, service or repository folders.
+Module chia theo nghiệp vụ và lý do thay đổi, không chia một service cho mỗi entity. Task và confirmation được tạo cùng transaction. Focus có thể cộng tác với task qua application API; không cần network hop để bắt đầu focus.
 
-## Dependency direction
+## Tổ chức và dependency
 
-```text
-presentation -> application -> domain
-       |               ^
-       v               |
-infrastructure --------+
-```
+Dùng module NestJS làm composition boundary. Presentation xác thực shape HTTP và map response; use case điều phối authorization/domain; domain giữ invariant; infrastructure dùng Drizzle và provider adapters. Domain/application không import Nest HTTP hoặc Drizzle table. Chỉ tạo repository port khi nó giúp giữ boundary và test use case.
 
-- Presentation translates HTTP requests and responses.
-- Application coordinates authorization-aware use cases and ports.
-- Domain contains product rules and value semantics.
-- Infrastructure implements ports for PostgreSQL and external providers; Spring Security supplies the authentication boundary.
-- Cross-module calls use explicit application contracts, not another module's infrastructure.
+Module chỉ export application contract cần dùng. Không import repository/schema của module khác; không mở quyền query chéo qua một global database package. Cross-module atomic use case cần owner và transaction context rõ ràng; read projection cần được thiết kế, không dùng join xuyên domain ngầm.
 
-## Extraction rule
+## Giới hạn của monolith
 
-A module is not a microservice by default. Extract it only when it needs independent deployment or scaling, has clear data ownership, and the operational cost is justified. A queue, cache or second runtime requires its own ADR and failure model.
+Một artifact và process tạo shared failure/release domain. Boundary chỉ là convention nếu không có review và import checks. Scale cả API có thể kém hiệu quả cho workload lệch. Tách service sau không tự động dễ chỉ vì đã có folder module.
 
-## Java migration mapping
-
-Use a domain-oriented Java structure rather than global `controller/service/repository` layers:
-
-```text
-core-service/src/main/java/.../
-├── task/{domain,application,infrastructure,presentation}
-├── focus/{domain,application,infrastructure,presentation}
-├── capture/{domain,application,infrastructure,presentation}
-├── consent/{domain,application,infrastructure,presentation}
-└── shared/
-```
-
-Task/focus is the first planned business vertical slice. The removed backend is a reference in Git, not an active writer. Engagement remains a module until the Java core and messaging reliability are proven, then follows the extraction gates in [Target Microservices Architecture](microservices-architecture.md).
+Xem [phân tích đầy đủ](architecture-options.md) và [cây thư mục](repository-structure.md). Topology đã chốt; Redis/RabbitMQ không còn là bước bắt buộc.

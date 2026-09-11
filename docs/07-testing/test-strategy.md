@@ -1,61 +1,39 @@
-# Test Strategy — Focus and Gentle Retention
+# Test Strategy — Web trước, mobile là đích chính
 
-- **Status:** Approved baseline
-- **Last updated:** 2026-09-10
+- **Ngày:** 2026-09-11
+- **Trạng thái:** Yêu cầu kiểm chứng đích; kiểm tra hiện có được phân biệt bên dưới.
 
-## Stack verification
+## Hiện trạng
 
-The repository-level release checks are:
+Web dùng Vitest và TypeScript checks. Draft NestJS cũ dùng Node test runner, Supertest và repository ports; PostgreSQL tests của draft phụ thuộc TEST_DATABASE_URL. Scaffold mới dùng Node test runner/Supertest để kiểm tra composition 12 module, config, health, errors, fail-closed access, import boundaries và driver timeout. Native tests và OpenAPI generation chưa có. [CI status](../08-operations/ci-cd.md).
 
-```sh
-pnpm lint
-pnpm test
-pnpm build
-```
+Chạy `pnpm lint:api`, `pnpm test:api`, `pnpm build:api` cho scaffold. Nhánh readiness thành công dùng injected database; timeout driver dùng local TCP endpoint không trả handshake. Đây chưa là kiểm chứng PostgreSQL schema/transaction thực tế; chưa có migration hoặc business tests.
 
-Vitest is the current test runner for web and API workspaces. TypeScript compiler checks provide the current lint/type-check gate. Do not claim a formatter, browser E2E suite, containerized database suite or coverage gate until it exists in automation.
+## Kiểm tra khi viết backend đích
 
-The approved Java target adds JUnit 5 and Testcontainers when its foundation is implemented. Until then, Java, Redis and RabbitMQ checks are planned requirements rather than passing gates.
+| Ranh giới | Evidence cần có |
+| --- | --- |
+| Domain/use case | Title/minutes/status invariant, archive terminal, validation độc lập HTTP |
+| HTTP contract | Valid/invalid/malformed payload, safe errors, output fixture, version/nullable/enum |
+| Browser auth | Register/login/logout, BCrypt limit, session rotation/expiry, CSRF, safe cookie/CORS |
+| Native auth | Sau khi chọn: PKCE/redirect nếu OAuth, secure storage, expiry/revocation/recovery, account mapping |
+| Ownership | Hai account: không đọc/list/update/archive tài nguyên nhau; không tin owner từ body |
+| Drizzle/PostgreSQL | SQL constraints, atomic task/confirmation, rollback, concurrent archive/update, pool failure |
+| Migration | Database mới và baseline migration cũ giả lập; schema equivalence, journal, no destructive replay |
+| Retry/idempotency | Timeout sau commit, duplicate request, cùng key khác payload, retention/replay |
+| Client independence | Web tạo dữ liệu, HTTP client độc lập đọc qua cùng account; không phụ thuộc browser storage |
+| AI/jobs nếu triển khai | Timeout, fallback, consent re-check, duplicate/restart/cancellation và result race |
 
-## Test layers
+Không dùng database mock thay bằng chứng PostgreSQL; mock vẫn hữu ích cho use case. Tests integration bắt buộc trong CI không được silently skip.
 
-- **Unit and contract:** Zod schemas, domain rules, timezone thresholds, seed transitions and weekly evidence gates.
-- **Integration:** migrations/RLS, API identity and ownership, bootstrap derivation, export/delete and idempotent reminder windows against an isolated database.
-- **UI:** local demo and authenticated states, Focus Studio audio fallback, seed/reminder/return/letter states, keyboard use and 320px layout.
-- **Provider contract:** deterministic fallback, invalid AI output, timeout and unavailable-provider behavior.
-- **Non-functional:** prohibited-content inspection in analytics/logs, reduced motion and safe degradation.
+## Web và mobile
 
-## Java and distributed-system gates
+Web: loading/empty/error/auth state, keyboard, 320px, safe demo/account boundary, core workflow khi AI/audio lỗi.
 
-- Contract compatibility between retained web schemas and each new Spring route.
-- Account registration, BCrypt verification, session fixation protection, CSRF, logout and ownership checks before route cutover.
-- PostgreSQL integration through isolated Testcontainers with Flyway migrations.
-- Redis TTL, namespace, cache-miss fallback, lock expiry and unavailable-cache behavior.
-- RabbitMQ publisher confirms, outbox recovery, duplicate delivery, out-of-order delivery, bounded retry and DLQ routing.
-- Consumer idempotency proven by delivering the same `messageId` more than once.
-- Core task/focus behavior available when Redis, RabbitMQ, Engagement and AI are unavailable.
-- Trace/correlation continuity across HTTP, outbox publication and message consumption without private payloads.
-- Account deletion saga covers every service-owned store and reports incomplete cleanup visibly.
+Mobile: khi triển khai React Native + Expo, test thiết bị/emulator cho login expiry, app resume/process kill, keyboard, mạng chập chờn và dữ liệu cùng account trên web. Timer phục hồi theo state/timestamp được thiết kế, không giả định background JS luôn chạy. Offline sync/push cần acceptance riêng khi scope được duyệt.
 
-## Required scenarios
+## Capability và release
 
-The executable planning matrix is the [retention acceptance matrix](../ai/retention/acceptance-matrix.md). Add a regression test for every authorization, privacy, timezone, encryption or opt-out defect.
+Retention acceptance nằm ở [matrix](../ai/retention/acceptance-matrix.md); capability thiết kế chưa phải test đã có. Sử dụng dữ liệu tổng hợp; không in token, title, email hoặc provider payload vào log/snapshot. Test RLS theo schema thực sự dùng, tách khỏi API authorization.
 
-Authentication changes additionally require registration validation, generic invalid-credential errors, password-hash checks, session creation/rotation, CSRF rejection and logout invalidation. The API must return the stable `401 UNAUTHENTICATED` envelope when no valid session exists. Ownership checks use two different account principals and prove that knowing another user's resource ID does not grant read, update or archive access. The local procedure is in [Local Spring Security Authentication](../04-engineering/spring-security-local-development.md).
-
-## Data rules
-
-- Automated tests use synthetic data only.
-- Integration tests never point at production or a shared staging database.
-- Logs and snapshots must not contain secrets or raw private content.
-- RLS and API ownership checks are separate defenses and both require evidence.
-
-## Release gate
-
-- No P0/P1 defect in capture, next action, focus or return.
-- Reminder delivery cannot continue after opt-out.
-- Focus remains usable without audio or an AI provider.
-- No raw user content appears in analytics or operational logs.
-- Affected contract, migration, API and web checks pass.
-- The documented root verification commands pass for the release commit.
-- A migrated route has one active data writer and a tested routing rollback.
+API core gate cho mobile nằm trong [Web/Mobile Strategy](../04-engineering/web-mobile-api-strategy.md). Trước public release còn cần consent/export/delete, recovery, quan sát lỗi và compatibility với client đã phát hành; test pass cục bộ không tự cấp quyền deploy.

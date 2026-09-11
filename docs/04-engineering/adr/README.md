@@ -1,28 +1,18 @@
 # Architecture Decision Records
 
-Use `NNNN-short-title.md` for each durable architecture decision.
+## Quyết định hiện hành
 
-## Template
+- [ADR-0011 — NestJS, Drizzle và React Native + Expo](0011-nestjs-drizzle-mobile-direction.md) — Accepted.
+- [ADR-0012 — Core modular monolith, inference độc lập, worker theo nhu cầu](0012-modular-monolith-proposal.md) — Accepted.
+- [ADR-0006 — Gentle Retention and Reminder Delivery](0006-gentle-retention-and-reminders.md) — nguyên tắc sản phẩm liên quan.
 
-```markdown
-# ADR-NNNN — Title
+## Lịch sử liên quan
 
-- Status: Proposed / Accepted / Superseded
-- Date: YYYY-MM-DD
+- [ADR-0007 — Node.js/TypeScript](0007-node-typescript-primary-stack.md) — Superseded; không phục hồi lựa chọn Fastify/identity cũ.
+- [ADR-0009 — Redis/RabbitMQ và service extraction](0009-redis-rabbitmq-microservices.md) — Superseded; không còn lộ trình bắt buộc.
 
-## Context
-## Decision
-## Alternatives considered
-## Consequences
-## Follow-up
-```
+Các bản ghi công nghệ đã loại bỏ khỏi bộ tài liệu có thể tra cứu trong Git. Giữ số ADR ổn định, không đánh lại số để lấp khoảng trống.
 
-## Current records
+## Mẫu
 
-- [ADR-0006 — Gentle Retention and Reminder Delivery](0006-gentle-retention-and-reminders.md)
-- [ADR-0007 — Node.js and TypeScript as the Primary Application Stack](0007-node-typescript-primary-stack.md) — superseded for the backend
-- [ADR-0008 — Java and Spring Boot Backend Replacement](0008-java-spring-backend-migration.md)
-- [ADR-0009 — Redis, RabbitMQ and Incremental Service Extraction](0009-redis-rabbitmq-microservices.md)
-- [ADR-0010 — First-Party Spring Security Authentication](0010-first-party-spring-security-authentication.md)
-
-The earlier `0001`–`0005` topics remain gaps to document if a future change depends on them. Do not create placeholder records: write an ADR when there is a concrete decision, alternatives and consequences to preserve.
+Một ADR ghi trạng thái Proposed / Accepted / Superseded, ngày, bối cảnh, quyết định, phương án khác, hệ quả, security/data impact, validation và rollback. Chỉ ghi Accepted khi có quyết định thực sự; trạng thái implementation được ghi riêng.

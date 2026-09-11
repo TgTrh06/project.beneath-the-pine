@@ -2,7 +2,7 @@
 
 - **Status:** Draft
 - **Planning horizon:** Core validation → public alpha → paid validation
-- **Last updated:** 2026-09-08
+- **Last updated:** 2026-09-11
 
 Roadmap này mô tả outcome và gate. Danh sách capability/dependency chi tiết nằm trong [Tiered Delivery Plan](../02-product/tiered-delivery-plan.md).
 
@@ -48,24 +48,21 @@ Roadmap này mô tả outcome và gate. Danh sách capability/dependency chi ti�
 
 **Gate:** recurring value, conversion, cancellation/support behavior, unit economics và provider review đủ rõ để mở thanh toán thật.
 
-## Current recommended execution
+## Thứ tự thực hiện theo nền tảng
 
-1. Core-flow gap audit.
-2. Complete Tier 1.
-3. Deliver Open Seed as the first Tier 2 vertical slice.
-4. Deliver Return Ritual, then in-app reminder.
-5. Add local theme before audio/presets.
-6. Prepare public alpha surface and evidence collection.
-7. Run paid discovery before implementing billing.
+| Giai đoạn | Kết quả | Gate |
+| --- | --- | --- |
+| D0 — Tài liệu | NestJS/Drizzle/mobile direction, phân tích topology, API và cấu trúc repository | Topology và Expo đã chốt; hoàn thiện tài liệu cho kế hoạch code |
+| D1 — API foundation | Kế hoạch code riêng, tổ chức module, Drizzle baseline, account/ownership và task parity | PostgreSQL integration, security/contract tests, migration/rollback review |
+| D2 — Web core + API | Web dùng API thật cho một core loop, focus lifecycle và manual fallback | API độc lập browser, version/error contract, mutation recovery; Expo đã chốt; native auth và hệ điều hành đầu tiên được duyệt |
+| D3 — Mobile core | Một core loop trên nền tảng mobile đã chọn, cùng account và dữ liệu API | Thiết bị thật/emulator: auth expiry, app resume, mất mạng, read/write ownership |
+| D4 — Product expansion | T2–T4 được ưu tiên theo feedback mobile, giữ web tương thích | Retention, privacy, support và platform release readiness |
+| D5 — Paid validation | T5 khi có bằng chứng giá trị lặp lại | Provider/payment review riêng |
 
-## Parallel technical modernization track
+Không đợi toàn bộ web public alpha hoặc paid features mới bắt đầu mobile. Product tiers phía trên vẫn giữ dependency nghiệp vụ; D0–D5 mô tả thứ tự delivery của client/backend, không tạo pricing tiers.
 
-The Java/distributed architecture is a learning and portfolio track; it does not reorder product tiers or justify unfinished user value. Deliver it in independently runnable gates:
+## Topology và hạ tầng theo nhu cầu
 
-1. Establish the Spring Boot foundation after removing the previous API.
-2. Rebuild the task/focus vertical slice with contract compatibility and one data writer.
-3. Add Redis for explicit rate-limit, idempotency, progress or lock use cases.
-4. Add RabbitMQ with transactional outbox/inbox and extract asynchronous AI processing.
-5. Extract Engagement only after the Java core, messaging recovery and observability gates pass.
+Core modular monolith và inference độc lập đã được chốt. Worker chỉ được thêm khi cần job bền vững hoặc resource isolation. Redis, RabbitMQ và tách Engagement không còn là milestone bắt buộc. Đánh giá bằng workload, owner, failure model và chi phí, theo [Architecture Options](../04-engineering/architecture-options.md).
 
-At every gate, the implemented slice must remain runnable and have an artifact or feature rollback. The removed Node.js routes are available only through Git history, not as a live fallback. See [Target Microservices Architecture](../04-engineering/microservices-architecture.md).
+Hiện trạng backend cũ và bản nháp NestJS được giữ trong khi review tài liệu. Giai đoạn này không chuyển thư mục, thay dependency hoặc database. Mỗi bước implementation sau cần kế hoạch và xác nhận riêng theo delivery contract.

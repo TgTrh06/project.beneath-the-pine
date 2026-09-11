@@ -1,67 +1,31 @@
 # Deployment Runbook
 
-- **Status:** Baseline; production release remains manually approved
-- **Last updated:** 2026-09-09
+- **Ngày:** 2026-09-11
+- **Trạng thái:** Release requirements; chưa có kế hoạch deploy NestJS/Drizzle được duyệt.
 
-## Pre-deploy
+## Trước triển khai
 
-- [ ] Scope, owner and target environment are explicit.
-- [ ] `pnpm lint`, `pnpm test`, `pnpm build` and `services/mvnw verify` pass for the release commit.
-- [ ] Staging smoke checks pass for changed flows.
-- [ ] Every database migration has been reviewed and ordered for backward compatibility.
-- [ ] Backup/PITR health is confirmed before a production data change.
-- [ ] AI evaluation passes when a prompt, model or output contract changes.
-- [ ] Rollback or forward-fix path is written down.
-- [ ] Logs and provider dashboards are available during the release.
+Phải có commit/artifact, environment và owner rõ ràng; backend được build/test theo pipeline đã triển khai, không theo lệnh đích còn ở docs. Kiểm tra auth/CSRF hoặc native token lifecycle, ownership, contract compatibility và PostgreSQL integration.
 
-## Deploy order
+Với dữ liệu: kiểm kê schema/journal hiện hữu; review SQL Drizzle, backup/restore, lock/backfill, compatibility và rollback/forward-fix. Không chạy db:init draft lên database hiện hữu. Không dựa vào việc đổi framework để reset account/data.
 
-1. Record the commit, release owner and start time.
-2. Apply backward-compatible database migrations as a controlled step when present.
-3. Deploy the Java Core Service through the separately approved provider and verify `/actuator/health/readiness`.
-4. Deploy the Vercel web build after compatible API behavior is available.
-5. Enable any feature flag gradually.
-6. Run smoke checks with synthetic or designated tester data.
+## Thứ tự release sau khi được duyệt
 
-Do not run a migration merely because an application process starts. Do not deploy from an unrecorded local build.
+1. Ghi nhận release và xác minh DB/app/client compatibility.
+2. Apply migration backward-compatible bằng bước riêng nếu kế hoạch có yêu cầu.
+3. Deploy API, kiểm tra liveness/readiness, auth và synthetic core workflow.
+4. Deploy web sau khi API tương thích.
+5. Mobile release theo SDK/store đã chọn; giữ API cho các phiên bản client đang được hỗ trợ.
+6. Theo dõi lỗi, latency, auth failure và data consistency trong cửa sổ đã thống nhất.
 
-## Additional gates while rebuilding Java business slices
+Mobile release có thể chậm hoặc không được người dùng cập nhật ngay; không rollback API sang contract mà mobile đã phát hành không dùng được.
 
-1. Deploy the Java service without public routing and verify health/readiness.
-2. Apply only backward-compatible, service-owned migrations.
-3. Run contract, session/CSRF, ownership and synthetic workflow checks against Java.
-4. Confirm exactly one writer for every migrated entity.
-5. Expose routing for the approved slice only.
-6. Observe errors, latency, traces and data consistency through the agreed window.
-7. Roll back the Java artifact or disable the incomplete route if the slice fails; the removed Node.js API is not a live fallback.
+## Rollback
 
-## Additional gates for Redis and RabbitMQ
+Rollback artifact chỉ khi schema và contract tương thích. Database mutation có thể không đảo ngược; ưu tiên forward-fix được review. Chuyển backend cũ → NestJS cần kiểm tra credential hash/UUID, dữ liệu và đăng nhập lại khi session không tương thích. Không chạy song song hai writer để làm “fallback”.
 
-- Prove the core path's Redis/broker degradation behavior before enabling dependency use.
-- Verify RabbitMQ publisher confirms, queue bindings, retry limits and DLQ alerts.
-- Start consumers with controlled concurrency and graceful shutdown.
-- Drain or preserve durable jobs before rolling a consumer version back.
-- Do not replay a DLQ until the cause is fixed and the replay is recorded.
+Khi có worker/service sau này, thêm xử lý job đang chờ, replay/idempotency, partial failure và data ownership cutover. Không cho phép xóa queue/job hoặc business data chỉ để rollback binary.
 
-## Post-deploy checks
+## Kết thúc
 
-- Authentication and member authorization.
-- Manual next-action creation and focus-session lifecycle.
-- Synthetic Brain Dump extraction and Help Me Start fallback.
-- Consent revocation blocking AI use.
-- Purge job configuration when lifecycle behavior changed.
-- Error rate, latency, database pressure and AI-provider failures.
-
-## Rollback triggers
-
-- Authentication or the core focus loop is unavailable.
-- Cross-user access, privacy exposure or a security invariant fails.
-- Error rate or latency exceeds the release threshold.
-- A critical AI safety regression appears.
-- A migration corrupts, loses or makes user data inaccessible.
-
-Roll back application artifacts when compatible. Prefer a reviewed forward migration over reversing a destructive schema change. Disable an optional provider or feature flag before taking the core focus path offline.
-
-## Release record
-
-Record the version/commit, timestamps, owner, migration IDs, feature flags, smoke results, observed metrics and any incident or follow-up link.
+Ghi commit/artifact, thời gian, migration, smoke results, sự cố và follow-up. Chưa có production action nào được thực hiện qua lần cập nhật tài liệu này.

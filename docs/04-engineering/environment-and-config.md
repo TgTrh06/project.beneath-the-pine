@@ -1,58 +1,30 @@
 # Environment and Configuration
 
-- **Status:** Current baseline
-- **Last updated:** 2026-09-10
+- **Ngày:** 2026-09-11
+- **Trạng thái:** Scaffold có cấu hình riêng; legacy root env chưa chuyển.
 
-## Environments
+## Phân biệt hiện tại và đích
 
-| Environment | Purpose | Real user data | Expected services |
-| --- | --- | --- | --- |
-| Local | Development and manual checks | No | Local Web, Core Service and PostgreSQL |
-| Test | Automated checks | Synthetic only | Isolated process state and Testcontainers PostgreSQL |
-| Preview | Review a web change | No production data | Vercel preview with non-production configuration |
-| Staging | Release rehearsal and private QA | Consented tester data only | Separate database, API service and session configuration |
-| Production | Beta or public service | Yes | Production providers are not yet selected for the Java backend |
+Root .env.example còn cấu hình backend cũ. Scaffold chỉ tự đọc `apps/api/.env`, theo [template API](../../apps/api/.env.example) và [hướng dẫn biến môi trường](../../apps/api/README.md). Process env ưu tiên hơn file; mặc định host 127.0.0.1, port 8081, web origin http://localhost:5173. API_DATABASE_URL tùy chọn: không có thì live 200, ready 503. Pool/timeout được kiểm tra kiểu và giới hạn; lỗi config chỉ nêu tên field.
 
-Staging and production must not share database projects, service-role keys, encryption keys or provider credentials.
-
-## Configuration ownership
-
-| Variables | Consumer | Exposure rule |
+| Nhóm cấu hình | Consumer | Boundary |
 | --- | --- | --- |
-| `VITE_API_URL`, `VITE_LOG_LEVEL` | Web build | Browser-visible API configuration; never place privileged secrets in a `VITE_` variable |
-| `SERVER_PORT`, `WEB_ORIGIN`, `LOG_LEVEL`, `SESSION_TIMEOUT`, `SESSION_COOKIE_SECURE`, `SESSION_COOKIE_SAME_SITE` | Core Service | Server and session-cookie configuration |
-| `DATABASE_URL`, `DATABASE_USERNAME`, `DATABASE_PASSWORD` | Core Service | Server-only connection settings and credentials |
+| VITE_API_URL và cấu hình giao diện | Web bundle | Công khai; không có secret |
+| API URL và app version mobile tương lai | Mobile app | Công khai; không có DB/provider credential hoặc OAuth client secret |
+| Database connection/credential | Backend và migration tooling | Server-only, quyền tối thiểu, secret store khi deploy |
+| Port, allowed web origin, request/body limits | API | Typed validation, lỗi không in giá trị nhạy cảm |
+| Cookie/session settings hiện tại | Browser auth adapter | HTTPS, SameSite/CSRF và session store cần release review |
+| Native auth client/issuer/redirect settings | Auth adapters tương lai | Chưa chọn; không tự thêm biến môi trường |
+| Provider URL/token/model settings | AI boundary | Chỉ thêm khi duyệt slice tích hợp |
 
-`.env.example` is the canonical repository-level inventory. Spring configuration in `services/core-service/src/main/resources/application.yml` defines backend defaults and typed bindings.
+Drizzle config không được import vào web/mobile. Migration credential có thể cần quyền khác runtime credential; role và environment phải được chọn rõ trước apply.
 
-## Planned Java and distributed infrastructure configuration
+## Môi trường
 
-The following categories are target design only and must not be added to `.env.example` until the corresponding implementation slice is approved:
+Local/test chỉ dùng dữ liệu tổng hợp. Test PostgreSQL tách khỏi database dev có dữ liệu. Staging và production không dùng chung DB, key hoặc provider secrets. Preview web không nhận server secrets.
 
-| Category | Intended consumers | Rules |
-| --- | --- | --- |
-| Service database URLs/roles | Each owning service | One least-privilege credential per service/schema |
-| Redis endpoint/credentials | Gateway and explicitly approved services | TLS in deployed environments; key namespaces and timeouts per owner |
-| RabbitMQ endpoint/vhost/credentials | Publishers and consumers | Separate least-privilege users; publisher confirms and bounded prefetch |
-| Internal service identity | Gateway and services | Rotatable credentials; never reuse a browser session credential |
-| Telemetry exporter | All services/workers | Redaction before export; consistent trace propagation |
+Native emulator/device không mặc định truy cập được localhost của máy chạy API; cấu hình địa chỉ local/HTTPS và CORS browser cần hướng dẫn riêng khi chọn SDK. CORS không phải authentication và không cấp quyền cho native client.
 
-Java integration tests already use a PostgreSQL Testcontainer. Redis and RabbitMQ containers are deferred with their implementation slices.
+## Giai đoạn triển khai sau
 
-## Rules
-
-- Commit `.env.example`; never commit a real `.env` or secret value.
-- Startup diagnostics name missing variables but never log their values.
-- Limited local mode may warn about missing backend configuration. AI-provider settings will return when the Java AI adapter is implemented.
-- Production secrets belong in provider secret stores and follow least privilege.
-- Preview builds never receive production server secrets.
-- Do not copy production records into local or automated tests.
-- A new environment variable must update `.env.example`, the parser, deployment configuration and this ownership table in the same change.
-
-## Local modes
-
-- **UI demo:** run the Web without `VITE_API_URL`; private demo state stays in the browser.
-- **Authenticated local:** run Web, Core Service and local PostgreSQL. Register a synthetic account through the Web or API. See [Local Spring Security Authentication](spring-security-local-development.md).
-- **Inference pilot:** run `services/inference-service` independently with its service token and model settings.
-
-Demo mode is a development convenience, not a production fallback for authentication or persistence.
+Version/driver và timeout/pool đã có trong scaffold. Session settings chỉ thêm cùng auth lifecycle; credential migration được chọn trong baseline plan. Không tự cấu hình Redis/RabbitMQ hoặc provider cho capability chưa triển khai. Xem [Drizzle](drizzle-data-access.md), [API strategy](web-mobile-api-strategy.md).

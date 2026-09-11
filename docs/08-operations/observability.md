@@ -1,7 +1,7 @@
 # Observability
 
 - **Status:** Baseline requirements; verify provider coverage before public launch
-- **Last updated:** 2026-09-09
+- **Last updated:** 2026-09-11
 
 ## Signals
 
@@ -11,9 +11,9 @@
 - Authentication/authorization failures without tokens or private payloads.
 - Database connection pressure, slow queries and migration state.
 - Scheduled job success, failure, duration and affected-record count.
-- Per-service health/readiness, JVM resource pressure and downstream dependency latency after Java services exist.
+- API health/readiness, Node.js event-loop lag, CPU/memory pressure and downstream latency when the NestJS implementation is completed.
 
-### Redis and RabbitMQ target
+### Worker/broker signals — only if the capability is implemented
 
 - Redis latency, memory, eviction, connection failures and cache hit rate by owned use case.
 - RabbitMQ queue depth, oldest-message age, publish-confirm failure, consumer throughput, redelivery and DLQ count.
@@ -36,7 +36,7 @@
 
 ## Logging contract
 
-- Emit structured JSON from Spring Boot in deployed environments; the current local foundation uses console logs with correlation IDs.
+- Require structured, redacted JSON logging in the future NestJS deployment; existing baseline/draft logs are not proof of deployed telemetry.
 - Attach a request/correlation ID and stable error code.
 - Propagate trace, correlation, causation and message IDs across HTTP and message boundaries.
 - Redact authorization headers, cookies, service keys and private user content.
@@ -44,6 +44,8 @@
 - Define access and retention per environment.
 
 ## Minimum alerts before public use
+
+Configure alerts only for implemented capabilities. Queue/outbox alerts below are conditional, not a reason to add a broker. API measurements should inform topology decisions; app version/platform may be included as minimal metadata without private payloads.
 
 - Production API or web unavailable.
 - Error rate or latency increases beyond an agreed threshold.

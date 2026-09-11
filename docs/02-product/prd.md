@@ -3,13 +3,19 @@
 - **Status:** Draft for public-product implementation
 - **Version:** 1.0
 - **Delivery target:** Public alpha, followed by evidence-based paid validation
-- **Last updated:** 2026-09-08
+- **Last updated:** 2026-09-11
 
 ## 1. Product definition
 
 > Beneath the Pine là focus companion bằng tiếng Việt giúp người đang quá tải biến một mớ suy nghĩ thành một bước nhỏ, bắt đầu trong một không gian bình tĩnh và quay lại đúng nơi đã dừng.
 
 Sản phẩm phục vụ người Việt học tập hoặc làm việc trí óc, đặc biệt trong những lúc khó ưu tiên, khó bắt đầu hoặc khó quay lại sau gián đoạn. Đây là phân khúc hành vi; sản phẩm không chẩn đoán, điều trị hoặc đưa ra lời khuyên y khoa.
+
+## 1.1 Nền tảng và thứ tự triển khai
+
+Mobile là client chính về dài hạn; web responsive được xây trước để sử dụng và kiểm chứng API dùng chung. Backend đích là NestJS + PostgreSQL/Drizzle. API phải giữ nghiệp vụ/ownership độc lập client; dữ liệu server của cùng account được dùng từ cả hai. Local demo không phải server sync.
+
+Mobile dùng React Native + Expo; Android/iOS ra mắt đầu tiên và native auth chưa chốt. Mobile core có thể bắt đầu sau khi API core ổn định, không đợi toàn bộ T0–T5 web. Push/background/offline được scope riêng. [Gate web → mobile](../04-engineering/web-mobile-api-strategy.md).
 
 ## 2. Product promise
 
@@ -88,7 +94,7 @@ Người dùng nhìn thấy quyền lợi trả phí tại thời điểm capabi
 | ID | Requirement | Tier | Entitlement | Delivery status |
 |---|---|---:|---|---|
 | FR-001 | App shell, routing, error boundary và responsive navigation | T0 | Core | Implemented |
-| FR-002 | Managed identity, profile/timezone, consent và beta/public access policy | T0 | Core | Partial |
+| FR-002 | Account identity, profile/timezone, consent và beta/public access policy | T0 | Core | Partial |
 | FR-003 | Stable API/output contracts, authorization và safe error responses | T0 | Core | Partial |
 | FR-004 | Export/delete bao phủ toàn bộ dữ liệu user-owned | T0 | Core | Partial |
 | FR-101 | Manual capture tạo một task/next action có thể bắt đầu | T1 | Free | Partial |
@@ -191,7 +197,7 @@ Các ngưỡng định lượng là hypothesis trong [Product Metrics](../00-fou
 
 - Hardware sizing, database capacity planning, replication, partitioning và multi-region deployment.
 - Full task/calendar/project suite, collaboration, social feed, leaderboard, streak hoặc reward economy.
-- Push/native notification, iOS/desktop native và offline sync.
+- Push/native notification và offline sync cần scope riêng; desktop native chưa ưu tiên. Mobile app được triển khai sau gate API, hệ điều hành đầu tiên chưa chốt.
 - Tự động suy luận mood, diagnosis hoặc health condition.
 - Cam kết “AI không giới hạn”, lifetime access hoặc một payment provider cụ thể trước paid validation.
 

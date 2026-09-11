@@ -4,13 +4,17 @@
 
 This documentation is the project's shared memory: why Beneath the Pine exists, what it promises, how it is built and where it must stop. The application is under active development, so every document must distinguish current behavior from intended work.
 
+## Current direction
+
+Mobile is the primary long-term product; web is built first against a shared NestJS/PostgreSQL/Drizzle API. The apps/api scaffold now contains 12 modules and platform code; business logic and migrations are pending. Current scope has no AI. Core modular monolith and future independent inference are accepted; workers require a concrete need. React Native + Expo is selected; native auth remains open. Review the [module delivery plan](04-engineering/module-delivery-plan.md). [ADR-0011](04-engineering/adr/0011-nestjs-drizzle-mobile-direction.md) records the direction; [ADR-0012](04-engineering/adr/0012-modular-monolith-proposal.md) is Accepted.
+
 ## Choose a reading path
 
 | Goal | Reading path |
 | --- | --- |
 | Understand product intent, Tier 0–5 and boundaries | [Foundation](00-foundation/README.md) → [PRD](02-product/prd.md) → [Tiered Delivery Plan](02-product/tiered-delivery-plan.md) → [Design](03-design/README.md) |
 | Implement an application change | [Tiered Delivery Plan](02-product/tiered-delivery-plan.md) → [System Diagrams](04-engineering/system-diagrams.md) → [Sequence Diagrams](04-engineering/sequences/README.md) → [Engineering](04-engineering/README.md) → [Testing](07-testing/README.md) |
-| Work on the Java/distributed target | [Technology Stack](04-engineering/technology-stack.md) → [Target Microservices Architecture](04-engineering/microservices-architecture.md) → [Event-Driven Architecture](04-engineering/event-driven-architecture.md) → [Event Catalog](04-engineering/event-catalog.md) |
+| Review NestJS/Drizzle and mobile architecture | [Architecture Options](04-engineering/architecture-options.md) → [Repository Structure](04-engineering/repository-structure.md) → [Web/Mobile API Strategy](04-engineering/web-mobile-api-strategy.md) → [Drizzle](04-engineering/drizzle-data-access.md) |
 | Change an AI output or model | [Machine Learning](05-machine-learning/README.md) → [AI Handbook](ai/README.md) → [Security and Privacy](06-security-privacy/README.md) |
 | Prepare a beta or release | [Testing](07-testing/README.md) → [Operations](08-operations/README.md) → [Release](09-release/README.md) |
 | Validate an assumption before committing to a solution | [Research](01-research/README.md) |
@@ -46,7 +50,7 @@ This documentation is the project's shared memory: why Beneath the Pine exists, 
 4. [System Diagrams](04-engineering/system-diagrams.md) and the applicable sequence
 5. [Technology Stack](04-engineering/technology-stack.md)
 6. [System Architecture](04-engineering/system-architecture.md)
-7. [Target Microservices Architecture](04-engineering/microservices-architecture.md), for Java, Redis, messaging or service work
+7. [Architecture Options](04-engineering/architecture-options.md) and [Drizzle Data Access](04-engineering/drizzle-data-access.md), for backend work
 8. [AI Safety Policy](05-machine-learning/ai-safety-policy.md), if AI behavior changes
 9. [Test Strategy](07-testing/test-strategy.md)
 

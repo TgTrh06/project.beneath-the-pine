@@ -6,7 +6,7 @@
 
 ## Architecture status
 
-Existing product schema history is retained under `supabase/migrations`. New Java service migrations live under `services/core-service/src/main/resources/db/migration`. The Java foundation currently creates only its service schema; the target ownership below is conceptual and does not authorize a production migration.
+Schema public lịch sử được giữ trong supabase/migrations; baseline core.accounts/tasks/next_actions nằm trong SQL migration cũ và mã backend cũ hiện có. Drizzle là persistence đích nhưng chưa triển khai. Các entity ngoài core baseline bên dưới là schema lịch sử hoặc thiết kế, không phải bảo đảm runtime hiện tại. Xem [Data Dictionary](data-dictionary.md) và [Drizzle baseline strategy](drizzle-data-access.md).
 
 ## Existing core entities
 
@@ -47,7 +47,7 @@ Mỗi user tối đa một seed `open`; task title không được sao chép san
 
 ## Data rules
 
-- Mọi row user-owned có `user_id`, RLS policy owner-only và authorization tại API.
+- Mọi row user-owned cần owner và authorization tại API/repository. RLS theo từng schema phải được kiểm chứng; policy public cũ không bảo vệ core.*.
 - Reminder delivery lưu metadata tối thiểu (channel, status, timestamp), không lưu body message ở analytics.
 - `focus_seeds`, preferences và feedback phải xuất hiện trong export và bị xóa qua account deletion.
 - Return eligibility được suy ra từ last core event; không cần lưu “days absent”.
@@ -77,7 +77,9 @@ These entities document a boundary for paid validation and are not approved for 
 
 Entitlement is derived from verified subscription state plus capability policy. Checkout return URLs are never proof of payment. Migration, provider, retention, tax/invoice and deletion decisions require a separate ADR before implementation.
 
-## Target service ownership
+## Logical ownership and conditional service extraction
+
+The table names future capability owners; it does not require separate services. In the accepted modular monolith these remain module boundaries. The distributed rules below apply only after an extraction plan is approved.
 
 | Service | Durable ownership | Projection examples |
 | --- | --- | --- |
@@ -88,7 +90,7 @@ Entitlement is derived from verified subscription state plus capability policy. 
 
 The transition may use isolated PostgreSQL schemas and roles in one Supabase instance. Each service remains the only writer for its schema; cross-service foreign keys, direct joins and repository access are prohibited.
 
-## Integration records
+## Integration records — conditional future design
 
 Each service that publishes messages owns an `outbox_messages` table in the same database transaction as its business change. Each durable consumer owns an `inbox_messages` or equivalent deduplication record. These are implementation patterns, not shared business tables.
 

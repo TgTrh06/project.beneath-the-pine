@@ -1,10 +1,12 @@
 # Data Dictionary — Danh mục dữ liệu và thuộc tính
 
-Ngày đối chiếu: **2026-09-10**. Nguồn: working tree hiện tại, gồm cả mã chưa commit.
+> Inventory schema SQL và contract hiện có; phần NestJS/Drizzle là thiết kế đích, chưa phải persistence đã triển khai. Xem [Drizzle Data Access](drizzle-data-access.md).
+
+Ngày đối chiếu: **2026-09-11**. Nguồn: working tree hiện tại, gồm cả mã chưa commit.
 
 ## 1. Phạm vi và cách đọc
 
-Tài liệu mô tả cấu trúc trong repository, không xác nhận migration đã chạy trên database thực tế và không chứa bản ghi người dùng. Bao gồm 19 bảng từ migration Supabase, 2 bảng Core Java, Java model/DTO, Zod contract và model dữ liệu frontend. Class điều phối, repository, controller, dependency injection và props thuần giao diện không phải danh mục dữ liệu nghiệp vụ.
+Tài liệu mô tả cấu trúc trong repository, không xác nhận migration đã chạy trên database thực tế và không chứa bản ghi người dùng. Bao gồm 19 bảng từ migration Supabase, schema core cho account/task/next-action và mapping domain/API đích, Zod contract và model dữ liệu frontend. Class điều phối, repository, controller, dependency injection và props thuần giao diện không phải danh mục dữ liệu nghiệp vụ.
 
 - **Có trong migration**: có DDL trong repo; không đồng nghĩa đã triển khai.
 - **Có trong code**: có class/type/schema; không đồng nghĩa mọi API tương ứng đã chạy.
@@ -18,7 +20,7 @@ Tài liệu mô tả cấu trúc trong repository, không xác nhận migration 
 ## 2. Database: từng bảng và trường
 
 Nguồn lịch sử: [Supabase core](../../supabase/migrations/0000_big_the_spike.sql), [RLS](../../supabase/migrations/0001_enable_row_level_security.sql), [Research pilot](../../supabase/migrations/0002_research_pilot.sql).
-Nguồn Java: [V1 tạo schema core](../../services/core-service/src/main/resources/db/migration/V1__create_core_schema.sql), [V2 task module](../../services/core-service/src/main/resources/db/migration/V2__create_task_module.sql).
+Nguồn SQL core: [V1 tạo schema core](../../services/core-service/database/migrations/V1__create_core_schema.sql), [V2 task module](../../services/core-service/database/migrations/V2__create_task_module.sql).
 
 Enum SQL: public.energy_level = low / medium / high; public.member_status = waitlisted / active / revoked; public.task_status = ready / done / deferred / archived.
 Không suy ra enum/check cho cột varchar nếu DDL không có ràng buộc.
@@ -408,7 +410,7 @@ Ràng buộc / index khai báo (trích SQL, gồm FK và hành vi xóa nếu có
 
 ### `core.tasks`
 
-Nguồn: [services/core-service/src/main/resources/db/migration/V2__create_task_module.sql](../../services/core-service/src/main/resources/db/migration/V2__create_task_module.sql). Trạng thái: có trong migration.
+Nguồn: [services/core-service/database/migrations/V2__create_task_module.sql](../../services/core-service/database/migrations/V2__create_task_module.sql). Trạng thái: có trong migration.
 
 | Trường | Kiểu SQL | NULL? | DEFAULT | Ý nghĩa |
 | --- | --- | --- | --- | --- |
@@ -435,7 +437,7 @@ create index tasks_user_status_created_at_idx
 
 ### `core.next_actions`
 
-Nguồn: [services/core-service/src/main/resources/db/migration/V2__create_task_module.sql](../../services/core-service/src/main/resources/db/migration/V2__create_task_module.sql). Trạng thái: có trong migration.
+Nguồn: [services/core-service/database/migrations/V2__create_task_module.sql](../../services/core-service/database/migrations/V2__create_task_module.sql). Trạng thái: có trong migration.
 
 | Trường | Kiểu SQL | NULL? | DEFAULT | Ý nghĩa |
 | --- | --- | --- | --- | --- |
@@ -461,11 +463,11 @@ Trong `public`, các FK đến `profiles.id` và quan hệ review → experiment
 
 RLS được bật cho cả 19 bảng public. Policy owner dùng `auth.uid()` với `id` của profiles hoặc `user_id`; next_actions xác định owner qua tasks, research_sessions qua research_enrollments. beta_members, roles và ai_usage chỉ có policy SELECT của owner. waitlist_entries bật RLS nhưng không khai báo policy ở các file này. Đây là quyền theo policy cho vai trò chịu RLS, không phải mô tả quyền của role bypass RLS.
 
-| Điểm so sánh | Supabase public | Core Java |
+| Điểm so sánh | Supabase public | Core schema |
 | --- | --- | --- |
-| tasks.id / next_actions.id | DEFAULT gen_random_uuid() | Java tạo UUID; SQL không có DEFAULT |
+| tasks.id / next_actions.id | DEFAULT gen_random_uuid() | Server tạo UUID; SQL không có DEFAULT |
 | tasks.minutes / status | DEFAULT 10 / ready | Không DEFAULT SQL; Task.create gán READY, minutes do input |
-| timestamps | Nhiều cột DEFAULT now() | Java cấp Instant từ Clock |
+| timestamps | Nhiều cột DEFAULT now() | Server cấp timestamp |
 | tasks.title / minutes | varchar(280), integer; không CHECK khoảng | CHECK title sau btrim dài 2–280, minutes 1–10 |
 | tasks.status | PostgreSQL enum | varchar(20) + CHECK 4 trạng thái |
 | tasks.user_id / source_brain_dump_id | Có FK | V3 thêm FK user_id → core.accounts; source_brain_dump_id chưa có FK |
@@ -476,80 +478,44 @@ RLS được bật cho cả 19 bảng public. Policy owner dùng `auth.uid()` v�
 
 Core có hai index trên tasks: `(user_id, created_at DESC)` và `(user_id, status, created_at DESC)`. Các UNIQUE index public gồm email waitlist, cặp habit/ngày, user đăng ký nghiên cứu và participant_code. Không suy ra những index kỳ vọng trong tài liệu thiết kế là đã tồn tại.
 
-## 4. Java domain, entity và DTO
+## 4. Domain, API contract và mapping Drizzle đích
 
-Nguồn gốc package: [core Java](../../services/core-service/src/main/java/com/itsumori/beneaththepine/core). Các model dưới đây **có trong code**.
+Phần này mô tả schema và public contract, không mô tả entity/class của implementation đã bỏ. Drizzle schema và repository chưa triển khai.
 
-### 4.0 Account và session authentication
+### 4.0 Account
 
-Nguồn: [AccountEntity](../../services/core-service/src/main/java/com/itsumori/beneaththepine/core/identity/infrastructure/AccountEntity.java), [AccountPrincipal](../../services/core-service/src/main/java/com/itsumori/beneaththepine/core/shared/security/AccountPrincipal.java), migration `V3__create_accounts.sql`.
+| Cột core.accounts | Kiểu SQL | Quy tắc |
+| --- | --- | --- |
+| id | uuid | PK; account UUID cũng là owner ID |
+| email | varchar(320) | Trim/lowercase, unique |
+| password_hash | varchar(100) | BCrypt hash; không xuất vào response/log |
+| enabled | boolean | NOT NULL, default true; account bị tắt không đăng nhập |
+| created_at, updated_at | timestamptz | NOT NULL |
 
-| core.accounts | Java | Kiểu | Quy tắc |
+Nguồn: [SQL accounts](../../services/core-service/database/migrations/V3__create_accounts.sql). Browser credentials baseline: email hợp lệ và password 12–64 ký tự, tối đa 72 byte UTF-8. Session response có authenticated, user {id,email} hoặc null và csrfToken. Mobile auth chưa chọn; cùng account UUID, không tạo bộ tài khoản riêng theo client.
+
+### 4.1 Task
+
+| SQL | Domain/API field | JSON | Quy tắc |
 | --- | --- | --- | --- |
-| id | id | UUID | Primary key; sinh khi đăng ký; cũng là owner ID của dữ liệu nghiệp vụ |
-| email | email | String | Bắt buộc; trim, lowercase, unique; tối đa 320 ký tự |
-| password_hash | passwordHash | String | BCrypt work factor 12; không xuất ra response hoặc log |
-| enabled | enabled | boolean | Mặc định true; principal bị vô hiệu hóa không đăng nhập được |
-| created_at | createdAt | Instant | Bắt buộc |
-| updated_at | updatedAt | Instant | Bắt buộc; bằng created_at trong lát cắt hiện tại |
+| id | id | UUID string | Bất biến, tạo tại server |
+| user_id | userId | UUID string | Lấy từ principal, không từ input |
+| title | title | string | Trim, 2–280 ký tự |
+| minutes | minutes | integer | 1–10 |
+| status | status | ready/done/deferred/archived | Mới ready; archive terminal |
+| source_brain_dump_id | sourceBrainDumpId | UUID string hoặc null | Chưa có FK core |
+| created_at | createdAt | ISO-8601 UTC | Thời điểm tạo |
+| updated_at | updatedAt | ISO-8601 UTC | Thời điểm sửa |
 
-`CredentialsRequest` nhận email hợp lệ và password 12–64 ký tự, đồng thời giới hạn input UTF-8 ở 72 byte để tránh BCrypt âm thầm bỏ phần cuối. `AuthSessionResponse` trả `authenticated`, user `{id,email}` nếu có và CSRF token; session credential thật chỉ nằm trong cookie HttpOnly.
+TypeScript domain dùng string/number/Date theo mapping adapter; không export Drizzle row làm response. SQL và validation có thể khác cách đếm ký tự; phải test boundary thay vì giả định tương đương.
 
-### 4.1 Task: mapping đầy đủ
+### 4.2 Next-action và error
 
-Nguồn: [Task](../../services/core-service/src/main/java/com/itsumori/beneaththepine/core/task/domain/Task.java), [TaskEntity](../../services/core-service/src/main/java/com/itsumori/beneaththepine/core/task/infrastructure/TaskEntity.java), [TaskResponse](../../services/core-service/src/main/java/com/itsumori/beneaththepine/core/task/presentation/TaskResponse.java), [Zod contracts](../../packages/contracts/src/index.ts).
+core.next_actions.id là UUID nội bộ không xuất trong response. task_id → taskId là FK unique; title và minutes là snapshot lúc xác nhận; confirmed_at → confirmedAt là timestamp không null. Tạo task + confirmation cùng transaction.
 
-| core.tasks | Thuộc tính domain / entity / response | Kiểu Java (domain; entity/response nếu khác) | JSON / taskSchema | Quy tắc |
-| --- | --- | --- | --- | --- |
-| id | id | UUID | string UUID | Bắt buộc; sinh khi tạo; bất biến trong domain |
-| user_id | userId | UUID | string UUID | Bắt buộc; owner từ account principal; bất biến |
-| title | title | String | string | Bắt buộc; Task trim rồi kiểm tra dài 2–280 |
-| minutes | minutes | int | number nguyên | Bắt buộc; 1–10 |
-| status | status | TaskStatus; String | ready / done / deferred / archived | Bắt buộc; tạo mới ready |
-| source_brain_dump_id | sourceBrainDumpId | UUID | string UUID hoặc null | Nullable; bất biến trong domain; không xác minh bằng FK core |
-| created_at | createdAt | Instant | string datetime | Bắt buộc; bất biến |
-| updated_at | updatedAt | Instant | string datetime | Bắt buộc; cập nhật khi đổi task |
+POST /next-actions trả {task,nextAction}; GET /tasks trả {tasks:[]}; PATCH cần ít nhất một field hợp lệ khác null, không nhận archived. Chi tiết [Task Module](task-module.md).
 
-`TaskStatus` có `READY("ready")`, `DONE("done")`, `DEFERRED("deferred")`, `ARCHIVED("archived")` và thuộc tính `value: String`. `fromValue` chỉ nhận đúng giá trị. Task đã archived không được đổi tiếp; chuyển sang archived phải qua thao tác archive riêng. Java DTO validation xét độ dài chuỗi trước khi domain trim; không nên coi mọi chi tiết trim/độ dài giữa Java, Zod và SQL là hoàn toàn tương đương.
-
-### 4.2 NextAction: mapping đầy đủ
-
-Nguồn: [NextAction](../../services/core-service/src/main/java/com/itsumori/beneaththepine/core/task/domain/NextAction.java), [NextActionEntity](../../services/core-service/src/main/java/com/itsumori/beneaththepine/core/task/infrastructure/NextActionEntity.java), [ConfirmedNextActionResponse](../../services/core-service/src/main/java/com/itsumori/beneaththepine/core/task/presentation/ConfirmedNextActionResponse.java).
-
-| core.next_actions | Thuộc tính domain / entity | Java | Response / confirmedNextActionSchema | Quy tắc |
-| --- | --- | --- | --- | --- |
-| id | id | UUID | Không xuất ra response | Bắt buộc; Java sinh UUID |
-| task_id | taskId | UUID | taskId: string UUID | Bắt buộc; FK + UNIQUE |
-| title | title | String | title: string | Bắt buộc; confirm sao chép từ Task; SQL/Zod kiểm tra 2–280 |
-| minutes | minutes | int | minutes: number nguyên | confirm sao chép từ Task; SQL/Zod kiểm tra 1–10 |
-| confirmed_at | confirmedAt | Instant | confirmedAt: string datetime | Bắt buộc; thời điểm confirm |
-
-Constructor NextAction chỉ kiểm tra non-null cho id/taskId/title/confirmedAt, không tự kiểm tra khoảng minutes hay độ dài title. Luồng confirm nhận Task đã được kiểm tra. NextAction là snapshot lúc xác nhận: luồng UpdateTask hiện chỉ cập nhật TaskEntity, không cập nhật NextActionEntity.
-
-### 4.3 Request, response và command
-
-Nguồn: [presentation](../../services/core-service/src/main/java/com/itsumori/beneaththepine/core/task/presentation), [application](../../services/core-service/src/main/java/com/itsumori/beneaththepine/core/task/application). Mỗi mục dưới liệt kê toàn bộ trường, không bao gồm dependency của use case.
-
-| Class / record | Thuộc tính và kiểu | Bắt buộc, mặc định và ý nghĩa |
-| --- | --- | --- |
-| CreateNextActionRequest | title: String; minutes: int; sourceBrainDumpId: UUID | title NotBlank, Size 2–280; minutes 1–10; sourceBrainDumpId nullable |
-| UpdateTaskRequest | title: String; minutes: Integer; status: String | Cho phép null/bỏ qua từng trường; cần ít nhất một khác null. title Size 2–280 và domain trim; minutes 1–10; status chỉ ready/done/deferred |
-| TaskResponse | id, userId, title, minutes, status, sourceBrainDumpId, createdAt, updatedAt | Kiểu và quy tắc theo bảng Task |
-| ConfirmedNextActionResponse | taskId, title, minutes, confirmedAt | Theo bảng NextAction; không trả id của next action |
-| CreateNextActionResponse | task: TaskResponse; nextAction: ConfirmedNextActionResponse | Kết quả tạo đồng thời task và hành động xác nhận |
-| TaskListResponse | tasks: List<TaskResponse> | Danh sách; có thể rỗng |
-| CreateNextAction.Command | userId: UUID; title: String; minutes: int; sourceBrainDumpId: UUID | owner do controller lấy từ session principal; source nullable; domain kiểm tra title/minutes |
-| CreateNextAction.Result | task: Task; nextAction: NextAction | Kết quả use case |
-| UpdateTask.Command | userId: UUID; taskId: UUID; title: String; minutes: Integer; status: TaskStatus | Hai ID xác định owner/task; ba trường cập nhật nullable, ít nhất một khác null |
-
-Query `GET /api/v1/tasks` có `status: String` tùy chọn (cả 4 trạng thái), `limit: int` mặc định 50, từ 1–100. Các thao tác theo task nhận `taskId: UUID` từ path; userId lấy từ account principal trong session, không từ body.
-
-Nguồn lỗi: [ApiError](../../services/core-service/src/main/java/com/itsumori/beneaththepine/core/shared/error/ApiError.java), [ApiErrorDetail](../../services/core-service/src/main/java/com/itsumori/beneaththepine/core/shared/error/ApiErrorDetail.java).
-
-| Model lỗi | Trường | Ý nghĩa |
-| --- | --- | --- |
-| ApiError | code: String; message: String; requestId: String; details: List<ApiErrorDetail> | Mã lỗi, thông báo, ID đối chiếu request, lỗi từng trường; factory of tạo details rỗng |
-| ApiErrorDetail | field: String; code: String | Tên trường lỗi và mã validation; record không khai báo null validation |
+Error response có code, message, requestId và details gồm field/code. Không chứa raw input, SQL hay credential. Native client dùng cùng public data/error contract.
 
 ## 5. Shared Zod contracts
 
@@ -562,7 +528,7 @@ Nguồn: [packages/contracts/src/index.ts](../../packages/contracts/src/index.ts
 | waitlistSchema | email: string email → waitlist_entries.email; name?: string trim 1–80 → name; context?: string trim tối đa 500 → context. email không có max(320) trong Zod dù SQL có varchar(320) |
 | consentSchema | aiProcessing: literal true → ai_processing; contentRetention: literal true → content_retention; researchAnalytics: boolean default false → research_analytics |
 | brainDumpSchema | content: string trim 3–6000; nội dung đầu vào, không có cột content plaintext; bảng brain_dumps lưu ciphertext/iv/key_version |
-| nextActionSchema | title: string trim 2–280; minutes: integer 1–10; sourceBrainDumpId?: string UUID. Mapping request Java ở mục 4 |
+| nextActionSchema | title: string trim 2–280; minutes: integer 1–10; sourceBrainDumpId?: string UUID. Mapping request ở mục 4 |
 | taskSchema | 8 trường theo bảng 4.1; sourceBrainDumpId bắt buộc có key nhưng cho null |
 | confirmedNextActionSchema | taskId: UUID string; title: string trim 2–280; minutes: integer 1–10; confirmedAt: datetime string |
 | createNextActionResponseSchema | task: taskSchema; nextAction: confirmedNextActionSchema |
@@ -599,7 +565,7 @@ Type suy ra: `Task`, `TaskStatus`, `ConfirmedNextAction`, `CreateNextActionRespo
 | | safety.needsHumanSupport | boolean bắt buộc | Có cần hỗ trợ từ người hay không |
 | | safety.message | string optional, tối đa 400 | Thông điệp hỗ trợ |
 
-Các chuỗi AI trên không khai báo trim. Mapping về nghĩa không xác nhận đã có Java persistence cho AI output.
+Các chuỗi AI trên không khai báo trim. Mapping về nghĩa không xác nhận đã có backend cũ persistence cho AI output.
 
 ### 5.3 Enum và quota
 
@@ -616,7 +582,7 @@ Nguồn: [domain.ts](../../apps/web/src/shared/types/domain.ts). Các type front
 | Model | Tất cả thuộc tính / giá trị | Ý nghĩa và đối chiếu |
 | --- | --- | --- |
 | View | now / capture / habits / review / study / settings / admin | Màn hình; không phải bảng |
-| TaskStatus | ready / done / deferred | Thiếu archived so với shared contract và Java |
+| TaskStatus | ready / done / deferred | Thiếu archived so với shared contract và backend cũ |
 | Task | id: string; title: string; minutes: number; status: TaskStatus | Bản rút gọn của task; không chứa owner, nguồn hoặc timestamps |
 | Habit | id: string; title: string; completed: boolean | completed là trạng thái UI; SQL dùng habit_completions theo ngày, không có cột habits.completed |
 | Energy | low / medium / high | Cùng tập giá trị energy_level |
@@ -629,7 +595,7 @@ Model cục bộ: [FocusRoom](../../apps/web/src/features/focus/FocusRoom.tsx) c
 
 ### 6.2 Model API phía client
 
-Nguồn: [api.ts](../../apps/web/src/shared/api/api.ts). Đây là hình dạng client đang kỳ vọng, không xác nhận toàn bộ endpoint có implementation Java.
+Nguồn: [api.ts](../../apps/web/src/shared/api/api.ts). Đây là hình dạng client đang kỳ vọng, không xác nhận toàn bộ endpoint có implementation backend cũ.
 
 | Model | Tất cả thuộc tính và kiểu | Mapping / ghi chú |
 | --- | --- | --- |
@@ -638,7 +604,7 @@ Nguồn: [api.ts](../../apps/web/src/shared/api/api.ts). Đây là hình dạng 
 | Bootstrap.consent | aiProcessing: boolean; contentRetention: boolean | Cờ consent; không khai báo researchAnalytics |
 | StudyState | enrollment: object hoặc null; condition: control/intervention hoặc null | Trạng thái nghiên cứu |
 | StudyState.enrollment | id: string; participantCode: string; sequence: control_first/intervention_first; retentionUntil: string | Mapping về nghĩa lần lượt đến id, participant_code, sequence, retention_until; SQL không CHECK sequence |
-| ApiError (client) | error?: string; message?: string | Client đọc mã lỗi từ error, trong khi Java trả code: khác biệt hiện có |
+| ApiError (client) | error?: string; message?: string | Client đọc mã lỗi từ error, trong khi backend cũ trả code: khác biệt hiện có |
 | ApiRequestError | message: string; status?: number; code?: string | Error phía client; status là HTTP status; message kế thừa Error |
 | AuthSession | subject: string; email: string | Model phiên tối thiểu do [auth.ts](../../apps/web/src/shared/auth/auth.ts) sở hữu; credential thật nằm trong cookie HttpOnly do browser quản lý |
 
@@ -652,7 +618,7 @@ Các hàm yêu cầu đăng nhập nhận `AuthSession`; API client gửi sessio
 | getBootstrap | Không có body nghiệp vụ | Bootstrap |
 | recordConsent | Body cố định aiProcessing=true, contentRetention=true, researchAnalytics=false | void |
 | submitBrainDump | content: string | { suggestion: { candidates: { title: string; minutes: number }[] } } |
-| createNextAction | task: { title: string; minutes: number } | { task: RemoteTask }; type client không khai báo nextAction của Java response |
+| createNextAction | task: { title: string; minutes: number } | { task: RemoteTask }; type client không khai báo nextAction của backend cũ response |
 | helpMeStart | taskId: string | { suggestion: { tinyStep: string; minutes: number; options: string[] } } |
 | startFocus | taskId: string; plannedMinutes: number | { session: { id: string } } |
 | finishFocus | sessionId: string (path); outcome: done/still_stuck/paused | Không định nghĩa shape response cụ thể |
@@ -693,8 +659,8 @@ Yêu cầu thiết kế như export/delete engagement data, service ownership, A
 
 ## 8. Cách cập nhật và giới hạn đối chiếu
 
-Khi thay đổi dữ liệu, đối chiếu lần lượt: migration → JPA entity → domain → request/response → Zod → frontend. Cập nhật trường, kiểu, nullable/default, enum, FK/CHECK/index và mapping liên quan; ghi rõ phần thiết kế chưa triển khai. Không sửa lịch sử Supabase trong tài liệu thành schema core: hai bộ định nghĩa có khác biệt thực tế.
+Khi thay đổi dữ liệu, đối chiếu SQL/schema thực tế → Drizzle schema đích → domain → request/response → Zod → frontend. Ghi rõ phần chưa triển khai; không gộp public và core khi chưa có migration được duyệt.
 
-Các điểm cần nhớ khi tra cứu: model frontend Task/RemoteTask thiếu archived; response client tạo next action chỉ khai báo task; ApiError client dùng error trong khi Java dùng code; Java UpdateTask cho null như bỏ qua nhưng Zod updateTaskSchema không nhận null. Các khác biệt này được ghi nhận từ code hiện tại, chưa được sửa trong phạm vi tài liệu.
+Các điểm cần nhớ khi tra cứu: model frontend Task/RemoteTask thiếu archived; response client tạo next action chỉ khai báo task; ApiError client dùng error trong khi backend cũ dùng code; backend cũ UpdateTask cho null như bỏ qua nhưng Zod updateTaskSchema không nhận null. Các khác biệt này được ghi nhận từ code hiện tại, chưa được sửa trong phạm vi tài liệu.
 
 Đối chiếu này không introspect DB, không chạy migration, không kiểm chứng deployment hoặc dữ liệu thật. Cấu trúc JSONB facts, export unknown và profile unknown chưa đủ thông tin để liệt kê trường con chính xác. Model ML/dataset và cấu hình runtime không thuộc danh mục dữ liệu ứng dụng này.

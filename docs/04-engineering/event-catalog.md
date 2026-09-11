@@ -3,7 +3,7 @@
 - **Status:** Initial target contract catalog
 - **Last updated:** 2026-09-09
 
-The catalog names planned integration messages. It does not imply that RabbitMQ, publishers or consumers are implemented.
+The catalog names candidate integration messages. It does not imply that RabbitMQ, publishers or consumers are implemented or required. Under the mobile/NestJS/Drizzle direction, message transport and service extraction remain conditional; see [Architecture Options](architecture-options.md).
 
 ## Commands
 

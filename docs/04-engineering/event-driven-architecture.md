@@ -1,8 +1,10 @@
 # Event-Driven Architecture
 
-- **Status:** Approved target; implementation not started
+- **Status:** Conditional design reference; not an approved infrastructure sequence
 - **Last updated:** 2026-09-09
-- **Decision:** [ADR-0009](adr/0009-redis-rabbitmq-microservices.md)
+- **Historical decision:** [ADR-0009](adr/0009-redis-rabbitmq-microservices.md), superseded by ADR-0012. [Architecture Options](architecture-options.md) evaluates whether a worker or distributed service is needed.
+
+All delivery guarantees and broker topologies below are requirements for a future approved messaging slice, not implemented behavior. RabbitMQ/Redis are not mandatory dependencies of the NestJS/Drizzle foundation.
 
 ## Message roles
 
@@ -30,7 +32,7 @@ Message names and payloads are immutable within a version. A breaking change cre
 
 ## Delivery semantics
 
-The system provides at-least-once delivery, not exactly once. Consumers must tolerate duplicates and out-of-order delivery.
+A future broker-backed implementation must assume at-least-once delivery, not exactly once. Consumers must tolerate duplicates and out-of-order delivery.
 
 ```mermaid
 sequenceDiagram

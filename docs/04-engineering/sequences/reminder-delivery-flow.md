@@ -1,6 +1,8 @@
 # Reminder Delivery Flow
 
-- **Status:** Approved target; implementation not started
+- **Status:** Conditional future design; not an approved infrastructure sequence
+
+Gateway, Redis, RabbitMQ and separate workers below are illustrative participants from the earlier distributed design. They are not dependencies required to build the shared NestJS/Drizzle API. Review [Architecture Options](../architecture-options.md) before implementing this flow.
 
 ```mermaid
 sequenceDiagram

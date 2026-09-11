@@ -1,7 +1,7 @@
 # Product Direction — Public Focus Companion
 
 - **Status:** Approved direction
-- **Last updated:** 2026-09-08
+- **Last updated:** 2026-09-11
 - **Scope:** Independent public product; current delivery moves from private validation to public alpha
 
 ## Product definition
@@ -9,6 +9,12 @@
 > **Beneath the Pine là focus companion bằng tiếng Việt giúp người đang quá tải bắt đầu một hành động nhỏ, tạo một điểm vào cho lần sau và quay lại mà không bị phán xét.**
 
 Sản phẩm giảm ma sát để bắt đầu, tiếp tục hoặc trở lại với một việc phù hợp ở hiện tại. Việc phát triển ra cộng đồng mở rộng khả năng tiếp cận và học hỏi từ người dùng thật; lời hứa cốt lõi vẫn giữ nguyên.
+
+## Platform direction
+
+Mobile là nền tảng sản phẩm chính về lâu dài. Web React/Vite được xây trước để hoàn thiện vòng lặp sản phẩm và kiểm chứng API NestJS + PostgreSQL/Drizzle dùng chung. Nghiệp vụ và dữ liệu server không phụ thuộc UI web. Không cần hoàn thành toàn bộ web T0–T5 trước mobile; chuyển sang mobile sau gate API core và quyết định hệ điều hành đầu tiên và native auth.
+
+React Native + Expo đã được chọn; Android/iOS đầu tiên, push và offline sync còn cần quyết định riêng. Responsive web là yêu cầu của client đầu tiên, không thay thế kế hoạch mobile. Xem [Web/Mobile API Strategy](../04-engineering/web-mobile-api-strategy.md).
 
 ## Audience
 
@@ -46,9 +52,9 @@ Một phiên có giá trị khi người dùng đi từ trạng thái bị kẹt
 - Brain Dump tiếng Việt, AI extraction và Help Me Start có user confirmation/manual fallback.
 - Một next action, Focus Room và Focus Studio tối giản.
 - Open Seed, in-app reminder opt-in, Return Ritual và Weekly Letter dựa trên facts tổng hợp.
-- Managed authentication, consent AI, export/delete dữ liệu và analytics tối thiểu.
+- Account authentication, consent AI, export/delete dữ liệu và analytics tối thiểu.
 - Public landing/onboarding, đường demo rõ ràng và feedback trong ngữ cảnh.
-- Web responsive; Android web là target ưu tiên.
+- Web responsive trước; mobile app là đích sản phẩm chính, nền tảng phát hành đầu tiên chưa chốt.
 
 ### Candidates after public evidence
 
@@ -62,7 +68,7 @@ Một phiên có giá trị khi người dùng đi từ trạng thái bị kẹt
 - Task/calendar/notes/project management đầy đủ.
 - Social feed, leaderboard, streak, economy, shop hoặc daily quests.
 - Chatbot AI tự do và phân tích mood/journal tự động.
-- Push notification, iOS, desktop native và offline sync.
+- Push notification và offline sync chờ scope riêng; desktop native chưa ưu tiên. Mobile app thuộc roadmap sau gate API core, không nằm trong danh sách loại bỏ dài hạn.
 - Hardware sizing, database scale topology và multi-region planning trước khi có nhu cầu thực.
 
 ## Research and product hypotheses

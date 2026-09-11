@@ -1,8 +1,6 @@
 # 08 — Operations
 
-This section defines how the web and Java foundation—and the approved Redis/RabbitMQ target—are built, deployed, observed and recovered.
-
-## Documents
+Tài liệu vận hành cho hướng NestJS/Drizzle với web trước, mobile sau API gate. Chưa chọn hosting backend hoặc hạ tầng job. Giai đoạn hiện tại chỉ cập nhật tài liệu; code/config/CI vẫn có baseline backend cũ và draft NestJS.
 
 - [Infrastructure Plan](infrastructure-plan.md)
 - [CI/CD](ci-cd.md)
@@ -11,4 +9,4 @@ This section defines how the web and Java foundation—and the approved Redis/Ra
 - [Backup and Recovery](backup-and-recovery.md)
 - [Incident Response](incident-response.md)
 
-The current repository configures Vercel for the web client and retains Supabase for PostgreSQL and identity. The Java backend has no selected production provider or active deployment. Redis and RabbitMQ are approved target categories but are not implemented. Provider selection, credentials and production rollout require separate review and authorization.
+Web có cấu hình Vercel hiện có. Supabase giữ schema history; không phải identity provider mặc định đã chọn cho mobile. Redis/RabbitMQ và service extraction là phương án có điều kiện. Mọi deployment, thay đổi remote service hoặc production migration cần scope và ủy quyền riêng.

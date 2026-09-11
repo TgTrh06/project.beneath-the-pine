@@ -1,60 +1,24 @@
 # Infrastructure Plan
 
-- **Status:** Java foundation; backend hosting undecided
-- **Last updated:** 2026-09-10
+- **Ngày:** 2026-09-11
+- **Trạng thái:** Thiết kế để review; chưa chọn provider hay deploy.
 
-## Current topology
+## Baseline
 
-| Capability | Provider/runtime | Current configuration |
-| --- | --- | --- |
-| Web hosting | Vercel | Vite build from `apps/web`, configured by `vercel.json` |
-| Backend hosting | Not selected | Spring Boot image definition exists; no deployment manifest |
-| Scheduled lifecycle work | Not implemented | Reintroduce only with the owning Java module/worker |
-| Database | Supabase PostgreSQL target/local PostgreSQL | Retained SQL/RLS history plus new service-owned Flyway migrations |
-| Identity | Core Service with Spring Security | First-party accounts and browser sessions implemented; production hardening pending |
-| AI | Isolated Python pilot | Provider integration into Java is not implemented |
-| CI | GitHub Actions | Web verification plus Maven/JUnit/Testcontainers verification |
+Web có cấu hình Vercel. Dockerfile và CI cũ còn được giữ. Draft NestJS chưa có image/CI/migration Drizzle hoàn chỉnh. Python inference pilot độc lập. Không có app mobile, push provider, Redis hoặc RabbitMQ đang được triển khai bởi thay đổi tài liệu.
 
-The Core Service is a modular-monolith foundation, not a deployed product backend. Product modules are not separate services.
+## Kiến trúc đã chốt, hosting chưa chọn
 
-## Environment isolation
+Một NestJS API artifact và PostgreSQL, web dùng API qua HTTPS. Mobile sau đó dùng cùng endpoint công khai; không cần gateway/BFF riêng chỉ vì có mobile. Drizzle migration là bước quản trị riêng, không chạy tự động lúc API boot.
 
-- Staging and production use separate databases, keys and encryption material.
-- Production access follows least privilege and is reviewed.
-- Preview builds do not receive production server secrets.
-- Data region and processor terms are reviewed before real user data is enabled.
+Browser session hiện ở process memory trong baseline. Trước chạy nhiều API instance phải chọn store/lifecycle và kiểm tra expiry/revocation/failure. Native auth chưa chọn, không có lý do mặc định thêm Redis cho nó.
 
-## Reliability baseline
+## Mở rộng theo bằng chứng
 
-- Health endpoint for the API and deployment smoke checks.
-- Bounded database connections and graceful API shutdown.
-- Controlled migration execution, separate from ordinary API startup.
-- Idempotent scheduled work with recorded success/failure.
-- Budget and quota visibility for infrastructure and AI providers.
-- Managed database backups with a tested restore procedure before public launch.
+Đo API latency, error rate, CPU/event-loop, DB pool và query trước khi scale. Công việc dài/bền vững có thể cần worker và durable job state. Broker/cache/provider chỉ được chọn cùng use case và failure model; không theo lịch cố định Redis → RabbitMQ → microservices.
 
-## Approved target topology
+Tách domain service yêu cầu owner, dữ liệu, migration, contract/version và recovery riêng. [Architecture Options](../04-engineering/architecture-options.md).
 
-| Capability | Target | Status |
-| --- | --- | --- |
-| Core backend | Java/Spring Boot container | Foundation and image implemented; provider/deployment pending |
-| Gateway/BFF | Java/Spring entry service | Planned when multiple backend routes require it |
-| Cache/coordination | Managed Redis | Planned after the first Java slice |
-| Durable messaging | Managed RabbitMQ | Planned with outbox and AI Worker |
-| Engagement | Independent Spring Boot service | Planned after messaging reliability |
-| AI processing | Java worker plus Python/external inference | Planned extraction |
-| Telemetry | Central logs, metrics and distributed traces | Required before service extraction is production-ready |
+## Quyết định trước release
 
-The Vercel web configuration and retained Supabase database assets remain. Browser sessions currently live in Core Service process memory; a multi-instance deployment must add a shared Spring Session store before horizontal scaling. Selecting and changing deployment infrastructure requires a separately approved deployment plan. Kubernetes is not required for the planned service count.
-
-## Migration path
-
-1. Measure endpoint latency, database load, provider latency and job duration.
-2. Optimize queries, indexes, payloads and process concurrency within the modular monolith.
-3. Scale managed API or database capacity when measurement supports it.
-4. Implement the Java task/focus slice with one data writer and a Git/application rollback plan.
-5. Add Redis with explicit degradation behavior.
-6. Add RabbitMQ, outbox/inbox and AI Worker before extracting Engagement.
-7. Extract Engagement only after service ownership, telemetry and recovery gates pass.
-
-See [Target Microservices Architecture](../04-engineering/microservices-architecture.md) for boundaries and phase outcomes.
+Hosting/region, secret management, PostgreSQL backup/restore, TLS, session/native auth, logging/alerts và trách nhiệm vận hành. Với mobile cần distribution, API compatibility window, redirect/deep link và chính sách phiên bản. Các mục này là release gates, không phải implementation hiện có.

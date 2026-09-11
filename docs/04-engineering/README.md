@@ -1,31 +1,23 @@
 # 04 — Engineering
 
-This section explains how the product becomes a reliable service: its selected stack, system boundaries, data decisions and operating rules.
+Core modular monolith NestJS + Drizzle và React Native + Expo mobile theo [ADR-0011](adr/0011-nestjs-drizzle-mobile-direction.md). Đã có scaffold `apps/api` với 12 module và platform; chưa có business logic, schema/migration hoặc AI. Backend cũ vẫn được giữ. Inference độc lập là hướng tương lai.
 
-## Current shape
-
-The repository uses a React 19/Vite client and a Java 21/Spring Boot Core Service with first-party account and session authentication, retained Zod contracts and Supabase PostgreSQL migration history. The Task module is the first complete business slice. Redis, RabbitMQ and additional services remain later approved phases, not current dependencies.
-
-## Read by task
-
-| Need | Read |
+| Nhu cầu | Tài liệu |
 | --- | --- |
-| Compare the current runtime with the approved Java target | [Technology Stack](technology-stack.md), [ADR-0008](adr/0008-java-spring-backend-migration.md) and [ADR-0009](adr/0009-redis-rabbitmq-microservices.md) |
-| Understand service boundaries and extraction order | [Target Microservices Architecture](microservices-architecture.md) |
-| Design commands, events, retries or cache usage | [Event-Driven Architecture](event-driven-architecture.md) and [Event Catalog](event-catalog.md) |
-| Follow a request through the system | [System Architecture](system-architecture.md) |
-| Inspect context, components, capabilities, domains and entitlement | [System Diagrams](system-diagrams.md) |
-| Follow core focus, gentle return or commercial flows | [Sequence Diagrams](sequences/README.md) |
-| Work with an API module or dependency boundary | [Modular Backend Architecture](modular-backend-architecture.md) |
-| Study the first complete Java vertical slice | [Task Module](task-module.md) |
-| Work with the pilot inference service | [Local Inference Architecture](local-inference-architecture.md) |
-| Change data or migrations | [Data Model](data-model.md) and [API Guidelines](api-guidelines.md) |
-| Look up database fields, Java models, DTOs and frontend contracts | [Data Dictionary](data-dictionary.md) |
-| Configure local or deployed environments | [Environment and Configuration](environment-and-config.md) |
-| Run first-party registration and session authentication | [Local Spring Security Authentication](spring-security-local-development.md) |
-| Prepare or review an implementation | [Engineering Standards](engineering-standards.md) |
-| Record a durable architecture choice | [Architecture Decision Records](adr/README.md) |
+| Review bộ khung và thứ tự 12 module | [Module Delivery Plan](module-delivery-plan.md), [Chạy API](../../apps/api/README.md) |
+| Phân tích lợi/hại và chọn topology | [Architecture Options](architecture-options.md) |
+| Review cây thư mục và chiều phụ thuộc | [Repository Structure](repository-structure.md) |
+| Chuyển từ web đầu tiên sang mobile | [Web/Mobile API Strategy](web-mobile-api-strategy.md) |
+| Xem stack đã chốt và quyết định còn mở | [Technology Stack](technology-stack.md) |
+| Hiểu hệ thống và sơ đồ | [System Architecture](system-architecture.md), [System Diagrams](system-diagrams.md) |
+| Thiết kế module | [Modular Backend Architecture](modular-backend-architecture.md) |
+| Cân nhắc tách service hoặc worker | [Microservices Conditions](microservices-architecture.md), [Event-Driven Architecture](event-driven-architecture.md) |
+| Thiết kế API | [API Guidelines](api-guidelines.md) |
+| Drizzle, transaction và baseline | [Drizzle Data Access](drizzle-data-access.md), [Data Model](data-model.md) |
+| Tra cứu schema hiện có | [Data Dictionary](data-dictionary.md) — SQL inventory và mapping domain/API đích |
+| Nghiệp vụ task cần giữ | [Task Module](task-module.md) |
+| Cấu hình và kiểm tra | [Environment](environment-and-config.md), [Test Strategy](../07-testing/test-strategy.md) |
+| AI pilot | [Local Inference](local-inference-architecture.md), [AI Handbook](../ai/README.md) |
+| Quyết định | [ADR Index](adr/README.md) |
 
-## Working boundary
-
-Architecture documents describe both current and intended shapes. Diagram labels—`implemented`, `partial`, `designed`, `planned` and `future`—prevent intended capabilities from being mistaken for running code. When implementation and an accepted decision disagree, investigate and record a new ADR before making a significant architecture change. For retention delivery, also read the [AI Implementation Handbook](../ai/README.md).
+Tài liệu sequence/retention/commercial mô tả capability hoặc topology tương lai khi có nhãn thiết kế, không cho phép cài hạ tầng hay triển khai module. Mọi thay đổi code tiếp theo cần kế hoạch được duyệt, parity/security tests và chiến lược migration/rollback tương xứng.
