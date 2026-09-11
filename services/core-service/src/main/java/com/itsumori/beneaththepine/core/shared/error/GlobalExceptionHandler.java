@@ -2,6 +2,7 @@ package com.itsumori.beneaththepine.core.shared.error;
 
 import com.itsumori.beneaththepine.core.shared.logging.RequestIds;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.ConstraintViolationException;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,6 +12,8 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.HandlerMethodValidationException;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -54,6 +57,22 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(ApiError.of(
                 "MALFORMED_JSON",
                 "The request body is not valid JSON.",
+                RequestIds.from(request)
+        ));
+    }
+
+    @ExceptionHandler({
+            ConstraintViolationException.class,
+            HandlerMethodValidationException.class,
+            MethodArgumentTypeMismatchException.class
+    })
+    ResponseEntity<ApiError> handleInvalidRequestParameter(
+            Exception exception,
+            HttpServletRequest request
+    ) {
+        return ResponseEntity.badRequest().body(ApiError.of(
+                "VALIDATION_FAILED",
+                "The request could not be processed.",
                 RequestIds.from(request)
         ));
     }
