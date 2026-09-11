@@ -30,6 +30,48 @@ export const nextActionSchema = z.object({
   sourceBrainDumpId: z.string().uuid().optional(),
 });
 
+export const taskStatusSchema = z.enum(["ready", "done", "deferred", "archived"]);
+export const mutableTaskStatusSchema = z.enum(["ready", "done", "deferred"]);
+
+export const taskSchema = z.object({
+  id: z.string().uuid(),
+  userId: z.string().uuid(),
+  title: z.string().trim().min(2).max(280),
+  minutes: z.number().int().min(1).max(10),
+  status: taskStatusSchema,
+  sourceBrainDumpId: z.string().uuid().nullable(),
+  createdAt: z.string().datetime(),
+  updatedAt: z.string().datetime(),
+});
+
+export const confirmedNextActionSchema = z.object({
+  taskId: z.string().uuid(),
+  title: z.string().trim().min(2).max(280),
+  minutes: z.number().int().min(1).max(10),
+  confirmedAt: z.string().datetime(),
+});
+
+export const createNextActionResponseSchema = z.object({
+  task: taskSchema,
+  nextAction: confirmedNextActionSchema,
+});
+
+export const updateTaskSchema = z.object({
+  title: z.string().trim().min(2).max(280).optional(),
+  minutes: z.number().int().min(1).max(10).optional(),
+  status: mutableTaskStatusSchema.optional(),
+}).refine((value) => Object.values(value).some((field) => field !== undefined), {
+  message: "At least one task field must be provided",
+});
+
+export const taskListResponseSchema = z.object({ tasks: z.array(taskSchema) });
+
+export type TaskStatus = z.infer<typeof taskStatusSchema>;
+export type Task = z.infer<typeof taskSchema>;
+export type ConfirmedNextAction = z.infer<typeof confirmedNextActionSchema>;
+export type CreateNextActionResponse = z.infer<typeof createNextActionResponseSchema>;
+export type UpdateTaskInput = z.infer<typeof updateTaskSchema>;
+
 export const helpMeStartSchema = z.object({
   taskId: z.string().uuid(),
   context: z.string().trim().max(1200).optional(),
