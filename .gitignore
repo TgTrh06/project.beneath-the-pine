@@ -1,6 +1,8 @@
 node_modules/
 dist/
+dist-test/
 dist-web/
+**/target/
 release/
 .wrangler/
 .env
@@ -12,4 +14,6 @@ ml/data/private/
 ml/artifacts/
 __pycache__/
 *.pyc
-apps/inference/.venv/
+*.egg-info/
+services/inference-service/.venv/
+.idea/

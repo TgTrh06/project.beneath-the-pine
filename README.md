@@ -1,77 +1,48 @@
 # Beneath the Pine
 
-> Người bạn đồng hành tiếng Việt, dịu dàng đưa cảm giác quá tải về một hành động nhỏ có thể bắt đầu ngay.
+> A gentle Vietnamese companion that turns overwhelm into one small action a person can begin now.
 
-Beneath the Pine dành cho những lúc một việc bỗng quá lớn để khởi đầu. Sản phẩm giúp người dùng dừng lại, gọi tên điều quan trọng và đi một bước bình tĩnh—không xem năng suất là thước đo giá trị của họ.
+Beneath the Pine giúp người đang quá tải chọn một hành động nhỏ, bắt đầu focus và quay lại mà không bị phán xét. Sản phẩm không chẩn đoán hoặc thay thế chăm sóc chuyên môn.
 
-Đây là công cụ hỗ trợ, không chẩn đoán, điều trị hay thay thế chuyên gia sức khỏe.
+## Định hướng phát triển
 
-## Bắt đầu từ đây
+**Mobile là nền tảng sản phẩm chính; web được xây trước để hoàn thiện sản phẩm và API dùng chung.** Backend đích là **NestJS + TypeScript, PostgreSQL + Drizzle**. Mobile dùng React Native + Expo; hệ điều hành ra mắt đầu tiên và native authentication chưa được chọn.
 
-| Bạn muốn… | Hãy đọc… |
+Đã có bộ khung Core modular monolith tại `apps/api` để review 12 module. Giai đoạn này chưa có AI; inference độc lập là hướng tương lai và worker chỉ thêm khi có nhu cầu cụ thể. Xem [kế hoạch module](docs/04-engineering/module-delivery-plan.md).
+
+| Bạn muốn làm gì | Đọc |
 | --- | --- |
-| Hiểu định hướng và ranh giới sản phẩm | [Product Direction](docs/00-foundation/product-direction.md) |
-| Làm việc với ứng dụng | [Engineering](docs/04-engineering/README.md) |
-| Thay đổi một luồng giao diện | [Design](docs/03-design/README.md) |
-| Thay đổi hành vi AI | [AI Implementation Handbook](docs/ai/README.md) |
-| Xem toàn bộ hồ sơ quyết định | [Documentation Map](docs/README.md) |
+| Hiểu định hướng và phạm vi | [Product Direction](docs/00-foundation/product-direction.md), [MVP Scope](docs/00-foundation/mvp-scope.md) |
+| So sánh monolith, worker và microservices | [Architecture Options](docs/04-engineering/architecture-options.md) |
+| Review cấu trúc thư mục | [Repository Structure](docs/04-engineering/repository-structure.md) |
+| Thiết kế API cho web/mobile | [Web/Mobile API Strategy](docs/04-engineering/web-mobile-api-strategy.md) |
+| Làm việc với Drizzle và migration | [Drizzle Data Access](docs/04-engineering/drizzle-data-access.md) |
+| Hiểu thứ tự triển khai | [Roadmap](docs/00-foundation/roadmap.md), [Tiered Delivery Plan](docs/02-product/tiered-delivery-plan.md) |
+| Đọc toàn bộ tài liệu | [Documentation Map](docs/README.md) |
 
-## Phát triển local
+## Hiện trạng repository
 
-### Cần có
-
-- Node.js 22.12 trở lên
-- pnpm 10.32.1
-- [Supabase CLI](https://supabase.com/docs/guides/local-development/cli/getting-started) để chạy đầy đủ local stack
-
-### Chạy workspace
-
-1. Sao chép `.env.example` thành `.env`.
-2. Tạo `CONTENT_ENCRYPTION_KEY` gồm 32 byte, mã hóa base64; chỉ đặt khóa này trong `.env`.
-3. Trong `supabase/`, chạy `supabase start`; chép URL, publishable key, service-role key và database URL được trả về vào các biến tương ứng trong `.env` gốc.
-4. Từ thư mục gốc repository, cài dependencies bằng `pnpm install`.
-5. Mở web và API ở hai terminal riêng:
-
-   ```sh
-   pnpm dev
-   pnpm dev:api
-   ```
-
-Web chạy tại `http://localhost:5173`; API dùng URL trong `.env` (mặc định là `http://localhost:3001/api/v1`).
-
-> **Một lối đi local nhẹ nhàng.** Khi chưa cấu hình Supabase, web chủ động chạy ở local demo mode. Dữ liệu riêng tư chỉ nằm trong browser đó và không thay thế hành vi sản phẩm đã xác thực. Production luôn yêu cầu Supabase Auth và beta membership đang hoạt động.
-
-### Lệnh hữu ích
-
-| Lệnh | Mục đích |
+| Path hiện có | Trạng thái |
 | --- | --- |
-| `pnpm lint` | Type-check các workspace package áp dụng |
-| `pnpm test` | Chạy test suite của workspace |
-| `pnpm build` | Tạo production build |
-| `pnpm db:generate` | Tạo Drizzle artifacts cho API |
-| `pnpm db:migrate` | Áp dụng database migrations đã version |
-| `pnpm db:seed` | Seed dữ liệu phát triển local |
+| `apps/web` | React/Vite web; API adapter và local demo |
+| `apps/api` | NestJS + Drizzle scaffold; health và platform, chưa có nghiệp vụ |
+| `services/core-service` | Mã backend cũ được giữ lại; đồng thời có bản nháp NestJS chưa hoàn tất chuyển đổi |
+| `services/core-service/database` | Bản sao SQL baseline trong công việc dở; chưa là Drizzle migrations |
+| `packages/contracts` | Zod schemas/browser API types hiện có |
+| `services/inference-service` | Python/FastAPI pilot độc lập, chưa nối vào API |
+| `supabase` | Lịch sử schema public và RLS |
+| `docs`, `ml` | Tài liệu sản phẩm/kiến trúc và tài liệu nghiên cứu mô hình |
 
-Chạy `pnpm lint`, `pnpm test` và `pnpm build` trước khi bàn giao thay đổi chạm vào web, API hoặc contracts.
+Bản nháp NestJS cũ dùng pg query trực tiếp được giữ nguyên. Scaffold mới dùng Drizzle/node-postgres nhưng chưa có business schema hoặc migration. `apps/mobile` chưa được tạo; web chưa chuyển sang API mới.
 
-## Bản đồ workspace
+## Chạy web hiện tại
 
-| Đường dẫn | Trách nhiệm |
-| --- | --- |
-| `apps/web` | Trải nghiệm React/Vite và beta-admin shell |
-| `apps/api` | Fastify API, AI orchestration và data-lifecycle jobs |
-| `packages/contracts` | Zod schemas và API types dùng chung |
-| `supabase` | Cấu hình Supabase local và schema migrations đã version |
-| `docs` | Quyết định về product, design, engineering, safety, testing, operations và release |
-| `ml` | Tài liệu training AI tái lập được cùng safe public fixtures |
+Dùng Node.js >=22.12 và pnpm 10.32.1 theo package metadata hiện có. `pnpm dev` chạy web tại localhost:5173 sau khi dependencies đã được cài. Không có `VITE_API_URL` thì web dùng local demo; demo không chứng minh backend hoạt động.
 
-## Nguyên tắc làm việc
+Chạy API scaffold bằng `pnpm dev:api:scaffold` tại port 8081. Kiểm tra bằng `pnpm lint:api`, `pnpm test:api`, `pnpm build:api`. Chỉ `/health/live` và `/health/ready` hoạt động; chưa cấu hình DB thì readiness trả 503. Xem [API README](apps/api/README.md) để cấu hình local env riêng. Script `dev:api` và `db:init` vẫn thuộc backend cũ.
 
-- Giữ dữ liệu người dùng riêng tư theo mặc định; không commit secret, dữ liệu cá nhân hay transcript nghiên cứu thật.
-- Khi chi tiết triển khai xung đột với tài liệu product, design, privacy hoặc ADR, các tài liệu đó là nguồn quyết định.
-- Mỗi thay đổi hành vi AI phải cập nhật prompt record, output contract, evaluation và safety policy cùng nhau.
-- Luôn ưu tiên bước tiếp theo nhỏ nhất nhưng thực sự hữu ích—trong sản phẩm lẫn codebase.
+## Quyết định và bước tiếp theo
 
-## Trạng thái dự án
+[ADR-0011](docs/04-engineering/adr/0011-nestjs-drizzle-mobile-direction.md) ghi nhận hướng người dùng đã chọn. [ADR-0012](docs/04-engineering/adr/0012-modular-monolith-proposal.md) ghi nhận topology đã được chấp nhận.
 
-Repository đã có React/Vite web client, Fastify API, shared contracts và local Supabase migrations. Tài liệu product và implementation là tài liệu sống; [Documentation Map](docs/README.md) giải thích trạng thái và thẩm quyền của chúng.
+Review [ownership, API dự kiến và các slice](docs/04-engineering/module-delivery-plan.md) trước khi triển khai nghiệp vụ. Database hiện hữu cần kiểm kê và baseline strategy riêng. Chưa có deployment hoặc migration được thực hiện trong scaffold này.

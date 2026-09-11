@@ -1,39 +1,24 @@
 # Infrastructure Plan
 
-- **Status:** Proposed capabilities
+- **Ngày:** 2026-09-11
+- **Trạng thái:** Thiết kế để review; chưa chọn provider hay deploy.
 
-## Required services
+## Baseline
 
-- Static/web hosting hoặc application hosting.
-- API runtime.
-- Managed PostgreSQL.
-- Managed authentication.
-- Secret management.
-- Scheduled jobs.
-- Error tracking/logging/metrics.
-- Email/reminder provider nếu feature được bật.
+Web có cấu hình Vercel. Dockerfile và CI cũ còn được giữ. Draft NestJS chưa có image/CI/migration Drizzle hoàn chỉnh. Python inference pilot độc lập. Không có app mobile, push provider, Redis hoặc RabbitMQ đang được triển khai bởi thay đổi tài liệu.
 
-## Environment isolation
+## Kiến trúc đã chốt, hosting chưa chọn
 
-- Staging và production dùng project/database/keys riêng.
-- Production access theo least privilege.
-- Không dùng production secrets trong preview builds.
-- Region dữ liệu phải được xem xét trong privacy/legal review.
+Một NestJS API artifact và PostgreSQL, web dùng API qua HTTPS. Mobile sau đó dùng cùng endpoint công khai; không cần gateway/BFF riêng chỉ vì có mobile. Drizzle migration là bước quản trị riêng, không chạy tự động lúc API boot.
 
-## Reliability baseline
+Browser session hiện ở process memory trong baseline. Trước chạy nhiều API instance phải chọn store/lifecycle và kiểm tra expiry/revocation/failure. Native auth chưa chọn, không có lý do mặc định thêm Redis cho nó.
 
-- Health/readiness endpoints.
-- Database connection pooling.
-- Graceful shutdown.
-- Migration chạy như bước được kiểm soát, không ngầm trong mọi app startup.
-- Budget/quota alert cho AI và hạ tầng.
+## Mở rộng theo bằng chứng
 
-## Trước khi chọn provider
+Đo API latency, error rate, CPU/event-loop, DB pool và query trước khi scale. Công việc dài/bền vững có thể cần worker và durable job state. Broker/cache/provider chỉ được chọn cùng use case và failure model; không theo lịch cố định Redis → RabbitMQ → microservices.
 
-- Data region và processing terms.
-- Backup/PITR.
-- Export/portability.
-- Logging redaction.
-- Cost ở beta và khả năng scale.
-- SLA/support cần thiết.
+Tách domain service yêu cầu owner, dữ liệu, migration, contract/version và recovery riêng. [Architecture Options](../04-engineering/architecture-options.md).
 
+## Quyết định trước release
+
+Hosting/region, secret management, PostgreSQL backup/restore, TLS, session/native auth, logging/alerts và trách nhiệm vận hành. Với mobile cần distribution, API compatibility window, redirect/deep link và chính sách phiên bản. Các mục này là release gates, không phải implementation hiện có.

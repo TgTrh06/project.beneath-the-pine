@@ -1,17 +1,17 @@
-# Local Supabase
+# Retained Supabase Schema History
 
-Thư mục này giữ cấu hình Supabase local và database migrations đã version—ranh giới dữ liệu chung của Beneath the Pine.
+Thư mục này giữ cấu hình Supabase local và database migrations đã version—ranh giới dữ liệu lịch sử của Beneath the Pine. Supabase Auth không còn là identity provider đang dùng; quyết định hiện tại là [first-party Spring Security authentication](../docs/04-engineering/adr/0010-first-party-spring-security-authentication.md). Các policy dùng `auth.uid()` được giữ làm đầu vào lịch sử và không bảo vệ bảng `core.*` do Flyway quản lý.
 
 ## Khởi động local
 
 1. Cài [Supabase CLI](https://supabase.com/docs/guides/local-development/cli/getting-started).
 2. Trong thư mục này, chạy `supabase start`.
 3. Chép API URL, publishable key, service-role key và database URL được trả về vào các biến tương ứng trong `.env` gốc.
-4. Quay về repository root và chạy `pnpm db:migrate` để áp dụng application migrations đã version.
+4. Treat the migrations in this directory as retained product-schema history. Do not edit applied files. New Java service migrations live under `services/core-service/src/main/resources/db/migration` and are applied by Flyway when the service starts against an explicitly selected database.
 
 ## Giữ ranh giới sạch
 
-- API chỉ dùng service credentials ở server; không bao giờ đưa chúng vào browser code.
+- Only server code may use privileged service credentials; never place them in browser code.
 - Web client chỉ nhận publishable key.
 - Thêm schema changes bằng migration mới; không sửa applied migration history.
 - Local data chỉ dùng để phát triển. Không import production data hoặc commit secrets.

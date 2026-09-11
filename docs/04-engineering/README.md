@@ -1,24 +1,23 @@
 # 04 — Engineering
 
-Phần này giải thích cách sản phẩm trở thành một dịch vụ đáng tin cậy: stack hiện tại, system boundary, quyết định dữ liệu và quy tắc vận hành.
+Core modular monolith NestJS + Drizzle và React Native + Expo mobile theo [ADR-0011](adr/0011-nestjs-drizzle-mobile-direction.md). Đã có scaffold `apps/api` với 12 module và platform; chưa có business logic, schema/migration hoặc AI. Backend cũ vẫn được giữ. Inference độc lập là hướng tương lai.
 
-## Hình dạng hiện tại
-
-Implementation đang hoạt động gồm React 19/Vite web client, Fastify/Node API, shared Zod contracts và Supabase Postgres/Auth với Drizzle. Vercel host web build; Render được cấu hình cho API và purge job. Native mobile và desktop nằm ngoài scope hiện tại.
-
-## Đọc theo công việc
-
-| Khi cần… | Hãy đọc |
+| Nhu cầu | Tài liệu |
 | --- | --- |
-| Hiểu runtime choices đã duyệt | [Technology Stack](technology-stack.md) |
-| Theo một request xuyên hệ thống | [System Architecture](system-architecture.md) |
-| Làm việc với API module hoặc dependency boundary | [Modular Backend Architecture](modular-backend-architecture.md) |
-| Làm việc với pilot inference service | [Local Inference Architecture](local-inference-architecture.md) |
-| Thay đổi data hoặc migrations | [Data Model](data-model.md) và [API Guidelines](api-guidelines.md) |
-| Cấu hình môi trường local/deployed | [Environment & Configuration](environment-and-config.md) |
-| Chuẩn bị hoặc review implementation | [Engineering Standards](engineering-standards.md) |
-| Ra một quyết định kiến trúc bền vững | [Architecture Decision Records](adr/README.md) |
+| Review bộ khung và thứ tự 12 module | [Module Delivery Plan](module-delivery-plan.md), [Chạy API](../../apps/api/README.md) |
+| Phân tích lợi/hại và chọn topology | [Architecture Options](architecture-options.md) |
+| Review cây thư mục và chiều phụ thuộc | [Repository Structure](repository-structure.md) |
+| Chuyển từ web đầu tiên sang mobile | [Web/Mobile API Strategy](web-mobile-api-strategy.md) |
+| Xem stack đã chốt và quyết định còn mở | [Technology Stack](technology-stack.md) |
+| Hiểu hệ thống và sơ đồ | [System Architecture](system-architecture.md), [System Diagrams](system-diagrams.md) |
+| Thiết kế module | [Modular Backend Architecture](modular-backend-architecture.md) |
+| Cân nhắc tách service hoặc worker | [Microservices Conditions](microservices-architecture.md), [Event-Driven Architecture](event-driven-architecture.md) |
+| Thiết kế API | [API Guidelines](api-guidelines.md) |
+| Drizzle, transaction và baseline | [Drizzle Data Access](drizzle-data-access.md), [Data Model](data-model.md) |
+| Tra cứu schema hiện có | [Data Dictionary](data-dictionary.md) — SQL inventory và mapping domain/API đích |
+| Nghiệp vụ task cần giữ | [Task Module](task-module.md) |
+| Cấu hình và kiểm tra | [Environment](environment-and-config.md), [Test Strategy](../07-testing/test-strategy.md) |
+| AI pilot | [Local Inference](local-inference-architecture.md), [AI Handbook](../ai/README.md) |
+| Quyết định | [ADR Index](adr/README.md) |
 
-## Ranh giới làm việc
-
-Tài liệu kiến trúc mô tả cả hình dạng mong muốn lẫn hiện tại. Khi code và tài liệu quyết định khác nhau, hãy tìm nguyên nhân và ghi ADR trước khi đổi kiến trúc đáng kể. Với delivery retention, đọc thêm [AI Implementation Handbook](../ai/README.md).
+Tài liệu sequence/retention/commercial mô tả capability hoặc topology tương lai khi có nhãn thiết kế, không cho phép cài hạ tầng hay triển khai module. Mọi thay đổi code tiếp theo cần kế hoạch được duyệt, parity/security tests và chiến lược migration/rollback tương xứng.

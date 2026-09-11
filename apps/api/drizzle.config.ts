@@ -1,9 +1,11 @@
-import "dotenv/config";
-import { defineConfig } from "drizzle-kit";
+import { defineConfig } from 'drizzle-kit';
 
+// Schema discovery only. No credentials, push/migrate scripts or baseline journal
+// are configured until the first persistence slice is reviewed.
 export default defineConfig({
-  schema: "./src/db/schema.ts",
-  out: "../../supabase/migrations",
-  dialect: "postgresql",
-  dbCredentials: { url: process.env.DATABASE_URL ?? "postgres://postgres:postgres@127.0.0.1:54322/postgres" },
+  dialect: 'postgresql',
+  schema: './src/modules/*/infrastructure/*.schema.ts',
+  out: './drizzle',
+  strict: true,
+  verbose: false,
 });

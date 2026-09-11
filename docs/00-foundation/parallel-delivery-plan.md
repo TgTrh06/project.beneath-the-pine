@@ -1,6 +1,7 @@
 # Parallel Delivery Plan — Web + Beneath Pine AI
 
-- **Status:** Active execution plan
+- **Status:** Historical pilot plan; not the current product/platform roadmap
+- **Current direction:** [Roadmap](roadmap.md) and [Web/Mobile API Strategy](../04-engineering/web-mobile-api-strategy.md) supersede the web-only release-critical sequence below. The 12-week schedule is retained as research history, not a current deadline.
 - **Owner:** Product / Engineering / ML
 - **Target:** 12 weeks, with local demo as the release-critical path.
 

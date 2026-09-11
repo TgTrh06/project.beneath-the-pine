@@ -1,48 +1,31 @@
 # Deployment Runbook
 
-- **Status:** Template
+- **Ngày:** 2026-09-11
+- **Trạng thái:** Release requirements; chưa có kế hoạch deploy NestJS/Drizzle được duyệt.
 
-## Pre-deploy
+## Trước triển khai
 
-- [ ] Release scope và owner rõ ràng.
-- [ ] CI green.
-- [ ] Staging smoke/E2E pass.
-- [ ] Database migration reviewed.
-- [ ] Backup/PITR healthy.
-- [ ] AI eval pass nếu prompt/model thay đổi.
-- [ ] Rollback hoặc forward-fix plan.
-- [ ] Monitoring dashboard mở sẵn.
+Phải có commit/artifact, environment và owner rõ ràng; backend được build/test theo pipeline đã triển khai, không theo lệnh đích còn ở docs. Kiểm tra auth/CSRF hoặc native token lifecycle, ownership, contract compatibility và PostgreSQL integration.
 
-## Deploy
+Với dữ liệu: kiểm kê schema/journal hiện hữu; review SQL Drizzle, backup/restore, lock/backfill, compatibility và rollback/forward-fix. Không chạy db:init draft lên database hiện hữu. Không dựa vào việc đổi framework để reset account/data.
 
-1. Ghi release version/commit.
-2. Chạy migration theo thứ tự tương thích ngược.
-3. Deploy server rồi client theo kế hoạch.
-4. Bật feature flag theo từng bước nếu cần.
-5. Chạy smoke tests.
+## Thứ tự release sau khi được duyệt
 
-## Post-deploy checks
+1. Ghi nhận release và xác minh DB/app/client compatibility.
+2. Apply migration backward-compatible bằng bước riêng nếu kế hoạch có yêu cầu.
+3. Deploy API, kiểm tra liveness/readiness, auth và synthetic core workflow.
+4. Deploy web sau khi API tương thích.
+5. Mobile release theo SDK/store đã chọn; giữ API cho các phiên bản client đang được hỗ trợ.
+6. Theo dõi lỗi, latency, auth failure và data consistency trong cửa sổ đã thống nhất.
 
-- Auth/login.
-- Tạo manual task.
-- Brain dump synthetic → extraction.
-- Help Me Start.
-- Consent revoke blocks AI.
-- Error rate, latency, DB và AI cost.
+Mobile release có thể chậm hoặc không được người dùng cập nhật ngay; không rollback API sang contract mà mobile đã phát hành không dùng được.
 
-## Rollback triggers
+## Rollback
 
-- Auth/core loop không hoạt động.
-- Error rate vượt ngưỡng đã định.
-- Cross-user/privacy/security issue.
-- AI critical safety regression.
-- Migration gây mất hoặc sai dữ liệu.
+Rollback artifact chỉ khi schema và contract tương thích. Database mutation có thể không đảo ngược; ưu tiên forward-fix được review. Chuyển backend cũ → NestJS cần kiểm tra credential hash/UUID, dữ liệu và đăng nhập lại khi session không tương thích. Không chạy song song hai writer để làm “fallback”.
 
-## Record
+Khi có worker/service sau này, thêm xử lý job đang chờ, replay/idempotency, partial failure và data ownership cutover. Không cho phép xóa queue/job hoặc business data chỉ để rollback binary.
 
-- Version, thời gian, người deploy.
-- Migration IDs.
-- Feature flags.
-- Kết quả smoke test.
-- Incident/link follow-up nếu có.
+## Kết thúc
 
+Ghi commit/artifact, thời gian, migration, smoke results, sự cố và follow-up. Chưa có production action nào được thực hiện qua lần cập nhật tài liệu này.

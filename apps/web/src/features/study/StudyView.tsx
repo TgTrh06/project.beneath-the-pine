@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
-import type { Session } from "@supabase/supabase-js";
+import type { AuthSession } from "../../shared/auth/auth";
 import { beginStudySession, completeStudySession, enrollStudy, getStudy, isConfigured, markStudyStarted, withdrawStudy } from "../../shared/api/api";
 
 type Condition = "control" | "intervention";
-export function StudyView({ remoteSession, onNotice }: { remoteSession: Session | null; onNotice: (message: string) => void }) {
+export function StudyView({ remoteSession, onNotice }: { remoteSession: AuthSession | null; onNotice: (message: string) => void }) {
   const [condition, setCondition] = useState<Condition | null>(null); const [enrolled, setEnrolled] = useState(false); const [before, setBefore] = useState(3); const [after, setAfter] = useState(3); const [sessionId, setSessionId] = useState<string | null>(null); const [started, setStarted] = useState(false);
   useEffect(() => { if (isConfigured && remoteSession) void getStudy(remoteSession).then((study) => { setEnrolled(Boolean(study.enrollment)); setCondition(study.condition); }).catch((error: Error) => onNotice(error.message)); }, [remoteSession, onNotice]);
   const enroll = async () => { if (!remoteSession) { setEnrolled(true); setCondition("control"); return; } const study = await enrollStudy(remoteSession); setEnrolled(true); setCondition(study.condition); };

@@ -4,14 +4,14 @@ Nhóm tài liệu trả lời “vì sao dự án tồn tại, dành cho ai, th�
 
 ## Tài liệu
 
-- [Product Direction — Web + Mobile Prototype](product-direction.md) — định nghĩa sản phẩm đã chốt.
+- [Product Direction — Mobile priority, web first](product-direction.md) — định nghĩa sản phẩm đã chốt.
 - [Product Vision](product-vision.md)
 - [Problem Statement](problem-statement.md)
 - [Personas & Jobs-to-be-Done](personas-and-jobs.md)
 - [Product Principles](product-principles.md)
 - [MVP Scope](mvp-scope.md)
 - [Roadmap](roadmap.md)
-- [Parallel Delivery Plan](parallel-delivery-plan.md)
+- [Historical Pilot Delivery Plan](parallel-delivery-plan.md)
 - [Metrics](metrics.md)
 - [Glossary](glossary.md)
 
