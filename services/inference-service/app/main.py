@@ -2,7 +2,7 @@
 
 Start in safe mock mode: `uv run uvicorn app.main:app --port 8010`.
 Set BENEATH_PINE_GGUF_PATH and install the `local` extra to use a merged GGUF.
-A future Java AI adapter or worker is the intended caller; this service rejects missing bearer tokens.
+A future NestJS AI adapter or worker is the intended caller; this service rejects missing bearer tokens.
 """
 from __future__ import annotations
 
