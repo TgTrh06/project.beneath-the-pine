@@ -5,13 +5,31 @@ NestJS modular monolith dùng PostgreSQL + Drizzle. Đây là bộ khung để r
 ## Chạy từ repository root
 
 ```sh
-pnpm dev:api:scaffold
+pnpm dev:api
 pnpm lint:api
 pnpm test:api
 pnpm build:api
 ```
 
 Dependencies dùng workspace pnpm. Node >=22.12 và pnpm 10.32.1. Sau build có thể chạy `pnpm --filter @beneath-the-pine/api start`.
+
+## PostgreSQL local bằng Docker
+
+Docker Desktop cần chạy. Từ repository root:
+
+```sh
+pnpm db:local:up
+pnpm dev:api
+```
+
+Compose chạy PostgreSQL 17 trên `127.0.0.1:5433`, dùng database `btp_review` và volume `beneath-the-pine-postgres-local`. File `apps/api/.env` local đã trỏ API tới database này và bị Git bỏ qua. Kiểm tra `GET http://127.0.0.1:8081/health/ready`; kết nối thành công trả 200.
+
+```sh
+pnpm db:local:logs
+pnpm db:local:down
+```
+
+`db:local:down` dừng và bỏ container/network, giữ volume. Chỉ xóa volume bằng thao tác riêng khi thực sự muốn mất dữ liệu local.
 
 Default: http://127.0.0.1:8081. `GET /health/live` trả 200; `GET /health/ready` trả 503 nếu chưa cấu hình/kết nối DB. Khi DB reachable, readiness chỉ báo connectivity và stage scaffold, không khẳng định schema/nghiệp vụ đã sẵn sàng.
 
@@ -20,14 +38,14 @@ Có thể copy `.env.example` trong thư mục này thành `.env`. API chỉ t�
 | Biến | Default / ý nghĩa |
 | --- | --- |
 | API_HOST | 127.0.0.1; chỉ local mặc định |
-| API_PORT | 8081; tách khỏi draft cũ |
+| API_PORT | 8081 |
 | API_WEB_ORIGIN | http://localhost:5173; một origin chính xác |
 | API_LOG_LEVEL | info; silent/error/warn/info/debug |
-| API_DATABASE_URL | Không có; PostgreSQL URL tùy chọn, server-only |
+| API_DATABASE_URL | Không có mặc định; local Docker dùng `127.0.0.1:5433/btp_review` |
 | API_DB_POOL_MAX | 5; giới hạn 1–20 |
 | API_DB_TIMEOUT_MS | 3000; giới hạn 100–30000 ms |
 
-Root `dev:api` và `db:init` vẫn trỏ legacy. Web chưa chuyển sang scaffold. Không chạy lệnh database cũ để thiết lập Drizzle mới.
+Web chưa chuyển sang API mới. Chưa có lệnh tạo hoặc áp dụng Drizzle migration; ba SQL baseline chỉ là tài liệu tham khảo.
 
 ## Cấu trúc và kiểm tra
 
