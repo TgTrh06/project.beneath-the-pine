@@ -20,7 +20,7 @@ Tài liệu mô tả cấu trúc trong repository, không xác nhận migration 
 ## 2. Database: từng bảng và trường
 
 Nguồn lịch sử: [Supabase core](../../supabase/migrations/0000_big_the_spike.sql), [RLS](../../supabase/migrations/0001_enable_row_level_security.sql), [Research pilot](../../supabase/migrations/0002_research_pilot.sql).
-Nguồn SQL core: [V1 tạo schema core](../../services/core-service/database/migrations/V1__create_core_schema.sql), [V2 task module](../../services/core-service/database/migrations/V2__create_task_module.sql).
+Nguồn SQL core đã lưu trữ: [V1 tạo schema core](legacy-schema/V1__create_core_schema.sql), [V2 task module](legacy-schema/V2__create_task_module.sql), [V3 accounts](legacy-schema/V3__create_accounts.sql).
 
 Enum SQL: public.energy_level = low / medium / high; public.member_status = waitlisted / active / revoked; public.task_status = ready / done / deferred / archived.
 Không suy ra enum/check cho cột varchar nếu DDL không có ràng buộc.
@@ -410,7 +410,7 @@ Ràng buộc / index khai báo (trích SQL, gồm FK và hành vi xóa nếu có
 
 ### `core.tasks`
 
-Nguồn: [services/core-service/database/migrations/V2__create_task_module.sql](../../services/core-service/database/migrations/V2__create_task_module.sql). Trạng thái: có trong migration.
+Nguồn: [V2 task module đã lưu trữ](legacy-schema/V2__create_task_module.sql). Trạng thái: baseline tham khảo, chưa phải Drizzle migration.
 
 | Trường | Kiểu SQL | NULL? | DEFAULT | Ý nghĩa |
 | --- | --- | --- | --- | --- |
@@ -437,7 +437,7 @@ create index tasks_user_status_created_at_idx
 
 ### `core.next_actions`
 
-Nguồn: [services/core-service/database/migrations/V2__create_task_module.sql](../../services/core-service/database/migrations/V2__create_task_module.sql). Trạng thái: có trong migration.
+Nguồn: [V2 task module đã lưu trữ](legacy-schema/V2__create_task_module.sql). Trạng thái: baseline tham khảo, chưa phải Drizzle migration.
 
 | Trường | Kiểu SQL | NULL? | DEFAULT | Ý nghĩa |
 | --- | --- | --- | --- | --- |
@@ -492,7 +492,7 @@ Phần này mô tả schema và public contract, không mô tả entity/class c�
 | enabled | boolean | NOT NULL, default true; account bị tắt không đăng nhập |
 | created_at, updated_at | timestamptz | NOT NULL |
 
-Nguồn: [SQL accounts](../../services/core-service/database/migrations/V3__create_accounts.sql). Browser credentials baseline: email hợp lệ và password 12–64 ký tự, tối đa 72 byte UTF-8. Session response có authenticated, user {id,email} hoặc null và csrfToken. Mobile auth chưa chọn; cùng account UUID, không tạo bộ tài khoản riêng theo client.
+Nguồn: [SQL accounts đã lưu trữ](legacy-schema/V3__create_accounts.sql). Browser credentials baseline: email hợp lệ và password 12–64 ký tự, tối đa 72 byte UTF-8. Session response có authenticated, user {id,email} hoặc null và csrfToken. Mobile auth chưa chọn; cùng account UUID, không tạo bộ tài khoản riêng theo client.
 
 ### 4.1 Task
 
@@ -565,7 +565,7 @@ Type suy ra: `Task`, `TaskStatus`, `ConfirmedNextAction`, `CreateNextActionRespo
 | | safety.needsHumanSupport | boolean bắt buộc | Có cần hỗ trợ từ người hay không |
 | | safety.message | string optional, tối đa 400 | Thông điệp hỗ trợ |
 
-Các chuỗi AI trên không khai báo trim. Mapping về nghĩa không xác nhận đã có backend cũ persistence cho AI output.
+Các chuỗi AI trên không khai báo trim. Mapping về nghĩa không xác nhận đã có persistence cho AI output.
 
 ### 5.3 Enum và quota
 
@@ -582,7 +582,7 @@ Nguồn: [domain.ts](../../apps/web/src/shared/types/domain.ts). Các type front
 | Model | Tất cả thuộc tính / giá trị | Ý nghĩa và đối chiếu |
 | --- | --- | --- |
 | View | now / capture / habits / review / study / settings / admin | Màn hình; không phải bảng |
-| TaskStatus | ready / done / deferred | Thiếu archived so với shared contract và backend cũ |
+| TaskStatus | ready / done / deferred | Thiếu archived so với shared contract và SQL baseline lưu trữ |
 | Task | id: string; title: string; minutes: number; status: TaskStatus | Bản rút gọn của task; không chứa owner, nguồn hoặc timestamps |
 | Habit | id: string; title: string; completed: boolean | completed là trạng thái UI; SQL dùng habit_completions theo ngày, không có cột habits.completed |
 | Energy | low / medium / high | Cùng tập giá trị energy_level |
@@ -595,7 +595,7 @@ Model cục bộ: [FocusRoom](../../apps/web/src/features/focus/FocusRoom.tsx) c
 
 ### 6.2 Model API phía client
 
-Nguồn: [api.ts](../../apps/web/src/shared/api/api.ts). Đây là hình dạng client đang kỳ vọng, không xác nhận toàn bộ endpoint có implementation backend cũ.
+Nguồn: [api.ts](../../apps/web/src/shared/api/api.ts). Đây là hình dạng client đang kỳ vọng, không xác nhận các endpoint đã được triển khai trong API hiện tại.
 
 | Model | Tất cả thuộc tính và kiểu | Mapping / ghi chú |
 | --- | --- | --- |
@@ -604,7 +604,7 @@ Nguồn: [api.ts](../../apps/web/src/shared/api/api.ts). Đây là hình dạng 
 | Bootstrap.consent | aiProcessing: boolean; contentRetention: boolean | Cờ consent; không khai báo researchAnalytics |
 | StudyState | enrollment: object hoặc null; condition: control/intervention hoặc null | Trạng thái nghiên cứu |
 | StudyState.enrollment | id: string; participantCode: string; sequence: control_first/intervention_first; retentionUntil: string | Mapping về nghĩa lần lượt đến id, participant_code, sequence, retention_until; SQL không CHECK sequence |
-| ApiError (client) | error?: string; message?: string | Client đọc mã lỗi từ error, trong khi backend cũ trả code: khác biệt hiện có |
+| ApiError (client) | error?: string; message?: string | Client đọc mã lỗi từ error, trong khi contract server baseline dùng code: khác biệt cần xử lý |
 | ApiRequestError | message: string; status?: number; code?: string | Error phía client; status là HTTP status; message kế thừa Error |
 | AuthSession | subject: string; email: string | Model phiên tối thiểu do [auth.ts](../../apps/web/src/shared/auth/auth.ts) sở hữu; credential thật nằm trong cookie HttpOnly do browser quản lý |
 
@@ -618,7 +618,7 @@ Các hàm yêu cầu đăng nhập nhận `AuthSession`; API client gửi sessio
 | getBootstrap | Không có body nghiệp vụ | Bootstrap |
 | recordConsent | Body cố định aiProcessing=true, contentRetention=true, researchAnalytics=false | void |
 | submitBrainDump | content: string | { suggestion: { candidates: { title: string; minutes: number }[] } } |
-| createNextAction | task: { title: string; minutes: number } | { task: RemoteTask }; type client không khai báo nextAction của backend cũ response |
+| createNextAction | task: { title: string; minutes: number } | { task: RemoteTask }; type client không khai báo nextAction trong response baseline |
 | helpMeStart | taskId: string | { suggestion: { tinyStep: string; minutes: number; options: string[] } } |
 | startFocus | taskId: string; plannedMinutes: number | { session: { id: string } } |
 | finishFocus | sessionId: string (path); outcome: done/still_stuck/paused | Không định nghĩa shape response cụ thể |
@@ -661,6 +661,6 @@ Yêu cầu thiết kế như export/delete engagement data, service ownership, A
 
 Khi thay đổi dữ liệu, đối chiếu SQL/schema thực tế → Drizzle schema đích → domain → request/response → Zod → frontend. Ghi rõ phần chưa triển khai; không gộp public và core khi chưa có migration được duyệt.
 
-Các điểm cần nhớ khi tra cứu: model frontend Task/RemoteTask thiếu archived; response client tạo next action chỉ khai báo task; ApiError client dùng error trong khi backend cũ dùng code; backend cũ UpdateTask cho null như bỏ qua nhưng Zod updateTaskSchema không nhận null. Các khác biệt này được ghi nhận từ code hiện tại, chưa được sửa trong phạm vi tài liệu.
+Các điểm cần nhớ khi tra cứu: model frontend Task/RemoteTask thiếu archived; response client tạo next action chỉ khai báo task; ApiError client dùng error trong khi contract baseline dùng code; semantics update null của baseline khác Zod updateTaskSchema. Đây là đầu vào để chốt contract mới, chưa phải hành vi của `apps/api`.
 
 Đối chiếu này không introspect DB, không chạy migration, không kiểm chứng deployment hoặc dữ liệu thật. Cấu trúc JSONB facts, export unknown và profile unknown chưa đủ thông tin để liệt kê trường con chính xác. Model ML/dataset và cấu hình runtime không thuộc danh mục dữ liệu ứng dụng này.

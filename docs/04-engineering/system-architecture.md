@@ -25,7 +25,7 @@ Khi có scope AI riêng về sau, provider cần timeout/manual fallback; nếu 
 
 Owner ID đến từ principal; repository lọc resource + owner, không tin userId trong input. Drizzle không tự enforce quyền. RLS trong schema Supabase public là baseline riêng, không bảo vệ core.*. Nội dung nhạy cảm và export/delete tuân thủ policy sản phẩm; capability chưa triển khai phải được ghi đúng trạng thái.
 
-Một schema đích không phải quyền chạy migration. Baseline migration cũ → Drizzle phải được kiểm chứng trên database test. Không dual-write backend cũ và bản nháp NestJS vào dữ liệu thật trong migration.
+Một schema đích không phải quyền chạy migration. Baseline SQL lưu trữ → Drizzle phải được kiểm chứng trên database test. Không tạo writer thứ hai trên dữ liệu thật trong quá trình chuyển đổi.
 
 ## Tài liệu liên quan
 

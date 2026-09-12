@@ -1,13 +1,13 @@
 # CI/CD
 
 - **Ngày:** 2026-09-11
-- **Trạng thái:** Kiểm kê hiện tại; pipeline đích cần kế hoạch implementation.
+- **Trạng thái:** Node/pnpm workspace verification hiện tại; pipeline database/deploy còn mở.
 
 ## Workflow hiện có
 
-.github/workflows/ci.yml còn các job và cấu hình backend cũ chưa đồng bộ với stack đích. Web job chạy pnpm install/lint/test/build; do workspace chứa draft NestJS, root scripts có thể chạy thêm package draft. Chưa có PostgreSQL service cùng TEST_DATABASE_URL cho draft Nest tests trong workflow.
+.github/workflows/ci.yml có một job Node/pnpm chạy frozen install, lint, test và build toàn workspace, gồm web và API. Job của backend legacy đã được gỡ. Chưa có PostgreSQL service hoặc migration test trong workflow.
 
-Scaffold đã cập nhật package/lockfile và được workspace apps/* nhận diện. Root recursive lint/test/build bao gồm package API mới; workflow chưa được sửa hoặc xác minh trên CI. Không khẳng định CI đã chạy Drizzle migration, native app hoặc API contract generation.
+Root recursive lint/test/build bao gồm API. Workflow đã được cập nhật nhưng chưa được thực thi trên GitHub trong lần dọn local này. Không khẳng định CI đã chạy Drizzle migration, native app hoặc API contract generation.
 
 ## Pipeline đích đề xuất
 

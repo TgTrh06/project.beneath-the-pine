@@ -21,7 +21,7 @@
 
 ## Hiện trạng khác với đích
 
-Implementation và tooling hiện có chưa được chuyển hoàn chỉnh sang stack đích. Bản nháp NestJS cùng thư mục dùng pg trực tiếp, process-local session và HTTP/task tests; đây là công việc đang dở. SQL migration cũ còn nguyên và có bản sao baseline. pnpm/workspace/CI chưa được đồng bộ theo cấu trúc đích.
+Repository chỉ còn Core NestJS tại `apps/api`; workspace, scripts và CI dùng Node/pnpm. Ba SQL cũ được giữ một bản trong [legacy-schema](legacy-schema/README.md) để review Drizzle baseline, không phải migration đang hoạt động.
 
 `apps/api` đã có NestJS module composition, platform và Drizzle connection. Chưa có business logic, Drizzle schema/journal hoặc mobile. AI không thuộc phạm vi scaffold; xem [kế hoạch module](module-delivery-plan.md).
 

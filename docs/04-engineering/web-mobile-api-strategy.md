@@ -58,7 +58,7 @@ RFC 8252 yêu cầu OAuth native dùng external user-agent và PKCE cho public c
 
 Đề xuất tách adapter browser/native nhưng quy về cùng account UUID và authorization use case. Chưa chọn cơ chế native cuối cùng. Native credential cần secure storage của nền tảng; không đóng gói secret backend trong app. Không bỏ CSRF ở browser chỉ vì native gửi bearer token, và không ép native mô phỏng cookie browser trước khi đánh giá lifecycle.
 
-Trước mobile implementation cần quyết định account source, login/recovery/verification, per-device session, expiry, refresh/revocation, account deletion và compatibility của tài khoản đã tạo trên web. First-party session browser hiện có và bản nháp NestJS là baseline kiểm tra, không phải quyết định security cuối cho mobile.
+Trước mobile implementation cần quyết định account source, login/recovery/verification, per-device session, expiry, refresh/revocation, account deletion và compatibility của tài khoản đã tạo trên web. Contract browser đã kiểm kê là đầu vào review, không phải quyết định security cuối cho mobile.
 
 ## Gate web → mobile
 

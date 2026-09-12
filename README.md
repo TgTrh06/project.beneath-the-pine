@@ -26,20 +26,20 @@ Beneath the Pine giúp người đang quá tải chọn một hành động nh�
 | --- | --- |
 | `apps/web` | React/Vite web; API adapter và local demo |
 | `apps/api` | NestJS + Drizzle scaffold; health và platform, chưa có nghiệp vụ |
-| `services/core-service` | Mã backend cũ được giữ lại; đồng thời có bản nháp NestJS chưa hoàn tất chuyển đổi |
-| `services/core-service/database` | Bản sao SQL baseline trong công việc dở; chưa là Drizzle migrations |
 | `packages/contracts` | Zod schemas/browser API types hiện có |
 | `services/inference-service` | Python/FastAPI pilot độc lập, chưa nối vào API |
 | `supabase` | Lịch sử schema public và RLS |
 | `docs`, `ml` | Tài liệu sản phẩm/kiến trúc và tài liệu nghiên cứu mô hình |
 
-Bản nháp NestJS cũ dùng pg query trực tiếp được giữ nguyên. Scaffold mới dùng Drizzle/node-postgres nhưng chưa có business schema hoặc migration. `apps/mobile` chưa được tạo; web chưa chuyển sang API mới.
+`apps/api` là Core backend duy nhất. SQL của backend cũ chỉ còn là tài liệu baseline tại `docs/04-engineering/legacy-schema`; chưa phải Drizzle migrations. `apps/mobile` chưa được tạo; web chưa chuyển sang API mới.
 
 ## Chạy web hiện tại
 
 Dùng Node.js >=22.12 và pnpm 10.32.1 theo package metadata hiện có. `pnpm dev` chạy web tại localhost:5173 sau khi dependencies đã được cài. Không có `VITE_API_URL` thì web dùng local demo; demo không chứng minh backend hoạt động.
 
-Chạy API scaffold bằng `pnpm dev:api:scaffold` tại port 8081. Kiểm tra bằng `pnpm lint:api`, `pnpm test:api`, `pnpm build:api`. Chỉ `/health/live` và `/health/ready` hoạt động; chưa cấu hình DB thì readiness trả 503. Xem [API README](apps/api/README.md) để cấu hình local env riêng. Script `dev:api` và `db:init` vẫn thuộc backend cũ.
+Chạy API bằng `pnpm dev:api` tại port 8081. Kiểm tra bằng `pnpm lint:api`, `pnpm test:api`, `pnpm build:api`. Chỉ `/health/live` và `/health/ready` hoạt động; chưa cấu hình DB thì readiness trả 503. Xem [API README](apps/api/README.md) để cấu hình local env riêng.
+
+Để thử PostgreSQL local, bật Docker Desktop rồi chạy `pnpm db:local:up` trước API. Compose chỉ bind `127.0.0.1:5433`, giữ dữ liệu trong volume local và chưa tạo schema nghiệp vụ hay chạy migration.
 
 ## Quyết định và bước tiếp theo
 

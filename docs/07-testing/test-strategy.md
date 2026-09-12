@@ -5,7 +5,7 @@
 
 ## Hiện trạng
 
-Web dùng Vitest và TypeScript checks. Draft NestJS cũ dùng Node test runner, Supertest và repository ports; PostgreSQL tests của draft phụ thuộc TEST_DATABASE_URL. Scaffold mới dùng Node test runner/Supertest để kiểm tra composition 12 module, config, health, errors, fail-closed access, import boundaries và driver timeout. Native tests và OpenAPI generation chưa có. [CI status](../08-operations/ci-cd.md).
+Web dùng Vitest và TypeScript checks. API dùng Node test runner/Supertest để kiểm tra composition 12 module, config, health, errors, fail-closed access, import boundaries và driver timeout. Native tests và OpenAPI generation chưa có. [CI status](../08-operations/ci-cd.md).
 
 Chạy `pnpm lint:api`, `pnpm test:api`, `pnpm build:api` cho scaffold. Nhánh readiness thành công dùng injected database; timeout driver dùng local TCP endpoint không trả handshake. Đây chưa là kiểm chứng PostgreSQL schema/transaction thực tế; chưa có migration hoặc business tests.
 

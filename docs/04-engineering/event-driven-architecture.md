@@ -20,7 +20,7 @@ All delivery guarantees and broker topologies below are requirements for a futur
   "type": "focus.session-completed.v1",
   "schemaVersion": 1,
   "occurredAt": "2026-09-09T12:00:00Z",
-  "producer": "core-service",
+  "producer": "core-api",
   "correlationId": "uuid",
   "causationId": "uuid",
   "subject": { "type": "user", "id": "internal-user-id" },

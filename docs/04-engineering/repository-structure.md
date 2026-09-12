@@ -1,6 +1,6 @@
 # Cấu trúc repository đích
 
-- **Trạng thái:** Đã tạo `apps/api` scaffold; cây nghiệp vụ đầy đủ bên dưới là đích. Chưa di chuyển hoặc xóa ứng dụng cũ.
+- **Trạng thái:** Đã tạo `apps/api`; Core backend cũ đã được xóa sau khi lưu SQL baseline cần thiết.
 - **Ngày:** 2026-09-11
 - **Phụ thuộc:** [Phân tích kiến trúc](architecture-options.md); cây bên dưới thể hiện Core modular monolith và React Native + Expo đã được chọn.
 
@@ -89,14 +89,13 @@ Không tạo `packages/database`: hiện chỉ API là owner database; package c
 
 Một monorepo hỗ trợ thay đổi contract cùng code trong một review, nhưng không làm mọi client được nâng cấp cùng lúc. Mobile đã phát hành vẫn cần tương thích API dù code nằm cùng repository.
 
-## Mapping từ hiện trạng
+## Hiện trạng sau khi dọn legacy
 
-| Hiện tại | Đích đề xuất | Cách xử lý trong kế hoạch triển khai sau |
+| Path | Trạng thái | Bước tiếp theo |
 | --- | --- | --- |
-| `apps/web` | Giữ đường dẫn | Dùng API thật cho các slice đã hoàn thành; phân biệt demo |
-| `services/core-service` backend cũ và bản nháp NestJS | `apps/api` | Review chức năng cần giữ; không chuyển nguyên bản nháp dùng SQL trực tiếp thành kiến trúc cuối |
-| SQL migration cũ V1–V3 và bản sao trong `services/core-service/database` | Lịch sử được bảo toàn + baseline Drizzle được duyệt | So sánh hash/schema/data trước khi quyết định vị trí và journal |
-| `packages/contracts` | Giữ đường dẫn | Tách API DTO khỏi domain/persistence; thiết kế OpenAPI interoperability |
-| tooling cũ/CI backend cũ và cấu hình pnpm đang sửa | Tooling API NestJS sau khi duyệt code plan | Đổi script/CI một lần; chỉ gỡ backend cũ khi parity và rollback đủ rõ |
+| `apps/web` | Client web hiện có | Dùng API thật cho các slice đã hoàn thành; phân biệt demo |
+| `apps/api` | Core NestJS duy nhất | Triển khai từng slice theo kế hoạch module |
+| `docs/04-engineering/legacy-schema` | Một bản SQL V1–V3 để review baseline | So sánh database thực trước khi tạo Drizzle journal |
+| `packages/contracts` | Contract Zod hiện có | Tách API DTO khỏi domain/persistence; thiết kế OpenAPI interoperability |
 
-Scaffold hiện tại chỉ có module class/README và platform, chưa có các lớp nghiệp vụ trong ví dụ. Root đã thêm script riêng cho API mới; legacy scripts và CI chưa được chuyển. Kế hoạch chuyển writer/database sau phải liệt kê baseline, kiểm tra và cách hoàn nguyên. Xem [kế hoạch module](module-delivery-plan.md) và [Drizzle và migration](drizzle-data-access.md).
+API hiện chỉ có module class/README và platform, chưa có các lớp nghiệp vụ trong ví dụ. Workspace, scripts và CI chỉ còn stack Node/pnpm. Kế hoạch database sau phải liệt kê baseline, kiểm tra và cách hoàn nguyên. Xem [kế hoạch module](module-delivery-plan.md) và [Drizzle và migration](drizzle-data-access.md).

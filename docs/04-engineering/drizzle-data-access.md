@@ -40,7 +40,7 @@ Scaffold chọn Drizzle ORM 0.45.2, Kit 0.31.10 và node-postgres. `pg` phía d�
 | Database đã có core.accounts/tasks/next_actions và migration cũ history | Kiểm kê version/checksum, constraint, index, enum, timezone và dữ liệu; dựng bản sao để kiểm tra tương đương; thiết kế baseline journal Drizzle không replay CREATE TABLE |
 | Chỉ có schema public Supabase lịch sử hoặc có cả hai | Xác định owner và nguồn dữ liệu; không gộp public/core chỉ vì tên bảng giống nhau; mapping và migration dữ liệu là kế hoạch riêng |
 
-Không đoán trạng thái database từ file. Không dùng `push` vào database hiện hữu, không sửa migration đã áp dụng, không tạo journal “đã chạy” nếu chưa có quy trình baseline được kiểm chứng. Không chạy migration lúc Nest khởi động. Script `db:init` bản nháp hiện tại chưa phải workflow Drizzle được duyệt.
+Không đoán trạng thái database từ file. Không dùng `push` vào database hiện hữu, không sửa migration đã áp dụng, không tạo journal “đã chạy” nếu chưa có quy trình baseline được kiểm chứng. Không chạy migration lúc Nest khởi động. SQL tại [legacy-schema](legacy-schema/README.md) chỉ là đầu vào review, không phải workflow Drizzle.
 
 ## Workflow đích
 
