@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
 import { isConfigured } from "../shared/api/api";
 import { logout, type AuthSession } from "../shared/auth/auth";
 import type { View } from "../shared/types/domain";
@@ -19,15 +19,24 @@ export function AppLayout({
   onOpenWaitlist: () => void;
   children: ReactNode;
 }) {
+  const contentRef = useRef<HTMLElement>(null);
+  useEffect(() => {
+    contentRef.current?.focus();
+    contentRef.current?.scrollIntoView({ block: "start" });
+    const label = navigationItems.find((item) => item.view === view)?.label
+      ?? (view === "study" ? "Pilot study" : "Quản trị beta");
+    document.title = `${label} — Beneath the Pine`;
+  }, [view]);
   return (
     <div className="site-shell">
+      <a className="skip-link" href="#main-content" onClick={(event) => { event.preventDefault(); document.getElementById("main-content")?.focus(); }}>Đến nội dung chính</a>
       <header className="site-header">
         <button
           className="brand"
           onClick={() => onNavigate("now")}
           aria-label="Beneath the Pine, về trang hôm nay"
         >
-          <span className="pine">⌁</span>
+          <span className="pine" aria-hidden="true">⌁</span>
           <span>Beneath the Pine</span>
         </button>
         <div className="header-actions">
@@ -55,13 +64,18 @@ export function AppLayout({
           )}
         </div>
       </header>
-      <main className="main-layout">
-        <aside className="navigation" aria-label="Điều hướng">
+      <div className="main-layout">
+        <main className="content" id="main-content" ref={contentRef} tabIndex={-1}>
+          {children}
+        </main>
+        <nav className="navigation" aria-label="Điều hướng">
           <p className="nav-label">DÀNH CHO LÚC NÀY</p>
+          <a className="nav-item" href="#home" style={{ textDecoration: "none" }}>Về Beneath the Pine ↗</a>
           {navigationItems.map(({ view: itemView, label }) => (
             <button
               key={itemView}
               className={view === itemView ? "nav-item active" : "nav-item"}
+              aria-current={view === itemView ? "page" : undefined}
               onClick={() => onNavigate(itemView)}
             >
               {label}
@@ -69,15 +83,14 @@ export function AppLayout({
           ))}
           <button
             className={view === "study" ? "nav-item active" : "nav-item"}
+            aria-current={view === "study" ? "page" : undefined}
             onClick={() => onNavigate("study")}
           >
             Pilot study
           </button>
-        </aside>
-        <section className="content" aria-live="polite">
-          {children}
-        </section>
-      </main>
+        </nav>
+
+      </div>
       <footer>Prototype nghiên cứu · AI chỉ hỗ trợ tự quản lý, không chẩn đoán hoặc điều trị ADHD.</footer>
     </div>
   );
