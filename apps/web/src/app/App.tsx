@@ -13,6 +13,7 @@ import { SettingsView } from "../features/settings/SettingsView";
 import { StudyView } from "../features/study/StudyView";
 import type { Energy, Habit, HelpSuggestion, Task, View, WeeklyReviewContent } from "../shared/types/domain";
 import { AppLayout } from "./AppLayout";
+import { LandingPage } from "../features/landing/LandingPage";
 import { useHashRouter } from "./router";
 
 const initialTasks: Task[] = [{ id: "start-report", title: "Mở báo cáo và viết ba tiêu đề chính", minutes: 10, status: "ready" }, { id: "reply-email", title: "Gửi email xác nhận lịch hẹn", minutes: 5, status: "ready" }];
@@ -242,6 +243,8 @@ export function App() {
     }
   };
 
+  if (view === "landing") return <LandingPage />;
+
   return (
     <AppLayout
       view={view}
@@ -256,8 +259,9 @@ export function App() {
           private beta sẽ yêu cầu đăng nhập và mã hóa nội dung.
         </div>
       )}
-      {notice && <div className="notice">{notice}</div>}
-      {loading && <div className="notice">Đang chuẩn bị một bước nhỏ cho bạn…</div>}
+      <div role="status" aria-live="polite" aria-atomic="true">
+        {loading ? <div className="notice">Đang chuẩn bị một bước nhỏ cho bạn…</div> : notice && <div className="notice">{notice}</div>}
+      </div>
 
       {view === "now" && (
         <NowView
