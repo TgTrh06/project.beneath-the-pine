@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import type { View } from "../shared/types/domain";
+import { resolveHashView } from "./routePaths";
 
 export const navigationItems: Array<{ view: View; label: string }> = [
   { view: "now", label: "Ngay lúc này" },
@@ -9,11 +10,7 @@ export const navigationItems: Array<{ view: View; label: string }> = [
   { view: "settings", label: "Cài đặt" },
 ];
 
-const knownViews = new Set<View>(["now", "capture", "habits", "review", "study", "settings", "admin"]);
-const readHashView = (): View => {
-  const candidate = location.hash.replace("#", "") as View;
-  return knownViews.has(candidate) ? candidate : "now";
-};
+const readHashView = (): View => resolveHashView(location.hash);
 
 export function useHashRouter() {
   const [view, setView] = useState<View>(readHashView);
@@ -25,8 +22,9 @@ export function useHashRouter() {
   }, []);
 
   const navigate = (next: View) => {
-    if (location.hash === `#${next}`) { setView(next); return; }
-    location.hash = next;
+    const hash = next === "landing" ? "home" : next;
+    if (location.hash === `#${hash}`) { setView(next); return; }
+    location.hash = hash;
   };
 
   return { view, navigate };
