@@ -1,54 +1,38 @@
-# Tài khoản và xác thực — IdentityModule
+# Identity — Wanderer and Pine Keeper
 
-- **Trạng thái code:** Nest module được đăng ký; chưa có controller, use case, repository hoặc schema nghiệp vụ.
-- **Thứ tự triển khai:** P0 / S1.
-- **Phạm vi hiện tại:** Core thủ công, không AI.
+Implemented: email/password register/login/logout, cookie session, CSRF and role-guarded account listing. See [ADR-0013](../../../../../docs/04-engineering/adr/0013-wanderer-pine-keeper-auth.md).
 
-## Trách nhiệm và dữ liệu
+## Setup (explicit operations, not run automatically)
 
-Đăng ký, đăng nhập, đăng xuất, trạng thái account và vòng đời credential.
+1. Configure `API_DATABASE_URL` and `API_WEB_ORIGIN` in `apps/api/.env`. The origin must exactly match the browser (including localhost vs 127.0.0.1). Use HTTPS outside local development.
+2. Review `apps/api/drizzle/0000_identity_accounts_sessions.sql` and the intended database. After approval, run from the repository root:
 
-**Dữ liệu sở hữu dự kiến:** accounts; session/credential records theo quyết định auth sau review. Đây là inventory thiết kế, chưa là migration.
+```sh
+pnpm --filter @beneath-the-pine/api db:migrate
+```
 
-## Use case cần xây
+3. Set `PINE_KEEPER_EMAIL` and `PINE_KEEPER_PASSWORD` (12–64 characters) in that server-only env file. After approving the seed target:
 
-- RegisterAccount: chuẩn hóa email, kiểm tra mật khẩu, tạo account và xử lý trùng email.
-- AuthenticateAccount/GetSession/Logout: giữ tương thích browser contract; chưa chọn native credential adapter.
-- DisableAccountAccess: chặn truy cập trước khi privacy điều phối xóa dữ liệu.
+```sh
+pnpm --filter @beneath-the-pine/api db:seed
+```
 
-## API dự kiến
+4. Start `pnpm dev:api` and `pnpm dev`. Open `http://127.0.0.1:5173/`. Vite proxies `/api/v1` to port 8081. Production needs its own same-origin reverse proxy. Optional `VITE_API_URL` overrides the base URL; never put Keeper credentials in frontend env.
 
-Các route dưới đây dùng prefix `/api/v1` khi được triển khai; chưa hoạt động trong scaffold.
+Seed creates one Keeper if absent; repeated runs preserve password and role. An existing Wanderer email produces a failure without privilege escalation. Missing/invalid env fails before connecting. Seed logs only status, not credentials. It never runs at ordinary application startup.
 
-- GET /auth/session
-- POST /auth/register
-- POST /auth/login
-- POST /auth/logout
+## HTTP contract
 
-## Phụ thuộc và interface
+- `GET /api/v1/auth/session`: current public identity or anonymous session plus CSRF token.
+- `POST /api/v1/auth/register`: strict `{email,password}`; creates Wanderer.
+- `POST /api/v1/auth/login`: same credentials; rotates session.
+- `POST /api/v1/auth/logout`: revokes cookie session, 204.
+- `GET /api/v1/admin/accounts?offset=0`: Pine Keeper only; 50 rows/page and `hasMore`. Only id, email, role and creation date.
 
-Không phụ thuộc module nghiệp vụ khác. Platform/security nhận principal qua adapter identity khi triển khai.
+All mutations require `Origin` and `X-XSRF-TOKEN`; cookies use credentials include. Password hashes and session token hashes never appear in response DTOs. Recovery/email verification and personal-data endpoints are not implemented. An unavailable database returns 503, not a fake authenticated user.
 
-**Public application interface dự kiến:** Principal/account-status contract; không export credential repository, hash hoặc session internals. Chỉ tạo interface/provider code khi có use case hoặc consumer thực sự; hiện chưa có stub trả kết quả giả.
+## Tests
 
-## Invariant và boundary
+`pnpm test:api` runs isolated HTTP tests and skips the PostgreSQL integration test unless `BTP_TEST_DATABASE_URL` is explicitly set to a disposable test database. That test creates/drops only a randomly named `identity_test_*` schema. Never point it to production. It checks SQL, unique emails, session cascade and seed idempotency/conflict.
 
-- Account UUID là định danh dùng chung web/mobile; không tin userId hoặc deviceId làm credential.
-- Password hash không được trả trong DTO hoặc log; giới hạn byte của BCrypt phải được kiểm tra.
-- Browser session rotation/CSRF và native auth lifecycle phải được review trước khi mở endpoint.
-
-## Acceptance criteria cho implementation
-
-- [ ] Hai tài khoản có quyền riêng; duplicate email được xử lý an toàn.
-- [ ] Login sai không lộ account tồn tại; rotate/revoke/expiry và CSRF được kiểm tra.
-- [ ] Không tạo user từ header tự khai báo.
-
-## Privacy và retention
-
-Giữ credential ngoài export; account metadata và chính sách giữ/xóa thuộc identity. Privacy yêu cầu khóa account trước khi xóa.
-
-## Cần chốt trước slice
-
-Account recovery/verification, auth native và session store; bộ khung chưa chốt các lựa chọn này.
-
-Xem [Module delivery plan](../../../../../docs/04-engineering/module-delivery-plan.md) và [module catalog](../../../../../docs/02-product/application-modules-spec.md). Module `identity` là boundary bên trong một API deployable, không phải microservice.
+Migration rollback is not automatic deletion: preserve identity tables and use a compatible code rollback or forward migration. No migration or seed was applied to the user's current database as part of implementation.
