@@ -1,6 +1,25 @@
 import { useEffect, useState } from "react";
 import type { AuthSession } from "../../shared/auth/auth";
-import { approveWaitlist, getAdminWaitlist, isConfigured } from "../../shared/api/api";
+import { getAdminAccounts } from "../../shared/api/api";
 
-type Entry = { id: string; email: string; name: string | null; status: string };
-export function AdminView({ remoteSession, onNotice }: { remoteSession: AuthSession | null; onNotice: (value: string) => void }) { const [entries, setEntries] = useState<Entry[]>([{ id: "demo-1", email: "linh@example.com", name: "Linh", status: "Chờ duyệt" }, { id: "demo-2", email: "minh@example.com", name: "Minh", status: "Đã mời" }]); useEffect(() => { if (!isConfigured || !remoteSession) return; void getAdminWaitlist(remoteSession).then((data) => setEntries(data.entries)).catch((error: Error) => onNotice(error.message)); }, [remoteSession, onNotice]); const approve = async (entry: Entry) => { try { if (isConfigured && remoteSession) await approveWaitlist(remoteSession, entry.id); setEntries(entries.map((item) => item.id === entry.id ? { ...item, status: "Đã mời" } : item)); onNotice(`Đã duyệt ${entry.email}.`); } catch (error) { onNotice(error instanceof Error ? error.message : "Không thể duyệt waitlist."); } }; return <><section className="page-intro"><p className="eyebrow">ADMIN · BETA</p><h1>Waitlist và tín hiệu sản phẩm.</h1><p>Nội dung Brain Dump và Check-in không bao giờ xuất hiện ở đây.</p></section><div className="metric-grid"><article><span>Waitlist</span><strong>{entries.length}</strong></article><article><span>Đã active</span><strong>{entries.filter((entry) => entry.status === "active" || entry.status === "Đã mời").length}</strong></article><article><span>Raw content</span><strong>0</strong></article></div><section className="feature-card"><h2>Đăng ký gần đây</h2><table><thead><tr><th>Tên</th><th>Email</th><th>Trạng thái</th><th></th></tr></thead><tbody>{entries.map((entry) => <tr key={entry.id}><td data-label="Tên">{entry.name ?? "—"}</td><td data-label="Email">{entry.email}</td><td data-label="Trạng thái">{entry.status}</td><td data-label="Thao tác"><button className="secondary" disabled={entry.status === "active" || entry.status === "Đã mời"} onClick={() => void approve(entry)}>Duyệt</button></td></tr>)}</tbody></table></section></> }
+export function AdminView({ remoteSession, onNotice }: { remoteSession: AuthSession; onNotice: (value: string) => void }) {
+  const [entries, setEntries] = useState<Array<{ id: string; email: string; role: string; createdAt: string }>>([]);
+  const [offset, setOffset] = useState(0);
+  const [hasMore, setHasMore] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [failed, setFailed] = useState(false);
+  const [retry, setRetry] = useState(0);
+  useEffect(() => {
+    let active = true;
+    setLoading(true); setFailed(false); setEntries([]);
+    void getAdminAccounts(remoteSession, offset).then(data => { if (active) { setEntries(data.entries); setHasMore(data.hasMore); } })
+      .catch(() => { if (active) { setFailed(true); onNotice("Không thể tải danh sách tài khoản."); } })
+      .finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
+  }, [remoteSession, offset, retry, onNotice]);
+  return <><section className="page-intro"><p className="eyebrow">PINE KEEPER</p><h1>Những người ghé Pine.</h1><p>Quản trị thông tin tài khoản. Nội dung ghi chú riêng tư không xuất hiện ở đây.</p></section>
+    <section className="feature-card"><h2>Tài khoản</h2>
+      {loading ? <p role="status">Đang tải…</p> : failed ? <button className="secondary" onClick={() => setRetry(value => value + 1)}>Thử lại</button> : entries.length === 0 ? <p>Chưa có tài khoản để hiển thị.</p> : <table><thead><tr><th>Email</th><th>Vai trò</th><th>Ngày tạo</th></tr></thead><tbody>{entries.map(entry => <tr key={entry.id}><td data-label="Email">{entry.email}</td><td data-label="Vai trò">{entry.role === "pine_keeper" ? "Pine Keeper" : "Wanderer"}</td><td data-label="Ngày tạo">{new Date(entry.createdAt).toLocaleDateString("vi-VN")}</td></tr>)}</tbody></table>}
+      <div className="button-row"><button className="secondary" disabled={loading || offset === 0} onClick={() => setOffset(value => Math.max(0, value - 50))}>Trang trước</button><button className="secondary" disabled={loading || failed || !hasMore} onClick={() => setOffset(value => value + 50)}>Trang sau</button></div>
+    </section></>;
+}
