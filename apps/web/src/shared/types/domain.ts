@@ -1,4 +1,4 @@
-export type View = "landing" | "now" | "capture" | "habits" | "review" | "study" | "settings" | "admin";
+export type View = "landing" | "login" | "register" | "now" | "capture" | "habits" | "review" | "study" | "settings" | "admin";
 export type TaskStatus = "ready" | "done" | "deferred";
 export type Task = { id: string; title: string; minutes: number; status: TaskStatus };
 export type Habit = { id: string; title: string; completed: boolean };

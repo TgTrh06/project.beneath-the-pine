@@ -8,7 +8,7 @@ describe("landing and application routes", () => {
     }
   });
   it("preserves existing app deep links and the unknown-route fallback", () => {
-    for (const view of ["now", "capture", "habits", "review", "study", "settings", "admin"]) {
+    for (const view of ["login", "register", "now", "capture", "habits", "review", "study", "settings", "admin"]) {
       expect(resolveHashView(`#${view}`)).toBe(view);
     }
     expect(resolveHashView("#not-a-page")).toBe("now");

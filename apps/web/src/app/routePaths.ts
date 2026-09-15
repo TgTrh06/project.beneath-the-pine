@@ -1,6 +1,6 @@
 import type { View } from "../shared/types/domain";
 
-const appViews = new Set<View>(["now", "capture", "habits", "review", "study", "settings", "admin"]);
+const appViews = new Set<View>(["login", "register", "now", "capture", "habits", "review", "study", "settings", "admin"]);
 const landingSections = new Set(["", "home", "how-it-works", "experience", "before-you-start", "landing-main"]);
 
 export function resolveHashView(hash: string): View {
