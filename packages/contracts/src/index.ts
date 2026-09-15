@@ -1,5 +1,14 @@
 import { z } from "zod";
 
+export const accountRoleSchema = z.enum(["wanderer", "pine_keeper"]);
+export type AccountRole = z.infer<typeof accountRoleSchema>;
+export const accountSessionSchema = z.object({
+  authenticated: z.boolean(),
+  user: z.object({ id: z.string().uuid(), email: z.string().email(), role: accountRoleSchema }).nullable(),
+  csrfToken: z.string().regex(/^[a-f0-9]{64}$/),
+}).refine(value => value.authenticated === Boolean(value.user));
+export type AccountSessionPayload = z.infer<typeof accountSessionSchema>;
+
 export const aiQuotaKinds = ["brain_dump", "help_me_start", "weekly_review"] as const;
 export type AiQuotaKind = (typeof aiQuotaKinds)[number];
 export const weeklyQuota: Record<AiQuotaKind, number> = {
