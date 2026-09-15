@@ -9,7 +9,7 @@ const schema = z.object({
       const url = new URL(value);
       return ['http:', 'https:'].includes(url.protocol) && url.origin === value;
     } catch { return false; }
-  }).default('http://localhost:5173'),
+  }).default('http://127.0.0.1:5173'),
   API_LOG_LEVEL: z.enum(['silent', 'error', 'warn', 'info', 'debug']).default('info'),
   API_DATABASE_URL: z.preprocess(value => value === '' ? undefined : value,
     z.string().url().refine(value => {
