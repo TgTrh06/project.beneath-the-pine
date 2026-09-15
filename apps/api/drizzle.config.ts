@@ -1,7 +1,6 @@
 import { defineConfig } from 'drizzle-kit';
 
-// Schema discovery only. No credentials, push/migrate scripts or baseline journal
-// are configured until the first persistence slice is reviewed.
+// Generate reviewed module-owned schemas; migration execution is an explicit script.
 export default defineConfig({
   dialect: 'postgresql',
   schema: './src/modules/*/infrastructure/*.schema.ts',
