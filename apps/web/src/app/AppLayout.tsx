@@ -1,6 +1,5 @@
 import { useEffect, useRef, type ReactNode } from "react";
-import { isConfigured } from "../shared/api/api";
-import { logout, type AuthSession } from "../shared/auth/auth";
+import { type AuthSession } from "../shared/auth/auth";
 import type { View } from "../shared/types/domain";
 import { navigationItems } from "./router";
 
@@ -8,15 +7,13 @@ export function AppLayout({
   view,
   onNavigate,
   session,
-  onOpenLogin,
-  onOpenWaitlist,
+  onLogout,
   children,
 }: {
   view: View;
   onNavigate: (view: View) => void;
   session: AuthSession | null;
-  onOpenLogin: () => void;
-  onOpenWaitlist: () => void;
+  onLogout: () => void;
   children: ReactNode;
 }) {
   const contentRef = useRef<HTMLElement>(null);
@@ -24,7 +21,7 @@ export function AppLayout({
     contentRef.current?.focus();
     contentRef.current?.scrollIntoView({ block: "start" });
     const label = navigationItems.find((item) => item.view === view)?.label
-      ?? (view === "study" ? "Pilot study" : "Quản trị beta");
+      ?? (view === "study" ? "Pilot study" : "Pine Keeper");
     document.title = `${label} — Beneath the Pine`;
   }, [view]);
   return (
@@ -40,28 +37,8 @@ export function AppLayout({
           <span>Beneath the Pine</span>
         </button>
         <div className="header-actions">
-          <span className={`status ${isConfigured ? "connected" : ""}`}>
-            {isConfigured
-              ? session
-                ? "Private beta"
-                : "Beta cần đăng nhập"
-              : "Chế độ demo local"}
-          </span>
-          {session ? (
-            <button
-              className="link-button"
-              onClick={() => void logout()}
-            >
-              Đăng xuất
-            </button>
-          ) : (
-            <button
-              className="link-button"
-              onClick={isConfigured ? onOpenLogin : onOpenWaitlist}
-            >
-              {isConfigured ? "Đăng nhập beta" : "Tham gia beta"}
-            </button>
-          )}
+          <span className="status connected">{session?.role === "pine_keeper" ? "Pine Keeper" : "Wanderer"}</span>
+          <button className="link-button" onClick={onLogout}>Đăng xuất</button>
         </div>
       </header>
       <div className="main-layout">
@@ -81,17 +58,11 @@ export function AppLayout({
               {label}
             </button>
           ))}
-          <button
-            className={view === "study" ? "nav-item active" : "nav-item"}
-            aria-current={view === "study" ? "page" : undefined}
-            onClick={() => onNavigate("study")}
-          >
-            Pilot study
-          </button>
+          {session?.role === "pine_keeper" && <button className={view === "admin" ? "nav-item active" : "nav-item"} aria-current={view === "admin" ? "page" : undefined} onClick={() => onNavigate("admin")}>Pine Keeper</button>}
         </nav>
 
       </div>
-      <footer>Prototype nghiên cứu · AI chỉ hỗ trợ tự quản lý, không chẩn đoán hoặc điều trị ADHD.</footer>
+      <footer>AI chỉ hỗ trợ tự quản lý, không chẩn đoán hoặc điều trị ADHD.</footer>
     </div>
   );
 }
