@@ -1,17 +1,13 @@
 import { logFrontendError } from "../logging/logger";
+import { accountSessionSchema, type AccountRole, type AccountSessionPayload } from "@beneath-the-pine/contracts";
 
-const apiUrl = import.meta.env.VITE_API_URL as string | undefined;
+const apiUrl = (import.meta.env.VITE_API_URL as string | undefined) || "/api/v1";
 export const isAuthConfigured = Boolean(apiUrl);
 
-export type AuthSession = Readonly<{ subject: string; email: string }>;
+export type AuthSession = Readonly<{ subject: string; email: string; role: AccountRole }>;
 export type AuthCredentials = Readonly<{ email: string; password: string }>;
 
-type SessionPayload = {
-  authenticated: boolean;
-  user: { id: string; email: string } | null;
-  csrfToken: string;
-};
-type ApiError = { message?: string };
+type SessionPayload = AccountSessionPayload;
 type SessionListener = (session: AuthSession | null) => void;
 
 const listeners = new Set<SessionListener>();
@@ -26,14 +22,21 @@ function publishSession(session: AuthSession | null): AuthSession | null {
 function readSession(payload: SessionPayload): AuthSession | null {
   csrfToken = payload.csrfToken;
   return payload.authenticated && payload.user
-    ? { subject: payload.user.id, email: payload.user.email }
+    ? { subject: payload.user.id, email: payload.user.email, role: payload.user.role }
     : null;
 }
 
 async function parseSessionResponse(response: Response): Promise<AuthSession | null> {
-  const payload = await response.json() as SessionPayload & ApiError;
-  if (!response.ok) throw new Error(payload.message ?? "Không thể xác thực lúc này.");
-  return readSession(payload);
+  let payload: unknown;
+  try { payload = await response.json(); } catch { throw new Error("Dịch vụ tài khoản chưa sẵn sàng. Vui lòng thử lại sau."); }
+  if (!response.ok) {
+    if (response.status === 401 || response.status === 403) csrfToken = null;
+    const messages: Record<number, string> = { 400: "Kiểm tra email và mật khẩu (12–64 ký tự).", 401: "Email hoặc mật khẩu không đúng.", 403: "Phiên bảo vệ đã hết hạn. Vui lòng gửi lại.", 409: "Không thể tạo tài khoản với email này. Hãy đăng nhập hoặc dùng email khác.", 429: "Bạn thao tác quá nhanh. Vui lòng thử lại sau một phút.", 503: "Dịch vụ tài khoản chưa sẵn sàng. Vui lòng thử lại sau." };
+    throw new Error(messages[response.status] ?? "Không thể xác thực lúc này.");
+  }
+  const result = accountSessionSchema.safeParse(payload);
+  if (!result.success) throw new Error("Không thể xác nhận phiên đăng nhập. Vui lòng thử lại.");
+  return readSession(result.data);
 }
 
 async function loadSession(): Promise<AuthSession | null> {
@@ -82,7 +85,7 @@ export async function login(credentials: AuthCredentials): Promise<AuthSession> 
     return await submitCredentials("login", credentials);
   } catch (error) {
     logFrontendError({ event: "login_failed", area: "auth" });
-    throw error;
+    throw error instanceof TypeError ? new Error("Chưa thể kết nối dịch vụ tài khoản. Vui lòng thử lại sau.") : error;
   }
 }
 
@@ -91,7 +94,7 @@ export async function register(credentials: AuthCredentials): Promise<AuthSessio
     return await submitCredentials("register", credentials);
   } catch (error) {
     logFrontendError({ event: "registration_failed", area: "auth" });
-    throw error;
+    throw error instanceof TypeError ? new Error("Chưa thể kết nối dịch vụ tài khoản. Vui lòng thử lại sau.") : error;
   }
 }
 
@@ -113,4 +116,10 @@ export async function getCsrfToken(): Promise<string> {
   if (!csrfToken) await loadSession().then(publishSession);
   if (!csrfToken) throw new Error("Không thể tạo mã bảo vệ yêu cầu.");
   return csrfToken;
+}
+
+export function expireSession(): void {
+  csrfToken = null;
+  initialization = null;
+  publishSession(null);
 }

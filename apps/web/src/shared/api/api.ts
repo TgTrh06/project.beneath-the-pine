@@ -1,7 +1,7 @@
-import { getCsrfToken, type AuthSession } from "../auth/auth";
+import { expireSession, getCsrfToken, type AuthSession } from "../auth/auth";
 import { logFrontendError } from "../logging/logger";
 
-const apiUrl = import.meta.env.VITE_API_URL as string | undefined;
+const apiUrl = (import.meta.env.VITE_API_URL as string | undefined) || "/api/v1";
 export const isConfigured = Boolean(apiUrl);
 
 type ApiError = { code?: string; error?: string; message?: string };
@@ -12,6 +12,7 @@ async function request<T>(path: string, options: RequestInit = {}, session?: Aut
   try {
     const csrfToken = !["GET", "HEAD", "OPTIONS"].includes(method.toUpperCase()) ? await getCsrfToken() : null;
     const response = await fetch(`${apiUrl}${path}`, { ...options, credentials: "include", headers: { "content-type": "application/json", ...(csrfToken ? { "X-XSRF-TOKEN": csrfToken } : {}), ...options.headers } });
+    if (response.status === 401) expireSession();
     if (response.status === 204) return undefined as T;
     const body = await response.json() as T & ApiError;
     if (!response.ok) throw new ApiRequestError(body.message ?? "Không thể hoàn thành yêu cầu lúc này.", response.status, body.code ?? body.error);
@@ -49,3 +50,5 @@ export async function beginStudySession(session: AuthSession, frictionBefore: nu
 export async function markStudyStarted(session: AuthSession, id: string) { return request<{ session: { id: string; startedAt: string } }>(`/study/sessions/${id}/start`, { method: "POST", body: JSON.stringify({}) }, session); }
 export async function completeStudySession(session: AuthSession, id: string, input: { frictionAfter: number; focusOutcome: "done" | "still_stuck" | "not_recorded" }) { return request<{ session: { id: string } }>(`/study/sessions/${id}`, { method: "PATCH", body: JSON.stringify(input) }, session); }
 export async function withdrawStudy(session: AuthSession) { await request("/study", { method: "DELETE" }, session); }
+
+export async function getAdminAccounts(session: AuthSession, offset = 0) { return request<{ entries: Array<{ id: string; email: string; role: string; createdAt: string }>; hasMore: boolean }>(`/admin/accounts?offset=${offset}`, {}, session); }
