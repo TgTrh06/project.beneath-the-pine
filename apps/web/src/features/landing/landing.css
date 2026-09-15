@@ -1,35 +1,12 @@
 .landing { background: var(--paper); color: var(--ink); }
-.landing .lp-container { width: min(1240px, calc(100% - 5rem)); margin-inline: auto; }
+.landing .lp-container { width: var(--public-content-width); margin-inline: auto; }
 .landing a { color: inherit; }
-.landing [id] { scroll-margin-top: 2rem; }
+.landing [id] { scroll-margin-top: calc(var(--public-header-height) + 1.25rem); }
+.landing#home { scroll-margin-top: 0; }
 .landing p { text-wrap: pretty; }
 .landing h1, .landing h2, .landing h3 { text-wrap: balance; }
-.lp-header { display: flex; align-items: center; justify-content: space-between; gap: 2rem; min-height: 84px; border-bottom: 1px solid var(--ink); }
-.lp-menu-toggle { display: none; align-items: center; justify-content: center; gap: .6rem; min-height: 44px; padding: .5rem .65rem; border: 1px solid var(--line); border-radius: 4px; background: transparent; color: var(--ink); font-size: .8125rem; font-weight: 600; }
-.lp-menu-panel { position: fixed; inset: 0; margin: auto; width: min(320px, calc(100% - 2rem)); max-width: none; max-height: calc(100dvh - 2rem); padding: 1rem 1.5rem 2rem; border: 1px solid var(--ink); border-radius: var(--radius); background: var(--paper); color: var(--ink); overflow-y: auto; box-shadow: 0 6px 0 var(--ink); }
-.lp-menu-panel[open] { animation: lp-menu-rise 320ms var(--ease) both; }
-.lp-menu-panel::backdrop { background: rgb(24 38 29 / 55%); animation: lp-menu-dim 320ms ease both; }
-.lp-menu-panel.is-closing { animation: lp-menu-drop 240ms ease-in both; }
-.lp-menu-panel.is-closing::backdrop { animation: lp-menu-undim 240ms ease-in both; }
-.lp-menu-top { display: flex; justify-content: flex-end; }
-.lp-menu-close { display: grid; place-items: center; min-width: 44px; min-height: 44px; padding: 0; border: 1px solid var(--ink); border-radius: 4px; color: var(--ink); background: transparent; font-size: 1.75rem; line-height: 1; }
-.lp-menu-links { display: grid; gap: .5rem; padding-block: .5rem; }
-.lp-menu-links a { display: flex; align-items: center; justify-content: center; min-height: 56px; padding-block: .6rem; text-align: center; text-decoration: none; font-family: var(--font-display); font-weight: 600; font-size: 1.875rem; line-height: 1.3; }
-.lp-menu-links a:hover { color: var(--accent); text-decoration: underline; text-underline-offset: .2em; }
-@keyframes lp-menu-rise { from { opacity: 0; transform: translateY(calc(50dvh + 50%)); } to { opacity: 1; transform: translateY(0); } }
-@keyframes lp-menu-drop { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(calc(50dvh + 50%)); } }
-@keyframes lp-menu-dim { from { opacity: 0; } to { opacity: 1; } }
-@keyframes lp-menu-undim { from { opacity: 1; } to { opacity: 0; } }
-@media (prefers-reduced-motion: reduce) {
-  .lp-menu-panel[open], .lp-menu-panel::backdrop, .lp-menu-panel.is-closing::backdrop { animation: none; }
-}
-.lp-brand { display: flex; align-items: center; gap: .75rem; font-size: 1.25rem; font-weight: 700; line-height: 1.05; letter-spacing: -.055em; text-decoration: none; }
-.lp-brand svg { width: 34px; height: 42px; color: var(--forest); }
-.lp-brand-dot { color: var(--accent); }
-.lp-nav { display: flex; gap: 2rem; }
-.lp-nav a, .lp-header-cta, .lp-hero-foot a { display: inline-flex; align-items: center; min-height: 44px; font-size: .875rem; text-decoration: none; }
-.lp-nav a:hover, .lp-header-cta:hover, .lp-hero-foot a:hover { text-decoration: underline; text-underline-offset: .35em; }
-.lp-header-cta { border-bottom: 1px solid var(--ink); gap: 1rem; font-weight: 700; white-space: nowrap; }
+.lp-hero-foot a { display: inline-flex; align-items: center; min-height: 44px; font-size: .875rem; text-decoration: none; }
+.lp-hero-foot a:hover { text-decoration: underline; text-underline-offset: .35em; }
 .lp-kicker { display: flex; align-items: center; gap: .75rem; margin: 0 0 1.5rem; font-size: .6875rem; font-weight: 700; letter-spacing: .14em; line-height: 1.6; }
 .lp-small-line { width: 26px; height: 2px; background: var(--accent); }
 .lp-hero { padding-top: 3.5rem; }
@@ -110,12 +87,7 @@
 .lp-closing .lp-kicker { justify-content: center; }
 .landing .lp-closing h2 { font-size: clamp(3rem, 6vw, 5.8rem); line-height: 1.25; letter-spacing: .01em; margin-bottom: 2rem; }
 .lp-closing h2 em { color: var(--forest); }
-.landing .lp-footer { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem; border-top: 1px solid var(--ink); padding-block: 1.5rem; text-align: left; }
-.lp-footer a { display: inline-flex; align-items: center; min-height: 44px; font-size: .8125rem; text-underline-offset: .3em; }
-.lp-footer .lp-footer-brand { color: var(--ink); font-weight: 700; font-size: 1.1rem; text-decoration: none; letter-spacing: -.04em; }
-.lp-footer p { margin: 0; font-size: .8125rem; }
 @media (max-width: 1000px) {
-  .landing .lp-container { width: calc(100% - 3rem); }
   .lp-hero-copy { gap: 2rem; grid-template-columns: 1.2fr 1fr; }
   .lp-preview { padding: 1.25rem; }
   .lp-preview-scene { padding: 2rem 0; grid-template-columns: 1fr 40px 1.15fr; }
@@ -123,14 +95,7 @@
   .lp-return-inner, .lp-principles, .lp-before { gap: 3rem; }
   .lp-steps li { grid-template-columns: 52px 1.3fr 1fr; gap: 1.5rem; }
 }
-@media (max-width: 860px) {
-  .lp-header { min-height: 64px; gap: 1rem; }
-  .lp-header .lp-nav, .lp-header > .lp-header-cta { display: none; }
-  .lp-menu-toggle { display: inline-flex; }
-}
 @media (max-width: 720px) {
-  .landing .lp-container { width: calc(100% - 2rem); }
-  .lp-brand { font-size: 1.1rem; }
   .lp-hero { padding-top: 2rem; }
   .lp-hero-copy { grid-template-columns: 1fr; gap: 1.5rem; margin-bottom: 2rem; }
   .landing .lp-hero h1 { font-size: clamp(3rem, 10vw, 4.8rem); line-height: 1.2; }
@@ -161,7 +126,6 @@
   .lp-principles { padding-block: 3.5rem; gap: 1.5rem; }
   .lp-before { padding-block: 2.5rem 3.5rem; }
   .lp-closing { padding-block: 3rem; }
-  .landing .lp-footer { flex-direction: column; align-items: flex-start; gap: .25rem; }
   .lp-questions details p { font-size: 1rem; }
 }
 @media (prefers-reduced-motion: reduce) {
