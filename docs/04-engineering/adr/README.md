@@ -2,6 +2,8 @@
 
 ## Quyết định hiện hành
 
+- [ADR-0013 — Wanderer / Pine Keeper auth](0013-wanderer-pine-keeper-auth.md) — Accepted.
+
 - [ADR-0011 — NestJS, Drizzle và React Native + Expo](0011-nestjs-drizzle-mobile-direction.md) — Accepted.
 - [ADR-0012 — Core modular monolith, inference độc lập, worker theo nhu cầu](0012-modular-monolith-proposal.md) — Accepted.
 - [ADR-0006 — Gentle Retention and Reminder Delivery](0006-gentle-retention-and-reminders.md) — nguyên tắc sản phẩm liên quan.
