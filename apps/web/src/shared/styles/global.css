@@ -232,3 +232,11 @@ footer { padding: 1.5rem 0 2rem; border-top: 1px solid var(--line); color: var(-
   td::before { content: attr(data-label); color: var(--muted); font-size: .8125rem; }
   td .secondary { font-size: .875rem; justify-self: start; padding: .6rem .8rem; }
 }
+
+.auth-shell { width: min(560px, calc(100% - 2rem)); margin: 2rem auto 4rem; }
+.auth-shell a { color: var(--forest); }
+.auth-card { margin-top: 1.5rem; }
+.auth-fields { border: 0; padding: 0; margin: 0; min-width: 0; }
+
+.auth-switch-link { display: inline-flex; align-items: center; min-height: 44px; font-weight: 600; text-underline-offset: .3em; }
+.auth-shell, .auth-shell [tabindex] { scroll-margin-top: calc(var(--public-header-height, 84px) + 1rem); }
