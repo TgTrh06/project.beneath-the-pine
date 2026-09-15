@@ -1,6 +1,6 @@
 # 08 — Operations
 
-Tài liệu vận hành cho hướng NestJS/Drizzle với web trước, mobile sau API gate. Chưa chọn hosting backend hoặc hạ tầng job. Giai đoạn hiện tại chỉ cập nhật tài liệu; code/config/CI vẫn có baseline backend cũ và draft NestJS.
+Tài liệu vận hành cho NestJS/Drizzle với web trước, mobile sau API gate. Chưa chọn hosting backend hoặc hạ tầng job. `apps/api` là Core duy nhất; PostgreSQL Docker hiện chỉ dành cho local development.
 
 - [Infrastructure Plan](infrastructure-plan.md)
 - [CI/CD](ci-cd.md)

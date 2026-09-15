@@ -4,7 +4,7 @@
 
 Mobile is the primary long-term product; React/Vite web is built first against a shared API. The selected backend direction is NestJS + TypeScript, PostgreSQL and Drizzle ORM/Kit. [ADR-0011](../04-engineering/adr/0011-nestjs-drizzle-mobile-direction.md).
 
-The approved scaffold now exists in apps/api: 12 Nest modules, platform, Drizzle/node-postgres connection and tests. Business logic, auth, schemas and migrations are not implemented. Legacy implementation and the unfinished direct-pg draft remain in services/core-service. Follow the [module delivery plan](../04-engineering/module-delivery-plan.md) for the next slice.
+The approved Core lives only in apps/api: 12 Nest modules, platform, Drizzle/node-postgres connection and tests. Business logic, auth, schemas and migrations are not implemented. The previous Core implementations were removed; SQL baseline references live in docs/04-engineering/legacy-schema. Follow the [module delivery plan](../04-engineering/module-delivery-plan.md) for the next slice.
 
 Core modular monolith is accepted; inference remains independent and workers require a concrete need. Redis/RabbitMQ and service extraction are conditional, not a required sequence. Read [Architecture Options](../04-engineering/architecture-options.md), [Repository Structure](../04-engineering/repository-structure.md) and [API Strategy](../04-engineering/web-mobile-api-strategy.md) before coding.
 

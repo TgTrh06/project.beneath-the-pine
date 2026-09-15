@@ -1,8 +1,74 @@
 import type { FocusTimerStatus } from "../focus/focusTimer";
 import type { HelpSuggestion, Task } from "../../shared/types/domain";
 
-export function NowView({ task, focusStatus, format, helpSuggestion, onCapture, onStart, onPause, onComplete, onSmaller, onAcceptHelp, onReset, onReturn }: { task?: Task; focusStatus: FocusTimerStatus; format: string; helpSuggestion: HelpSuggestion | null; onCapture: () => void; onStart: (task: Task) => void; onPause: () => void; onComplete: () => void; onSmaller: (task: Task) => void; onAcceptHelp: () => void; onReset: () => void; onReturn: () => void }) {
-  return <><section className="hero"><p className="eyebrow">KHI MỌI THỨ ĐANG HƠI NHIỀU</p><h1>Bạn không cần xử lý hết.<br />Mình chỉ tìm một bước tiếp theo.</h1><p>Không cần viết đẹp hay sắp xếp trước. Bắt đầu bằng điều đang chiếm tâm trí bạn nhất.</p><button className="primary" onClick={onCapture}>Trút bớt trong đầu <span>→</span></button></section>
-    <section className="feature-card next-action"><div className="card-heading"><div><p className="eyebrow">NGAY LÚC NÀY</p><h2>Một bước có thể bắt đầu</h2></div><span className="symbol">♧</span></div>{task ? <><span className="minutes">{task.minutes} phút là đủ</span><h3>{task.title}</h3><p>Bạn không cần hoàn hảo. Hết thời gian, bạn có thể dừng, đổi bước nhỏ hơn hoặc tiếp tục.</p>{helpSuggestion?.taskId === task.id && <div className="notice"><strong>Gợi ý nhỏ hơn:</strong> {helpSuggestion.title}<div className="button-row"><button className="secondary" onClick={onAcceptHelp}>Dùng bước này</button></div></div>}<div className="button-row"><button className="primary" onClick={() => focusStatus === "running" ? onPause() : onStart(task)}>{focusStatus === "running" ? "Tạm dừng" : focusStatus === "paused" || focusStatus === "finished" ? "Quay lại phiên" : "Bắt đầu ngay"}</button><button className="secondary" onClick={() => onSmaller(task)}>Vẫn bị kẹt</button></div></> : <><h3>Hiện không có việc nào cần chen vào.</h3><button className="primary" onClick={onCapture}>Mở Brain Dump</button></>}</section>
-    <section className="two-up"><article className="feature-card timer-card"><p className="eyebrow">PHIÊN BẮT ĐẦU</p><div className="timer">{format}</div><p>{task?.title ?? "Chọn một bước phía trên để bắt đầu."}</p><div className="button-row"><button className="primary" disabled={!task || focusStatus === "running"} onClick={() => task && onStart(task)}>{focusStatus === "running" ? "Đang tập trung" : focusStatus === "paused" || focusStatus === "finished" ? "Quay lại" : "Bắt đầu"}</button><button className="secondary" disabled={!task} onClick={onComplete}>Đã xong</button></div></article><article className="feature-card reset-card"><p className="eyebrow">KHI KẾ HOẠCH VỠ</p><h2>Reset hôm nay</h2><p>Chọn lại điều còn thực tế với năng lượng và thời gian hiện tại.</p><div className="button-row"><button className="text-action" onClick={onReset}>Lập lại nhẹ nhàng →</button><button className="text-action" onClick={onReturn}>Bắt đầu lại từ hôm nay</button></div></article></section></>;
+type NowViewProps = {
+  task?: Task;
+  focusStatus: FocusTimerStatus;
+  format: string;
+  helpSuggestion: HelpSuggestion | null;
+  onCapture: () => void;
+  onStart: (task: Task) => void;
+  onPause: () => void;
+  onComplete: () => void;
+  onSmaller: (task: Task) => void;
+  onAcceptHelp: () => void;
+  onReset: () => void;
+  onReturn: () => void;
+};
+
+export function NowView({ task, focusStatus, format, helpSuggestion, onCapture, onStart, onPause, onComplete, onSmaller, onAcceptHelp, onReset, onReturn }: NowViewProps) {
+  const hasSession = focusStatus !== "idle";
+  return <>
+    <section className="hero">
+      <p className="eyebrow">KHI MỌI THỨ ĐANG HƠI NHIỀU</p>
+      <h1>Một bước nhỏ.<br /><span>Ngay lúc này.</span></h1>
+      <p>Bạn không cần xử lý hết. Mình chỉ tìm một bước tiếp theo.</p>
+    </section>
+    <section className="feature-card next-action" aria-labelledby="next-action-title">
+      <div className="card-heading">
+        <p className="eyebrow">MỘT BƯỚC CÓ THỂ BẮT ĐẦU</p>
+        {task && <span className="minutes">{task.minutes} phút là đủ</span>}
+      </div>
+      {task ? <>
+        <h2 id="next-action-title">{task.title}</h2>
+        <p>Không cần hoàn hảo. Hết thời gian, bạn có thể dừng hoặc tiếp tục.</p>
+        {hasSession && <div className="session-summary">
+          <span>{focusStatus === "running" ? "Đang tập trung" : focusStatus === "finished" ? "Hết thời gian gợi ý" : "Phiên đang tạm dừng"}</span>
+          <span className="timer" aria-label={`Thời gian còn lại ${format}`}>{format}</span>
+        </div>}
+        {helpSuggestion?.taskId === task.id && <div className="notice">
+          <strong>Gợi ý nhỏ hơn:</strong> {helpSuggestion.title}
+          <div className="button-row"><button className="secondary" onClick={onAcceptHelp}>Dùng bước này</button></div>
+        </div>}
+        <div className="button-row">
+          <button className="primary" onClick={() => focusStatus === "running" ? onPause() : onStart(task)}>
+            {focusStatus === "running" ? "Tạm dừng" : hasSession ? "Quay lại phiên" : "Bắt đầu ngay"}<span aria-hidden="true"> →</span>
+          </button>
+          <button className="secondary" onClick={() => onSmaller(task)}>Vẫn bị kẹt</button>
+          {hasSession && <button className="text-action" onClick={onComplete}>Đã xong</button>}
+        </div>
+      </> : <>
+        <h2 id="next-action-title">Hiện không có việc nào cần chen vào.</h2>
+        <p>Đặt xuống một điều đang chiếm tâm trí, khi bạn sẵn sàng.</p>
+        <button className="primary" onClick={onCapture}>Trút bớt trong đầu <span aria-hidden="true">→</span></button>
+      </>}
+    </section>
+    <section className="two-up supporting-actions" aria-label="Khi bạn cần một cách khác">
+      <article className="capture-note">
+        <p className="eyebrow">ĐẶT XUỐNG MỘT CHÚT</p>
+        <h2>Đầu đang đầy?</h2>
+        <p>Không cần viết đẹp hay sắp xếp trước.</p>
+        <button className="text-action" onClick={onCapture}>Trút bớt trong đầu →</button>
+      </article>
+      <article className="reset-card">
+        <p className="eyebrow">KHI KẾ HOẠCH VỠ</p>
+        <h2>Hôm nay, nhẹ hơn.</h2>
+        <p>Chọn lại điều còn thực tế với năng lượng hiện tại.</p>
+        <div className="reset-actions">
+          <button className="text-action" onClick={onReset}>Lập lại nhẹ nhàng →</button>
+          <button className="text-action" onClick={onReturn}>Bắt đầu lại từ hôm nay</button>
+        </div>
+      </article>
+    </section>
+  </>;
 }

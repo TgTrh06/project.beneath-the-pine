@@ -23,7 +23,7 @@ Android hay iOS ra mắt đầu tiên, native authentication và account lifecyc
 
 ## Trạng thái và hệ quả
 
-Bản nháp NestJS hiện dùng pg query trực tiếp; Drizzle và mobile chưa triển khai. Cấu trúc đích trong [Repository Structure](../repository-structure.md) sẽ được thực hiện bằng kế hoạch code riêng.
+`apps/api` hiện là Core duy nhất và dùng Drizzle/node-postgres ở tầng platform; business schema và mobile chưa triển khai. Xem trạng thái tại [Repository Structure](../repository-structure.md).
 
 Browser session/CSRF là contract baseline cần review; mobile auth quy về cùng account UUID và quyền tài nguyên. Không thay tài khoản hoặc reset dữ liệu chỉ vì đổi implementation.
 

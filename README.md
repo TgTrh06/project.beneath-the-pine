@@ -24,25 +24,27 @@ Beneath the Pine giúp người đang quá tải chọn một hành động nh�
 
 | Path hiện có | Trạng thái |
 | --- | --- |
-| `apps/web` | React/Vite web; API adapter và local demo |
-| `apps/api` | NestJS + Drizzle scaffold; health và platform, chưa có nghiệp vụ |
-| `services/core-service` | Mã backend cũ được giữ lại; đồng thời có bản nháp NestJS chưa hoàn tất chuyển đổi |
-| `services/core-service/database` | Bản sao SQL baseline trong công việc dở; chưa là Drizzle migrations |
+| `apps/web` | React/Vite web; đăng nhập/đăng ký Wanderer và khu vực Pine Keeper |
+| `apps/api` | NestJS + Drizzle; Identity/RBAC đã triển khai, module nghiệp vụ khác chưa khả dụng |
 | `packages/contracts` | Zod schemas/browser API types hiện có |
 | `services/inference-service` | Python/FastAPI pilot độc lập, chưa nối vào API |
 | `supabase` | Lịch sử schema public và RLS |
 | `docs`, `ml` | Tài liệu sản phẩm/kiến trúc và tài liệu nghiên cứu mô hình |
 
-Bản nháp NestJS cũ dùng pg query trực tiếp được giữ nguyên. Scaffold mới dùng Drizzle/node-postgres nhưng chưa có business schema hoặc migration. `apps/mobile` chưa được tạo; web chưa chuyển sang API mới.
+`apps/api` là Core backend duy nhất. SQL của backend cũ chỉ còn là tài liệu baseline tại `docs/04-engineering/legacy-schema`; chưa phải Drizzle migrations. `apps/mobile` chưa được tạo; web dùng Identity API mới; các tính năng nghiệp vụ hiển thị trạng thái chưa khả dụng.
 
 ## Chạy web hiện tại
 
-Dùng Node.js >=22.12 và pnpm 10.32.1 theo package metadata hiện có. `pnpm dev` chạy web tại localhost:5173 sau khi dependencies đã được cài. Không có `VITE_API_URL` thì web dùng local demo; demo không chứng minh backend hoạt động.
+Dùng Node.js >=22.12 và pnpm 10.32.1 theo package metadata hiện có. `pnpm dev` chạy web tại localhost:5173 sau khi dependencies đã được cài. Web mặc định gọi `/api/v1` qua Vite proxy đến port 8081. Không còn đường chạy local demo.
 
-Chạy API scaffold bằng `pnpm dev:api:scaffold` tại port 8081. Kiểm tra bằng `pnpm lint:api`, `pnpm test:api`, `pnpm build:api`. Chỉ `/health/live` và `/health/ready` hoạt động; chưa cấu hình DB thì readiness trả 503. Xem [API README](apps/api/README.md) để cấu hình local env riêng. Script `dev:api` và `db:init` vẫn thuộc backend cũ.
+Chạy API bằng `pnpm dev:api` tại port 8081. Kiểm tra bằng `pnpm lint:api`, `pnpm test:api`, `pnpm build:api`. Có health, auth và API quản trị tài khoản; cần migration Identity trước khi dùng tài khoản. Chưa cấu hình DB thì readiness và auth trả 503. Xem [API README](apps/api/README.md) để cấu hình local env riêng.
+
+Để thử PostgreSQL local, bật Docker Desktop rồi chạy `pnpm db:local:up` trước API. Compose chỉ bind `127.0.0.1:5433`, giữ dữ liệu trong volume local và chưa tạo schema nghiệp vụ hay chạy migration.
 
 ## Quyết định và bước tiếp theo
 
 [ADR-0011](docs/04-engineering/adr/0011-nestjs-drizzle-mobile-direction.md) ghi nhận hướng người dùng đã chọn. [ADR-0012](docs/04-engineering/adr/0012-modular-monolith-proposal.md) ghi nhận topology đã được chấp nhận.
 
 Review [ownership, API dự kiến và các slice](docs/04-engineering/module-delivery-plan.md) trước khi triển khai nghiệp vụ. Database hiện hữu cần kiểm kê và baseline strategy riêng. Chưa có deployment hoặc migration được thực hiện trong scaffold này.
+
+Xem [Identity setup, migration và seed Pine Keeper](apps/api/src/modules/identity/README.md).

@@ -1,13 +1,13 @@
 # Retained Supabase Schema History
 
-Thư mục này giữ cấu hình Supabase local và database migrations đã version—ranh giới dữ liệu lịch sử của Beneath the Pine. Supabase Auth không còn là identity provider đang dùng; quyết định hiện tại là [first-party Spring Security authentication](../docs/04-engineering/adr/0010-first-party-spring-security-authentication.md). Các policy dùng `auth.uid()` được giữ làm đầu vào lịch sử và không bảo vệ bảng `core.*` do Flyway quản lý.
+Thư mục này giữ cấu hình Supabase local và database migrations đã version như lịch sử dữ liệu của Beneath the Pine. Supabase Auth không phải identity provider đã chọn cho Core hiện tại. Các policy dùng `auth.uid()` chỉ là đầu vào lịch sử và không bảo vệ schema do `apps/api` sở hữu.
 
 ## Khởi động local
 
 1. Cài [Supabase CLI](https://supabase.com/docs/guides/local-development/cli/getting-started).
 2. Trong thư mục này, chạy `supabase start`.
-3. Chép API URL, publishable key, service-role key và database URL được trả về vào các biến tương ứng trong `.env` gốc.
-4. Treat the migrations in this directory as retained product-schema history. Do not edit applied files. New Java service migrations live under `services/core-service/src/main/resources/db/migration` and are applied by Flyway when the service starts against an explicitly selected database.
+3. Dùng credential do Supabase CLI trả về chỉ cho việc kiểm tra lịch sử schema này; không đưa chúng vào web hoặc `apps/api/.env` mặc định.
+4. Xem migration trong thư mục này là lịch sử sản phẩm và không sửa file đã áp dụng. Schema Drizzle mới sẽ thuộc từng module trong `apps/api` sau khi baseline được duyệt.
 
 ## Giữ ranh giới sạch
 

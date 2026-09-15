@@ -7,7 +7,7 @@
 
 Phải có commit/artifact, environment và owner rõ ràng; backend được build/test theo pipeline đã triển khai, không theo lệnh đích còn ở docs. Kiểm tra auth/CSRF hoặc native token lifecycle, ownership, contract compatibility và PostgreSQL integration.
 
-Với dữ liệu: kiểm kê schema/journal hiện hữu; review SQL Drizzle, backup/restore, lock/backfill, compatibility và rollback/forward-fix. Không chạy db:init draft lên database hiện hữu. Không dựa vào việc đổi framework để reset account/data.
+Với dữ liệu: kiểm kê schema/journal hiện hữu; review SQL Drizzle, backup/restore, lock/backfill, compatibility và rollback/forward-fix. Không chạy SQL baseline lưu trữ trực tiếp lên database hiện hữu. Không dựa vào việc đổi framework để reset account/data.
 
 ## Thứ tự release sau khi được duyệt
 

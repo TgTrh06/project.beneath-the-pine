@@ -5,7 +5,7 @@
 
 ## Phân biệt hiện tại và đích
 
-Root .env.example còn cấu hình backend cũ. Scaffold chỉ tự đọc `apps/api/.env`, theo [template API](../../apps/api/.env.example) và [hướng dẫn biến môi trường](../../apps/api/README.md). Process env ưu tiên hơn file; mặc định host 127.0.0.1, port 8081, web origin http://localhost:5173. API_DATABASE_URL tùy chọn: không có thì live 200, ready 503. Pool/timeout được kiểm tra kiểu và giới hạn; lỗi config chỉ nêu tên field.
+Root .env.example chỉ mô tả cấu hình public của web. API tự đọc `apps/api/.env`, theo [template API](../../apps/api/.env.example) và [hướng dẫn biến môi trường](../../apps/api/README.md). Process env ưu tiên hơn file; mặc định host 127.0.0.1, port 8081, web origin http://localhost:5173. API_DATABASE_URL tùy chọn: không có thì live 200, ready 503. Pool/timeout được kiểm tra kiểu và giới hạn; lỗi config chỉ nêu tên field.
 
 | Nhóm cấu hình | Consumer | Boundary |
 | --- | --- | --- |

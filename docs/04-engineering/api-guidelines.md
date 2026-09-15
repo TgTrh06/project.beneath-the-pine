@@ -22,7 +22,7 @@ Mobile cũ phải tiếp tục dùng API sau backend release. Không xóa/đổi
 | GET/PATCH /tasks/:taskId | Lấy/cập nhật tài nguyên owner |
 | POST /tasks/:taskId/archive | Archive terminal, 200 |
 
-Route có prefix /api/v1. Baseline backend cũ và draft Nest còn trong services/core-service; đây không phải cam kết triển khai Drizzle đã hoàn tất. [Task Module](task-module.md).
+Route nghiệp vụ dự kiến có prefix /api/v1. Bảng trên là contract baseline đã kiểm kê, chưa phải endpoint đang hoạt động hoặc bằng chứng Drizzle đã hoàn tất. [Task Module](task-module.md).
 
 ## Authentication và authorization
 

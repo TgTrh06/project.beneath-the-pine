@@ -5,7 +5,7 @@
 
 ## Baseline
 
-Web có cấu hình Vercel. Dockerfile và CI cũ còn được giữ. Draft NestJS chưa có image/CI/migration Drizzle hoàn chỉnh. Python inference pilot độc lập. Không có app mobile, push provider, Redis hoặc RabbitMQ đang được triển khai bởi thay đổi tài liệu.
+Web có cấu hình Vercel. API có PostgreSQL Compose dành cho local và Node/pnpm CI checks; chưa có API image, deployment hoặc Drizzle migration. Python inference pilot độc lập. Chưa có app mobile, push provider, Redis hoặc RabbitMQ.
 
 ## Kiến trúc đã chốt, hosting chưa chọn
 

@@ -6,6 +6,8 @@ const errors: Record<number, [string, string]> = {
   401: ['UNAUTHENTICATED', 'Authentication is required.'],
   403: ['FORBIDDEN', 'Access is not allowed.'],
   404: ['NOT_FOUND', 'The route was not found.'],
+  409: ['ACCOUNT_CONFLICT', 'Không thể tạo tài khoản với email này. Hãy đăng nhập hoặc dùng email khác.'],
+  429: ['RATE_LIMITED', 'Bạn thao tác quá nhanh. Vui lòng thử lại sau một phút.'],
   413: ['PAYLOAD_TOO_LARGE', 'The request body is too large.'],
   503: ['SERVICE_UNAVAILABLE', 'The service is not ready.'],
 };

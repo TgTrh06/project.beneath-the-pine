@@ -65,4 +65,4 @@ Không đợi toàn bộ web public alpha hoặc paid features mới bắt đầ
 
 Core modular monolith và inference độc lập đã được chốt. Worker chỉ được thêm khi cần job bền vững hoặc resource isolation. Redis, RabbitMQ và tách Engagement không còn là milestone bắt buộc. Đánh giá bằng workload, owner, failure model và chi phí, theo [Architecture Options](../04-engineering/architecture-options.md).
 
-Hiện trạng backend cũ và bản nháp NestJS được giữ trong khi review tài liệu. Giai đoạn này không chuyển thư mục, thay dependency hoặc database. Mỗi bước implementation sau cần kế hoạch và xác nhận riêng theo delivery contract.
+Core cũ đã được gỡ sau khi SQL baseline cần thiết được lưu trong tài liệu. `apps/api` là backend duy nhất; mỗi slice nghiệp vụ, schema hoặc migration tiếp theo cần kế hoạch và xác nhận riêng theo delivery contract.

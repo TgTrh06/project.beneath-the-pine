@@ -1,6 +1,6 @@
 # 04 — Engineering
 
-Core modular monolith NestJS + Drizzle và React Native + Expo mobile theo [ADR-0011](adr/0011-nestjs-drizzle-mobile-direction.md). Đã có scaffold `apps/api` với 12 module và platform; chưa có business logic, schema/migration hoặc AI. Backend cũ vẫn được giữ. Inference độc lập là hướng tương lai.
+Core modular monolith NestJS + Drizzle và React Native + Expo mobile theo [ADR-0011](adr/0011-nestjs-drizzle-mobile-direction.md). `apps/api` là Core duy nhất, với 12 module và platform; chưa có business logic, schema/migration hoặc AI. Inference độc lập là hướng tương lai.
 
 | Nhu cầu | Tài liệu |
 | --- | --- |

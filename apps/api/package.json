@@ -4,6 +4,8 @@
   "private": true,
   "description": "Review scaffold for the manual-first modular Core API.",
   "scripts": {
+    "db:migrate": "node scripts/migrate.cjs",
+    "db:seed": "pnpm build && node scripts/seed.cjs",
     "dev": "nest start --watch",
     "start": "node dist/main.js",
     "build": "nest build",

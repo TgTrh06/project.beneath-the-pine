@@ -32,15 +32,16 @@ test('application composition, HTTP foundation and fail-closed access', async t 
   await app.init();
   t.after(() => app.close());
   const server = app.getHttpServer();
-  await t.test('all 12 business modules compose without providers or route stubs', async () => {
+  await t.test('all 12 modules compose; only Identity exposes account routes', async () => {
     const expected = ['Identity', 'Profile', 'Consent', 'Task', 'Focus', 'Capture', 'Engagement', 'Reflection', 'Habit', 'Analytics', 'Privacy', 'Access'].map(name => `${name}Module`);
     const names = [...app.get(ModulesContainer).values()].map(module => module.metatype.name);
     for (const name of expected) assert.ok(names.includes(name), `${name} missing`);
     assert.ok(!names.includes('AiModule'));
-    for (const route of ['/api/v1/tasks', '/api/v1/auth/session', '/api/v1/captures']) {
+    for (const route of ['/api/v1/tasks', '/api/v1/captures']) {
       const response = await request(server).get(route).expect(404);
       assert.equal(response.body.code, 'NOT_FOUND');
     }
+    await request(server).get('/api/v1/auth/session').expect(503);
   });
   await t.test('liveness works without DB and readiness reports unavailable truthfully', async () => {
     const response = await request(server).get('/health/live').expect(200);
@@ -52,7 +53,7 @@ test('application composition, HTTP foundation and fail-closed access', async t 
     assert.equal(notReady.body.code, 'SERVICE_UNAVAILABLE');
     assert.equal(notReady.body.requestId, notReady.headers['x-request-id']);
   });
-  await t.test('routes are denied until an auth adapter exists, including forged credentials', async () => {
+  await t.test('private routes reject absent or forged credentials', async () => {
     for (const headers of [{}, { Authorization: 'Bearer fabricated', Cookie: 'BTP_SESSION=fabricated', 'X-User-ID': 'owner' }]) {
       const response = await request(server).get('/test-only/protected').set(headers).expect(401);
       assert.equal(response.body.code, 'UNAUTHENTICATED');

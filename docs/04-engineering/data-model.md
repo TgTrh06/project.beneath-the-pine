@@ -6,7 +6,7 @@
 
 ## Architecture status
 
-Schema public lịch sử được giữ trong supabase/migrations; baseline core.accounts/tasks/next_actions nằm trong SQL migration cũ và mã backend cũ hiện có. Drizzle là persistence đích nhưng chưa triển khai. Các entity ngoài core baseline bên dưới là schema lịch sử hoặc thiết kế, không phải bảo đảm runtime hiện tại. Xem [Data Dictionary](data-dictionary.md) và [Drizzle baseline strategy](drizzle-data-access.md).
+Schema public lịch sử được giữ trong supabase/migrations; baseline core.accounts/tasks/next_actions được lưu tại [legacy-schema](legacy-schema/README.md). Drizzle là persistence đích nhưng chưa có schema nghiệp vụ. Các entity ngoài core baseline bên dưới là schema lịch sử hoặc thiết kế, không phải bảo đảm runtime hiện tại. Xem [Data Dictionary](data-dictionary.md) và [Drizzle baseline strategy](drizzle-data-access.md).
 
 ## Existing core entities
 
