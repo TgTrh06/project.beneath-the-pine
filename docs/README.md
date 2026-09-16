@@ -1,64 +1,21 @@
 # Beneath the Pine — Documentation Map
 
-> A calm path through product decisions, implementation detail and the safety boundaries that keep them aligned.
-
-This documentation is the project's shared memory: why Beneath the Pine exists, what it promises, how it is built and where it must stop. The application is under active development, so every document must distinguish current behavior from intended work.
-
 ## Current direction
 
-Mobile is the primary long-term product; web is built first against a shared NestJS/PostgreSQL/Drizzle API. The apps/api scaffold now contains 12 modules and platform code; business logic and migrations are pending. Current scope has no AI. Core modular monolith and future independent inference are accepted; workers require a concrete need. React Native + Expo is selected; native auth remains open. Review the [module delivery plan](04-engineering/module-delivery-plan.md). [ADR-0011](04-engineering/adr/0011-nestjs-drizzle-mobile-direction.md) records the direction; [ADR-0012](04-engineering/adr/0012-modular-monolith-proposal.md) is Accepted.
+Beneath the Pine is mobile-first. It helps a person start and return to personal work through a solo ritual or a private Focus Pact with trusted people. Web validates shared contracts; mobile is the intended product client.
 
-## Choose a reading path
-
-| Goal | Reading path |
+| Question | Start here |
 | --- | --- |
-| Understand product intent, Tier 0–5 and boundaries | [Foundation](00-foundation/README.md) → [PRD](02-product/prd.md) → [Tiered Delivery Plan](02-product/tiered-delivery-plan.md) → [Design](03-design/README.md) |
-| Implement an application change | [Tiered Delivery Plan](02-product/tiered-delivery-plan.md) → [System Diagrams](04-engineering/system-diagrams.md) → [Sequence Diagrams](04-engineering/sequences/README.md) → [Engineering](04-engineering/README.md) → [Testing](07-testing/README.md) |
-| Review NestJS/Drizzle and mobile architecture | [Architecture Options](04-engineering/architecture-options.md) → [Repository Structure](04-engineering/repository-structure.md) → [Web/Mobile API Strategy](04-engineering/web-mobile-api-strategy.md) → [Drizzle](04-engineering/drizzle-data-access.md) |
-| Change an AI output or model | [Machine Learning](05-machine-learning/README.md) → [AI Handbook](ai/README.md) → [Security and Privacy](06-security-privacy/README.md) |
-| Prepare a beta or release | [Testing](07-testing/README.md) → [Operations](08-operations/README.md) → [Release](09-release/README.md) |
-| Validate an assumption before committing to a solution | [Research](01-research/README.md) |
+| Why does Pine exist and what is explicitly out? | [Foundation](00-foundation/README.md) |
+| What will the web pilot implement? | [MVP Scope](00-foundation/mvp-scope.md) and [PRD](02-product/prd.md) |
+| How is it evaluated? | [Research](01-research/README.md) and [Testing](07-testing/README.md) |
+| How do Circle/Pact/realtime work? | [Engineering](04-engineering/README.md) |
+| How will Pine train and govern assistance models? | [Pine Assistance and ML](05-machine-learning/README.md) |
+| How is private data handled? | [Security & Privacy](06-security-privacy/README.md) |
 
-## How to use this set
+## Reading rules
 
-- Numbered directories hold durable product, UX, engineering, ML, privacy, quality, operations and release decisions.
-- [`ai/`](ai/README.md) turns accepted decisions into small implementation slices. It does not override the PRD, design decisions, privacy rules or ADRs.
-- If a handbook conflicts with a numbered decision document or ADR, stop and resolve the decision instead of choosing silently.
-- Mark important documents `Draft`, `Review`, `Approved` or `Superseded`. Record significant architecture changes in `04-engineering/adr/`.
-- Never store identifying information, real health data or real research transcripts in the repository.
-
-## Map
-
-| Area | Question answered | Start |
-| --- | --- | --- |
-| 00 — Foundation | Why does the product exist, for whom and what is success? | [Foundation](00-foundation/README.md) |
-| 01 — Research | What must be validated before it is trusted? | [Research](01-research/README.md) |
-| 02 — Product | What are we building and how is it accepted? | [Product](02-product/README.md) |
-| 03 — Design | How does the experience reduce pressure and support return? | [Design](03-design/README.md) |
-| 04 — Engineering | How is the current system structured and run? | [Engineering](04-engineering/README.md) |
-| 05 — Machine Learning | How are AI behavior, data, evaluation and safety governed? | [Machine Learning](05-machine-learning/README.md) |
-| 06 — Security and Privacy | How are data, consent and risk protected? | [Security and Privacy](06-security-privacy/README.md) |
-| 07 — Testing | How is confidence built before release? | [Testing](07-testing/README.md) |
-| 08 — Operations | How is the service deployed, observed and recovered? | [Operations](08-operations/README.md) |
-| 09 — Release | How is beta or release readiness decided? | [Release](09-release/README.md) |
-
-## Before changing code
-
-1. [Product Direction](00-foundation/product-direction.md)
-2. [PRD](02-product/prd.md)
-3. [Tiered Delivery Plan](02-product/tiered-delivery-plan.md)
-4. [System Diagrams](04-engineering/system-diagrams.md) and the applicable sequence
-5. [Technology Stack](04-engineering/technology-stack.md)
-6. [System Architecture](04-engineering/system-architecture.md)
-7. [Architecture Options](04-engineering/architecture-options.md) and [Drizzle Data Access](04-engineering/drizzle-data-access.md), for backend work
-8. [AI Safety Policy](05-machine-learning/ai-safety-policy.md), if AI behavior changes
-9. [Test Strategy](07-testing/test-strategy.md)
-
-For retention work, also use the [AI Implementation Handbook](ai/README.md) and linked contracts. For user-facing work, read the relevant design decision before opening a component.
-
-## Status vocabulary
-
-- **Draft** — being shaped; not an implementation commitment.
-- **Review** — ready for critique and awaiting confirmation.
-- **Approved** — the current basis for implementation.
-- **Superseded** — replaced and linked to the newer decision.
+- Current behavior and target design must be labelled separately.
+- ADRs preserve history; do not delete them merely because a newer direction exists.
+- `ml/` and `services/inference-service/` are experiments, not an approved product capability.
+- Public rooms, stranger matching, public Signal, voice/video, ranking, streaks and reward currency are out of scope.

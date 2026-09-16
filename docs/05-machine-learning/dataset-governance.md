@@ -1,16 +1,17 @@
 # Dataset Governance
 
-## Target composition
+## Non-negotiable boundary
 
-600 reviewed Vietnamese scenarios: 300 Brain Dump, 220 Help Me Start and 80 safety/adversarial cases. Each has a stable `scenario_id`, capability, difficulty, safety tags and input/output message pair.
+Never train on raw production intention, Open Seed, Circle content, presence, private message, research transcript, scraped social post or medical/therapy content.
 
-## Rules
+Training rows must be one of:
 
-- No raw Brain Dump, task title, check-in, beta content, direct identifier, private message or unlicensed corpus enters training data.
-- Generated drafts are allowed only as drafts; the owner reviews and rewrites them before inclusion.
-- Store reviewed JSONL under `ml/data/private/`; Git tracks only safe fixtures, schema/config and the aggregate hash/count.
-- Dataset changes require a new version, changelog and new baseline/eval run.
+- `owned_fictional_authoring`;
+- `consented_contributor`, de-identified and separately consented for training; or
+- `synthetic_draft_rewritten`, substantially rewritten and approved by a Vietnamese reviewer.
 
-## Review checklist
+External corpora may inform abstract coverage dimensions only. Do not copy, translate, paraphrase or retain source utterances in training rows or reviewer notes.
 
-The target must be grounded, Vietnamese-natural, non-judgmental, ≤10 minutes, non-medical, safe under adversarial input, and conform to the shared JSON contract.
+## Governance gates
+
+Each dataset version needs provenance manifest, deterministic split, SHA-256, reviewer sign-off, safety review and documented license. The holdout is frozen before training. Publish aggregate metadata/model card only; keep raw data and contributor mapping out of Git.

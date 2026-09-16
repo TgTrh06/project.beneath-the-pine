@@ -1,40 +1,20 @@
-# Private Beta Plan
+# Private Pilot Plan
 
-- **Status:** Draft
-- **Duration:** 2–4 tuần
-- **Participants:** 10–20
+- **Duration:** 2–4 weeks
+- **Participants:** 8–15 people across 3–5 private Circles
 
-## Mục tiêu
+## Goals
 
-- Quan sát sử dụng trong stuck state thật.
-- Đo Stuck-to-Start Rate và return behavior.
-- Phát hiện safety/privacy/usability failure trước public beta.
+Validate solo return, pact attendance, repeat pact and privacy comfort. The pilot does not claim to measure clinical outcome or objective productivity.
 
 ## Entry criteria
 
-- Release gates pass.
-- Consent, export/delete và disclosure hoàn tất.
-- Support channel và incident owner sẵn sàng.
-- Người tham gia hiểu đây là beta và không phải sản phẩm y tế.
+Identity/authorization, session recovery, export/delete baseline, consent copy, support owner and critical test cases are complete.
 
-## Cadence
+## Evidence
 
-- Onboarding interview ngắn.
-- In-product feedback ở các flow chính.
-- Weekly check-in 10–15 phút.
-- Exit interview.
+Collect consented events and short surveys; conduct an exit interview. Report sample size, failures and counterexamples, not only positive stories.
 
-## Go/no-go
+## Pause criteria
 
-Go khi:
-
-- Core value metrics đạt hoặc có xu hướng đủ mạnh.
-- Không có critical safety/security incident chưa giải quyết.
-- Người dùng quay lại dùng trong tình huống thật, không chỉ thử demo.
-
-Pause/pivot khi:
-
-- Người dùng không mở app lúc bị kẹt.
-- AI làm tăng số quyết định hoặc thời gian bắt đầu.
-- Lo ngại trust/privacy cản core loop.
-
+Pause if users feel watched/pressured, private text is exposed, realtime state is untrustworthy, or usage relies on persistent researcher prompting.

@@ -1,16 +1,15 @@
-# 05 — Machine Learning
+# 05 — Pine Assistance and Machine Learning
 
-Tài liệu trong phần này dành cho người xây dựng, đánh giá và vận hành model/dataset. Hướng dẫn coding agent triển khai ứng dụng nằm riêng ở [`../ai/`](../ai/README.md).
-
-## Tài liệu
+Pine Assistance is an optional, user-requested capability that helps a person choose a smaller start or draft an Open Seed. It is not required for the solo/Circle/realtime MVP and is not a free-form chatbot.
 
 - [AI Product Spec](ai-product-spec.md)
-- [AI Output Contracts](ai-output-contracts.md)
-- [Prompt Registry](prompt-registry.md)
-- [AI Evaluation](ai-evaluation.md)
-- [AI Safety Policy](ai-safety-policy.md)
-- [AI Cost & Limits](ai-cost-and-limits.md)
-- [Training Runbook](training-runbook.md)
+- [Output Contracts](ai-output-contracts.md)
 - [Dataset Governance](dataset-governance.md)
+- [Dataset Specification](dataset-spec.md)
+- [Training Runbook](training-runbook.md)
+- [Evaluation](ai-evaluation.md)
+- [Safety Policy](ai-safety-policy.md)
+- [Prompt Registry](prompt-registry.md)
+- [Cost and Limits](ai-cost-and-limits.md)
 
-Mọi thay đổi prompt/model chỉ được release khi output contract, evaluation và safety checks vẫn đạt ngưỡng.
+`ml/` holds reproducible training assets. `services/inference-service/` is a local-only inference adapter; neither is an approved production integration until the gates in this directory pass.

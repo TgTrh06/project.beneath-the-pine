@@ -1,10 +1,12 @@
-# Beneath Pine AI v1 Model Card
+# Pine Assistance Model Card
 
 - Base model revision:
 - Adapter revision:
 - Dataset version and SHA-256:
-- Intended use: Vietnamese Brain Dump Extraction and Help Me Start only.
-- Out of scope: diagnosis, treatment, emergency support, unrestricted conversation.
-- Evaluation: schema validity, safety failures, grounded/actionable rubric, local latency.
+- Prompt/schema revision:
+- Intended capabilities: `assisted_start`, `stuck_recovery`, `open_seed_draft`.
+- Out of scope: free-form chat, diagnosis, treatment, crisis counselling, productivity scoring and social actions.
+- Evaluation: schema validity, bounded/actionable-step rubric, safety/adversarial behavior, reviewer corrections and latency.
 - Known limitations:
-- License:
+- License and artifact location:
+- Approval status:
