@@ -8,7 +8,7 @@ const { boundaryError, checkBoundaries } = require('../../scripts/check-boundari
   checkBoundaries(root: string): { files: number; errors: string[] };
 };
 
-test('scaffold config is isolated from legacy environment, with bounded values and redacted errors', () => {
+test('API config is isolated from legacy environment, with bounded values and redacted errors', () => {
   const config = readApiConfig({ SERVER_PORT: '8080', DATABASE_URL: 'legacy-secret' });
   assert.equal(config.API_PORT, 8081);
   assert.equal(config.API_HOST, '127.0.0.1');
@@ -30,12 +30,12 @@ test('scaffold config is isolated from legacy environment, with bounded values a
 });
 
 test('module checks reject cross-owner persistence, infrastructure in domain and inward platform imports', () => {
-  assert.ok(boundaryError('modules/focus/application/start.ts', 'modules/task/infrastructure/task.schema.ts'));
-  assert.ok(boundaryError('modules/task/domain/task.ts', 'drizzle-orm/pg-core'));
-  assert.ok(boundaryError('modules/task/application/create.ts', '@nestjs/common'));
-  assert.ok(boundaryError('platform/http/controller.ts', 'modules/task/public-api.ts'));
-  assert.equal(boundaryError('modules/focus/application/start.ts', 'modules/task/public-api.ts'), undefined);
-  assert.equal(boundaryError('modules/focus/focus.module.ts', 'modules/task/task.module.ts'), undefined);
-  assert.equal(boundaryError('modules/task/infrastructure/repository.ts', 'drizzle-orm'), undefined);
+  assert.ok(boundaryError('modules/focus/application/start.ts', 'modules/pact/infrastructure/pact.schema.ts'));
+  assert.ok(boundaryError('modules/pact/domain/pact.ts', 'drizzle-orm/pg-core'));
+  assert.ok(boundaryError('modules/pact/application/create.ts', '@nestjs/common'));
+  assert.ok(boundaryError('platform/http/controller.ts', 'modules/pact/public-api.ts'));
+  assert.equal(boundaryError('modules/focus/application/start.ts', 'modules/pact/public-api.ts'), undefined);
+  assert.equal(boundaryError('modules/focus/focus.module.ts', 'modules/pact/pact.module.ts'), undefined);
+  assert.equal(boundaryError('modules/pact/infrastructure/repository.ts', 'drizzle-orm'), undefined);
   assert.deepEqual(checkBoundaries(resolve(__dirname, '../../src')).errors, []);
 });

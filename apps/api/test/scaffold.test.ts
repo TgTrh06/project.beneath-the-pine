@@ -32,8 +32,8 @@ test('application composition, HTTP foundation and fail-closed access', async t 
   await app.init();
   t.after(() => app.close());
   const server = app.getHttpServer();
-  await t.test('all 12 modules compose; only Identity exposes account routes', async () => {
-    const expected = ['Identity', 'Profile', 'Consent', 'Task', 'Focus', 'Capture', 'Engagement', 'Reflection', 'Habit', 'Analytics', 'Privacy', 'Access'].map(name => `${name}Module`);
+  await t.test('target core modules compose and removed legacy routes stay absent', async () => {
+    const expected = ['Identity', 'Profile', 'Circle', 'Pact', 'Focus', 'Seed', 'Presence', 'Memory', 'Analytics', 'Privacy'].map(name => `${name}Module`);
     const names = [...app.get(ModulesContainer).values()].map(module => module.metatype.name);
     for (const name of expected) assert.ok(names.includes(name), `${name} missing`);
     assert.ok(!names.includes('AiModule'));
@@ -45,7 +45,7 @@ test('application composition, HTTP foundation and fail-closed access', async t 
   });
   await t.test('liveness works without DB and readiness reports unavailable truthfully', async () => {
     const response = await request(server).get('/health/live').expect(200);
-    assert.equal(response.body.stage, 'scaffold');
+    assert.equal(response.body.stage, 'core');
     assert.equal(response.headers['cache-control'], 'no-store');
     assert.equal(response.headers['x-content-type-options'], 'nosniff');
     assert.match(response.headers['x-request-id'], /^[0-9a-f-]{36}$/);
@@ -91,6 +91,6 @@ test('readiness success reports connectivity only with an injected reachable dat
   await app.init();
   t.after(() => app.close());
   await request(app.getHttpServer()).get('/health/ready').expect(200, {
-    status: 'UP', service: 'core-api', stage: 'scaffold', checks: { database: 'UP' },
+    status: 'UP', service: 'core-api', stage: 'core', checks: { database: 'UP' },
   });
 });
