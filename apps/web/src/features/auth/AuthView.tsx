@@ -28,8 +28,8 @@ export function AuthView({ mode, connectionError, onRetry, onSuccess }: { mode: 
     <SiteHeader />
     <main className="auth-shell" id="auth-main" tabIndex={-1}>
     <section className="feature-card auth-card">
-      <p className="eyebrow">{creating ? "WANDERER" : "BENEATH THE PINE"}</p><h1 ref={heading} tabIndex={-1}>{creating ? "Bắt đầu hành trình của bạn." : "Về dưới tán thông."}</h1>
-      <p>{creating ? "Tạo tài khoản Wanderer để có không gian riêng tại Pine." : "Đăng nhập vào không gian của bạn."}</p>
+      <p className="eyebrow">BENEATH THE PINE</p><h1 ref={heading} tabIndex={-1}>{creating ? "Tạo khoảng riêng của bạn." : "Về dưới tán thông."}</h1>
+      <p>{creating ? "Tạo tài khoản để bắt đầu hoặc quay lại việc đang dở." : "Đăng nhập vào không gian của bạn."}</p>
       {connectionError && <div className="notice" role="alert">{connectionError} <button className="link-button" onClick={onRetry}>Thử kết nối lại</button></div>}
       <form onSubmit={submit} aria-busy={busy}>
         <fieldset disabled={busy} className="auth-fields">
@@ -37,7 +37,7 @@ export function AuthView({ mode, connectionError, onRetry, onSuccess }: { mode: 
           <label>Mật khẩu<input name="password" type="password" required minLength={12} maxLength={64} autoComplete={creating ? "new-password" : "current-password"} aria-describedby="password-hint" /></label>
           <p id="password-hint" className="muted">Dùng từ 12 đến 64 ký tự.</p>
           {creating && <label>Nhập lại mật khẩu<input name="confirm" type="password" aria-invalid={message === "Mật khẩu xác nhận chưa khớp."} aria-describedby="auth-error" required minLength={12} maxLength={64} autoComplete="new-password" /></label>}
-          <button className="primary full" type="submit">{busy ? "Đang xử lý…" : creating ? "Đăng ký Wanderer" : "Đăng nhập"}</button>
+          <button className="primary full" type="submit">{busy ? "Đang xử lý…" : creating ? "Tạo tài khoản" : "Đăng nhập"}</button>
         </fieldset>
       </form>
       {message && <p id="auth-error" className="notice" role="alert">{message}</p>}
