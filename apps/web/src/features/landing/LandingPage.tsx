@@ -2,6 +2,8 @@ import { useEffect } from "react";
 import { SiteHeader } from "../../shared/components/site/SiteHeader";
 import { SiteFooter } from "../../shared/components/site/SiteFooter";
 import "./landing.css";
+import { TrailPreview } from "./TrailPreview";
+import { useRevealOnce } from "./useRevealOnce";
 
 function PineDrawing() {
   return <svg viewBox="0 0 280 340" fill="none" aria-hidden="true" className="lp-pine-drawing">
@@ -11,6 +13,7 @@ function PineDrawing() {
 }
 
 export function LandingPage({ signedIn = false }: { signedIn?: boolean }) {
+  const landingRef = useRevealOnce();
   const cta = signedIn ? "Vào không gian của bạn" : "Ghé dưới tán thông";
   const entryHref = signedIn ? "#now" : "#register";
   useEffect(() => {
@@ -24,7 +27,7 @@ export function LandingPage({ signedIn = false }: { signedIn?: boolean }) {
     return () => { cancelAnimationFrame(frame); document.title = previousTitle; };
   }, []);
 
-  return <div className="landing public-page" id="home">
+  return <div ref={landingRef} className="landing public-page" id="home">
     <a className="skip-link" href="#landing-main">Đến nội dung chính</a>
     <SiteHeader signedIn={signedIn} />
 
@@ -32,7 +35,7 @@ export function LandingPage({ signedIn = false }: { signedIn?: boolean }) {
       <section className="lp-hero lp-container" aria-labelledby="lp-title">
         <p className="lp-kicker"><span className="lp-small-line" /> MỘT KHOẢNG YÊN ĐỂ BẮT ĐẦU</p>
         <div className="lp-hero-copy">
-          <h1 id="lp-title">Không cần<br />làm hết.<br /><span>Một bước thôi.</span></h1>
+          <h1 id="lp-title">Không cần làm hết.<br /><span>Một bước thôi.</span></h1>
           <div className="lp-hero-aside">
             <p className="lp-intro">Khi mọi thứ đang hơi nhiều, mình cùng tìm một việc nhỏ có thể bắt đầu.</p>
             <p>Một không gian tập trung bằng tiếng Việt. Đặt xuống điều đang nghĩ, chọn bước tiếp theo, rồi dành cho nó vài phút.</p>
@@ -41,23 +44,7 @@ export function LandingPage({ signedIn = false }: { signedIn?: boolean }) {
           </div>
         </div>
 
-        <figure className="lp-preview">
-          <div className="lp-preview-top"><span>BENEATH THE PINE / MỘT KHOẢNH KHẮC BẮT ĐẦU</span><span>VÍ DỤ MINH HỌA</span></div>
-          <div className="lp-preview-scene">
-            <div className="lp-note">
-              <span className="lp-note-label">01 / ĐANG TRONG ĐẦU</span>
-              <p>Báo cáo còn dang dở.<br />Email chưa trả lời.<br />Chẳng biết bắt đầu từ đâu.</p>
-              <span className="lp-note-bottom">Cứ đặt xuống. Chưa cần sắp xếp.</span>
-            </div>
-            <span className="lp-preview-arrow" aria-hidden="true">→</span>
-            <div className="lp-focus-example">
-              <div className="lp-example-top"><span>02 / MỘT BƯỚC NHỎ</span><span className="lp-dot" aria-hidden="true" /></div>
-              <h2>Mở báo cáo.<br />Viết một gạch đầu dòng.</h2>
-              <div className="lp-example-bottom"><span className="lp-example-time">05<span>:</span>00</span><p>Chỉ bắt đầu.<br />Chưa cần hoàn hảo.</p></div>
-            </div>
-          </div>
-          <figcaption>Một ví dụ từ điều đang vướng đến một bước có thể làm. Bạn luôn là người chọn.</figcaption>
-        </figure>
+        <TrailPreview />
         <div className="lp-hero-foot"><span>ÍT ĐI MỘT CHÚT. DỄ BẮT ĐẦU HƠN.</span><a href="#how-it-works">Khám phá cách hoạt động <span aria-hidden="true">↓</span></a></div>
       </section>
 
