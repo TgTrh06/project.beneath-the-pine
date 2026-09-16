@@ -21,7 +21,7 @@ export function AppLayout({
     contentRef.current?.focus();
     contentRef.current?.scrollIntoView({ block: "start" });
     const label = navigationItems.find((item) => item.view === view)?.label
-      ?? (view === "study" ? "Pilot study" : "Pine Keeper");
+      ?? "Beneath the Pine";
     document.title = `${label} — Beneath the Pine`;
   }, [view]);
   return (
@@ -30,14 +30,14 @@ export function AppLayout({
       <header className="site-header">
         <button
           className="brand"
-          onClick={() => onNavigate("now")}
+          onClick={() => onNavigate("return")}
           aria-label="Beneath the Pine, về trang hôm nay"
         >
           <span className="pine" aria-hidden="true">⌁</span>
           <span>Beneath the Pine</span>
         </button>
         <div className="header-actions">
-          <span className="status connected">{session?.role === "pine_keeper" ? "Pine Keeper" : "Wanderer"}</span>
+          <span className="status connected">Đã kết nối</span>
           <button className="link-button" onClick={onLogout}>Đăng xuất</button>
         </div>
       </header>
@@ -58,11 +58,10 @@ export function AppLayout({
               {label}
             </button>
           ))}
-          {session?.role === "pine_keeper" && <button className={view === "admin" ? "nav-item active" : "nav-item"} aria-current={view === "admin" ? "page" : undefined} onClick={() => onNavigate("admin")}>Pine Keeper</button>}
         </nav>
 
       </div>
-      <footer>AI chỉ hỗ trợ tự quản lý, không chẩn đoán hoặc điều trị ADHD.</footer>
+      <footer>Có mặt và quay lại là đủ. Việc của bạn vẫn riêng tư.</footer>
     </div>
   );
 }
