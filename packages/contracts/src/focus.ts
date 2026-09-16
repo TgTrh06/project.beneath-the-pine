@@ -1,0 +1,14 @@
+import { z } from "zod";
+import { dateTimeSchema, durationMinutesSchema, idSchema } from "./shared";
+export const focusSessionStatusSchema = z.enum(["active", "completed", "cancelled"]);
+export const participantPresenceSchema = z.enum(["active", "break", "disconnected", "checked_out"]);
+export const checkoutOutcomeSchema = z.enum(["completed", "progress", "stuck", "stopped"]);
+export const openSeedSchema = z.object({ id: idSchema, text: z.string(), sourceSessionId: idSchema.nullable(), updatedAt: dateTimeSchema });
+export const upsertOpenSeedSchema = z.object({ text: z.string().trim().min(1).max(500), sourceSessionId: idSchema.nullable().optional() }).strict();
+export const startSoloSessionSchema = z.object({ intention: z.string().trim().min(1).max(280), durationMinutes: durationMinutesSchema }).strict();
+export const checkOutSchema = z.object({ outcome: checkoutOutcomeSchema, openSeed: z.string().trim().min(1).max(500).nullable().optional() }).strict();
+export const sessionParticipantSchema = z.object({ accountId: idSchema, displayName: z.string().nullable(), presence: participantPresenceSchema, joinedAt: dateTimeSchema, checkedOutAt: dateTimeSchema.nullable() });
+export const focusSessionSchema = z.object({ id: idSchema, kind: z.enum(["solo", "pact"]), pactId: idSchema.nullable(), status: focusSessionStatusSchema, startedAt: dateTimeSchema, endsAt: dateTimeSchema, serverNow: dateTimeSchema, intention: z.string().nullable(), participants: z.array(sessionParticipantSchema) });
+export const returnStateSchema = z.object({ profileReady: z.boolean(), openSeed: openSeedSchema.nullable(), activeSession: focusSessionSchema.nullable(), upcomingPacts: z.array(z.object({ id: idSchema, circleId: idSchema, startsAt: dateTimeSchema, durationMinutes: durationMinutesSchema })) });
+export type FocusSession = z.infer<typeof focusSessionSchema>;
+export type ReturnState = z.infer<typeof returnStateSchema>;
