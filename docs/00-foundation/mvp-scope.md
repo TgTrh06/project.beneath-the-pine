@@ -1,65 +1,28 @@
-# MVP Scope — Core Validation and Public Alpha
+# MVP Scope — Web Validation
 
-- **Status:** Draft for implementation
-- **Version:** 1.0
-- **Last updated:** 2026-09-11
+- **Status:** Approved scope
 
 ## Goal
 
-Kiểm chứng Beneath the Pine giúp người dùng bắt đầu một hành động cụ thể trong 10 phút, quay lại sau gián đoạn mà không gặp áp lực và có thể được sử dụng bởi người ngoài phạm vi đồ án.
+Chứng minh một người có thể bắt đầu và quay lại với việc dở dang qua solo flow; và một Circle riêng có tự hẹn thêm focus pact sau phiên đầu hay không.
 
-## Phân kỳ theo client
+## Included
 
-MVP web là bước triển khai đầu của sản phẩm hướng mobile: dùng backend NestJS/Drizzle để kiểm chứng nghiệp vụ, account/ownership và API contracts. Mobile bắt đầu bằng cùng core loop sau [gate API](../04-engineering/web-mobile-api-strategy.md); không phải đợi tất cả tính năng public alpha hoặc trả phí trên web. SDK đã chốt React Native + Expo; hệ điều hành ra mắt đầu tiên chưa chốt.
+- Account, profile tối thiểu và timezone.
+- Solo intent → activation step → 5/10/25/50-minute session → check-out.
+- Một Open Seed hiện hành cho mỗi người dùng.
+- Circle riêng, invite/link, member lifecycle.
+- Focus Pact ngay hoặc theo giờ; accept/decline/cancel/expire.
+- Realtime presence và server-authoritative timer.
+- Circle milestone tối giản sau pact hoàn tất.
+- Privacy/data-rights baseline, event logging và pilot feedback.
 
-## Must have before public alpha
+## Not included
 
-- Account/timezone/consent khi dùng server-side private data; đường demo mô tả rõ dữ liệu local.
-- Brain Dump hoặc manual capture, user confirmation, one next action và Help Me Start.
-- Focus Room: timer, done/still stuck, mobile và keyboard behavior.
-- Open Seed được tạo/open/replace/dismiss sau focus session.
-- Return Ritual và in-app reminder preference opt-in, tối đa hai khung giờ.
-- Weekly Letter dựa trên facts tổng hợp cùng feedback hữu ích/chưa đúng.
-- Public landing/onboarding, contextual feedback, export/delete và support path.
-- Event instrumentation và guardrails privacy cho core/return loop.
+Mobile native, public rooms, stranger matching, voice/video, DM, AI, task board, habit, reminders outbound, ranking, streak, shop và payment.
 
-## Should have
+## MVP exit evidence
 
-- Theme local và một số lựa chọn âm thanh có failure fallback.
-- Pine/Pine Marten visual cue nhỏ trong Focus Room, Return và Weekly Letter.
-- Focus preset prototype để kiểm chứng repeat value.
-
-## Could have after evidence
-
-- Pine Plus proposition test, entitlement design và hosted checkout prototype.
-- Đồng bộ preferences/presets giữa thiết bị.
-- Email reminder qua provider adapter.
-- Voice-to-text cho Brain Dump.
-
-## Won't have in this MVP
-
-- Streak, leaderboard, coins, shop, social feed hoặc gamification có tính phạt/thưởng.
-- Calendar riêng, task management đầy đủ, goals hoặc knowledge base.
-- Trong MVP web chưa triển khai native UI, push hoặc offline sync. Mobile UI là giai đoạn kế tiếp theo API gate; push/offline phải được duyệt riêng.
-- AI suy luận bệnh lý, mood hoặc đánh giá lâm sàng từ hành vi/nội dung.
-- Hardware sizing, database capacity topology hoặc multi-region deployment.
-
-## Validation gates
-
-### Private validation gate
-
-- Core loop và return loop chạy end-to-end trong test environment.
-- Preferences/reminders chỉ hoạt động sau opt-in; export/delete bao phủ dữ liệu mới.
-- Không có P0/P1 mở; migration có ownership/constraint tests và rollback note; RLS được kiểm tra theo schema thực sự dùng, không mặc định đã có trên core.*.
-- Có baseline cho D3/D7 return, seed conversion và reminder-to-start.
-
-### Public alpha gate
-
-- Người mới đến Capture và bắt đầu focus mà không cần facilitator.
-- Privacy, demo/account boundary, feedback và support path rõ ràng.
-- Cohort ngoài phạm vi đồ án tạo đủ evidence để quyết định retention và personalization tiếp theo.
-
-### Paid validation gate
-
-- Có một capability dùng lặp lại và proposition Pine Plus được kiểm chứng định tính/định lượng.
-- Entitlement, billing failure/cancel/restore, provider, refund và unit economics được duyệt riêng trước khi thu tiền thật.
+- User có thể hoàn thành solo return flow khi API/realtime lỗi có fallback phù hợp.
+- Circle 2–8 người tạo, chấp nhận và hoàn tất pact với timer nhất quán sau reconnect.
+- Pilot có bằng chứng về invitation, attendance, Open Seed resume và repeat pact.
