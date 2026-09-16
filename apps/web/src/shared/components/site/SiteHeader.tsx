@@ -81,9 +81,9 @@ export function SiteHeader({ signedIn = false }: { signedIn?: boolean }) {
   }, [menuOpen]);
 
   return <>
-    <div className="public-header-slot"><header className={`public-header is-${menuOpen ? "visible" : headerState}`}><div className="public-header-inner public-container">
+    <div className="public-header-slot"><header className={`public-header is-${menuOpen ? "visible" : headerState}`}><div className="public-header-frame public-container"><div className="public-header-inner public-inner">
       <a className="public-brand" href="#home" aria-label="Beneath the Pine, trang giới thiệu">
-        <svg viewBox="0 0 32 36" aria-hidden="true" fill="none"><path d="M16 31V5M16 5 8 15h5L5 25h22l-8-10h5L16 5Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" /></svg>
+        <svg viewBox="0 0 32 36" aria-hidden="true" fill="none"><path d="M16 31V5M16 5 8 15h5L5 25h22l-8-10h5L16 5Z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" /></svg>
         <span>Beneath<br />the Pine<span className="public-brand-dot">.</span></span>
       </a>
       <nav className="public-nav" aria-label="Trang giới thiệu">
@@ -92,9 +92,9 @@ export function SiteHeader({ signedIn = false }: { signedIn?: boolean }) {
       </nav>
       <a className="public-cta" href={signedIn ? "#now" : "#login"}>{signedIn ? "Vào không gian của bạn" : "Đăng nhập"}</a>
       <button ref={menuButtonRef} className="public-menu-toggle" type="button" aria-label="Mở menu" aria-expanded={menuOpen} aria-controls={menuId} aria-haspopup="dialog" onClick={() => setMenuOpen(true)}>
-        <span>Menu</span><svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M3 6h14M3 14h14" stroke="currentColor" strokeWidth="1.5" /></svg>
+        <span>Menu</span><svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M3 6h14M3 14h14" stroke="currentColor" strokeWidth="2" /></svg>
       </button>
-    </div></header></div>
+    </div></div></header></div>
     <dialog ref={menuRef} id={menuId} className={`public-menu-panel${menuClosing ? " is-closing" : ""}`} aria-label="Menu Beneath the Pine" onCancel={(event) => { event.preventDefault(); closeMenu(); }} onClick={(event) => {
       if (event.target !== event.currentTarget) return;
       const bounds = event.currentTarget.getBoundingClientRect();

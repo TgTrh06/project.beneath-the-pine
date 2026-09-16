@@ -1,10 +1,10 @@
 import { logFrontendError } from "../logging/logger";
-import { accountSessionSchema, type AccountRole, type AccountSessionPayload } from "@beneath-the-pine/contracts";
+import { accountSessionSchema, type AccountSessionPayload } from "@beneath-the-pine/contracts";
 
 const apiUrl = (import.meta.env.VITE_API_URL as string | undefined) || "/api/v1";
 export const isAuthConfigured = Boolean(apiUrl);
 
-export type AuthSession = Readonly<{ subject: string; email: string; role: AccountRole }>;
+export type AuthSession = Readonly<{ subject: string; email: string }>;
 export type AuthCredentials = Readonly<{ email: string; password: string }>;
 
 type SessionPayload = AccountSessionPayload;
@@ -21,8 +21,8 @@ function publishSession(session: AuthSession | null): AuthSession | null {
 
 function readSession(payload: SessionPayload): AuthSession | null {
   csrfToken = payload.csrfToken;
-  return payload.authenticated && payload.user
-    ? { subject: payload.user.id, email: payload.user.email, role: payload.user.role }
+  return payload.authenticated && payload.account
+    ? { subject: payload.account.id, email: payload.account.email }
     : null;
 }
 

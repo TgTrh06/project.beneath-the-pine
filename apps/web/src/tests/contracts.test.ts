@@ -1,9 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { weeklyQuota } from "@beneath-the-pine/contracts";
+import { durationMinutesSchema, productEventNames } from "@beneath-the-pine/contracts";
 
-describe("private beta UI limits", () => {
-  it("shows the same quota policy as the API", () => {
-    expect(weeklyQuota.weekly_review).toBe(1);
-    expect(weeklyQuota.brain_dump).toBe(3);
+describe("core contracts", () => {
+  it("keeps duration choices and private core events explicit", () => {
+    expect(durationMinutesSchema.safeParse(25).success).toBe(true);
+    expect(durationMinutesSchema.safeParse(30).success).toBe(false);
+    expect(productEventNames).toContain("pact_created");
   });
 });

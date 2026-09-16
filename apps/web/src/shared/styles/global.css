@@ -123,9 +123,10 @@ p { line-height: 1.75; }
 .supporting-actions p { margin-bottom: .5rem; }
 .reset-card { border-left: 1px solid var(--line); padding-left: 2rem; }
 .reset-actions { display: grid; justify-items: start; }
-textarea, input { width: 100%; border: 1px solid var(--control-line); border-radius: 4px; color: var(--ink); background: var(--surface); }
+textarea, input, select { width: 100%; border: 1px solid var(--control-line); border-radius: 4px; color: var(--ink); background: var(--surface); }
 textarea { display: block; min-height: 11rem; margin: .6rem 0 1rem; padding: 1rem; resize: vertical; line-height: 1.75; }
-input { min-height: 44px; padding: .6rem .75rem; }
+input, select { min-height: 44px; padding: .6rem .75rem; margin-block: .4rem 1rem; }
+input[type="checkbox"] { width: 20px; min-height: 20px; margin: 0 .5rem 0 0; padding: 0; accent-color: var(--forest); }
 input::placeholder, textarea::placeholder { color: var(--muted); opacity: 1; }
 input[type="range"] { accent-color: var(--forest); padding-inline: 0; }
 label { display: block; color: var(--ink); font-size: 1rem; font-weight: 600; line-height: 1.5; }
@@ -134,10 +135,6 @@ label { display: block; color: var(--ink); font-size: 1rem; font-weight: 600; li
 .suggestion > div { min-width: 0; }
 .suggestion .secondary { flex-shrink: 0; }
 .suggestion h3 { margin-bottom: 0; }
-.habit-list { display: grid; margin-top: 1rem; }
-.habit { display: flex; align-items: center; gap: .8rem; min-height: 56px; padding: .8rem 0; border-bottom: 1px solid var(--line); font-weight: 500; overflow-wrap: anywhere; }
-.habit input { width: 20px; height: 20px; min-height: 20px; flex-shrink: 0; accent-color: var(--forest); }
-.habit.complete { color: var(--muted); text-decoration: line-through; }
 .add-field { margin-top: 1.5rem; }
 .add-row { display: flex; align-items: start; gap: .75rem; margin-top: .5rem; }
 .add-row input { min-width: 0; }
