@@ -2,7 +2,7 @@
   "name": "beneath-the-pine",
   "version": "0.1.0",
   "private": true,
-  "description": "A gentle Vietnamese web companion for moving from overwhelm to one small next action.",
+  "description": "A private mobile-first ritual for starting and returning alone or with trusted people.",
   "packageManager": "pnpm@10.32.1",
   "engines": { "node": ">=22.12.0" },
   "scripts": {
