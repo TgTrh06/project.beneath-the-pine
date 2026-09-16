@@ -1,30 +1,9 @@
-# User Stories — Focus & Gentle Retention
+# User Stories
 
-## Focus Studio
-
-- As a user, I can focus with a timer even if I do not choose music or a theme.
-- As a user, I can use an optional audio source without it autoplaying or blocking my session.
-
-## Open Seed
-
-- As a user, I can leave one tiny entry point for my next visit.
-- As a user, I can dismiss or replace that seed without penalty.
-
-## Reminder
-
-- As a user, I explicitly choose whether and when I want reminders.
-- As a user, I can disable a reminder immediately and know my timezone is used.
-
-## Return
-
-- As a returning user, I can start fresh, open my seed, or only check in.
-- As a returning user, I do not see a missed streak or backlog before choosing my intention.
-
-## Weekly letter
-
-- As a user, I can see the facts behind a weekly observation.
-- As a user, I can say an observation is useful or inaccurate.
-
-## Acceptance rule for every story
-
-Specify Given/When/Then plus empty, loading, error, authorization, privacy and keyboard/mobile acceptance criteria. Use `docs/ai/retention/acceptance-matrix.md` as the minimum matrix.
+- As a returning user, I want to see one private restart point so that I do not rebuild context before beginning.
+- As a solo user, I want to start a short session with a one-line intention so that I can act before planning becomes work.
+- As a Circle member, I want to invite trusted people to a pact without revealing my task so that we can be present without surveillance.
+- As an invitee, I want to accept, decline or propose a later time without guilt.
+- As a participant, I want the timer to stay coherent after reconnecting so that I trust the session.
+- As a user, I want to say I am stuck or need to stop without losing data or being penalized.
+- As a Circle member, I want shared milestones without rankings so that shared memory does not become comparison.

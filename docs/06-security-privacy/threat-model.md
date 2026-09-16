@@ -1,36 +1,16 @@
 # Threat Model
 
-- **Status:** Initial
-- **Method:** Lightweight STRIDE-style review
+| Threat | Baseline control |
+| --- | --- |
+| Account takeover | Secure session lifecycle, rate limit, re-auth for destructive actions |
+| Cross-account/Circle access | Principal-derived ownership and two-account integration tests |
+| Unauthorized realtime join | Authenticate socket, authorize every session/Circle subscription |
+| Presence oversharing | Minimal state projection; private text never broadcast |
+| Timer command race | Server state machine, transaction, idempotency key and durable snapshot |
+| Invitation abuse | Expiry, revoke, membership checks and rate limits |
+| Sensitive logs/export abuse | Redaction, audited export/delete and no raw text in telemetry |
+| XSS/SQL injection | Validation, parameterized queries, output escaping/CSP |
+| Unsafe/prompt-injected model output | Server-only model adapter, schema/safety validation and manual fallback |
+| Training-data leakage | Synthetic/consented provenance, private manifests and no production-content training |
 
-## Assets
-
-- Account/session.
-- Task, brain dump, check-in và reflection.
-- Consent records.
-- AI prompts/output.
-- API/provider secrets.
-- Export archives và backups.
-
-## Threats and baseline controls
-
-| Threat | Control |
-|---|---|
-| Account takeover | Managed auth, MFA option, secure session, rate limit |
-| IDOR/cross-user access | Ownership check + integration tests |
-| Sensitive logging | Central redaction + logging tests |
-| Prompt injection in content | Treat user content as data; strict schema; no privileged tools |
-| AI provider leakage | Minimize payload; contract/provider review; retention controls |
-| Malicious export/delete | Re-authentication, audit trail, asynchronous verified flow |
-| Secret exposure | Secret manager, rotation, CI scanning |
-| SQL injection | Parameterized queries/ORM + validation |
-| XSS from AI/user content | Escape by default; sanitize rich text; CSP |
-| Abuse/cost exhaustion | Per-user/IP rate limits, quotas, alerts |
-
-## Security gates
-
-- Dependency and secret scanning in CI.
-- Authorization test cho mọi user-owned endpoint.
-- Threat model review trước private beta và public launch.
-- Restore test và incident exercise.
-
+Public-room harassment and media-call threats are not addressed because those capabilities are not in scope.

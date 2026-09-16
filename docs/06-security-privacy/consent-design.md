@@ -1,28 +1,7 @@
 # Consent Design
 
-- **Status:** Draft
-
-## Consent purposes
-
-1. Điều khoản cung cấp tài khoản/dịch vụ.
-2. AI xử lý brain dump và task theo yêu cầu.
-3. AI tạo weekly reflection từ dữ liệu hành vi.
-4. Xử lý optional journal/check-in text nếu được triển khai.
-5. Product communication/marketing — tách khỏi service notification.
-
-## UX rules
-
-- Không bundle mục đích không cần thiết.
-- Không pre-check checkbox.
-- Ngôn ngữ đơn giản: dữ liệu nào, gửi cho ai, để làm gì.
-- Từ chối AI vẫn sử dụng được manual core workflow.
-- Rút consent dễ như cấp consent.
-- Policy version và timestamp được lưu.
-
-## Sau khi rút consent
-
-- Chặn AI call mới cho purpose đó.
-- Hủy scheduled job liên quan nếu có.
-- Nói rõ dữ liệu/output cũ được giữ hay xóa và lý do.
-- Cung cấp thao tác xóa dữ liệu liên quan khi phù hợp.
-
+- Account/service processing is explained separately from optional research participation and future communications.
+- Presence is disclosed before a user joins a shared session; user can leave and choose whether Circle sees their status where supported.
+- No preselected marketing, notification or future-AI consent.
+- Pine Assistance requires a distinct, revocable purpose before it receives private work text. Training never uses production Circle/seed data by default.
+- A future provider/AI/mobile notification feature requires a new purpose, clear data inventory and withdrawal behavior before implementation.

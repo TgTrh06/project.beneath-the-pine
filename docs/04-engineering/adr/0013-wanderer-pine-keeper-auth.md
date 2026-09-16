@@ -1,6 +1,6 @@
 # ADR-0013 — Wanderer / Pine Keeper browser authentication
 
-Status: Accepted by the user for implementation, 2026-09-14. No deployment or migration execution authorized by this ADR.
+Status: Superseded by ADR-0017 on 2026-09-16. Cookie/session/CSRF mechanics remain an implementation reference; the role and seed design below is historical and is no longer implemented. No deployment or migration execution authorized by this ADR.
 
 ## Decision
 

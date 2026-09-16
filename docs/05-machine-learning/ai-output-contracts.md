@@ -1,72 +1,23 @@
-# AI Output Contracts
+# Pine Assistance Output Contracts
 
-- **Status:** Draft
-- **Format:** JSON, validated server-side
+Responses are validated at the API boundary before reaching a client. The model is never trusted to select a database action.
 
-## Brain Dump Extraction v1
-
-```json
-{
-  "schema_version": "brain_dump.v1",
-  "items": [
-    {
-      "source_excerpt": "string",
-      "kind": "task|reminder|thought|unclear",
-      "title": "string",
-      "explicit_due_at": null,
-      "needs_clarification": false,
-      "clarifying_question": null
-    }
-  ],
-  "safety_flags": []
-}
+```ts
+type AssistanceOutput = {
+  capability: "assisted_start" | "stuck_recovery" | "open_seed_draft";
+  version: string;
+  needsHumanSupport: boolean;
+  message?: string;
+  activationStep?: string;
+  openSeedDraft?: string;
+  estimatedMinutes?: 3 | 5 | 10;
+  fallback: "manual_step" | "take_break" | "stop_and_return";
+};
 ```
 
-## Help Me Start v1
+Rules:
 
-```json
-{
-  "schema_version": "help_start.v1",
-  "next_action": {
-    "text": "Mở file báo cáo và viết ba tiêu đề chính",
-    "estimated_minutes": 5,
-    "done_when": "Ba tiêu đề đã xuất hiện trong file"
-  },
-  "reason": "Bước này tạo điểm bắt đầu cụ thể mà chưa cần viết hoàn chỉnh.",
-  "missing_context": [],
-  "safety_flags": []
-}
-```
-
-## Weekly Insight v1
-
-```json
-{
-  "schema_version": "weekly_insight.v1",
-  "observation": "string",
-  "evidence": [
-    {
-      "metric": "string",
-      "value": "string",
-      "period": "string"
-    }
-  ],
-  "hypothesis": "string",
-  "confidence": "low|medium|high",
-  "suggested_experiment": {
-    "statement": "string",
-    "success_signal": "string"
-  },
-  "safety_flags": []
-}
-```
-
-## Validation rules
-
-- Không field tự do ngoài schema khi `additionalProperties: false` được áp dụng.
-- Giới hạn độ dài mọi string.
-- `estimated_minutes` nằm trong range cho phép.
-- Evidence phải map tới facts đã cung cấp.
-- Safety flags được xử lý trước khi hiển thị.
-- Không lưu output nếu schema hoặc evidence validation thất bại.
-
+- Exactly one actionable suggestion; no task list, deadline, rank or claim of completion.
+- Text is concise, Vietnamese, non-judgmental and free of medical inference.
+- `needsHumanSupport` suppresses productivity coaching and returns a predefined boundary response.
+- Schema failure, timeout, invalid duration or unsafe text returns a stable manual fallback, not model text.

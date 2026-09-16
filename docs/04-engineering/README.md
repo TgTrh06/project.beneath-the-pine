@@ -1,23 +1,21 @@
 # 04 — Engineering
 
-Core modular monolith NestJS + Drizzle và React Native + Expo mobile theo [ADR-0011](adr/0011-nestjs-drizzle-mobile-direction.md). `apps/api` là Core duy nhất, với 12 module và platform; chưa có business logic, schema/migration hoặc AI. Inference độc lập là hướng tương lai.
+Target architecture is a NestJS modular monolith, PostgreSQL + Drizzle and a client-independent HTTP/realtime contract. Web validates the product first; React Native + Expo is the intended mobile client.
 
-| Nhu cầu | Tài liệu |
-| --- | --- |
-| Review bộ khung và thứ tự 12 module | [Module Delivery Plan](module-delivery-plan.md), [Chạy API](../../apps/api/README.md) |
-| Phân tích lợi/hại và chọn topology | [Architecture Options](architecture-options.md) |
-| Review cây thư mục và chiều phụ thuộc | [Repository Structure](repository-structure.md) |
-| Chuyển từ web đầu tiên sang mobile | [Web/Mobile API Strategy](web-mobile-api-strategy.md) |
-| Xem stack đã chốt và quyết định còn mở | [Technology Stack](technology-stack.md) |
-| Hiểu hệ thống và sơ đồ | [System Architecture](system-architecture.md), [System Diagrams](system-diagrams.md) |
-| Thiết kế module | [Modular Backend Architecture](modular-backend-architecture.md) |
-| Cân nhắc tách service hoặc worker | [Microservices Conditions](microservices-architecture.md), [Event-Driven Architecture](event-driven-architecture.md) |
-| Thiết kế API | [API Guidelines](api-guidelines.md) |
-| Drizzle, transaction và baseline | [Drizzle Data Access](drizzle-data-access.md), [Data Model](data-model.md) |
-| Tra cứu schema hiện có | [Data Dictionary](data-dictionary.md) — SQL inventory và mapping domain/API đích |
-| Nghiệp vụ task cần giữ | [Task Module](task-module.md) |
-| Cấu hình và kiểm tra | [Environment](environment-and-config.md), [Test Strategy](../07-testing/test-strategy.md) |
-| AI pilot | [Local Inference](local-inference-architecture.md), [AI Handbook](../ai/README.md) |
-| Quyết định | [ADR Index](adr/README.md) |
+- [System Architecture](system-architecture.md)
+- [System Diagrams](system-diagrams.md)
+- [Data Model](data-model.md)
+- [Data Dictionary](data-dictionary.md)
+- [Module Delivery Plan](module-delivery-plan.md)
+- [API Guidelines](api-guidelines.md)
+- [Core State Machines](core-state-machines.md)
+- [HTTP Contract](contracts/http-api.md)
+- [Realtime Contract](contracts/realtime.md)
+- [Event Catalog](event-catalog.md)
+- [Web/Mobile API Strategy](web-mobile-api-strategy.md)
+- [Sequence Diagrams](sequences/README.md)
+- [ADR Index](adr/README.md)
 
-Tài liệu sequence/retention/commercial mô tả capability hoặc topology tương lai khi có nhãn thiết kế, không cho phép cài hạ tầng hay triển khai module. Mọi thay đổi code tiếp theo cần kế hoạch được duyệt, parity/security tests và chiến lược migration/rollback tương xứng.
+Model training and assistance contracts are governed in [Pine Assistance and ML](../05-machine-learning/README.md).
+
+The API now follows the target module vocabulary. PostgreSQL-backed end-to-end tests remain opt-in and require an explicitly disposable database.

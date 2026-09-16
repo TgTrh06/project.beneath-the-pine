@@ -2,10 +2,11 @@
   "name": "@beneath-the-pine/contracts",
   "version": "0.1.0",
   "private": true,
-  "type": "module",
-  "exports": { ".": "./src/index.ts" },
+  "main": "./dist/index.js",
+  "types": "./src/index.ts",
+  "exports": { ".": { "types": "./src/index.ts", "import": "./src/index.ts", "require": "./dist/index.js" } },
   "scripts": {
-    "build": "tsc --noEmit",
+    "build": "tsc",
     "lint": "tsc --noEmit"
   },
   "dependencies": { "zod": "^3.24.2" },

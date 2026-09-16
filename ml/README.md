@@ -1,25 +1,19 @@
-# Beneath Pine AI Training Workspace
+# Pine Assistance Training Workspace
 
-Thư mục này chứa training materials tái lập được và safe public fixtures. Nó tách khỏi application runtime để model work có thể được kiểm tra mà không mở rộng quyền truy cập private data.
+This directory contains reproducible, data-safe material for a Vietnamese Pine Assistance model. The model is intended only to suggest a small start, a stuck-recovery step or a draft Open Seed; it is not a general chatbot.
 
-## Những gì thuộc về đây
+Read [ML governance](../docs/05-machine-learning/README.md) before creating a dataset, training an adapter or serving an artifact.
 
-| Tài liệu | Mục đích |
-| --- | --- |
-| [Colab setup](colab-setup.md) | Chuẩn bị môi trường training tái lập được |
-| [Dataset card template](dataset-card.template.md) | Ghi nhận mục đích, thành phần và giới hạn dataset |
-| [Local synthetic dataset card](dataset-card.local-synthetic-v0.md) | Mô tả synthetic fixture đã commit |
-| [Multilingual-source datasheet](datasheet-multilingual-sources.md) | Ghi nhận source-research boundaries và provenance |
-| [Model-card template](model-card.template.md) | Ghi nhận model đã đánh giá và release evidence |
+## Assets
 
-## Ranh giới private data
+- `configs/qlora-v1.yaml`: baseline experiment configuration.
+- `scripts/validate_dataset.py`: schema/provenance validation.
+- `scripts/split_dataset.py`: deterministic split generation.
+- `scripts/generate_local_synthetic_dataset.py`: local fictional fixture generator.
+- Dataset/model card templates: release evidence, not deployment authorization.
 
-Reviewed 600-scenario dataset nằm trong `ml/data/private/` và bị loại khỏi Git. Trước mỗi split hoặc training run, chạy:
+## Privacy boundary
 
-```sh
-python ml/scripts/validate_dataset.py <private-jsonl>
-```
+Private training data stays in `ml/data/private/` and is excluded from Git. Never train on raw production intentions, Open Seeds, Circle data, user messages, transcripts or scraped text. Record only aggregate counts and checksums in committed documentation.
 
-Chỉ ghi dataset SHA-256 và aggregate counts vào model card. Không commit raw private examples, personal data, transcripts hoặc unreviewed external-source content.
-
-Với AI behavior và release gates ở cấp sản phẩm, dùng [Machine Learning documentation](../docs/05-machine-learning/README.md) và [AI Implementation Handbook](../docs/ai/README.md).
+`services/inference-service/` can serve reviewed local artifacts later, but a training run does not authorize API integration or production use.

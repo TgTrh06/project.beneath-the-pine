@@ -1,9 +1,11 @@
 # ADR-0006 — Gentle Retention and Reminder Delivery
 
-- **Status:** Accepted for planned implementation
+- **Status:** Superseded by ADR-0014 on 2026-09-15
 - **Date:** 2026-08-27
 
 ## Context
+
+> Historical record. The non-shaming and opt-in principles remain useful, but reminder/Weekly Letter delivery is not current product scope.
 
 Beneath the Pine cần hỗ trợ người dùng quay lại sau focus session hoặc gián đoạn mà không dùng streak, pressure notification hay lưu nội dung nhạy cảm trong analytics. Reminder outbound là external side effect, trong khi private beta chưa chọn provider hoặc credential.
 

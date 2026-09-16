@@ -1,62 +1,17 @@
-# Information Architecture — Focus & Gentle Return
+# Information Architecture
 
-- **Status:** Approved for private beta
-- **Version:** 0.3
-- **Last updated:** 2026-08-27
+## Primary destinations
 
-## Primary navigation
+1. **Return** — active Open Seed, resume/start replacement and solo entry.
+2. **Circle** — private Circles, upcoming pact and member presence.
+3. **Memory** — personal session history and Circle milestones, never a leaderboard.
+4. **Settings** — account, privacy, presence preference and data rights.
 
-1. **Now** — one next action, Open Seed, return entry và recovery action.
-2. **Capture** — Brain Dump, clarification và confirmation.
-3. **Progress** — Weekly letter và lịch sử mốc bắt đầu/quay lại tối giản.
-4. **Settings** — account, consent, data rights, theme/audio và reminder controls.
+The active focus session is a full-screen state, not a dashboard. It contains one private intention, timer, own controls and minimal participant state.
 
-Focus Room là modal/full-screen task state, không phải destination navigation độc lập.
+## Priority rules
 
-## Screen responsibilities
-
-### Now
-
-- Ưu tiên thứ tự: Return ritual (nếu có) → Open Seed → one next action → Capture.
-- Hiển thị một primary CTA tại một thời điểm.
-- Không có backlog, overdue count hoặc streak loss ở trạng thái mở đầu.
-
-### Focus Room
-
-- Task hiện tại, timer, pause/done/still stuck và exit rõ ràng.
-- Theme/audio là secondary controls; audio player không che timer/action.
-- Trạng thái loading/blocked/error của embed không làm hỏng focus session.
-
-### Capture
-
-- Composer Brain Dump và user confirmation; giữ draft khi AI lỗi.
-
-### Progress
-
-- Weekly letter chỉ khi có đủ facts; feedback nằm cạnh observation.
-- Không có điểm, level, so sánh user hay chuỗi ngày.
-
-### Settings
-
-- Theme/audio local preference.
-- Reminder opt-in, slots, timezone, trạng thái delivery gần nhất và disable controls.
-- Consent, export/delete data, support resources.
-
-## Responsive behavior
-
-- Mobile ưu tiên Now/Focus actions; 3–4 destination chính có thể chuyển sang bottom navigation sau khi implementation review.
-- Focus Room giữ task/timer trong viewport đầu; advanced audio controls được progressive disclosure.
-- Dialog và return ritual trap focus đúng cách, có escape/close khi an toàn.
-
-## URL proposal
-
-```text
-/now
-/capture
-/progress
-/settings
-/settings/space
-/settings/reminders
-/settings/privacy
-/settings/data
-```
+- Return Card precedes any history or customisation.
+- An upcoming accepted pact is visible but does not block solo start.
+- Intention and Open Seed text never appear on Circle or Memory by default.
+- Mobile design must support direct/deep-linked entry to seed, pact and active session.

@@ -1,13 +1,10 @@
 # 03 — Design
 
-## Tài liệu
+Design turns the product ritual into a low-friction, private and mobile-ready experience.
 
 - [Information Architecture](information-architecture.md)
 - [Core User Flows](core-user-flows.md)
-- [Focus Studio](focus-studio.md)
-- [UI/UX Blueprint](ui-ux-blueprint.md)
-- [ADHD-friendly UX Guidelines](adhd-friendly-ux.md)
-- [Wireframe Checklist](wireframe-checklist.md)
+- [UX Blueprint](ui-ux-blueprint.md)
 - [Design System Foundations](design-system-foundations.md)
-
-Thiết kế phải được kiểm tra trong trạng thái người dùng có ít năng lượng, đang quá tải hoặc vừa quay lại sau một khoảng nghỉ; không chỉ trong happy path.
+- [Wireframe Checklist](wireframe-checklist.md)
+- [Core Screen Specifications](core-screen-specs.md)

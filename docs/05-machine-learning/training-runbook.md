@@ -1,26 +1,17 @@
-# Training Runbook — Beneath Pine AI v1
+# Training Runbook
 
-## Scope
+## Approved training shape
 
-Fine-tune `Qwen/Qwen2.5-1.5B-Instruct` using supervised QLoRA for two outputs only: Brain Dump Extraction and Help Me Start. Weekly Review remains deterministic/template based.
+Use the existing QLoRA configuration as an experiment baseline: `Qwen/Qwen2.5-1.5B-Instruct`, deterministic split, pinned config and recorded seed. A run creates a new adapter artifact; it does not authorize serving it.
 
-## Before a run
+## Procedure
 
-1. Review every scenario; synthetic examples need human approval before training.
-2. Run `python ml/scripts/validate_dataset.py <private-jsonl>` and record the printed SHA-256 and aggregate counts.
-3. Create deterministic train/validation/test files (70/15/15) by `scenario_id`; never move a test scenario into training.
-4. Copy `ml/configs/qlora-v1.yaml` into the Colab run and pin its Git commit.
+1. Validate private dataset with `ml/scripts/validate_dataset.py`.
+2. Generate/freeze train-validation-test splits by `scenario_id`.
+3. Record dataset SHA-256, config revision, base model revision, license and owner.
+4. Run SFT/QLoRA in an isolated environment; store artifact outside Git.
+5. Evaluate base model and adapter on the same frozen holdout.
+6. Complete model card, safety review and local inference smoke test.
+7. Request a separate implementation approval before registering an adapter for API use.
 
-## Train and select
-
-- Use Unsloth + PEFT, 4-bit NF4 QLoRA, rank 16, alpha 32, dropout 0.05, learning rate `2e-4`, maximum 1,024 tokens, three epochs and seed `20260814`.
-- Train one baseline evaluation before training and one evaluation per checkpoint.
-- Select the checkpoint using validation metrics, then run the holdout set exactly once for the final report.
-
-## Release
-
-Merge the approved adapter only after safety review, quantize to GGUF Q4, run local benchmark, publish adapter/model card to Hugging Face, and publish code/config/evaluator to GitHub. Keep datasets and pilot data private.
-
-## Rollback
-
-Set `AI_PROVIDER=manual_fallback`; do not retrain during the two-week pilot unless a critical defect has been documented and the pilot is paused.
+Never use production traffic as training input or silently replace a served model.

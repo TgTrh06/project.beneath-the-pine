@@ -1,40 +1,21 @@
-# Research Findings — `[Study name]`
+# Research Findings Template
 
-- **Study dates:**
-- **Participants:**
-- **Researcher:**
-- **Status:** Draft
+## Context
 
-## Executive summary
+- Study period:
+- Cohort and recruitment:
+- Prototype version:
+- Known limitations:
 
-`3–5 kết luận quan trọng nhất.`
+## Evidence
 
-## Participant profile
+| Finding | Supporting evidence | Counterevidence | Decision |
+| --- | --- | --- | --- |
 
-Chỉ dùng dữ liệu tổng hợp, không đưa thông tin nhận dạng.
+## Metrics
 
-## Findings
+Report sample sizes, missing data and definitions for time-to-start, seed resume, pact attendance and repeat pact. Do not interpret timer duration as productivity.
 
-### Finding 1 — `[Tên insight]`
+## Privacy and safety findings
 
-- **Evidence:**
-- **Frequency:** `[x/y participants]`
-- **Representative quote:**
-- **Implication:**
-- **Confidence:** Low / Medium / High
-
-## Contradictions
-
-Những trường hợp không khớp với giả thuyết hoặc khác biệt giữa các nhóm.
-
-## Decisions
-
-- Giữ:
-- Thay đổi:
-- Loại bỏ:
-- Cần nghiên cứu thêm:
-
-## Updated assumptions
-
-Liên kết tới `assumptions-and-risks.md` và cập nhật trạng thái từng giả định.
-
+Record concerns about presence, Circle membership, invitations, account deletion and any harmful copy or pressure.

@@ -1,30 +1,13 @@
-# Release `[version]` — `[date]`
+# Release Notes Template
 
 ## Summary
 
-`Một đoạn mô tả giá trị cho người dùng.`
+## User-visible changes
 
-## Added
+## Privacy or data changes
 
-- 
+## Recovery/known limitations
 
-## Changed
+## Validation performed
 
-- 
-
-## Fixed
-
-- 
-
-## Privacy/AI changes
-
-- Prompt/model/data processing thay đổi nếu có.
-
-## Known issues
-
-- 
-
-## Rollback/operations note
-
-- Internal link/version/migration IDs.
-
+## Rollback or forward-fix plan

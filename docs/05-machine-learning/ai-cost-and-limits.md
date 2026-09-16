@@ -1,32 +1,5 @@
-# AI Cost and Limits
+# Cost and Limits
 
-- **Status:** Template — cập nhật khi chọn provider/model
+Start with user-triggered synchronous requests behind the Pine API. Set an interaction timeout and return manual fallback on error; do not add queue/worker infrastructure before a concrete durable job exists.
 
-## Cost model cần theo dõi
-
-- Input/output tokens theo capability.
-- Cost trên AI call.
-- Cost trên activated user/tháng.
-- Retry và invalid-output rate.
-- P50/P95 latency.
-- Weekly batch cost.
-
-## Routing proposal
-
-- Extraction/classification: model nhỏ, structured output.
-- Help Me Start: model nhỏ/trung bình; latency ưu tiên.
-- Weekly Review: model mạnh hơn chỉ khi eval chứng minh lợi ích.
-- Safety classification: kết hợp deterministic rules, moderation/safety model và policy layer.
-
-## Limits MVP
-
-- Giới hạn độ dài brain dump.
-- Rate limit theo user/IP.
-- Tối đa số lần “nhỏ hơn nữa” trong một phiên trước khi chuyển manual fallback.
-- Weekly Review tạo tối đa một lần/tuần trừ retry nội bộ.
-- Alert khi daily/project cost vượt budget.
-
-## Quy tắc kinh tế
-
-Không chọn model chỉ dựa trên benchmark chung. Chọn model rẻ nhất đạt evaluation threshold của capability cụ thể.
-
+Local GGUF inference can reduce external data transfer but still needs hardware sizing, model artifact review, observability and access control. A hosted provider requires processor, retention, region, cost and opt-out review before use. Rate limits and per-account quota must prevent abuse without blocking manual focus flows.
