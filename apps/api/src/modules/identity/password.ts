@@ -1,10 +1,5 @@
 import { randomBytes, scrypt, timingSafeEqual } from 'node:crypto';
-import { z } from 'zod';
-
-export const credentialsSchema = z.object({
-  email: z.string().trim().toLowerCase().email().max(320),
-  password: z.string().min(12).max(64),
-}).strict();
+export { credentialsSchema } from '@beneath-the-pine/contracts';
 const derive = (password: string, salt: string) => new Promise<Buffer>((resolve, reject) => {
   scrypt(password, salt, 64, { N: 32768, r: 8, p: 3, maxmem: 64 * 1024 * 1024 }, (error, hash) => error ? reject(error) : resolve(hash));
 });

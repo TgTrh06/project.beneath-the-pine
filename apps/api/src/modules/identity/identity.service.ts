@@ -10,9 +10,14 @@ const cookieName = 'BTP_SESSION';
 export class IdentityService {
   private readonly attempts = new Map<string, { count: number; until: number }>();
   constructor(readonly store: IdentityStore, @Inject(API_CONFIG) private readonly config: ApiConfig) {}
-  token(request: Request) {
-    const value = request.headers.cookie?.split(';').map(item => item.trim()).find(item => item.startsWith(`${cookieName}=`))?.slice(cookieName.length + 1);
+  tokenFromCookie(cookie?: string) {
+    const value = cookie?.split(';').map(item => item.trim()).find(item => item.startsWith(`${cookieName}=`))?.slice(cookieName.length + 1);
     return value && /^[a-f0-9]{64}$/.test(value) ? value : undefined;
+  }
+  token(request: Request) { return this.tokenFromCookie(request.headers.cookie); }
+  async sessionFromCookie(cookie?: string) {
+    const token = this.tokenFromCookie(cookie);
+    return token ? this.store.findSession(sessionHash(token)) : undefined;
   }
   async session(request: Request) {
     const token = this.token(request);
@@ -29,16 +34,16 @@ export class IdentityService {
   private cookieOptions() {
     return { httpOnly: true, secure: this.config.API_WEB_ORIGIN.startsWith('https:'), sameSite: 'lax' as const, path: '/' };
   }
-  async issue(request: Request, response: Response, user: { id: string; email: string; role: 'wanderer' | 'pine_keeper' } | null) {
+  async issue(request: Request, response: Response, account: { id: string; email: string } | null) {
     const token = randomBytes(32).toString('hex');
     const csrfToken = randomBytes(32).toString('hex');
-    const maxAge = user ? 7 * 86400000 : 3600000;
+    const maxAge = account ? 7 * 86400000 : 3600000;
     const oldToken = this.token(request);
     await this.store.rotateSession(oldToken ? sessionHash(oldToken) : undefined, {
-      tokenHash: sessionHash(token), accountId: user?.id ?? null, csrfToken, expiresAt: new Date(Date.now() + maxAge),
+      tokenHash: sessionHash(token), accountId: account?.id ?? null, csrfToken, expiresAt: new Date(Date.now() + maxAge),
     });
     response.cookie(cookieName, token, { ...this.cookieOptions(), maxAge });
-    return { authenticated: Boolean(user), user, csrfToken };
+    return { authenticated: Boolean(account), account, csrfToken };
   }
   async logout(request: Request, response: Response) {
     const token = this.token(request);
