@@ -13,7 +13,8 @@ const configuredLevel = import.meta.env.VITE_LOG_LEVEL ?? (import.meta.env.DEV ?
 
 export function safeFrontendErrorRecord(context: FrontendErrorContext): SafeRecord {
   const { event, area, method, path, status, code } = context;
-  return { event, area, ...(method ? { method } : {}), ...(path ? { path } : {}), ...(status ? { status } : {}), ...(code ? { code } : {}) };
+  const safePath = path?.replace(/(\/circle-invites\/)[^/]+/g, "$1[redacted]");
+  return { event, area, ...(method ? { method } : {}), ...(safePath ? { path: safePath } : {}), ...(status ? { status } : {}), ...(code ? { code } : {}) };
 }
 
 export function logFrontendError(context: FrontendErrorContext): void {
