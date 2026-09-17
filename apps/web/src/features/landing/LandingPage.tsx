@@ -14,8 +14,8 @@ function PineDrawing() {
 
 export function LandingPage({ signedIn = false }: { signedIn?: boolean }) {
   const landingRef = useRevealOnce();
-  const cta = signedIn ? "Vào không gian của bạn" : "Ghé dưới tán thông";
-  const entryHref = signedIn ? "#now" : "#register";
+  const cta = signedIn ? "Về không gian của bạn" : "Ghé dưới tán thông";
+  const entryHref = signedIn ? "#return" : "#register";
   useEffect(() => {
     const previousTitle = document.title;
     document.title = "Beneath the Pine — Một bước nhỏ để bắt đầu";
@@ -51,16 +51,16 @@ export function LandingPage({ signedIn = false }: { signedIn?: boolean }) {
       <section className="lp-how lp-container" id="how-it-works" tabIndex={-1} aria-labelledby="lp-how-title">
         <div className="lp-section-heading"><p className="lp-kicker">TỪ BỊ KẸT ĐẾN BẮT ĐẦU</p><h2 id="lp-how-title">Nhẹ đầu hơn.<br /><span>Rõ một bước hơn.</span></h2><p>Không cần một kế hoạch hoàn hảo để có một điểm bắt đầu.</p></div>
         <ol className="lp-steps">
-          <li><span className="lp-step-number" aria-hidden="true">01</span><div><h3>Đặt xuống điều đang nghĩ.</h3><p>Viết vào Brain Dump như cách bạn đang nghĩ. Một câu, một danh sách chưa gọn, hay một việc cứ ở trong đầu.</p></div><p className="lp-step-note">“Mình cần làm báo cáo,<br />nhưng chưa biết bắt đầu.”</p></li>
-          <li><span className="lp-step-number" aria-hidden="true">02</span><div><h3>Chọn một bước vừa sức.</h3><p>Xem gợi ý và chọn bước phù hợp. Vẫn thấy khó? Bạn có thể yêu cầu một bước nhỏ hơn trước khi bắt đầu.</p></div><p className="lp-step-note">“Chỉ mở tài liệu.<br />Viết một ý đầu tiên.”</p></li>
-          <li><span className="lp-step-number" aria-hidden="true">03</span><div><h3>Dành cho nó vài phút.</h3><p>Vào phiên tập trung với một việc và một đồng hồ. Tạm dừng, tiếp tục hoặc kết thúc khi đã đủ với bạn.</p></div><p className="lp-step-note">“Mình đã bắt đầu.<br />Thế là có một bước rồi.”</p></li>
+          <li><span className="lp-step-number" aria-hidden="true">01</span><div><h3>Đặt xuống điều đang nghĩ.</h3><p>Viết một việc bạn muốn dành thời gian cho. Chỉ một ý định nhỏ, riêng tư, không cần sắp xếp cả ngày.</p></div><p className="lp-step-note">“Mình cần làm báo cáo,<br />nhưng chưa biết bắt đầu.”</p></li>
+          <li><span className="lp-step-number" aria-hidden="true">02</span><div><h3>Dành cho nó vài phút.</h3><p>Chọn 5, 10, 25 hoặc 50 phút. Bắt đầu một phiên riêng với một việc và một đồng hồ.</p></div><p className="lp-step-note">“Chỉ mở tài liệu.<br />Viết một ý đầu tiên.”</p></li>
+          <li><span className="lp-step-number" aria-hidden="true">03</span><div><h3>Để lại một điểm tiếp tục.</h3><p>Trước khi khép lại, ghi một câu cho lần sau. Pine giữ điểm này để bạn không phải tìm lại từ đầu.</p></div><p className="lp-step-note">“Mình đã bắt đầu.<br />Thế là có một bước rồi.”</p></li>
         </ol>
         <a className="lp-text-link" href={entryHref}>Bắt đầu với tài khoản của bạn</a>
       </section>
 
       <section className="lp-return" id="experience" tabIndex={-1} aria-labelledby="lp-return-title">
         <div className="lp-container lp-return-inner">
-          <div className="lp-return-copy"><p className="lp-kicker">MỘT NƠI ĐỂ QUAY LẠI</p><h2 id="lp-return-title">Bạn có thể<br />bắt đầu lại.<br /><em>Ngay từ đây.</em></h2><p>Có những ngày kế hoạch không đi như mình nghĩ. Bạn có thể dừng, chọn một bước nhỏ hơn, rồi thử lại khi sẵn sàng.</p><p className="lp-return-signoff">Pine dành chỗ cho cả những ngày như thế.</p></div>
+          <div className="lp-return-copy"><p className="lp-kicker">MỘT NƠI ĐỂ QUAY LẠI</p><h2 id="lp-return-title">Bạn có thể<br />bắt đầu lại.<br /><em>Ngay từ đây.</em></h2><p>Có những ngày kế hoạch không đi như mình nghĩ. Một điểm tiếp tục — Open Seed — giữ lại nơi bạn muốn mở vào lần sau. Quay lại, đọc một câu, rồi chọn bước nhỏ tiếp theo.</p><p className="lp-return-signoff">Pine dành chỗ cho cả những ngày như thế.</p></div>
           <div className="lp-pine-print"><span className="lp-print-corner">B / P</span><PineDrawing /><span className="lp-print-caption">TỪNG CHÚT MỘT.</span></div>
         </div>
       </section>
@@ -69,17 +69,17 @@ export function LandingPage({ signedIn = false }: { signedIn?: boolean }) {
         <div><p className="lp-kicker">NHỮNG ĐIỀU PINE GIỮ LẠI</p><h2 id="lp-principles-title">Một chút cấu trúc.<br /><span>Nhiều chỗ để thở.</span></h2></div>
         <div className="lp-principle-list">
           <article><span aria-hidden="true">↳</span><div><h3>Một việc, tại một thời điểm.</h3><p>Bước đang làm được đặt ở trung tâm. Những việc khác có thể chờ đến lượt.</p></div></article>
-          <article><span aria-hidden="true">↳</span><div><h3>Bạn giữ quyền quyết định.</h3><p>Gợi ý chỉ trở thành task khi bạn chọn. Có thể thu nhỏ bước đi, tạm dừng hoặc làm đến đây thôi.</p></div></article>
-          <article><span aria-hidden="true">↳</span><div><h3>Không chấm điểm sự cố gắng.</h3><p>Không streak, không bảng xếp hạng. Một phiên ngắn cũng có chỗ trong ngày của bạn.</p></div></article>
+          <article><span aria-hidden="true">↳</span><div><h3>Bạn giữ quyền quyết định.</h3><p>Bạn chọn việc và thời lượng. Có tiến triển, đang vướng hay muốn dừng đều là những cách khép lại hợp lệ.</p></div></article>
+          <article><span aria-hidden="true">↳</span><div><h3>Có mặt cùng người quen.</h3><p>Tạo Circle riêng, hẹn một Focus Pact. Mỗi người làm việc của mình; nội dung công việc vẫn riêng tư. Không streak, không bảng xếp hạng.</p></div></article>
         </div>
       </section>
 
       <section className="lp-before lp-container" id="before-you-start" tabIndex={-1} aria-labelledby="lp-before-title">
         <div><p className="lp-kicker">TRƯỚC KHI BẮT ĐẦU</p><h2 id="lp-before-title">Một vài điều<br />nói rõ với nhau.</h2><p>Beneath the Pine đang được phát triển. Đây là lời mời trải nghiệm những bước đầu.</p></div>
         <div className="lp-questions">
-          <details open><summary>Tài khoản Wanderer có gì?</summary><p>Bạn có thể đăng ký, đăng nhập và xem thông tin tài khoản. Brain Dump, task, thói quen và phiên tập trung đang được hoàn thiện; các hình ảnh phía trên minh họa trải nghiệm dự kiến.</p></details>
+          <details open><summary>Tài khoản Wanderer có gì?</summary><p>Một không gian cho phiên tập trung riêng, điểm tiếp tục và những cuộc hẹn cùng người quen. Khối tương tác phía trên là minh họa dựng sẵn, không lưu dữ liệu và không tạo gợi ý bằng AI.</p></details>
           <details><summary>Pine có thay thế hỗ trợ chuyên môn không?</summary><p>Không. Pine hỗ trợ tự quản lý và tập trung; không chẩn đoán, điều trị hay đưa ra tư vấn y khoa.</p></details>
-          <details><summary>Có cần hoàn thành task khi hết giờ?</summary><p>Không cần. Thời lượng là một gợi ý để bắt đầu. Bạn có thể tạm dừng, tiếp tục hoặc ghi nhận rằng mình vẫn đang bị kẹt.</p></details>
+          <details><summary>Có cần làm xong khi hết giờ?</summary><p>Không cần. Đồng hồ khép lại một chặng, không đánh giá kết quả. Bạn có thể để lại điểm tiếp tục rồi quay lại khi sẵn sàng.</p></details>
         </div>
       </section>
 
