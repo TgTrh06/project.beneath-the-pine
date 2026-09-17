@@ -3,7 +3,10 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#f3efe4" />
+    <meta name="theme-color" content="#FAFAF7" />
+    <script>
+      (() => { let theme = 'system'; try { theme = localStorage.getItem('beneath-the-pine.theme'); } catch {} const dark = theme === 'dark' || (theme !== 'light' && matchMedia('(prefers-color-scheme: dark)').matches); document.documentElement.dataset.theme = dark ? 'dark' : 'light'; document.documentElement.style.colorScheme = dark ? 'dark' : 'light'; document.querySelector('meta[name="theme-color"]').content = dark ? '#202521' : '#FAFAF7'; })();
+    </script>
     <meta name="description" content="Không cần làm hết. Chỉ cần một bước để bắt đầu. Beneath the Pine là không gian tập trung bằng tiếng Việt: đặt xuống điều đang nghĩ, chọn một bước nhỏ và bắt đầu." />
     <meta property="og:title" content="Beneath the Pine — Một bước nhỏ để bắt đầu." />
     <meta property="og:description" content="Đặt xuống điều đang nghĩ, chọn một bước nhỏ và bắt đầu phiên tập trung. Một không gian bằng tiếng Việt, để quay lại mà không bị phán xét." />
