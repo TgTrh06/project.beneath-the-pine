@@ -1,5 +1,5 @@
 import { Injectable, ServiceUnavailableException } from '@nestjs/common';
-import { and, eq, gt, lt, desc } from 'drizzle-orm';
+import { and, eq, gt, lt } from 'drizzle-orm';
 import { DatabaseService } from '../../platform/database/database.service';
 import { accounts, sessions } from './infrastructure/identity.schema';
 
@@ -14,7 +14,7 @@ export class IdentityStore {
     return this.run(async () => (await this.database.db.insert(accounts).values({ email, passwordHash }).onConflictDoNothing().returning())[0]);
   }
   findSession(tokenHash: string) {
-    return this.run(async () => (await this.database.db.select({ session: sessions, user: { id: accounts.id, email: accounts.email, role: accounts.role } })
+    return this.run(async () => (await this.database.db.select({ session: sessions, account: { id: accounts.id, email: accounts.email } })
       .from(sessions).leftJoin(accounts, eq(sessions.accountId, accounts.id))
       .where(and(eq(sessions.tokenHash, tokenHash), gt(sessions.expiresAt, new Date()))))[0]);
   }
@@ -26,8 +26,5 @@ export class IdentityStore {
     }));
   }
   revoke(tokenHash: string) { return this.run(async () => { await this.database.db.delete(sessions).where(eq(sessions.tokenHash, tokenHash)); }); }
-  listAccounts(offset: number) {
-    return this.run(() => this.database.db.select({ id: accounts.id, email: accounts.email, role: accounts.role, createdAt: accounts.createdAt })
-      .from(accounts).orderBy(desc(accounts.createdAt), accounts.id).limit(51).offset(offset));
-  }
+  deleteAccount(accountId: string) { return this.run(async () => { await this.database.db.delete(accounts).where(eq(accounts.id, accountId)); }); }
 }

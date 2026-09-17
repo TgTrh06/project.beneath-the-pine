@@ -1,50 +1,17 @@
 # Beneath the Pine
 
-> A gentle Vietnamese companion that turns overwhelm into one small action a person can begin now.
+> A mobile-first focus ritual for starting and returning to personal work — alone when possible, with trusted people when helpful.
 
-Beneath the Pine giúp người đang quá tải chọn một hành động nhỏ, bắt đầu focus và quay lại mà không bị phán xét. Sản phẩm không chẩn đoán hoặc thay thế chăm sóc chuyên môn.
+Pine is not a task manager, public social network or productivity game. Its core loop is `Return Card → activation step → solo or private Focus Pact → check-out → Open Seed`.
 
-## Định hướng phát triển
+The web app is the first validation client. The target product client is React Native + Expo sharing a NestJS/PostgreSQL/Drizzle API.
 
-**Mobile là nền tảng sản phẩm chính; web được xây trước để hoàn thiện sản phẩm và API dùng chung.** Backend đích là **NestJS + TypeScript, PostgreSQL + Drizzle**. Mobile dùng React Native + Expo; hệ điều hành ra mắt đầu tiên và native authentication chưa được chọn.
+## Current repository state
 
-Đã có bộ khung Core modular monolith tại `apps/api` để review 12 module. Giai đoạn này chưa có AI; inference độc lập là hướng tương lai và worker chỉ thêm khi có nhu cầu cụ thể. Xem [kế hoạch module](docs/04-engineering/module-delivery-plan.md).
+- `apps/web`: React/Vite validation client; UI and business functionality are in active transition.
+- `apps/api`: NestJS/Drizzle scaffold with identity implemented; its legacy module layout is not yet the target Circle/Pact domain.
+- `packages/contracts`: shared schema/types.
+- `ml` and `services/inference-service`: experimental assets outside current product scope.
+- `docs`: approved product and engineering source of truth.
 
-| Bạn muốn làm gì | Đọc |
-| --- | --- |
-| Hiểu định hướng và phạm vi | [Product Direction](docs/00-foundation/product-direction.md), [MVP Scope](docs/00-foundation/mvp-scope.md) |
-| So sánh monolith, worker và microservices | [Architecture Options](docs/04-engineering/architecture-options.md) |
-| Review cấu trúc thư mục | [Repository Structure](docs/04-engineering/repository-structure.md) |
-| Thiết kế API cho web/mobile | [Web/Mobile API Strategy](docs/04-engineering/web-mobile-api-strategy.md) |
-| Làm việc với Drizzle và migration | [Drizzle Data Access](docs/04-engineering/drizzle-data-access.md) |
-| Hiểu thứ tự triển khai | [Roadmap](docs/00-foundation/roadmap.md), [Tiered Delivery Plan](docs/02-product/tiered-delivery-plan.md) |
-| Đọc toàn bộ tài liệu | [Documentation Map](docs/README.md) |
-
-## Hiện trạng repository
-
-| Path hiện có | Trạng thái |
-| --- | --- |
-| `apps/web` | React/Vite web; đăng nhập/đăng ký Wanderer và khu vực Pine Keeper |
-| `apps/api` | NestJS + Drizzle; Identity/RBAC đã triển khai, module nghiệp vụ khác chưa khả dụng |
-| `packages/contracts` | Zod schemas/browser API types hiện có |
-| `services/inference-service` | Python/FastAPI pilot độc lập, chưa nối vào API |
-| `supabase` | Lịch sử schema public và RLS |
-| `docs`, `ml` | Tài liệu sản phẩm/kiến trúc và tài liệu nghiên cứu mô hình |
-
-`apps/api` là Core backend duy nhất. SQL của backend cũ chỉ còn là tài liệu baseline tại `docs/04-engineering/legacy-schema`; chưa phải Drizzle migrations. `apps/mobile` chưa được tạo; web dùng Identity API mới; các tính năng nghiệp vụ hiển thị trạng thái chưa khả dụng.
-
-## Chạy web hiện tại
-
-Dùng Node.js >=22.12 và pnpm 10.32.1 theo package metadata hiện có. `pnpm dev` chạy web tại localhost:5173 sau khi dependencies đã được cài. Web mặc định gọi `/api/v1` qua Vite proxy đến port 8081. Không còn đường chạy local demo.
-
-Chạy API bằng `pnpm dev:api` tại port 8081. Kiểm tra bằng `pnpm lint:api`, `pnpm test:api`, `pnpm build:api`. Có health, auth và API quản trị tài khoản; cần migration Identity trước khi dùng tài khoản. Chưa cấu hình DB thì readiness và auth trả 503. Xem [API README](apps/api/README.md) để cấu hình local env riêng.
-
-Để thử PostgreSQL local, bật Docker Desktop rồi chạy `pnpm db:local:up` trước API. Compose chỉ bind `127.0.0.1:5433`, giữ dữ liệu trong volume local và chưa tạo schema nghiệp vụ hay chạy migration.
-
-## Quyết định và bước tiếp theo
-
-[ADR-0011](docs/04-engineering/adr/0011-nestjs-drizzle-mobile-direction.md) ghi nhận hướng người dùng đã chọn. [ADR-0012](docs/04-engineering/adr/0012-modular-monolith-proposal.md) ghi nhận topology đã được chấp nhận.
-
-Review [ownership, API dự kiến và các slice](docs/04-engineering/module-delivery-plan.md) trước khi triển khai nghiệp vụ. Database hiện hữu cần kiểm kê và baseline strategy riêng. Chưa có deployment hoặc migration được thực hiện trong scaffold này.
-
-Xem [Identity setup, migration và seed Pine Keeper](apps/api/src/modules/identity/README.md).
+Start with the [Product Direction](docs/00-foundation/product-direction.md), [MVP Scope](docs/00-foundation/mvp-scope.md) and [Engineering overview](docs/04-engineering/README.md).

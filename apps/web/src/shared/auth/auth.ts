@@ -1,10 +1,11 @@
 import { logFrontendError } from "../logging/logger";
-import { accountSessionSchema, type AccountRole, type AccountSessionPayload } from "@beneath-the-pine/contracts";
+import { accountSessionSchema, type AccountSessionPayload } from "@beneath-the-pine/contracts";
+import { discardPrivateDrafts, setDraftOwner } from "./privateDrafts";
 
 const apiUrl = (import.meta.env.VITE_API_URL as string | undefined) || "/api/v1";
 export const isAuthConfigured = Boolean(apiUrl);
 
-export type AuthSession = Readonly<{ subject: string; email: string; role: AccountRole }>;
+export type AuthSession = Readonly<{ subject: string; email: string }>;
 export type AuthCredentials = Readonly<{ email: string; password: string }>;
 
 type SessionPayload = AccountSessionPayload;
@@ -21,8 +22,9 @@ function publishSession(session: AuthSession | null): AuthSession | null {
 
 function readSession(payload: SessionPayload): AuthSession | null {
   csrfToken = payload.csrfToken;
-  return payload.authenticated && payload.user
-    ? { subject: payload.user.id, email: payload.user.email, role: payload.user.role }
+  if (payload.authenticated && payload.account) setDraftOwner(payload.account.id);
+  return payload.authenticated && payload.account
+    ? { subject: payload.account.id, email: payload.account.email }
     : null;
 }
 
@@ -107,6 +109,7 @@ export async function logout(): Promise<void> {
     headers: { "X-XSRF-TOKEN": token },
   });
   if (!response.ok) throw new Error("Không thể đăng xuất lúc này.");
+  discardPrivateDrafts();
   csrfToken = null;
   initialization = null;
   publishSession(null);
@@ -118,7 +121,8 @@ export async function getCsrfToken(): Promise<string> {
   return csrfToken;
 }
 
-export function expireSession(): void {
+export function expireSession(discardDrafts = false): void {
+  if (discardDrafts) discardPrivateDrafts();
   csrfToken = null;
   initialization = null;
   publishSession(null);

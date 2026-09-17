@@ -2,26 +2,33 @@
   "name": "@beneath-the-pine/api",
   "version": "0.1.0",
   "private": true,
-  "description": "Review scaffold for the manual-first modular Core API.",
+  "description": "Private Circle, Focus Pact and Solo Return core API.",
   "scripts": {
     "db:migrate": "node scripts/migrate.cjs",
-    "db:seed": "pnpm build && node scripts/seed.cjs",
+    "predev": "pnpm --filter @beneath-the-pine/contracts build",
     "dev": "nest start --watch",
+    "prebuild": "pnpm --filter @beneath-the-pine/contracts build",
     "start": "node dist/main.js",
     "build": "nest build",
+    "prelint": "pnpm --filter @beneath-the-pine/contracts build",
     "lint": "tsc --noEmit && tsc -p tsconfig.test.json --noEmit && tsc -p tsconfig.tooling.json --noEmit && node scripts/check-boundaries.cjs",
+    "pretest": "pnpm --filter @beneath-the-pine/contracts build",
     "test": "tsc -p tsconfig.test.json && node --test dist-test/test/*.test.js"
   },
   "dependencies": {
+    "@beneath-the-pine/contracts": "workspace:*",
     "@nestjs/common": "^11.2.3",
     "@nestjs/core": "^11.2.3",
     "@nestjs/platform-express": "^11.2.3",
+    "@nestjs/platform-socket.io": "^11.2.3",
+    "@nestjs/websockets": "^11.2.3",
     "dotenv": "^17.2.3",
     "drizzle-orm": "0.45.2",
     "helmet": "^8.1.0",
     "pg": "^8.16.3",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.2",
+    "socket.io": "^4.8.1",
     "zod": "^3.24.2"
   },
   "devDependencies": {
@@ -32,6 +39,7 @@
     "@types/pg": "^8.15.0",
     "@types/supertest": "^6.0.3",
     "drizzle-kit": "0.31.10",
+    "socket.io-client": "^4.8.1",
     "supertest": "^7.1.4",
     "typescript": "^5.9.3"
   }

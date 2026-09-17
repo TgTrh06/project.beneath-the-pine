@@ -1,54 +1,53 @@
-import { expireSession, getCsrfToken, type AuthSession } from "../auth/auth";
+import type { Circle, FocusPact, FocusSession, Profile, ReturnState } from "@beneath-the-pine/contracts";
+import { expireSession, getCsrfToken } from "../auth/auth";
 import { logFrontendError } from "../logging/logger";
 
 const apiUrl = (import.meta.env.VITE_API_URL as string | undefined) || "/api/v1";
-export const isConfigured = Boolean(apiUrl);
-
-type ApiError = { code?: string; error?: string; message?: string };
-class ApiRequestError extends Error { constructor(message: string, readonly status?: number, readonly code?: string) { super(message); } }
-async function request<T>(path: string, options: RequestInit = {}, session?: AuthSession | null): Promise<T> {
+export const realtimeUrl = (import.meta.env.VITE_REALTIME_URL as string | undefined) || undefined;
+export class ApiRequestError extends Error { constructor(message: string, readonly status?: number, readonly code?: string) { super(message); } }
+async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   const method = options.method ?? "GET";
-  if (!apiUrl) { logFrontendError({ event: "api_not_configured", area: "api", method, path }); throw new ApiRequestError("API chưa được cấu hình.", undefined, "API_NOT_CONFIGURED"); }
   try {
-    const csrfToken = !["GET", "HEAD", "OPTIONS"].includes(method.toUpperCase()) ? await getCsrfToken() : null;
-    const response = await fetch(`${apiUrl}${path}`, { ...options, credentials: "include", headers: { "content-type": "application/json", ...(csrfToken ? { "X-XSRF-TOKEN": csrfToken } : {}), ...options.headers } });
+    const csrf = !["GET", "HEAD", "OPTIONS"].includes(method.toUpperCase()) ? await getCsrfToken() : null;
+    const response = await fetch(`${apiUrl}${path}`, { ...options, credentials: "include", headers: { "content-type": "application/json", ...(csrf ? { "X-XSRF-TOKEN": csrf } : {}), ...options.headers } });
     if (response.status === 401) expireSession();
     if (response.status === 204) return undefined as T;
-    const body = await response.json() as T & ApiError;
-    if (!response.ok) throw new ApiRequestError(body.message ?? "Không thể hoàn thành yêu cầu lúc này.", response.status, body.code ?? body.error);
-    return body;
-  } catch (error) {
-    const apiError = error instanceof ApiRequestError ? error : new ApiRequestError("Không thể kết nối API.");
-    logFrontendError({ event: "api_request_failed", area: "api", method, path, status: apiError.status, code: apiError.code });
-    throw error;
-  }
+    const result = await response.json() as T & { message?: string; code?: string };
+    if (!response.ok) {
+      const messages: Record<number, string> = { 400: "Kiểm tra lại thông tin bạn vừa nhập.", 401: "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.", 403: "Bạn chưa thể thực hiện thao tác này.", 404: "Không tìm thấy nội dung hoặc bạn không có quyền truy cập.", 409: "Trạng thái đã thay đổi hoặc thao tác hiện chưa khả dụng. Hãy tải lại để kiểm tra.", 429: "Bạn thao tác hơi nhanh. Vui lòng thử lại sau." };
+      throw new ApiRequestError(messages[response.status] ?? "Chưa thể hoàn thành yêu cầu. Vui lòng thử lại.", response.status, result.code);
+    }
+    return result;
+  } catch (error) { const failure = error instanceof ApiRequestError ? error : new ApiRequestError("Không thể kết nối API."); logFrontendError({ event: "api_request_failed", area: "api", method, path, status: failure.status, code: failure.code }); throw failure; }
 }
-
-export type RemoteTask = { id: string; title: string; minutes: number; status: "ready" | "done" | "deferred"; userId?: string; sourceBrainDumpId?: string | null };
-export type Bootstrap = { profile: unknown; consent: { aiProcessing: boolean; contentRetention: boolean } | null; tasks: RemoteTask[]; habits: { id: string; title: string }[]; isAdmin: boolean; quota: Record<string, { used: number; remaining: number }> };
-
-export async function joinWaitlist(input: { email: string; name?: string; context?: string }) { if (!apiUrl) return { ok: true, demo: true }; return request<{ ok: boolean }>("/waitlist", { method: "POST", body: JSON.stringify(input) }); }
-export async function getBootstrap(session: AuthSession): Promise<Bootstrap> { return request<Bootstrap>("/me/bootstrap", {}, session); }
-export async function recordConsent(session: AuthSession): Promise<void> { await request("/consents", { method: "POST", body: JSON.stringify({ aiProcessing: true, contentRetention: true, researchAnalytics: false }) }, session); }
-export async function submitBrainDump(session: AuthSession, content: string) { return request<{ suggestion: { candidates: Array<{ title: string; minutes: number }> } }>("/brain-dumps", { method: "POST", body: JSON.stringify({ content }) }, session); }
-export async function createNextAction(session: AuthSession, task: { title: string; minutes: number }) { return request<{ task: RemoteTask }>("/next-actions", { method: "POST", body: JSON.stringify(task) }, session); }
-export async function helpMeStart(session: AuthSession, taskId: string) { return request<{ suggestion: { tinyStep: string; minutes: number; options: string[] } }>("/help-me-start", { method: "POST", body: JSON.stringify({ taskId }) }, session); }
-export async function startFocus(session: AuthSession, taskId: string, plannedMinutes: number) { return request<{ session: { id: string } }>("/focus-sessions", { method: "POST", body: JSON.stringify({ taskId, plannedMinutes }) }, session); }
-export async function finishFocus(session: AuthSession, sessionId: string, outcome: "done" | "still_stuck" | "paused") { return request(`/focus-sessions/${sessionId}`, { method: "PATCH", body: JSON.stringify({ outcome }) }, session); }
-export async function createHabit(session: AuthSession, title: string) { return request<{ habit: { id: string; title: string } }>("/habits", { method: "POST", body: JSON.stringify({ title }) }, session); }
-export async function completeHabit(session: AuthSession, id: string) { return request<{ ok: true; completedOn: string }>(`/habits/${id}/completion`, { method: "PUT" }, session); }
-export async function saveCheckin(session: AuthSession, input: { energy: "low" | "medium" | "high"; note?: string }) { return request("/checkins", { method: "POST", body: JSON.stringify(input) }, session); }
-export async function createWeeklyReview(session: AuthSession) { return request<{ review: { summary: string; insight: string }; experiment: { id: string; title: string; why: string } }>("/weekly-reviews", { method: "POST" }, session); }
-export async function exportData(session: AuthSession) { return request<unknown>("/export", {}, session); }
-export async function deleteAccount(session: AuthSession) { await request("/account", { method: "DELETE" }, session); }
-export async function getAdminWaitlist(session: AuthSession) { return request<{ entries: Array<{ id: string; email: string; name: string | null; status: string; createdAt: string }> }>("/admin/waitlist", {}, session); }
-export async function approveWaitlist(session: AuthSession, id: string) { return request(`/admin/waitlist/${id}/approve`, { method: "POST" }, session); }
-export type StudyState = { enrollment: { id: string; participantCode: string; sequence: "control_first" | "intervention_first"; retentionUntil: string } | null; condition: "control" | "intervention" | null };
-export async function getStudy(session: AuthSession) { return request<StudyState>("/study", {}, session); }
-export async function enrollStudy(session: AuthSession) { return request<StudyState>("/study/enroll", { method: "POST", body: JSON.stringify({ consent: true }) }, session); }
-export async function beginStudySession(session: AuthSession, frictionBefore: number) { return request<{ session: { id: string; condition: "control" | "intervention"; stuckAt: string } }>("/study/sessions", { method: "POST", body: JSON.stringify({ frictionBefore }) }, session); }
-export async function markStudyStarted(session: AuthSession, id: string) { return request<{ session: { id: string; startedAt: string } }>(`/study/sessions/${id}/start`, { method: "POST", body: JSON.stringify({}) }, session); }
-export async function completeStudySession(session: AuthSession, id: string, input: { frictionAfter: number; focusOutcome: "done" | "still_stuck" | "not_recorded" }) { return request<{ session: { id: string } }>(`/study/sessions/${id}`, { method: "PATCH", body: JSON.stringify(input) }, session); }
-export async function withdrawStudy(session: AuthSession) { await request("/study", { method: "DELETE" }, session); }
-
-export async function getAdminAccounts(session: AuthSession, offset = 0) { return request<{ entries: Array<{ id: string; email: string; role: string; createdAt: string }>; hasMore: boolean }>(`/admin/accounts?offset=${offset}`, {}, session); }
+const mutation = <T>(path: string, method: string, value?: unknown, key?: string) => request<T>(path, { method, body: value === undefined ? undefined : JSON.stringify(value), headers: key ? { "Idempotency-Key": key } : undefined });
+export const newRequestKey = () => crypto.randomUUID();
+export const getReturnState = () => request<ReturnState>("/me/return");
+export const getProfile = () => request<{ profile: Profile | null }>("/me/profile");
+export const updateProfile = (value: Partial<Profile>) => mutation<{ profile: Profile }>("/me/profile", "PATCH", value);
+export const startSolo = (value: { intention: string; durationMinutes: 5 | 10 | 25 | 50 }, key: string) => mutation<{ session: FocusSession }>("/focus-sessions", "POST", value, key);
+export const getSession = (id: string) => request<{ session: FocusSession }>(`/focus-sessions/${id}`);
+export const joinSession = (id: string) => mutation<{ session: FocusSession }>(`/focus-sessions/${id}/join`, "POST");
+export const checkOut = (id: string, value: { outcome: "completed" | "progress" | "stuck" | "stopped"; openSeed?: string | null }) => mutation<{ session: FocusSession }>(`/focus-sessions/${id}/check-out`, "POST", value);
+export const putSeed = (text: string) => mutation("/me/open-seed", "PUT", { text });
+export const deleteSeed = () => mutation<void>("/me/open-seed", "DELETE");
+export const listCircles = () => request<{ circles: Circle[] }>("/circles");
+export const getCircle = (id: string) => request<{ circle: Circle }>(`/circles/${id}`);
+export const createCircle = (name: string) => mutation<{ circle: { id: string } }>("/circles", "POST", { name });
+export const createCircleInvite = (id: string) => mutation<{ invite: { id: string; token: string; expiresAt: string } }>(`/circles/${id}/invites`, "POST", { expiresInHours: 72 });
+export const acceptCircleInvite = (token: string) => mutation<{ circleId: string }>(`/circle-invites/${token}/accept`, "POST");
+export const createPact = (circleId: string, value: { participantIds: string[]; startsAt: string; durationMinutes: 5 | 10 | 25 | 50 }, key: string) => mutation<{ pact: FocusPact }>(`/circles/${circleId}/pacts`, "POST", value, key);
+export const getPact = (id: string) => request<{ pact: FocusPact }>(`/pacts/${id}`);
+export const respondPact = (id: string, response: "accepted" | "declined") => mutation<{ pact: FocusPact }>(`/pacts/${id}/respond`, "POST", { response });
+export const startPact = (id: string, key: string) => mutation<{ session: FocusSession }>(`/pacts/${id}/start`, "POST", undefined, key);
+export const getMemory = () => request<{ milestones: Array<{ id: string; circleId: string; recordedAt: string }> }>("/me/memory");
+export const exportData = () => request<unknown>("/me/data-export");
+export const deleteAccount = (password: string) => mutation<void>("/me/account", "DELETE", { password });
+export const updateCircle = (id: string, name: string) => mutation(`/circles/${id}`, "PATCH", { name });
+export const revokeInvite = (id: string, inviteId: string) => mutation<void>(`/circles/${id}/invites/${inviteId}`, "DELETE");
+export const removeMember = (id: string, accountId: string) => mutation<void>(`/circles/${id}/members/${accountId}`, "DELETE");
+export const leaveCircle = (id: string) => mutation<void>(`/circles/${id}/members/me`, "DELETE");
+export const transferCircle = (id: string, accountId: string) => mutation<void>(`/circles/${id}/ownership-transfer`, "POST", { accountId });
+export const cancelPact = (id: string) => mutation<{ pact: FocusPact }>(`/pacts/${id}/cancel`, "POST");
+export type HistoryEntry = { id: string; kind: "solo" | "pact"; startedAt: string; endsAt: string; status: string; outcome: "completed" | "progress" | "stuck" | "stopped" | null };
+export const getHistory = () => request<{ sessions: HistoryEntry[] }>("/me/focus-history");

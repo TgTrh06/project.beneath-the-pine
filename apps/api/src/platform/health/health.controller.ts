@@ -8,13 +8,12 @@ export class HealthController {
 
   @Public()
   @Get('live')
-  live() { return { status: 'UP', service: 'core-api', stage: 'scaffold' }; }
+  live() { return { status: 'UP', service: 'core-api', stage: 'core' }; }
 
   @Public()
   @Get('ready')
   async ready() {
     if (!await this.database.isReachable()) throw new ServiceUnavailableException();
-    // Connectivity only; no business schema or auth is implemented yet.
-    return { status: 'UP', service: 'core-api', stage: 'scaffold', checks: { database: 'UP' } };
+    return { status: 'UP', service: 'core-api', stage: 'core', checks: { database: 'UP' } };
   }
 }

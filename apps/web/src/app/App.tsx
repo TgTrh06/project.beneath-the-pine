@@ -1,38 +1,27 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { initializeAuth, subscribeToAuth, logout, type AuthSession } from "../shared/auth/auth";
 import { LandingPage } from "../features/landing/LandingPage";
 import { AuthView } from "../features/auth/AuthView";
-import { AdminView } from "../features/admin/AdminView";
+import { ReturnView } from "../features/return/ReturnView";
+import { CirclesView } from "../features/circles/CirclesView";
+import { CircleView } from "../features/circles/CircleView";
+import { PactView } from "../features/pacts/PactView";
+import { SessionView } from "../features/focus/SessionView";
+import { MemoryView } from "../features/memory/MemoryView";
+import { CoreSettingsView } from "../features/settings/CoreSettingsView";
 import { AppLayout } from "./AppLayout";
-import { useHashRouter, navigationItems } from "./router";
+import { useHashRouter } from "./router";
+import { InviteView } from "../features/circles/InviteView";
 
 export function App() {
-  const { view, navigate } = useHashRouter();
-  const [session, setSession] = useState<AuthSession | null>(null);
-  const [checking, setChecking] = useState(true);
-  const [error, setError] = useState("");
-  const [retry, setRetry] = useState(0);
-  useEffect(() => {
-    let active = true;
-    const unsubscribe = subscribeToAuth(setSession);
-    setChecking(true);
-    setError("");
-    void initializeAuth().then(value => { if (active) setSession(value); })
-      .catch(() => { if (active) setError("Chưa thể kết nối dịch vụ tài khoản. Vui lòng thử lại sau."); })
-      .finally(() => { if (active) setChecking(false); });
-    return () => { active = false; unsubscribe(); };
-  }, [retry]);
-  const signOut = async () => {
-    try { await logout(); navigate("landing"); } catch { setError("Chưa thể đăng xuất. Vui lòng thử lại."); }
-  };
-  if (view === "landing") return <LandingPage signedIn={Boolean(session)} />;
+  const pendingRoute = useRef<string | null>(null);
+  const { route, navigate } = useHashRouter(); const [session, setSession] = useState<AuthSession | null>(null); const [checking, setChecking] = useState(true); const [notice, setNotice] = useState(""); const [retry, setRetry] = useState(0);
+  useEffect(() => { let active = true; const unsubscribe = subscribeToAuth(setSession); setChecking(true); void initializeAuth().then(value => { if (active) { setSession(value); setNotice(""); } }).catch(() => setNotice("Chưa thể kết nối dịch vụ tài khoản.")).finally(() => { if (active) setChecking(false); }); return () => { active=false; unsubscribe(); }; }, [retry]);
+  useEffect(() => { if (!session && !["landing","login","register"].includes(route.view)) pendingRoute.current = route.id ? `${route.view}/${route.id}` : route.view; if (route.view === "landing") pendingRoute.current = null; }, [route,session]);
+  const signOut = () => void logout().then(() => { pendingRoute.current = null; navigate("landing"); }).catch(() => setNotice("Chưa thể đăng xuất."));
+  if (route.view === "landing") return <LandingPage signedIn={Boolean(session)} />;
   if (checking) return <main className="auth-shell"><p role="status">Đang kiểm tra phiên đăng nhập…</p></main>;
-  if (!session) return <AuthView key={view} mode={view === "register" ? "register" : "login"} connectionError={error} onRetry={() => setRetry(value => value + 1)} onSuccess={() => navigate(view === "admin" ? "admin" : "now")} />;
-  const label = navigationItems.find(item => item.view === view)?.label ?? "Không gian của bạn";
-  return <AppLayout view={view} onNavigate={navigate} session={session} onLogout={() => void signOut()}>
-    {error && <p className="notice" role="alert">{error}</p>}
-    {view === "admin" ? session.role === "pine_keeper" ? <AdminView remoteSession={session} onNotice={setError} /> : <section className="feature-card"><h1>Khu vực Pine Keeper</h1><p>Tài khoản Wanderer không có quyền truy cập khu vực quản trị.</p></section>
-      : view === "settings" ? <section className="feature-card"><p className="eyebrow">TÀI KHOẢN</p><h1>{session.role === "pine_keeper" ? "Pine Keeper" : "Wanderer"}</h1><p>{session.email}</p><p>Đây là tài khoản đang đăng nhập của bạn.</p><button className="secondary" onClick={() => void signOut()}>Đăng xuất</button></section>
-      : <section className="feature-card"><p className="eyebrow">{session.role === "pine_keeper" ? "PINE KEEPER" : "WANDERER"}</p><h1>{label}</h1><p>Bạn đã đăng nhập vào không gian của mình.</p><p role="status">Tính năng này đang được hoàn thiện và chưa khả dụng. Bạn có thể xem thông tin tài khoản trong Cài đặt.</p><button className="secondary" onClick={() => navigate("settings")}>Xem tài khoản</button></section>}
-  </AppLayout>;
+  if (!session) return <AuthView mode={route.view === "register" ? "register" : "login"} connectionError={notice} onRetry={() => setRetry(value => value+1)} onSuccess={() => { setNotice(""); const destination = pendingRoute.current ?? "return"; pendingRoute.current = null; navigate(destination); }} />;
+  if (route.view === "session" && route.id) return <SessionView key={`${session.subject}:${route.id}`} id={route.id} accountId={session.subject} onReturn={() => navigate("return")} onNotice={setNotice} />;
+  return <AppLayout key={session.subject} view={route.view} onNavigate={navigate} session={session} onLogout={signOut}>{notice && <p className="notice" role="alert">{notice}</p>}{["return","login","register"].includes(route.view) ? <ReturnView onSession={id => navigate(`session/${id}`)} onPact={id => navigate(`pact/${id}`)} onNotice={setNotice} /> : route.view === "circles" ? <CirclesView onOpen={id => navigate(`circle/${id}`)} onNotice={setNotice} /> : route.view === "circle" && route.id ? <CircleView key={route.id} id={route.id} accountId={session.subject} onLeave={() => navigate("circles")} onPact={id => navigate(`pact/${id}`)} onNotice={setNotice} /> : route.view === "pact" && route.id ? <PactView key={route.id} id={route.id} accountId={session.subject} onSession={id => navigate(`session/${id}`)} onNotice={setNotice} /> : route.view === "invite" && route.id ? <InviteView key={route.id} token={route.id} onOpen={id => navigate(`circle/${id}`)} /> : route.view === "memory" ? <MemoryView onNotice={setNotice} /> : <CoreSettingsView email={session.email} onDeleted={() => navigate("landing")} onNotice={setNotice} />}</AppLayout>;
 }

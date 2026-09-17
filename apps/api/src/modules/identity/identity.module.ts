@@ -7,5 +7,5 @@ import { IdentityController } from './identity.controller';
 import { IdentityGuard } from './identity.guard';
 
 /** Identity owns account/session persistence and browser authorization. */
-@Module({ imports: [DatabaseModule], controllers: [IdentityController], providers: [IdentityStore, IdentityService, { provide: APP_GUARD, useClass: IdentityGuard }] })
+@Module({ imports: [DatabaseModule], controllers: [IdentityController], providers: [IdentityStore, IdentityService, { provide: APP_GUARD, useClass: IdentityGuard }], exports: [IdentityStore, IdentityService] })
 export class IdentityModule {}

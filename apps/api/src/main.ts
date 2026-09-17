@@ -7,6 +7,7 @@ import type { NestExpressApplication } from '@nestjs/platform-express';
 import { AppModule } from './app.module';
 import { API_CONFIG, ApiConfig, ConfigError, readApiConfig } from './platform/config/api-config';
 import { configureHttp } from './platform/http/configure-http';
+import { PineSocketAdapter } from './platform/realtime/socket.adapter';
 
 async function main() {
   loadEnv({ path: resolve(__dirname, '../.env'), quiet: true });
@@ -17,6 +18,7 @@ async function main() {
   };
   const app = await NestFactory.create<NestExpressApplication>(AppModule, { bodyParser: false, logger: levels[config.API_LOG_LEVEL] });
   configureHttp(app, app.get<ApiConfig>(API_CONFIG));
+  app.useWebSocketAdapter(new PineSocketAdapter(app, config));
   app.enableShutdownHooks();
   await app.listen(config.API_PORT, config.API_HOST);
 }
