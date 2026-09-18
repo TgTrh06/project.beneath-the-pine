@@ -5,6 +5,7 @@ import { resolveHashRoute } from "./routePaths";
 export const navigationItems: Array<{ view: View; label: string }> = [
   { view: "return", label: "Quay lại" },
   { view: "circles", label: "Circle" },
+  { view: "pacts", label: "Cuộc hẹn" },
   { view: "memory", label: "Kỷ niệm" },
   { view: "settings", label: "Cài đặt" },
 ];

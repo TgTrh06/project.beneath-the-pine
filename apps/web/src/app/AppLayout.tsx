@@ -23,7 +23,7 @@ export function AppLayout({ view, onNavigate, onLogout, children }: {
   const nav = <>
     <a className="nav-item" href="#home">Về Beneath the Pine</a>
     {navigationItems.map(item => {
-      const active = view === item.view || (item.view === "circles" && ["circle", "pact", "invite"].includes(view));
+      const active = view === item.view || (item.view === "pacts" && view === "pact") || (item.view === "circles" && ["circle", "invite"].includes(view));
       return <button
         key={item.view}
         className={active ? "nav-item active" : "nav-item"}
