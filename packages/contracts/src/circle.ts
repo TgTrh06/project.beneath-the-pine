@@ -10,3 +10,7 @@ export const createCircleInviteSchema = z.object({ expiresInHours: z.number().in
 export const transferOwnershipSchema = z.object({ accountId: idSchema }).strict();
 export const circleInviteSchema = z.object({ id: idSchema, circleId: idSchema, token: z.string().optional(), expiresAt: dateTimeSchema, status: z.enum(["pending", "accepted", "revoked", "expired"]) });
 export type Circle = z.infer<typeof circleSchema>;
+export const inviteListQuerySchema = z.object({ limit:z.coerce.number().int().min(1).max(50).default(20), cursor:z.string().min(1).max(1000).optional() }).strict();
+export type InviteListQuery = z.infer<typeof inviteListQuerySchema>;
+export type InviteListItem = { id:string; circleId:string; createdAt:string; expiresAt:string; status:'pending'|'accepted'|'revoked'|'expired' };
+export type InvitePage = { items:InviteListItem[]; nextCursor:string|null };
