@@ -14,3 +14,5 @@
 | Remove member/transfer ownership | — | no | yes | no |
 
 Missing membership is returned as not found where revealing existence would leak a private resource.
+
+Pact lists/details require both active membership and participation, even for Circle owners. Invitation metadata listing is owner-only. Archive/restore is owner-only; archive is rejected while scheduled/active Pacts remain and revokes pending invitations. Removed members cannot read shared snapshots or publish presence; personal history remains private to the account.
