@@ -1,0 +1,35 @@
+.circles-page { width:100%; max-width:960px; margin-inline:auto; overflow-wrap:anywhere; }
+.circles-page h1 { font-size:clamp(2rem,4vw,3rem); line-height:1.2; }
+.circle-list { margin-block:2rem; }
+.circles-page .row-list { padding:0; list-style:none; }
+.circles-page .row-list > li { padding-block:1rem; border-bottom:1px solid var(--line); }
+.circles-page .row-list button { white-space:normal; overflow-wrap:anywhere; text-align:left; }
+.circle-panel { background:var(--surface); padding:clamp(1rem,3vw,2rem); border-radius:10px; margin-block:1.5rem; }
+.circle-detail { display:grid; grid-template-columns:minmax(0,1fr) 280px; gap:1.5rem 2rem; align-items:start; }
+.circle-detail > .page-intro, .circle-detail > .notice { grid-column:1/-1; }
+.circle-detail .pact-composer { grid-column:1; grid-row:auto / span 2; margin:0; }
+.circle-members, .circle-management { grid-column:2; min-width:0; }
+.circle-detail:not(:has(.pact-composer)) .circle-members,
+.circle-detail:not(:has(.pact-composer)) .circle-management { grid-column:1/-1; }
+.circle-management { padding-block:1rem; }
+.circles-page summary { cursor:pointer; min-height:44px; padding-block:.75rem; color:var(--chestnut); }
+.circle-invite { margin-top:1rem; padding-block:1rem; }
+.circle-invite .invite-link { overflow-wrap:anywhere; user-select:all; }
+.pact-composer fieldset { border:0; padding:0; margin:0; min-width:0; }
+.pact-composer h3 { font-size:1rem; margin-top:1.5rem; }
+.pact-composer .check-label { align-items:start; }
+.pact-composer input[type=checkbox] { flex-shrink:0; }
+.pact-detail, .invite-detail { max-width:720px; }
+.pact-detail > .row-list { margin-block:2rem; }
+@media(max-width:800px) {
+  .circle-detail { display:flex; flex-direction:column; align-items:stretch; }
+  .circle-detail .page-intro { order:0; }
+  .circle-detail > .notice { order:1; }
+  .circle-detail .pact-composer { order:2; }
+  .circle-members { order:3; }
+  .circle-management { order:4; }
+}
+@media(prefers-reduced-motion:reduce) { .circles-page * { animation:none!important; transition:none!important; } }
+
+.circle-pacts { grid-column:1/-1; width:100%; min-width:0; }
+@media(max-width:800px) { .circle-pacts { order:5; } }
