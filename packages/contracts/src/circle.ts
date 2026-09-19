@@ -2,11 +2,63 @@ import { z } from "zod";
 import { dateTimeSchema, idSchema } from "./shared";
 export const circleRoleSchema = z.enum(["owner", "member"]);
 export const circleStatusSchema = z.enum(["active", "archived"]);
-export const circleMemberSchema = z.object({ accountId: idSchema, displayName: z.string().nullable(), role: circleRoleSchema, joinedAt: dateTimeSchema });
-export const circleSchema = z.object({ id: idSchema, name: z.string(), status: circleStatusSchema, myRole: circleRoleSchema, memberCount: z.number().int(), members: z.array(circleMemberSchema).optional(), createdAt: dateTimeSchema });
+
+export const circleMemberSchema = z.object({
+    accountId: idSchema,
+    displayName: z.string().nullable(),
+    role: circleRoleSchema,
+    joinedAt: dateTimeSchema
+});
+
+export const circleSchema = z.object({
+    id: idSchema,
+    name: z.string(),
+    status: circleStatusSchema,
+    myRole: circleRoleSchema,
+    memberCount: z.number().int(),
+    members: z.array(circleMemberSchema).optional(),
+    createdAt: dateTimeSchema
+});
+
 export const createCircleSchema = z.object({ name: z.string().trim().min(1).max(80) }).strict();
-export const updateCircleSchema = z.object({ name: z.string().trim().min(1).max(80).optional(), status: circleStatusSchema.optional() }).strict().refine(value => Object.keys(value).length > 0);
-export const createCircleInviteSchema = z.object({ expiresInHours: z.number().int().min(1).max(168).default(72) }).strict();
+
+export const updateCircleSchema = z.object({
+    name: z.string().trim().min(1).max(80).optional(),
+    status: circleStatusSchema.optional()
+}).strict().refine(value => Object.keys(value).length > 0);
+
+export const createCircleInviteSchema = z.object({
+    expiresInHours: z.number().int().min(1).max(168).default(72)
+}).strict();
+
 export const transferOwnershipSchema = z.object({ accountId: idSchema }).strict();
-export const circleInviteSchema = z.object({ id: idSchema, circleId: idSchema, token: z.string().optional(), expiresAt: dateTimeSchema, status: z.enum(["pending", "accepted", "revoked", "expired"]) });
+
+export const circleInviteSchema = z.object({
+    id: idSchema,
+    circleId: idSchema,
+    token: z.string().optional(),
+    expiresAt: dateTimeSchema,
+    status: z.enum(["pending", "accepted", "revoked", "expired"])
+});
+
 export type Circle = z.infer<typeof circleSchema>;
+
+export const inviteListQuerySchema = z.object({
+    limit: z.coerce.number().int().min(1).max(50).default(20),
+    cursor: z.string().min(1).max(1000).optional()
+}).strict();
+
+export type InviteListQuery = z.infer<typeof inviteListQuerySchema>;
+
+export type InviteListItem = {
+    id: string;
+    circleId: string;
+    createdAt: string;
+    expiresAt: string;
+    status: 'pending' | 'accepted' | 'revoked' | 'expired'
+};
+
+export type InvitePage = {
+    items: InviteListItem[];
+    nextCursor: string | null
+};

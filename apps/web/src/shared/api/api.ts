@@ -51,3 +51,7 @@ export const transferCircle = (id: string, accountId: string) => mutation<void>(
 export const cancelPact = (id: string) => mutation<{ pact: FocusPact }>(`/pacts/${id}/cancel`, "POST");
 export type HistoryEntry = { id: string; kind: "solo" | "pact"; startedAt: string; endsAt: string; status: string; outcome: "completed" | "progress" | "stuck" | "stopped" | null };
 export const getHistory = () => request<{ sessions: HistoryEntry[] }>("/me/focus-history");
+
+export const listPacts = (group:string, cursor?:string, circleId?:string) => request<import('@beneath-the-pine/contracts').PactPage>(`${circleId ? `/circles/${circleId}/pacts` : '/me/pacts'}?group=${encodeURIComponent(group)}${cursor ? `&cursor=${encodeURIComponent(cursor)}` : ''}`);
+export const listCircleInvites = (id:string,cursor?:string) => request<import('@beneath-the-pine/contracts').InvitePage>(`/circles/${id}/invites${cursor ? `?cursor=${encodeURIComponent(cursor)}` : ''}`);
+export const setCircleStatus = (id:string,status:'active'|'archived') => mutation(`/circles/${id}`,'PATCH',{status});

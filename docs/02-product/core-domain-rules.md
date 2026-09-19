@@ -12,3 +12,5 @@
 - An owner transfers ownership before leaving. Account deletion transfers to the oldest active member or deletes an empty Circle.
 
 All terminal commands are idempotent. Authorization is evaluated from the current server-side account and membership, never client-supplied ownership.
+
+Pact discovery is participant-only and requires current active Circle membership, including for owners. Leaving/removal revokes Pact detail/respond/start/join and shared session snapshot/presence access; personal historical rows remain. Circle archival requires no scheduled/active Pact, revokes pending invitations, and prevents creation/acceptance until restored. Restoring does not revive links. Invitation listings expose metadata only, never tokens or hashes.

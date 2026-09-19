@@ -1,0 +1,5 @@
+.marten-note { display:flex; align-items:center; gap:.75rem; margin-block:1rem 1.5rem; }
+.marten-note__figure { display:block; width:72px; height:47px; flex:0 0 72px; pointer-events:none; }
+.marten-note p { margin:0; font-size:.9375rem; line-height:1.6; color:var(--muted); overflow-wrap:anywhere; }
+.marten-note__name { display:block; font-size:.75rem; font-weight:600; color:var(--chestnut); margin-bottom:.125rem; }
+@media(max-width:380px) { .marten-note__figure { width:56px; height:37px; flex-basis:56px; } }
