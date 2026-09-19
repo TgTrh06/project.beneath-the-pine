@@ -2,7 +2,10 @@ import { z } from "zod";
 import { focusSessionSchema, participantPresenceSchema } from "./focus";
 import { idSchema } from "./shared";
 
-export const subscribeSessionSchema = z.object({ sessionId: idSchema }).strict();
+export const subscribeSessionSchema = z.object({
+    sessionId: idSchema
+}).strict();
+
 export const setPresenceSchema = z.object({
     sessionId: idSchema,
     presence: z.enum(["active", "break"])
