@@ -12,6 +12,7 @@ export class DatabaseService implements OnApplicationShutdown {
 
   constructor(@Inject(API_CONFIG) config: ApiConfig) {
     if (!config.API_DATABASE_URL) return;
+
     this.pool = new Pool({
       connectionString: config.API_DATABASE_URL,
       max: config.API_DB_POOL_MAX,
@@ -20,7 +21,11 @@ export class DatabaseService implements OnApplicationShutdown {
       statement_timeout: config.API_DB_TIMEOUT_MS,
       idleTimeoutMillis: 10000,
     });
-    this.pool.on('error', () => this.logger.error({ event: 'database_pool_error' }));
+
+    this.pool.on('error', () =>
+      this.logger.error({ event: 'database_pool_error' })
+    );
+
     this.client = drizzle({ client: this.pool });
   }
 
@@ -32,6 +37,7 @@ export class DatabaseService implements OnApplicationShutdown {
 
   async isReachable(): Promise<boolean> {
     if (!this.client) return false;
+
     try {
       await this.client.execute(sql`select 1`);
       return true;
