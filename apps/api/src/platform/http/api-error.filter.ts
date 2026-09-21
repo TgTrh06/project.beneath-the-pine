@@ -20,10 +20,12 @@ export function safeError(status: number, requestId: unknown) {
 @Catch()
 export class ApiErrorFilter implements ExceptionFilter {
   private readonly logger = new Logger(ApiErrorFilter.name);
+
   catch(error: unknown, host: ArgumentsHost): void {
     const response = host.switchToHttp().getResponse<Response>();
     const status = error instanceof HttpException ? error.getStatus() : 500;
     const requestId = response.getHeader('X-Request-ID');
+
     if (status >= 500) this.logger.error({ event: 'request_failed', requestId, status });
     response.status(status).json(safeError(status, requestId));
   }
