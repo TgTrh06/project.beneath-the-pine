@@ -16,9 +16,16 @@ async function main() {
     silent: [], error: ['error'], warn: ['error', 'warn'],
     info: ['error', 'warn', 'log'], debug: ['error', 'warn', 'log', 'debug'],
   };
-  const app = await NestFactory.create<NestExpressApplication>(AppModule, { bodyParser: false, logger: levels[config.API_LOG_LEVEL] });
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
+    bodyParser: false,
+    logger: levels[config.API_LOG_LEVEL]
+  });
+
   configureHttp(app, app.get<ApiConfig>(API_CONFIG));
-  app.useWebSocketAdapter(new PineSocketAdapter(app, config));
+
+  const adapter = new PineSocketAdapter(app, config);
+  app.useWebSocketAdapter(adapter);
+
   app.enableShutdownHooks();
   await app.listen(config.API_PORT, config.API_HOST);
 }
