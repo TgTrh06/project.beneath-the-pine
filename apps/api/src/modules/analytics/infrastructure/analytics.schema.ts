@@ -1,3 +1,11 @@
 import { index, jsonb, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core';
 import { accounts } from '../../identity/public-api';
-export const productEvents = pgTable('product_events', { id: uuid('id').defaultRandom().primaryKey(), accountId: uuid('account_id').references(() => accounts.id, { onDelete: 'cascade' }), name: text('name').notNull(), subjectId: uuid('subject_id'), metadata: jsonb('metadata').$type<Record<string, string | number | boolean | null>>().notNull().default({}), occurredAt: timestamp('occurred_at', { withTimezone: true }).notNull().defaultNow() }, table => [index('product_events_account_time_idx').on(table.accountId, table.occurredAt)]);
+
+export const productEvents = pgTable('product_events', {
+    id: uuid('id').defaultRandom().primaryKey(),
+    accountId: uuid('account_id').references(() => accounts.id, { onDelete: 'cascade' }),
+    name: text('name').notNull(),
+    subjectId: uuid('subject_id'),
+    metadata: jsonb('metadata').$type<Record<string, string | number | boolean | null>>().notNull().default({}),
+    occurredAt: timestamp('occurred_at', { withTimezone: true }).notNull().defaultNow()
+}, table => [index('product_events_account_time_idx').on(table.accountId, table.occurredAt)]);

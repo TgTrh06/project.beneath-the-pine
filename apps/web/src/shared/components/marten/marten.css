@@ -1,5 +1,9 @@
+.marten-illustration { position:relative; display:block; flex-shrink:0; line-height:0; }
+.marten-illustration__sprite { display:block; width:100%; height:100%; object-fit:contain; image-rendering:pixelated; }
+.marten-illustration__pupil { position:absolute; left:36.8%; top:51.45%; width:2.2%; height:2.32%; background:#433f38; image-rendering:pixelated; will-change:transform; }
 .marten-note { display:flex; align-items:center; gap:.75rem; margin-block:1rem 1.5rem; }
-.marten-note__figure { display:block; width:72px; height:47px; flex:0 0 72px; pointer-events:none; }
+.marten-note__figure { width:88px; height:50px; flex:0 0 88px; pointer-events:none; }
+.marten-note__figure--sit { width:64px; height:55px; flex-basis:64px; }
 .marten-note p { margin:0; font-size:.9375rem; line-height:1.6; color:var(--muted); overflow-wrap:anywhere; }
-.marten-note__name { display:block; font-size:.75rem; font-weight:600; color:var(--chestnut); margin-bottom:.125rem; }
-@media(max-width:380px) { .marten-note__figure { width:56px; height:37px; flex-basis:56px; } }
+.marten-note__name { display:block; font-family:var(--font-pixel); font-size:.875rem; font-weight:600; color:var(--chestnut); margin-bottom:.125rem; }
+@media(max-width:380px) { .marten-note__figure { width:72px; height:42px; flex-basis:72px; } .marten-note__figure--sit { width:56px; height:48px; flex-basis:56px; } }

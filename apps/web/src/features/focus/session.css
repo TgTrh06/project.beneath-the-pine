@@ -1,4 +1,6 @@
 .focus-room .focus-room__body { width:min(720px,100%); padding:0 0 2rem; }
+.focus-room .focus-room__timer { font-family:var(--font-body); }
+.session-ending { border-radius:12px; box-shadow:none; }
 .session-toolbar { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:1rem; margin-bottom:clamp(2rem,7vh,4rem); }
 .focus-room h1 { font-size:clamp(1.75rem,4vw,2.75rem); line-height:1.3; text-align:center; overflow-wrap:anywhere; margin-block:1rem; }
 .focus-room__body > .eyebrow, .focus-room__body > .field-hint, .focus-room__body > [role="status"] { text-align:center; }

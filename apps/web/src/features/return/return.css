@@ -1,4 +1,5 @@
 .return-page { width:100%; max-width:960px; margin-inline:auto; }
+.return-panel { border-radius:12px; box-shadow:none; }
 .return-grid { display:grid; grid-template-columns:minmax(0, 1fr) 248px; gap:clamp(24px,4vw,48px); align-items:start; }
 .return-main, .return-schedule { min-width:0; overflow-wrap:anywhere; }
 .return-main h1 { font-size:clamp(2rem,3.5vw,3rem); line-height:1.15; margin-block:.5rem 1rem; }
