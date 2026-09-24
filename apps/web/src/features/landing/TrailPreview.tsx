@@ -1,5 +1,4 @@
 import { useId, useReducer } from "react";
-import { MartenIllustration } from "./MartenIllustration";
 import { previewReducer, trails } from "./trailPreviewState";
 
 export function TrailPreview() {
@@ -8,13 +7,6 @@ export function TrailPreview() {
   const trail = state.selected === null ? null : trails[state.selected];
   return <div className="lp-trail-preview">
     <figure className="lp-preview">
-      <div className="lp-marten-intro">
-        <p><strong>Marten đây!</strong><span>Bạn đồng hành cho từng bước nhỏ.</span></p>
-        <svg className="lp-marten-arrow" viewBox="0 0 88 60" fill="none" aria-hidden="true" focusable="false">
-          <path d="M4 9C16 5 23 11 22 22C20 41 54 47 80 27M65 27L81 25L77 41" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
-      </div>
-      <MartenIllustration />
       <div className="lp-preview-top"><span>MỘT KHOẢNH KHẮC BẮT ĐẦU</span><span>Minh họa tương tác · Không lưu dữ liệu</span></div>
       <div className="lp-preview-scene">
         <div className="lp-note">
