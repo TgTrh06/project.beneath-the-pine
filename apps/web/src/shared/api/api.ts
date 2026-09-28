@@ -20,7 +20,16 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
     return result;
   } catch (error) { const failure = error instanceof ApiRequestError ? error : new ApiRequestError("Không thể kết nối API."); logFrontendError({ event: "api_request_failed", area: "api", method, path, status: failure.status, code: failure.code }); throw failure; }
 }
-const mutation = <T>(path: string, method: string, value?: unknown, key?: string) => request<T>(path, { method, body: value === undefined ? undefined : JSON.stringify(value), headers: key ? { "Idempotency-Key": key } : undefined });
+const mutation = <T>(
+  path: string,
+  method: string,
+  value?: unknown,
+  key?: string
+) => request<T>(path, {
+  method,
+  body: value === undefined ? undefined : JSON.stringify(value),
+  headers: key ? { "Idempotency-Key": key } : undefined
+});
 export const newRequestKey = () => crypto.randomUUID();
 export const getReturnState = () => request<ReturnState>("/me/return");
 export const getProfile = () => request<{ profile: Profile | null }>("/me/profile");
@@ -52,6 +61,6 @@ export const cancelPact = (id: string) => mutation<{ pact: FocusPact }>(`/pacts/
 export type HistoryEntry = { id: string; kind: "solo" | "pact"; startedAt: string; endsAt: string; status: string; outcome: "completed" | "progress" | "stuck" | "stopped" | null };
 export const getHistory = () => request<{ sessions: HistoryEntry[] }>("/me/focus-history");
 
-export const listPacts = (group:string, cursor?:string, circleId?:string) => request<import('@beneath-the-pine/contracts').PactPage>(`${circleId ? `/circles/${circleId}/pacts` : '/me/pacts'}?group=${encodeURIComponent(group)}${cursor ? `&cursor=${encodeURIComponent(cursor)}` : ''}`);
-export const listCircleInvites = (id:string,cursor?:string) => request<import('@beneath-the-pine/contracts').InvitePage>(`/circles/${id}/invites${cursor ? `?cursor=${encodeURIComponent(cursor)}` : ''}`);
-export const setCircleStatus = (id:string,status:'active'|'archived') => mutation(`/circles/${id}`,'PATCH',{status});
+export const listPacts = (group: string, cursor?: string, circleId?: string) => request<import('@beneath-the-pine/contracts').PactPage>(`${circleId ? `/circles/${circleId}/pacts` : '/me/pacts'}?group=${encodeURIComponent(group)}${cursor ? `&cursor=${encodeURIComponent(cursor)}` : ''}`);
+export const listCircleInvites = (id: string, cursor?: string) => request<import('@beneath-the-pine/contracts').InvitePage>(`/circles/${id}/invites${cursor ? `?cursor=${encodeURIComponent(cursor)}` : ''}`);
+export const setCircleStatus = (id: string, status: 'active' | 'archived') => mutation(`/circles/${id}`, 'PATCH', { status });
