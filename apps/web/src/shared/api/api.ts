@@ -3,8 +3,15 @@ import { expireSession, getCsrfToken } from "../auth/auth";
 import { logFrontendError } from "../logging/logger";
 
 const apiUrl = (import.meta.env.VITE_API_URL as string | undefined) || "/api/v1";
+
 export const realtimeUrl = (import.meta.env.VITE_REALTIME_URL as string | undefined) || undefined;
-export class ApiRequestError extends Error { constructor(message: string, readonly status?: number, readonly code?: string) { super(message); } }
+
+export class ApiRequestError extends Error {
+  constructor(message: string, readonly status?: number, readonly code?: string) {
+    super(message);
+  }
+}
+
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   const method = options.method ?? "GET";
   try {
@@ -30,6 +37,7 @@ const mutation = <T>(
   body: value === undefined ? undefined : JSON.stringify(value),
   headers: key ? { "Idempotency-Key": key } : undefined
 });
+
 export const newRequestKey = () => crypto.randomUUID();
 export const getReturnState = () => request<ReturnState>("/me/return");
 export const getProfile = () => request<{ profile: Profile | null }>("/me/profile");

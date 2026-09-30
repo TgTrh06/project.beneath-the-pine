@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+
 export function useResource<T>(loader: () => Promise<T>) {
   const [data, setData] = useState<T | null>(null);
   const [error, setError] = useState(""); const [loading, setLoading] = useState(true);
