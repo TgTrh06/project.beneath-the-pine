@@ -53,7 +53,16 @@ export const getCircle = (id: string) => request<{ circle: Circle }>(`/circles/$
 export const createCircle = (name: string) => mutation<{ circle: { id: string } }>("/circles", "POST", { name });
 export const createCircleInvite = (id: string) => mutation<{ invite: { id: string; token: string; expiresAt: string } }>(`/circles/${id}/invites`, "POST", { expiresInHours: 72 });
 export const acceptCircleInvite = (token: string) => mutation<{ circleId: string }>(`/circle-invites/${token}/accept`, "POST");
-export const createPact = (circleId: string, value: { participantIds: string[]; startsAt: string; durationMinutes: 5 | 10 | 25 | 50 }, key: string) => mutation<{ pact: FocusPact }>(`/circles/${circleId}/pacts`, "POST", value, key);
+export const createPact = (
+  circleId: string,
+  value: {
+    participantIds: string[];
+    startsAt: string;
+    durationMinutes: 5 | 10 | 25 | 50
+  },
+  key: string
+) => mutation<{ pact: FocusPact }>(`/circles/${circleId}/pacts`, "POST", value, key);
+
 export const getPact = (id: string) => request<{ pact: FocusPact }>(`/pacts/${id}`);
 export const respondPact = (id: string, response: "accepted" | "declined") => mutation<{ pact: FocusPact }>(`/pacts/${id}/respond`, "POST", { response });
 export const startPact = (id: string, key: string) => mutation<{ session: FocusSession }>(`/pacts/${id}/start`, "POST", undefined, key);
@@ -66,9 +75,21 @@ export const removeMember = (id: string, accountId: string) => mutation<void>(`/
 export const leaveCircle = (id: string) => mutation<void>(`/circles/${id}/members/me`, "DELETE");
 export const transferCircle = (id: string, accountId: string) => mutation<void>(`/circles/${id}/ownership-transfer`, "POST", { accountId });
 export const cancelPact = (id: string) => mutation<{ pact: FocusPact }>(`/pacts/${id}/cancel`, "POST");
-export type HistoryEntry = { id: string; kind: "solo" | "pact"; startedAt: string; endsAt: string; status: string; outcome: "completed" | "progress" | "stuck" | "stopped" | null };
+export type HistoryEntry = {
+  id: string;
+  kind: "solo" | "pact";
+  startedAt: string;
+  endsAt: string;
+  status: string;
+  outcome: "completed" | "progress" | "stuck" | "stopped" | null
+};
 export const getHistory = () => request<{ sessions: HistoryEntry[] }>("/me/focus-history");
 
-export const listPacts = (group: string, cursor?: string, circleId?: string) => request<import('@beneath-the-pine/contracts').PactPage>(`${circleId ? `/circles/${circleId}/pacts` : '/me/pacts'}?group=${encodeURIComponent(group)}${cursor ? `&cursor=${encodeURIComponent(cursor)}` : ''}`);
-export const listCircleInvites = (id: string, cursor?: string) => request<import('@beneath-the-pine/contracts').InvitePage>(`/circles/${id}/invites${cursor ? `?cursor=${encodeURIComponent(cursor)}` : ''}`);
-export const setCircleStatus = (id: string, status: 'active' | 'archived') => mutation(`/circles/${id}`, 'PATCH', { status });
+export const listPacts = (group: string, cursor?: string, circleId?: string) =>
+  request<import('@beneath-the-pine/contracts').PactPage>(`${circleId ? `/circles/${circleId}/pacts` : '/me/pacts'}?group=${encodeURIComponent(group)}${cursor ? `&cursor=${encodeURIComponent(cursor)}` : ''}`);
+
+export const listCircleInvites = (id: string, cursor?: string) =>
+  request<import('@beneath-the-pine/contracts').InvitePage>(`/circles/${id}/invites${cursor ? `?cursor=${encodeURIComponent(cursor)}` : ''}`);
+
+export const setCircleStatus = (id: string, status: 'active' | 'archived') =>
+  mutation(`/circles/${id}`, 'PATCH', { status });
