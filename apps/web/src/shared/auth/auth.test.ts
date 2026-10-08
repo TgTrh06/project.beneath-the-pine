@@ -1,4 +1,5 @@
 import { beforeEach, afterEach, expect, it, vi } from 'vitest';
+
 const csrf = 'a'.repeat(64);
 const account = { id: 'f9194eb2-3b02-47da-97fe-9ac81a6095ca', email: 'member@example.test' };
 beforeEach(() => { vi.resetModules(); });
