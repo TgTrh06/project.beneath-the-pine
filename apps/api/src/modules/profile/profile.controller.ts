@@ -6,7 +6,22 @@ import { ProfileService } from './profile.service';
 
 @Controller('api/v1/me/profile')
 export class ProfileController {
-  constructor(private readonly profiles: ProfileService) {}
-  @Get() async get(@Req() request: Request) { return { profile: await this.profiles.get(principal(request).id) }; }
-  @Patch() async update(@Req() request: Request) { return { profile: await this.profiles.update(principal(request).id, body(updateProfileSchema, request)) }; }
+  constructor(private readonly profiles: ProfileService) { }
+
+  @Get()
+  async get(@Req() request: Request) {
+    return {
+      profile: await this.profiles.get(principal(request).id)
+    };
+  }
+
+  @Patch()
+  async update(@Req() request: Request) {
+    return {
+      profile: await this.profiles.update(
+        principal(request).id,
+        body(updateProfileSchema, request)
+      )
+    };
+  }
 }

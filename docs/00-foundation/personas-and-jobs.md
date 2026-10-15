@@ -6,7 +6,7 @@
 
 Người Việt 18+ học hoặc làm việc trí óc, có việc dở dang và hay mất đà sau gián đoạn. Họ đã thử note, to-do hoặc timer nhưng không muốn duy trì một hệ thống nặng.
 
-**Job:** “Khi tôi mở lại một việc dở dang, hãy cho tôi một điểm vào nhỏ để tôi có thể bắt đầu mà không phải tổ chức lại mọi thứ.”
+**Job:** “Khi tôi quay lại với một công việc dang dở, tôi cần một điểm vào đơn giản và nhanh chóng để có thể tiếp tục ngay lập tức mà không phải dành thời gian sắp xếp lại mọi thứ.”
 
 ## Secondary pilot persona — The trusted companion
 
