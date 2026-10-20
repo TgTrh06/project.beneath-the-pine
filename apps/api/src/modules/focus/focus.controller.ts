@@ -29,15 +29,33 @@ export class FocusController {
   }
 
   @Post('focus-sessions')
-  async start(@Req() req: Request) { return { session: await this.focus.startSolo(principal(req).id, body(startSoloSessionSchema, req), idempotencyKey(req)) }; }
+  async start(@Req() req: Request) {
+    return {
+      session: await this.focus.startSolo(
+        principal(req).id,
+        body(startSoloSessionSchema, req),
+        idempotencyKey(req)
+      )
+    };
+  }
 
   @Get('focus-sessions/active')
-  async active(@Req() req: Request) { return { session: await this.focus.active(principal(req).id) }; }
+  async active(@Req() req: Request) {
+    return { session: await this.focus.active(principal(req).id) };
+  }
 
   @Get('focus-sessions/:sessionId')
-  async get(@Param('sessionId') id: string, @Req() req: Request) { return { session: await this.focus.snapshot(id, principal(req).id) }; }
+  async get(@Param('sessionId') id: string, @Req() req: Request) {
+    return { session: await this.focus.snapshot(id, principal(req).id) };
+  }
 
-  @Post('focus-sessions/:sessionId/check-out') async checkout(@Param('sessionId') id: string, @Req() req: Request) { return { session: await this.focus.checkout(id, principal(req).id, body(checkOutSchema, req)) }; }
+  @Post('focus-sessions/:sessionId/check-out')
+  async checkout(
+    @Param('sessionId') id: string,
+    @Req() req: Request
+  ) {
+    return { session: await this.focus.checkout(id, principal(req).id, body(checkOutSchema, req)) };
+  }
 
   @Post('focus-sessions/:sessionId/join') async join(@Param('sessionId') id: string, @Req() req: Request) { return { session: await this.focus.join(id, principal(req).id) }; }
   @Post('pacts/:pactId/start') async startPact(@Param('pactId') id: string, @Req() req: Request) { return { session: await this.focus.startPact(id, principal(req).id, idempotencyKey(req)) }; }
