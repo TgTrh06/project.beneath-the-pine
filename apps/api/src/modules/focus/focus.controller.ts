@@ -9,7 +9,13 @@ import { FocusService } from './focus.service';
 
 @Controller('api/v1')
 export class FocusController {
-  constructor(private readonly focus: FocusService, private readonly profiles: ProfileService, private readonly seeds: SeedService, private readonly pacts: PactService) {}
+  constructor(
+    private readonly focus: FocusService,
+    private readonly profiles: ProfileService,
+    private readonly seeds: SeedService,
+    private readonly pacts: PactService
+  ) { }
+
   @Get('me/return') async returnState(@Req() req: Request) { const actor = principal(req); const profile = await this.profiles.get(actor.id); return { profileReady: Boolean(profile?.timezone), openSeed: await this.seeds.get(actor.id), activeSession: await this.focus.active(actor.id), upcomingPacts: await this.pacts.listUpcoming(actor.id) }; }
   @Post('focus-sessions') async start(@Req() req: Request) { return { session: await this.focus.startSolo(principal(req).id, body(startSoloSessionSchema, req), idempotencyKey(req)) }; }
   @Get('focus-sessions/active') async active(@Req() req: Request) { return { session: await this.focus.active(principal(req).id) }; }
