@@ -11,10 +11,12 @@ import { focusSessions, sessionParticipants } from './infrastructure/focus.schem
 import { Subject } from 'rxjs';
 
 type Outcome = 'completed' | 'progress' | 'stuck' | 'stopped';
+type PresenceChange = { sessionId: string; accountId: string; presence: 'active' | 'break' | 'disconnected' };
 @Injectable()
 export class FocusService implements OnModuleInit, OnModuleDestroy {
   private timer?: NodeJS.Timeout;
   readonly changes = new Subject<string>();
+  readonly presenceChanges = new Subject<PresenceChange>();
   constructor(private readonly database: DatabaseService, private readonly pacts: PactService, private readonly analytics: AnalyticsService) {}
   onModuleInit() { this.timer = setInterval(() => void this.finalizeExpired().catch(() => undefined), 30000); this.timer.unref(); }
   onModuleDestroy() { if (this.timer) clearInterval(this.timer); }
@@ -109,7 +111,23 @@ export class FocusService implements OnModuleInit, OnModuleDestroy {
     });
     await this.deriveMilestone(sessionId); if (changed) await this.analytics.record(accountId, 'session_checked_out', sessionId, { outcome: input.outcome }); this.changes.next(sessionId); return this.snapshot(sessionId, accountId);
   }
-  async setPresence(sessionId: string, accountId: string, presence: 'active' | 'break' | 'disconnected') { const [session]=await this.database.db.select().from(focusSessions).where(eq(focusSessions.id,sessionId)); if(session?.pactId) await this.pacts.requireParticipant(session.pactId,accountId); const [value] = await this.database.db.update(sessionParticipants).set({ presence }).where(and(eq(sessionParticipants.sessionId, sessionId), eq(sessionParticipants.accountId, accountId), inArray(sessionParticipants.presence, ['active', 'break', 'disconnected']))).returning(); if (!value) throw new NotFoundException(); this.changes.next(sessionId); }
+  async setPresence(sessionId: string, accountId: string, presence: 'active' | 'break' | 'disconnected') {
+    const [session] = await this.database.db.select().from(focusSessions).where(eq(focusSessions.id, sessionId));
+    if (!session) throw new NotFoundException();
+    if (session.pactId) await this.pacts.requireParticipant(session.pactId, accountId);
+    const changed = await this.database.db.transaction(async tx => {
+      const [participant] = await tx.select({ id: sessionParticipants.id, presence: sessionParticipants.presence })
+        .from(sessionParticipants)
+        .where(and(eq(sessionParticipants.sessionId, sessionId), eq(sessionParticipants.accountId, accountId)))
+        .for('update');
+      if (!participant || participant.presence === 'checked_out') throw new NotFoundException();
+      if (participant.presence === presence) return false;
+      await tx.update(sessionParticipants).set({ presence }).where(eq(sessionParticipants.id, participant.id));
+      return true;
+    });
+    this.changes.next(sessionId);
+    if (changed) this.presenceChanges.next({ sessionId, accountId, presence });
+  }
   async history(accountId: string) { return this.database.db.select({ id: focusSessions.id, kind: focusSessions.kind, startedAt: focusSessions.startedAt, endsAt: focusSessions.endsAt, status: focusSessions.status, outcome: sessionParticipants.outcome }).from(sessionParticipants).innerJoin(focusSessions, eq(focusSessions.id, sessionParticipants.sessionId)).where(eq(sessionParticipants.accountId, accountId)).orderBy(desc(focusSessions.startedAt)).limit(100); }
   private async reconcile(session: typeof focusSessions.$inferSelect) { if (session.status === 'active' && session.endsAt <= new Date()) await this.finishSession(session.id, session.pactId); }
   private async finishSession(sessionId: string, pactId: string | null) { await this.database.db.transaction(async tx => { await tx.update(focusSessions).set({ status: 'completed', completedAt: new Date() }).where(and(eq(focusSessions.id, sessionId), eq(focusSessions.status, 'active'))); await tx.update(sessionParticipants).set({ presence: 'checked_out', activeSlotAccountId: null, checkedOutAt: new Date(), outcome: 'stopped' }).where(and(eq(sessionParticipants.sessionId, sessionId), inArray(sessionParticipants.presence, ['active', 'break', 'disconnected']))); if (pactId) await tx.update(focusPacts).set({ status: 'completed', updatedAt: new Date() }).where(eq(focusPacts.id, pactId)); }); await this.deriveMilestone(sessionId); this.changes.next(sessionId); }
