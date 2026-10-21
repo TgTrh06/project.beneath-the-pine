@@ -14,9 +14,13 @@ type PineSocket = Socket & { data: { account?: { id: string; email: string }; se
 export class PresenceGateway implements OnGatewayInit, OnGatewayDisconnect, OnModuleInit, OnModuleDestroy {
   @WebSocketServer() server!: Namespace;
   private subscription?: Subscription;
+  private presenceSubscription?: Subscription;
   constructor(private readonly identity: IdentityService, private readonly focus: FocusService, @Inject(API_CONFIG) private readonly config: ApiConfig) {}
-  onModuleInit() { this.subscription = this.focus.changes.subscribe(id => void this.publish(id)); }
-  onModuleDestroy() { this.subscription?.unsubscribe(); }
+  onModuleInit() {
+    this.subscription = this.focus.changes.subscribe(id => void this.publish(id));
+    this.presenceSubscription = this.focus.presenceChanges.subscribe(change => void this.publishPresence(change));
+  }
+  onModuleDestroy() { this.subscription?.unsubscribe(); this.presenceSubscription?.unsubscribe(); }
   afterInit(server: Namespace) {
     // Complete asynchronous authentication before Socket.IO announces connect;
     // otherwise the client's first subscribe can arrive before account is set.
@@ -40,6 +44,21 @@ export class PresenceGateway implements OnGatewayInit, OnGatewayDisconnect, OnMo
   async setPresence(@ConnectedSocket() socket: PineSocket, @MessageBody() payload: unknown) { const parsed = setPresenceSchema.safeParse(payload); if (!parsed.success || !socket.data.account || !socket.data.sessions?.has(parsed.data.sessionId)) return this.fail(socket, 'FORBIDDEN'); try { await this.focus.setPresence(parsed.data.sessionId, socket.data.account.id, parsed.data.presence); } catch { this.fail(socket, 'NOT_FOUND'); } }
   private room(id: string) { return `session:${id}`; }
   private fail(socket: PineSocket, code: string) { socket.emit(realtimeEvents.error, { code, message: 'Realtime request could not be completed.' }); }
+  private async publishPresence(change: { sessionId: string; accountId: string; presence: 'active' | 'break' | 'disconnected' }) {
+    if (!this.server) return;
+    const sockets = await this.server.in(this.room(change.sessionId)).fetchSockets();
+    for (const socket of sockets as unknown as PineSocket[]) {
+      const account = socket.data.account;
+      if (!account) continue;
+      try {
+        await this.focus.snapshot(change.sessionId, account.id);
+        socket.emit(realtimeEvents.presenceUpdated, change);
+      } catch {
+        /* Membership changed; stop exposing the room. */
+        await socket.leave(this.room(change.sessionId));
+      }
+    }
+  }
   private async publish(sessionId: string) { if (!this.server) return; const sockets = await this.server.in(this.room(sessionId)).fetchSockets(); for (const socket of sockets as unknown as PineSocket[]) { const account = socket.data.account; if (!account) continue; try { const snapshot = await this.focus.snapshot(sessionId, account.id); socket.emit(snapshot.status === 'active' ? realtimeEvents.sessionUpdated : realtimeEvents.ended, snapshot); } catch { /* Membership changed; stop exposing the room. */ await socket.leave(this.room(sessionId)); } } }
   private async markDisconnectedIfAbsent(sessionId: string, accountId: string) { const sockets = await this.server.in(this.room(sessionId)).fetchSockets(); if (sockets.some(socket => (socket.data as { account?: { id: string } }).account?.id === accountId)) return; try { await this.focus.setPresence(sessionId, accountId, 'disconnected'); } catch { /* Terminal or removed participant. */ } }
 }
