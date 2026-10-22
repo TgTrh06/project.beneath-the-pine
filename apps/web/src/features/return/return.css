@@ -17,6 +17,8 @@
 .return-seed .eyebrow { color:var(--chestnut); }
 .return-seed blockquote { margin:1rem 0; padding-left:1rem; border-left:3px solid var(--chestnut); font-size:1.125rem; line-height:1.7; white-space:pre-wrap; overflow-wrap:anywhere; }
 .return-seed > .text-action { margin-top:.5rem; }
+.return-seed-editor { max-width:42rem; }
+.return-seed-editor textarea { min-height:8rem; }
 .return-schedule { padding-block:1rem; }
 .return-schedule h2 { font-size:1.5rem; margin-block:.5rem .75rem; }
 .return-schedule p { line-height:1.7; }
