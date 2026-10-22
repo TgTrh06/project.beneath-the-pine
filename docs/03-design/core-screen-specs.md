@@ -12,6 +12,8 @@ Validation: production build and 22 existing web tests passed. Mounted Return br
 
 Show active session recovery first, then the current Open Seed, then one intention input and duration choice. The primary action is resume or start, never both. A missing timezone blocks start with one explicit confirmation action.
 
+An existing Open Seed can be continued, left in place while starting different work, replaced directly at Return, or explicitly deleted. Direct replacement uses the Seed's 500-character limit; the current Seed record changes only after the server confirms the update. Recoverable save errors preserve the draft for retry.
+
 ### Return layout — step 2, 2026-09-17
 
 The Return content is capped at 960px inside the existing application shell. Above 800px, a flexible main column sits beside a 248px appointments column; at 800px and below these stack in reading order. A single surface groups intention, duration and start. Open Seed is a flat text section with a chestnut marker; primary actions and selected durations retain pine tokens. Empty appointments use explanatory text rather than another card.
