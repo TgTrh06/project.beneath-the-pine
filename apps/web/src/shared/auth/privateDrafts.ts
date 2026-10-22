@@ -1,21 +1,98 @@
 let owner: string | null = null;
 const drafts = new Map<string, unknown>();
+const storagePrefix = "btp:private-draft:v1:";
 
-// Memory only: private work text must not be written to browser storage.
+function accountPrefix(accountId: string) {
+  return `${storagePrefix}${encodeURIComponent(accountId)}:`;
+}
+
+function clearStoredDrafts(accountId: string) {
+  try {
+    const prefix = accountPrefix(accountId);
+    const keys: string[] = [];
+    for (let index = 0; index < sessionStorage.length; index += 1) {
+      const key = sessionStorage.key(index);
+      if (key?.startsWith(prefix)) keys.push(key);
+    }
+    keys.forEach(key => sessionStorage.removeItem(key));
+  } catch {
+    // Storage may be disabled; the in-memory draft path remains available.
+  }
+}
+
+function clearStoredDraftsForOtherAccounts(accountId: string) {
+  try {
+    const currentPrefix = accountPrefix(accountId);
+    const keys: string[] = [];
+    for (let index = 0; index < sessionStorage.length; index += 1) {
+      const key = sessionStorage.key(index);
+      if (key?.startsWith(storagePrefix) && !key.startsWith(currentPrefix)) keys.push(key);
+    }
+    keys.forEach(key => sessionStorage.removeItem(key));
+  } catch {
+    // Storage may be disabled; the in-memory draft path remains available.
+  }
+}
+
+function storedKey(accountId: string, key: string) {
+  return `${accountPrefix(accountId)}${encodeURIComponent(key)}`;
+}
+
 export function setDraftOwner(accountId: string) {
-  if (owner !== accountId) drafts.clear();
+  if (owner !== accountId) {
+    drafts.clear();
+    if (owner) clearStoredDrafts(owner);
+    clearStoredDraftsForOtherAccounts(accountId);
+  }
   owner = accountId;
 }
-export function discardPrivateDrafts() { drafts.clear(); owner = null; }
+export function discardPrivateDrafts() {
+  drafts.clear();
+  if (owner) clearStoredDrafts(owner);
+  owner = null;
+}
 export function draftOwner() { return owner; }
-export function readPrivateDraft<T>(accountId: string | null, key: string, initial: () => T): T {
+export function readPrivateDraft<T>(accountId: string | null, key: string, initial: () => T, persist = false): T {
   if (!accountId || accountId !== owner) return initial();
-  if (!drafts.has(key)) drafts.set(key, initial());
+  if (!drafts.has(key)) {
+    let value = initial();
+    if (persist) {
+      try {
+        const saved = sessionStorage.getItem(storedKey(accountId, key));
+        if (saved !== null) value = JSON.parse(saved) as T;
+      } catch {
+        // Ignore malformed or inaccessible storage and use a fresh in-memory value.
+      }
+    }
+    drafts.set(key, value);
+  }
   return drafts.get(key) as T;
 }
-export function writePrivateDraft<T>(accountId: string | null, key: string, value: T) {
-  if (accountId && accountId === owner) drafts.set(key, value);
+export function restoreStoredPrivateDraft<T>(accountId: string | null, key: string): { found: boolean; value?: T } {
+  if (!accountId || accountId !== owner) return { found: false };
+  try {
+    const saved = sessionStorage.getItem(storedKey(accountId, key));
+    if (saved === null) return { found: false };
+    const value = JSON.parse(saved) as T;
+    drafts.set(key, value);
+    return { found: true, value };
+  } catch {
+    return { found: false };
+  }
 }
-export function removePrivateDraft(accountId: string | null, key: string) {
-  if (accountId && accountId === owner) drafts.delete(key);
+export function writePrivateDraft<T>(accountId: string | null, key: string, value: T, persist = false) {
+  if (!accountId || accountId !== owner) return;
+  drafts.set(key, value);
+  if (persist) {
+    try { sessionStorage.setItem(storedKey(accountId, key), JSON.stringify(value)); }
+    catch { /* Storage may be disabled or full; retain the in-memory draft. */ }
+  }
+}
+export function removePrivateDraft(accountId: string | null, key: string, persist = false) {
+  if (!accountId || accountId !== owner) return;
+  drafts.delete(key);
+  if (persist) {
+    try { sessionStorage.removeItem(storedKey(accountId, key)); }
+    catch { /* Storage may be disabled. */ }
+  }
 }
