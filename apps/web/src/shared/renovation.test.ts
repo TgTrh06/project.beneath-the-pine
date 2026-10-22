@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { FocusPact, FocusSession } from "@beneath-the-pine/contracts";
 import { resolveTheme, validTheme } from "./theme/theme";
-import { requestKeyStore } from "./api/requestKey";
+import { requestKeyStore, stableRequestKey } from "./api/requestKey";
 import { localToIso } from "./time";
 import { safeFrontendErrorRecord } from "./logging/logger";
 import { resolveHashRoute } from "../app/routePaths";
@@ -31,6 +31,12 @@ describe("durable intent and time", () => {
     expect(keys.for({intention:"Read",minutes:10})).toBe("1");
     expect(keys.for({intention:"Write",minutes:10})).toBe("2");
     keys.clear(); expect(keys.for({intention:"Write",minutes:10})).toBe("3");
+  });
+  it("restores a serializable start key for the same payload and rotates it when the payload changes", () => {
+    let n=0; const create=()=>String(++n); const payload={intention:"Read",durationMinutes:10};
+    const saved=stableRequestKey(null,payload,create);
+    expect(stableRequestKey(JSON.parse(JSON.stringify(saved)),payload,create)).toEqual(saved);
+    expect(stableRequestKey(saved,{...payload,durationMinutes:25},create)).toEqual({payload:JSON.stringify({...payload,durationMinutes:25}),key:"2"});
   });
   it("uses the profile timezone, not the browser timezone, and rejects a DST gap", () => {
     expect(localToIso("2026-09-16T09:00","Asia/Ho_Chi_Minh")).toBe("2026-09-16T02:00:00.000Z");
