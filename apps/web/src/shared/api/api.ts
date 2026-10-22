@@ -46,7 +46,7 @@ export const startSolo = (value: { intention: string; durationMinutes: 5 | 10 | 
 export const getSession = (id: string) => request<{ session: FocusSession }>(`/focus-sessions/${id}`);
 export const joinSession = (id: string) => mutation<{ session: FocusSession }>(`/focus-sessions/${id}/join`, "POST");
 export const checkOut = (id: string, value: { outcome: "completed" | "progress" | "stuck" | "stopped"; openSeed?: string | null }) => mutation<{ session: FocusSession }>(`/focus-sessions/${id}/check-out`, "POST", value);
-export const putSeed = (text: string) => mutation("/me/open-seed", "PUT", { text });
+export const putSeed = (text: string) => mutation<{ openSeed: NonNullable<ReturnState["openSeed"]> }>("/me/open-seed", "PUT", { text });
 export const deleteSeed = () => mutation<void>("/me/open-seed", "DELETE");
 export const listCircles = () => request<{ circles: Circle[] }>("/circles");
 export const getCircle = (id: string) => request<{ circle: Circle }>(`/circles/${id}`);
