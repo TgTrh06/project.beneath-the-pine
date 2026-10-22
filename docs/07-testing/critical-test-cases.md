@@ -1,8 +1,8 @@
 # Critical Test Cases
 
-- [ ] User A cannot read User B's seed, intention, Circle or pact data.
-- [ ] Circle member cannot read another member's private intention/seed.
-- [ ] Exactly one current Open Seed per account under concurrent replace requests.
+- [x] User A cannot read User B's seed, intention, Circle or pact data.
+- [x] Circle member cannot read another member's private intention/seed.
+- [x] Exactly one current Open Seed per account under concurrent replace requests.
 - [ ] Expired/revoked invitation cannot create membership or session access.
 - [ ] Start/checkout requests are idempotent and terminal state is durable.
 - [ ] Late join/reconnect renders server-derived remaining time and permitted state.
