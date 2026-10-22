@@ -13,10 +13,11 @@ export function SessionView({ id, accountId, onReturn }: { id: string; accountId
   const [session, setSession] = useState<FocusSession | null>(null); const [remaining, setRemaining] = useState(0);
   const [loadError, setLoadError] = useState("");
   const [error, setError] = useState(""); const [loading, setLoading] = useState(true); const [busy, setBusy] = useState(false);
-  const [checkout, setCheckout, clearCheckout] = usePrivateDraft(`session:${id}:checkout`, false);
-  const [outcome, setOutcome, clearOutcome] = usePrivateDraft<Outcome | null>(`session:${id}:outcome`, null);
-  const [seed, setSeed, clearSeed] = usePrivateDraft(`session:${id}:seed`, "");
-  const [mode, setMode, clearMode] = usePrivateDraft<"keep" | "replace" | "remove">(`session:${id}:mode`, "keep");
+  const persistDraft = session?.kind === "solo";
+  const [checkout, setCheckout, clearCheckout] = usePrivateDraft(`session:${id}:checkout`, false, { persist:persistDraft });
+  const [outcome, setOutcome, clearOutcome] = usePrivateDraft<Outcome | null>(`session:${id}:outcome`, null, { persist:persistDraft });
+  const [seed, setSeed, clearSeed] = usePrivateDraft(`session:${id}:seed`, "", { persist:persistDraft });
+  const [mode, setMode, clearMode] = usePrivateDraft<"keep" | "replace" | "remove">(`session:${id}:mode`, "keep", { persist:persistDraft });
   const finish = () => { clearCheckout(); clearOutcome(); clearSeed(); clearMode(); onReturn(); };
   const clock = useRef({ received:0, snapshot:null as FocusSession | null }); const reconciled = useRef(false);
   const accept = useCallback((value: FocusSession) => {
