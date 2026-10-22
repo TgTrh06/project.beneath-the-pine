@@ -1,4 +1,4 @@
-import { index, pgEnum, pgTable, text, timestamp, uniqueIndex, uuid } from 'drizzle-orm/pg-core';
+import { index, pgEnum, pgTable, primaryKey, text, timestamp, uniqueIndex, uuid } from 'drizzle-orm/pg-core';
 import { accounts } from '../../identity/public-api';
 
 export const circleStatus = pgEnum('circle_status', ['active', 'archived']);
@@ -23,3 +23,9 @@ export const circleInvites = pgTable('circle_invites', {
   status: inviteStatus('status').notNull().default('pending'), expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
   acceptedByAccountId: uuid('accepted_by_account_id').references(() => accounts.id, { onDelete: 'set null' }), createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(), acceptedAt: timestamp('accepted_at', { withTimezone: true }),
 }, table => [index('circle_invites_circle_idx').on(table.circleId)]);
+
+export const circleInviteDeclines = pgTable('circle_invite_declines', {
+  inviteId: uuid('invite_id').notNull().references(() => circleInvites.id, { onDelete: 'cascade' }),
+  accountId: uuid('account_id').notNull().references(() => accounts.id, { onDelete: 'cascade' }),
+  declinedAt: timestamp('declined_at', { withTimezone: true }).notNull().defaultNow(),
+}, table => [primaryKey({ columns: [table.inviteId, table.accountId] }), index('circle_invite_declines_account_idx').on(table.accountId)]);

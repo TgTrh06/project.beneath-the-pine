@@ -31,7 +31,9 @@ export class PactService {
   async requireParticipant(pactId: string, accountId: string, reader: Pick<DatabaseService['db'],'select'> = this.database.db) { const value = (await reader.select().from(focusPactParticipants).where(and(eq(focusPactParticipants.pactId, pactId), eq(focusPactParticipants.accountId, accountId))))[0]; if (!value) throw new NotFoundException(); const pact = await this.raw(pactId,reader); if (!await this.circles.membership(pact.circleId, accountId,reader)) throw new NotFoundException(); return value; }
   async raw(pactId: string, reader: Pick<DatabaseService['db'],'select'> = this.database.db) { const value = (await reader.select().from(focusPacts).where(eq(focusPacts.id, pactId)))[0]; if (!value) throw new NotFoundException(); return value; }
   async get(pactId: string, actorId: string) {
-    await this.requireParticipant(pactId, actorId); const pact = await this.raw(pactId);
+    await this.requireParticipant(pactId, actorId);
+    await this.expirePact(pactId);
+    const pact = await this.raw(pactId);
     const participants = await this.database.db.select({ accountId: focusPactParticipants.accountId, response: focusPactParticipants.response, displayName: profiles.displayName }).from(focusPactParticipants).leftJoin(profiles, eq(profiles.accountId, focusPactParticipants.accountId)).where(eq(focusPactParticipants.pactId, pactId));
     return { id: pact.id, circleId: pact.circleId, creatorId: pact.creatorAccountId, startsAt: pact.startsAt, durationMinutes: pact.durationMinutes, status: pact.status, sessionId: pact.startedSessionId, participants, createdAt: pact.createdAt };
   }
@@ -43,25 +45,39 @@ export class PactService {
   }
   async respond(pactId:string,actorId:string,response:'accepted'|'declined') {
     const hint=await this.raw(pactId);
-    const changed=await this.database.db.transaction(async tx=>{
+    const result=await this.database.db.transaction(async tx=>{
       await tx.select().from(circles).where(eq(circles.id,hint.circleId)).for('update');
       const participant=await this.requireParticipant(pactId,actorId,tx);
       const [pact]=await tx.select().from(focusPacts).where(eq(focusPacts.id,pactId)).for('update');
-      if(pact.status!=='scheduled' || pact.startsAt.getTime()+1800000<Date.now()) throw new ConflictException();
-      if(participant.response===response) return false;
-      await tx.update(focusPactParticipants).set({response,respondedAt:new Date()}).where(eq(focusPactParticipants.id,participant.id)); return true;
+      const now=new Date();
+      if(pact.status==='scheduled' && pact.startsAt.getTime()+1800000<now.getTime()) {
+        await tx.update(focusPacts).set({status:'expired',updatedAt:now}).where(eq(focusPacts.id,pactId));
+        return {changed:false,expired:true};
+      }
+      if(pact.status!=='scheduled') throw new ConflictException();
+      if(participant.response===response) return {changed:false,expired:false};
+      await tx.update(focusPactParticipants).set({response,respondedAt:now}).where(eq(focusPactParticipants.id,participant.id)); return {changed:true,expired:false};
     });
-    if(changed && response==='accepted') await this.analytics.record(actorId,'pact_accepted',pactId); return this.get(pactId,actorId);
+    if(result.expired) throw new ConflictException();
+    if(result.changed && response==='accepted') await this.analytics.record(actorId,'pact_accepted',pactId); return this.get(pactId,actorId);
   }
   async cancel(pactId:string,actorId:string) {
     const hint=await this.raw(pactId);
-    const changed=await this.database.db.transaction(async tx=>{
+    const result=await this.database.db.transaction(async tx=>{
       await tx.select().from(circles).where(eq(circles.id,hint.circleId)).for('update'); await this.requireParticipant(pactId,actorId,tx);
       const [pact]=await tx.select().from(focusPacts).where(eq(focusPacts.id,pactId)).for('update');
-      if(pact.creatorAccountId!==actorId) throw new ForbiddenException(); if(pact.status==='cancelled') return false; if(pact.status!=='scheduled') throw new ConflictException();
-      await tx.update(focusPacts).set({status:'cancelled',updatedAt:new Date()}).where(eq(focusPacts.id,pactId)); return true;
+      if(pact.creatorAccountId!==actorId) throw new ForbiddenException();
+      if(pact.status==='cancelled') return {changed:false,expired:false};
+      if(pact.status!=='scheduled') throw new ConflictException();
+      const now=new Date();
+      if(pact.startsAt.getTime()+1800000<now.getTime()) {
+        await tx.update(focusPacts).set({status:'expired',updatedAt:now}).where(eq(focusPacts.id,pactId));
+        return {changed:false,expired:true};
+      }
+      await tx.update(focusPacts).set({status:'cancelled',updatedAt:now}).where(eq(focusPacts.id,pactId)); return {changed:true,expired:false};
     });
-    if(changed) await this.analytics.record(actorId,'pact_cancelled',pactId); return this.get(pactId,actorId);
+    if(result.expired) throw new ConflictException();
+    if(result.changed) await this.analytics.record(actorId,'pact_cancelled',pactId); return this.get(pactId,actorId);
   }
 
   async list(actorId: string, query: PactListQuery, circleId?: string) {
@@ -70,10 +86,10 @@ export class PactService {
     const scope = `${actorId}:${circleId ?? 'all'}:${query.group}`;
     const cursor = decodeCursor(query.cursor,scope);
     const past = query.group === 'past';
-    const filter = query.group === 'pending' ? and(eq(focusPacts.status,'scheduled'),eq(focusPactParticipants.response,'invited'))
+    const filter = query.group === 'pending' ? and(eq(focusPacts.status,'scheduled'),inArray(focusPactParticipants.response,['invited','declined']))
       : query.group === 'upcoming' ? and(eq(focusPacts.status,'scheduled'),eq(focusPactParticipants.response,'accepted'))
       : query.group === 'active' ? and(eq(focusPacts.status,'active'),eq(focusPactParticipants.response,'accepted'))
-      : or(inArray(focusPacts.status,['completed','cancelled','expired']),eq(focusPactParticipants.response,'declined'));
+      : inArray(focusPacts.status,['completed','cancelled','expired']);
     const compare = past ? lt : gt; const order = past ? desc : asc;
     const rows = await this.database.db.select({id:focusPacts.id,circleId:focusPacts.circleId,circleName:circles.name,startsAt:focusPacts.startsAt,durationMinutes:focusPacts.durationMinutes,status:focusPacts.status,response:focusPactParticipants.response,creatorId:focusPacts.creatorAccountId,sessionId:focusPacts.startedSessionId})
       .from(focusPacts).innerJoin(focusPactParticipants,and(eq(focusPactParticipants.pactId,focusPacts.id),eq(focusPactParticipants.accountId,actorId)))
@@ -82,6 +98,10 @@ export class PactService {
       .orderBy(order(focusPacts.startsAt),order(focusPacts.id)).limit(query.limit+1);
     const page=rows.slice(0,query.limit); const last=page.at(-1);
     return {items:page.map(({creatorId,...item})=>({...item,isCreator:creatorId===actorId})),nextCursor:rows.length>query.limit && last ? encodeCursor(last.startsAt,last.id,scope) : null};
+  }
+  private async expirePact(pactId:string, now=new Date()) {
+    await this.database.db.update(focusPacts).set({status:'expired',updatedAt:now})
+      .where(and(eq(focusPacts.id,pactId),eq(focusPacts.status,'scheduled'),lt(focusPacts.startsAt,new Date(now.getTime()-1800000))));
   }
   async expireScheduled() { await this.database.db.update(focusPacts).set({status:'expired',updatedAt:new Date()}).where(and(eq(focusPacts.status,'scheduled'),lt(focusPacts.startsAt,new Date(Date.now()-1800000)))); }
   async updateCircle(circleId:string, actorId:string, input:{name?:string;status?:'active'|'archived'}) {

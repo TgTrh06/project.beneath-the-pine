@@ -8,10 +8,17 @@ Return shows the current private Seed with actions to continue from it, start so
 
 ## Focus Pact
 
-`Create pact → choose Circle/members, duration and now/later → invitees accept/decline → waiting room → active session → each participant checks out → optional next pact`
+`Create pact → choose Circle/members, duration and now/later → scheduled invitation → invitees accept/decline → creator starts separately → active session → each participant checks out → optional next pact`
 
-Tasks remain private. A declined or expired invite is neutral and never exposed as a social failure.
+Creation places the creator in the participant list once as accepted and does not create a focus session. Invitees may switch between accepted and declined while the Pact is scheduled. The creator starts the Pact separately during the allowed time window. Pact status is shown as scheduled, active, completed, cancelled or expired; terminal Pacts have no response, cancel, start or join actions. A scheduled Pact expires 30 minutes after its start time, including when a detail page or action request next reconciles its state. Tasks remain private. A declined or expired invite is neutral and never exposed as a social failure.
+Scheduled invites remain in the “Lời mời” list while their response is invited or declined, so a participant can reopen a declined Pact and change their choice. A declined Pact is not shown as past until it reaches a terminal state.
 Each participant may keep, replace or remove their own Open Seed at checkout; it is not part of the shared Pact or Circle projection.
+
+## Circle invitation
+
+`Owner creates a 72-hour link → recipient signs in → sees Circle name and link creator's display name → joins or chooses not to participate`
+
+The preview does not disclose the member list or private work. Choosing not to participate records the choice for that account and link; the same link can still be used by another person. The recipient can join later only through a new valid link. Expired, revoked and already-used links show an unavailable state. A member can leave; the owner must transfer ownership to an active member first.
 
 ## Realtime recovery
 

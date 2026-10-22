@@ -6,7 +6,7 @@ import { ErrorMessage } from '../../shared/components/ui';
 import { deviceTimezone, formatTime } from '../../shared/time';
 import '../circles/circles.css';
 
-const groups = {pending:'Chờ trả lời',upcoming:'Sắp tới',active:'Đang diễn ra',past:'Đã qua'} as const;
+const groups = {pending:'Lời mời',upcoming:'Sắp tới',active:'Đang diễn ra',past:'Đã qua'} as const;
 const status = {scheduled:'Đã hẹn',active:'Đang diễn ra',completed:'Đã khép lại',cancelled:'Đã hủy',expired:'Đã hết hạn'};
 export function PactsView({circleId,onOpen,onSession}:{circleId?:string;onOpen:(id:string)=>void;onSession?:(id:string)=>void}) {
   const [group,setGroup]=useState<keyof typeof groups>('pending');

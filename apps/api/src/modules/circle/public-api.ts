@@ -1,2 +1,2 @@
 export { CircleService } from './circle.service';
-export { circles, circleMemberships, circleInvites } from './infrastructure/circle.schema';
+export { circles, circleMemberships, circleInvites, circleInviteDeclines } from './infrastructure/circle.schema';

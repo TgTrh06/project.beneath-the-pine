@@ -62,3 +62,8 @@ export type InvitePage = {
     items: InviteListItem[];
     nextCursor: string | null
 };
+
+export type CircleInvitePreview = {
+    circleName: string;
+    inviterName: string | null;
+};

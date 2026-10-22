@@ -51,19 +51,29 @@ export class FocusService implements OnModuleInit, OnModuleDestroy {
   }
   async startPact(pactId:string,accountId:string,requestKey:string) {
     const hint=await this.pacts.raw(pactId);
-    const id=await this.database.db.transaction(async tx=>{
+    const result=await this.database.db.transaction(async tx=>{
       const [group]=await tx.select().from(circles).where(eq(circles.id,hint.circleId)).for('update');
       const participant=await this.pacts.requireParticipant(pactId,accountId,tx);
       const [pact]=await tx.select().from(focusPacts).where(eq(focusPacts.id,pactId)).for('update');
       if(pact.creatorAccountId!==accountId || participant.response!=='accepted') throw new ForbiddenException();
-      if(pact.startedSessionId) return pact.startedSessionId;
-      if(group.status!=='active' || pact.status!=='scheduled') throw new ConflictException();
-      const now=new Date(); if(now.getTime()<pact.startsAt.getTime()-600000 || now.getTime()>pact.startsAt.getTime()+1800000) throw new ConflictException();
+      if(pact.startedSessionId) {
+        if(pact.status!=='active') throw new ConflictException();
+        return {id:pact.startedSessionId,expired:false};
+      }
+      const now=new Date();
+      if(pact.status==='scheduled' && pact.startsAt.getTime()+1800000<now.getTime()) {
+        await tx.update(focusPacts).set({status:'expired',updatedAt:now}).where(eq(focusPacts.id,pactId));
+        return {id:null,expired:true};
+      }
+      if(!group || group.status!=='active' || pact.status!=='scheduled') throw new ConflictException();
+      if(now.getTime()<pact.startsAt.getTime()-600000 || now.getTime()>pact.startsAt.getTime()+1800000) throw new ConflictException();
       await this.ensureFree(accountId,tx);
       const [session]=await tx.insert(focusSessions).values({kind:'pact',pactId,circleId:pact.circleId,startedByAccountId:accountId,durationMinutes:pact.durationMinutes,startedAt:now,endsAt:new Date(now.getTime()+pact.durationMinutes*60000),requestKey}).returning();
       await tx.insert(sessionParticipants).values({sessionId:session.id,accountId,activeSlotAccountId:accountId});
-      await tx.update(focusPacts).set({status:'active',startedSessionId:session.id,updatedAt:now}).where(eq(focusPacts.id,pactId)); return session.id;
-    }); this.changes.next(id); return this.snapshot(id,accountId);
+      await tx.update(focusPacts).set({status:'active',startedSessionId:session.id,updatedAt:now}).where(eq(focusPacts.id,pactId)); return {id:session.id,expired:false};
+    });
+    if(result.expired || !result.id) throw new ConflictException();
+    this.changes.next(result.id); return this.snapshot(result.id,accountId);
   }
   async join(sessionId:string,accountId:string) {
     const [hint]=await this.database.db.select().from(focusSessions).where(eq(focusSessions.id,sessionId)); if(!hint?.pactId || !hint.circleId) throw new NotFoundException();

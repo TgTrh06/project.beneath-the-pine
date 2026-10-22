@@ -5,3 +5,5 @@
 Review the target before explicitly running `pnpm --filter @beneath-the-pine/api db:migrate`. There is no admin seed or role bootstrap.
 
 This replaces the identity-only pre-launch baseline. Recreate only an explicitly disposable development database that used the old migration; never apply the replacement as a forward production migration. The implementation did not execute this migration against an existing database.
+
+`0001_white_spacker_dave.sql` is a forward migration adding per-account Circle invitation declines. It has cascading foreign keys to invitation and account, and contains no destructive data change. Review the generated SQL and migration history before applying it. A code rollback can leave the unused table in place; dropping it later would delete recorded decline choices and needs a separate review.

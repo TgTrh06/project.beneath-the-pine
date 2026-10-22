@@ -1,4 +1,4 @@
-import type { Circle, FocusPact, FocusSession, Profile, ReturnState } from "@beneath-the-pine/contracts";
+import type { Circle, CircleInvitePreview, FocusPact, FocusSession, Profile, ReturnState } from "@beneath-the-pine/contracts";
 import { expireSession, getCsrfToken } from "../auth/auth";
 import { logFrontendError } from "../logging/logger";
 
@@ -52,6 +52,8 @@ export const listCircles = () => request<{ circles: Circle[] }>("/circles");
 export const getCircle = (id: string) => request<{ circle: Circle }>(`/circles/${id}`);
 export const createCircle = (name: string) => mutation<{ circle: { id: string } }>("/circles", "POST", { name });
 export const createCircleInvite = (id: string) => mutation<{ invite: { id: string; token: string; expiresAt: string } }>(`/circles/${id}/invites`, "POST", { expiresInHours: 72 });
+export const getCircleInvitePreview = (token: string) => request<{ invite: CircleInvitePreview }>(`/circle-invites/${token}/preview`);
+export const declineCircleInvite = (token: string) => mutation<void>(`/circle-invites/${token}/decline`, "POST");
 export const acceptCircleInvite = (token: string) => mutation<{ circleId: string }>(`/circle-invites/${token}/accept`, "POST");
 export const createPact = (
   circleId: string,

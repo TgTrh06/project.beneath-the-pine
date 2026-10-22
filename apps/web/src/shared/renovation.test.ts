@@ -69,10 +69,29 @@ describe("Pact permissions and lifecycle", () => {
     expect(pactActions(pact,"owner",time+1800001).start).toBe(false);
     expect(pactActions(pact,"member",time).start).toBe(false);
     expect(pactActions(pact,"member",time).respond).toBe(true);
+    expect(pactActions(pact,"owner",time).cancel).toBe(true);
   });
-  it("removes mutating controls from terminal Pacts and only lets accepted people join", () => {
-    expect(pactActions({...pact,status:"completed"},"owner",time)).toEqual({respond:false,cancel:false,start:false,join:false});
-    expect(pactActions({...pact,status:"active",sessionId:"session"},"member",time).join).toBe(false);
-    expect(pactActions({...pact,status:"active",sessionId:"session"},"owner",time).join).toBe(true);
+  it("allows an invitee to change their response until the Pact starts or expires", () => {
+    const invited=pactActions(pact,"member",time);
+    const accepted=pactActions({...pact,participants:pact.participants.map(person=>person.accountId==="member"?{...person,response:"accepted"}:person)} as FocusPact,"member",time);
+    const declined=pactActions({...pact,participants:pact.participants.map(person=>person.accountId==="member"?{...person,response:"declined"}:person)} as FocusPact,"member",time);
+    expect(invited.respond).toBe(true);
+    expect(accepted.respond).toBe(true);
+    expect(declined.respond).toBe(true);
+    expect(pactActions(pact,"owner",time).respond).toBe(false);
+    expect(pactActions(pact,"outsider",time).respond).toBe(false);
+    expect(pactActions(pact,"member",time+1800000).respond).toBe(true);
+    expect(pactActions(pact,"member",time+1800001).respond).toBe(false);
+    expect(pactActions(pact,"owner",time+1800001).cancel).toBe(false);
+  });
+  it("removes every action from terminal Pacts and only lets accepted people join", () => {
+    for (const status of ["completed","cancelled","expired"] as const) {
+      expect(pactActions({...pact,status},"owner",time)).toEqual({respond:false,cancel:false,start:false,join:false});
+    }
+    const active={...pact,status:"active",sessionId:"session",participants:pact.participants.map(person=>person.accountId==="member"?{...person,response:"accepted"}:person)} as FocusPact;
+    expect(pactActions(active,"member",time).join).toBe(true);
+    expect(pactActions({...active,participants:active.participants.map(person=>person.accountId==="member"?{...person,response:"declined"}:person)} as FocusPact,"member",time).join).toBe(false);
+    expect(pactActions({...active,participants:active.participants.map(person=>person.accountId==="member"?{...person,response:"invited"}:person)} as FocusPact,"member",time).join).toBe(false);
+    expect(pactActions({...active,status:"active",sessionId:null},"owner",time).join).toBe(false);
   });
 });

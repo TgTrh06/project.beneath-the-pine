@@ -1,14 +1,18 @@
 import { decodeCursor, encodeCursor } from '../../platform/http/pagination';
-import type { InviteListQuery } from '@beneath-the-pine/contracts';
+import type { CircleInvitePreview, InviteListQuery } from '@beneath-the-pine/contracts';
 import { ConflictException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { and, eq, desc, lt, or, sql } from 'drizzle-orm';
 import { createHash, randomBytes } from 'node:crypto';
 import { DatabaseService } from '../../platform/database/database.service';
 import { profiles } from '../profile/public-api';
 import { AnalyticsService } from '../analytics/public-api';
-import { circleInvites, circleMemberships, circles } from './infrastructure/circle.schema';
+import { circleInviteDeclines, circleInvites, circleMemberships, circles } from './infrastructure/circle.schema';
 
 const tokenHash = (token: string) => createHash('sha256').update(token).digest('hex');
+const inviteHash = (token: string) => {
+  if (!/^[0-9a-f]{64}$/.test(token)) throw new NotFoundException();
+  return tokenHash(token);
+};
 @Injectable()
 export class CircleService {
   constructor(private readonly database: DatabaseService, private readonly analytics: AnalyticsService) {}
@@ -58,13 +62,42 @@ export class CircleService {
       await tx.update(circleInvites).set({status:'revoked'}).where(eq(circleInvites.id,inviteId));
     });
   }
+  async preview(token: string, accountId: string): Promise<CircleInvitePreview> {
+    const [result] = await this.database.db.select({
+      inviteId: circleInvites.id, status: circleInvites.status, expiresAt: circleInvites.expiresAt,
+      circleName: circles.name, circleStatus: circles.status, inviterName: profiles.displayName,
+    }).from(circleInvites)
+      .innerJoin(circles, eq(circles.id, circleInvites.circleId))
+      .leftJoin(profiles, eq(profiles.accountId, circleInvites.createdByAccountId))
+      .where(eq(circleInvites.tokenHash, inviteHash(token)));
+    if (!result) throw new NotFoundException();
+    if (result.circleStatus !== 'active' || result.status !== 'pending' || result.expiresAt <= new Date()) throw new ConflictException();
+    const [declined] = await this.database.db.select({ inviteId: circleInviteDeclines.inviteId }).from(circleInviteDeclines)
+      .where(and(eq(circleInviteDeclines.inviteId, result.inviteId), eq(circleInviteDeclines.accountId, accountId)));
+    if (declined) throw new ConflictException();
+    return { circleName: result.circleName, inviterName: result.inviterName };
+  }
+  async decline(token: string, accountId: string): Promise<void> {
+    await this.database.db.transaction(async tx => {
+      const [hint] = await tx.select({ circleId: circleInvites.circleId }).from(circleInvites)
+        .where(eq(circleInvites.tokenHash, inviteHash(token)));
+      if (!hint) throw new NotFoundException();
+      const [group] = await tx.select().from(circles).where(eq(circles.id, hint.circleId)).for('update');
+      if (!group || group.status !== 'active') throw new ConflictException();
+      const [invite] = await tx.select().from(circleInvites).where(eq(circleInvites.tokenHash, inviteHash(token))).for('update');
+      if (!invite || invite.status !== 'pending' || invite.expiresAt <= new Date()) throw new ConflictException();
+      await tx.insert(circleInviteDeclines).values({ inviteId: invite.id, accountId }).onConflictDoNothing();
+    });
+  }
   async accept(token: string, accountId: string) {
     const result = await this.database.db.transaction(async tx => {
-      const [hint]=await tx.select({circleId:circleInvites.circleId}).from(circleInvites).where(eq(circleInvites.tokenHash,tokenHash(token))); if(!hint) throw new NotFoundException();
+      const [hint]=await tx.select({circleId:circleInvites.circleId}).from(circleInvites).where(eq(circleInvites.tokenHash,inviteHash(token))); if(!hint) throw new NotFoundException();
       const [group]=await tx.select().from(circles).where(eq(circles.id,hint.circleId)).for('update'); if(!group || group.status!=='active') throw new ConflictException();
-      const [invite] = await tx.select().from(circleInvites).where(eq(circleInvites.tokenHash, tokenHash(token))).for('update'); if (!invite) throw new NotFoundException();
-      if (invite.status === 'accepted' && invite.acceptedByAccountId === accountId) { await this.requireMember(invite.circleId,accountId,tx); return invite.circleId; }
+      const [invite] = await tx.select().from(circleInvites).where(eq(circleInvites.tokenHash, inviteHash(token))).for('update'); if (!invite) throw new NotFoundException();
       if (invite.status !== 'pending' || invite.expiresAt <= new Date()) { if (invite.status === 'pending') await tx.update(circleInvites).set({ status: 'expired' }).where(eq(circleInvites.id, invite.id)); throw new ConflictException(); }
+      const [declined] = await tx.select({ inviteId: circleInviteDeclines.inviteId }).from(circleInviteDeclines)
+        .where(and(eq(circleInviteDeclines.inviteId, invite.id), eq(circleInviteDeclines.accountId, accountId)));
+      if (declined) throw new ConflictException();
       const active = await tx.select().from(circleMemberships).where(and(eq(circleMemberships.circleId, invite.circleId), eq(circleMemberships.status, 'active'))).for('update');
       const existing = active.find(value => value.accountId === accountId); if (!existing && active.length >= 8) throw new ConflictException();
       if (!existing) await tx.insert(circleMemberships).values({ circleId: invite.circleId, accountId, role: 'member' }).onConflictDoUpdate({ target: [circleMemberships.circleId, circleMemberships.accountId], set: { status: 'active', role: 'member', joinedAt: new Date(), removedAt: null } });

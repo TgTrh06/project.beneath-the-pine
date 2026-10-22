@@ -2,6 +2,8 @@
 
 Users must be able to export/delete account-owned profile, Circle memberships they created or joined, invitations, pacts, sessions, private seeds and permitted milestones. Deletion is authorized through re-authentication and recorded without private text.
 
+The account export includes the account's Circle invitation declines. Deleting the account removes those decline records through a cascading foreign key; deleting an invitation also removes its related declines.
+
 | Data | Default retention |
 | --- | --- |
 | Account/profile | Until deletion request or legal need |

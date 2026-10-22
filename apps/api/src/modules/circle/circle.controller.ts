@@ -13,6 +13,8 @@ export class CircleController {
   @Get('circles/:circleId/invites') async invites(@Param('circleId') id:string,@Req() req:Request) { const parsed=inviteListQuerySchema.safeParse(req.query); if(!parsed.success) throw new BadRequestException(); return this.circles.listInvites(id,principal(req).id,parsed.data); }
   @Post('circles/:circleId/invites') async invite(@Param('circleId') id: string, @Req() req: Request) { const input = body(createCircleInviteSchema, req); return { invite: await this.circles.invite(id, principal(req).id, input.expiresInHours ?? 72) }; }
   @Delete('circles/:circleId/invites/:inviteId') @HttpCode(204) async revoke(@Param('circleId') circleId: string, @Param('inviteId') inviteId: string, @Req() req: Request) { await this.circles.revoke(circleId, inviteId, principal(req).id); }
+  @Get('circle-invites/:token/preview') async preview(@Param('token') token: string, @Req() req: Request) { return { invite: await this.circles.preview(token, principal(req).id) }; }
+  @Post('circle-invites/:token/decline') @HttpCode(204) async decline(@Param('token') token: string, @Req() req: Request) { await this.circles.decline(token, principal(req).id); }
   @Post('circle-invites/:token/accept') async accept(@Param('token') token: string, @Req() req: Request) { return { circleId: await this.circles.accept(token, principal(req).id) }; }
   @Delete('circles/:circleId/members/me') @HttpCode(204) async leave(@Param('circleId') id: string, @Req() req: Request) { await this.circles.leave(id, principal(req).id); }
   @Delete('circles/:circleId/members/:accountId') @HttpCode(204) async remove(@Param('circleId') id: string, @Param('accountId') target: string, @Req() req: Request) { await this.circles.remove(id, target, principal(req).id); }

@@ -27,13 +27,18 @@ test('pact lists, membership, invitation metadata and archive on existing local 
     const invite=async(group:string)=>{const result=await a.req(`/circles/${group}/invites`,'POST',{});assert.equal(result.status,201);assert.equal(result.data.invite.tokenHash,undefined);return result.data.invite;};
     const group=await makeGroup();
     for(const user of [b,c]){const link=await invite(group);assert.equal((await user.req(`/circle-invites/${link.token}/accept`,'POST')).status,201);}
-    const create=async(key=randomUUID())=>a.req(`/circles/${group}/pacts`,'POST',{participantIds:[b.id],startsAt:new Date().toISOString(),durationMinutes:5},key);
+    const create=async(key=randomUUID(),participantIds=[b.id])=>a.req(`/circles/${group}/pacts`,'POST',{participantIds,startsAt:new Date().toISOString(),durationMinutes:5},key);
     let pact=''; let session='';
     await t.test('same-key creation and participant-only inbox',async()=>{
-      const key=randomUUID();const results=await Promise.all([create(key),create(key)]);assert.deepEqual(results.map(r=>r.status),[201,201]);assert.equal(results[0].data.pact.id,results[1].data.pact.id);pact=results[0].data.pact.id;
+      const key=randomUUID();const results=await Promise.all([create(key,[a.id,b.id,a.id]),create(key,[a.id,b.id,a.id])]);assert.deepEqual(results.map(r=>r.status),[201,201]);assert.equal(results[0].data.pact.id,results[1].data.pact.id);pact=results[0].data.pact.id;
+      assert.equal(results[0].data.pact.status,'scheduled');assert.equal(results[0].data.pact.sessionId,null);
+      assert.equal(results[0].data.pact.participants.filter((person:any)=>person.accountId===a.id).length,1);
+      assert.equal(results[0].data.pact.participants.find((person:any)=>person.accountId===a.id).response,'accepted');
+      assert.equal(results[0].data.pact.participants.find((person:any)=>person.accountId===b.id).response,'invited');
       assert.equal((await b.req('/me/pacts?group=pending')).data.items[0].id,pact);
       assert.equal((await c.req(`/circles/${group}/pacts?group=pending`)).data.items.length,0);
       for(const user of [c,d])assert.equal((await user.req(`/pacts/${pact}`)).status,404);
+      assert.equal((await c.req(`/pacts/${pact}/respond`,'POST',{response:'accepted'})).status,404);
       assert.equal((await d.req(`/circles/${group}/pacts`)).status,404);
       assert.equal((await b.req(`/circles/${group}/invites`)).status,403);
       assert.equal((await a.req('/me/pacts?limit=51')).status,400);
@@ -41,9 +46,20 @@ test('pact lists, membership, invitation metadata and archive on existing local 
     });
     await t.test('respond, start, join and removal revoke access',async()=>{
       assert.equal((await a.req(`/circles/${group}`,'PATCH',{status:'archived'})).status,409);
-      assert.equal((await b.req(`/pacts/${pact}/respond`,'POST',{response:'accepted'})).status,201);
+      for(const response of ['accepted','declined','accepted'] as const) {
+        const result=await b.req(`/pacts/${pact}/respond`,'POST',{response});assert.equal(result.status,201);
+        assert.equal(result.data.pact.participants.find((person:any)=>person.accountId===b.id).response,response);
+        if(response==='declined') {
+          const invitations=await b.req('/me/pacts?group=pending');
+          assert.equal(invitations.data.items.find((item:any)=>item.id===pact)?.response,'declined');
+          const history=await b.req('/me/pacts?group=past');
+          assert.equal(history.data.items.some((item:any)=>item.id===pact),false);
+        }
+      }
+      assert.equal((await b.req(`/pacts/${pact}/start`,'POST',{},randomUUID())).status,403);
       assert.equal((await b.req('/me/pacts?group=upcoming')).data.items[0].id,pact);
       const start=await a.req(`/pacts/${pact}/start`,'POST',{},randomUUID());assert.equal(start.status,201);session=start.data.session.id;
+      assert.equal((await b.req(`/pacts/${pact}/respond`,'POST',{response:'declined'})).status,409);
       assert.equal((await b.req(`/focus-sessions/${session}/join`,'POST')).status,201);
       assert.equal((await b.req('/me/pacts?group=active')).data.items[0].sessionId,session);
       const socket=io(new URL(base!).origin+'/realtime',{transports:['websocket'],reconnection:false,extraHeaders:{Origin:origin,Cookie:b.cookie}});sockets.push(socket);await receive(socket,'connect');
@@ -77,6 +93,49 @@ test('pact lists, membership, invitation metadata and archive on existing local 
         const response=await a.req(path);assert.equal(response.status,200);
         const projection=JSON.stringify(response.data);assert.ok(!projection.includes(aSeed));assert.ok(!projection.includes(cSeed));
       }
+    });
+    await t.test('creation, expiry, cancellation and completion respect Pact state',async()=>{
+      const lifecycleGroup=await makeGroup();
+      for(const user of [b,c]){const link=await invite(lifecycleGroup);assert.equal((await user.req(`/circle-invites/${link.token}/accept`,'POST')).status,201);}
+      const createLifecycle=async(participantId:string,startsAt=new Date().toISOString())=>{
+        const result=await a.req(`/circles/${lifecycleGroup}/pacts`,'POST',{participantIds:[participantId],startsAt,durationMinutes:5},randomUUID());
+        assert.equal(result.status,201);assert.equal(result.data.pact.status,'scheduled');assert.equal(result.data.pact.sessionId,null);return result.data.pact.id as string;
+      };
+      const cancelId=await createLifecycle(b.id,new Date(Date.now()+3600000).toISOString());
+      assert.equal((await b.req(`/pacts/${cancelId}/cancel`,'POST')).status,403);
+      const cancelled=await a.req(`/pacts/${cancelId}/cancel`,'POST');assert.equal(cancelled.status,201);assert.equal(cancelled.data.pact.status,'cancelled');
+      assert.equal((await a.req(`/pacts/${cancelId}/cancel`,'POST')).data.pact.status,'cancelled');
+      assert.equal((await b.req(`/pacts/${cancelId}/respond`,'POST',{response:'accepted'})).status,409);
+      assert.equal((await a.req(`/pacts/${cancelId}/start`,'POST',{},randomUUID())).status,409);
+
+      const detailExpiry=await createLifecycle(b.id);await pool.query("update focus_pacts set starts_at=now()-interval '31 minutes' where id=$1",[detailExpiry]);
+      assert.equal((await b.req(`/pacts/${detailExpiry}`)).data.pact.status,'expired');
+      assert.equal((await a.req(`/pacts/${detailExpiry}/start`,'POST',{},randomUUID())).status,409);
+
+      const responseExpiry=await createLifecycle(b.id);await pool.query("update focus_pacts set starts_at=now()-interval '31 minutes' where id=$1",[responseExpiry]);
+      assert.equal((await b.req(`/pacts/${responseExpiry}/respond`,'POST',{response:'accepted'})).status,409);
+      assert.equal((await a.req(`/pacts/${responseExpiry}`)).data.pact.status,'expired');
+
+      const cancelExpiry=await createLifecycle(b.id);await pool.query("update focus_pacts set starts_at=now()-interval '31 minutes' where id=$1",[cancelExpiry]);
+      assert.equal((await a.req(`/pacts/${cancelExpiry}/cancel`,'POST')).status,409);
+      assert.equal((await b.req(`/pacts/${cancelExpiry}`)).data.pact.status,'expired');
+
+      const startExpiry=await createLifecycle(b.id);assert.equal((await b.req(`/pacts/${startExpiry}/respond`,'POST',{response:'accepted'})).status,201);
+      await pool.query("update focus_pacts set starts_at=now()-interval '31 minutes' where id=$1",[startExpiry]);
+      assert.equal((await a.req(`/pacts/${startExpiry}/start`,'POST',{},randomUUID())).status,409);
+      assert.equal((await b.req(`/pacts/${startExpiry}`)).data.pact.status,'expired');
+
+      const completedId=await createLifecycle(b.id);assert.equal((await b.req(`/pacts/${completedId}/respond`,'POST',{response:'accepted'})).status,201);
+      const started=await a.req(`/pacts/${completedId}/start`,'POST',{},randomUUID());assert.equal(started.status,201);
+      const completedSession=started.data.session.id as string;
+      assert.equal((await b.req(`/focus-sessions/${completedSession}/join`,'POST')).status,201);
+      assert.equal((await a.req(`/focus-sessions/${completedSession}/check-out`,'POST',{outcome:'progress'})).status,201);
+      assert.equal((await b.req(`/focus-sessions/${completedSession}/check-out`,'POST',{outcome:'stopped'})).status,201);
+      assert.equal((await a.req(`/pacts/${completedId}`)).data.pact.status,'completed');
+      assert.equal((await a.req(`/pacts/${completedId}/start`,'POST',{},randomUUID())).status,409);
+      assert.equal((await b.req(`/pacts/${completedId}/respond`,'POST',{response:'declined'})).status,409);
+      assert.equal((await a.req(`/pacts/${completedId}/cancel`,'POST')).status,409);
+      assert.equal((await b.req(`/focus-sessions/${completedSession}/join`,'POST')).status,409);
     });
     await t.test('archive revokes invitations and restore does not revive tokens',async()=>{
       const link=await invite(group);
