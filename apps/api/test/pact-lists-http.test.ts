@@ -60,6 +60,24 @@ test('pact lists, membership, invitation metadata and archive on existing local 
       await pool.query("update focus_sessions set ends_at=now()-interval '1 second' where id=$1 and started_by_account_id=$2",[session,a.id]);
       await a.req(`/focus-sessions/${session}`);
     });
+    await t.test('Pact checkout keeps each participant Open Seed private',async()=>{
+      const created=await a.req(`/circles/${group}/pacts`,'POST',{participantIds:[c.id],startsAt:new Date().toISOString(),durationMinutes:5},randomUUID());assert.equal(created.status,201);
+      const seedPact=created.data.pact.id as string;
+      assert.equal((await c.req(`/pacts/${seedPact}/respond`,'POST',{response:'accepted'})).status,201);
+      const started=await a.req(`/pacts/${seedPact}/start`,'POST',{},randomUUID());assert.equal(started.status,201);
+      const seedSession=started.data.session.id as string;
+      assert.equal((await c.req(`/focus-sessions/${seedSession}/join`,'POST')).status,201);
+      const aSeed='Owner-only next step';const cSeed='Participant-only next step';
+      assert.equal((await a.req(`/focus-sessions/${seedSession}/check-out`,'POST',{outcome:'progress',openSeed:aSeed})).status,201);
+      assert.equal((await c.req(`/focus-sessions/${seedSession}/check-out`,'POST',{outcome:'stuck',openSeed:cSeed})).status,201);
+      assert.equal((await a.req('/me/return')).data.openSeed?.text,aSeed);
+      assert.equal((await c.req('/me/return')).data.openSeed?.text,cSeed);
+      assert.equal((await b.req('/me/return')).data.openSeed,null);
+      for(const path of [`/focus-sessions/${seedSession}`,`/pacts/${seedPact}`,`/circles/${group}`]){
+        const response=await a.req(path);assert.equal(response.status,200);
+        const projection=JSON.stringify(response.data);assert.ok(!projection.includes(aSeed));assert.ok(!projection.includes(cSeed));
+      }
+    });
     await t.test('archive revokes invitations and restore does not revive tokens',async()=>{
       const link=await invite(group);
       assert.equal((await a.req(`/circles/${group}`,'PATCH',{status:'archived'})).status,200);
