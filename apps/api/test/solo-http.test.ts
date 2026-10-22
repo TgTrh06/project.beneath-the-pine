@@ -67,6 +67,13 @@ test('solo HTTP lifecycle on an existing local database', { skip: !apiUrl || !da
       assert.equal((await a.request('/me/open-seed', 'PUT', { text: 'x'.repeat(501) })).status, 400);
       assert.equal((await a.request('/me/open-seed', 'PUT', { text: 'x'.repeat(500) })).status, 200);
       assert.equal((await b.request('/me/return')).data.openSeed, null);
+      const replacements = ['Concurrent seed one', 'Concurrent seed two', 'Concurrent seed three'];
+      const writes = await Promise.all(replacements.map(text => a.request('/me/open-seed', 'PUT', { text })));
+      assert.ok(writes.every(result => result.status === 200));
+      const currentSeeds = await pool.query('select text from open_seeds where account_id=$1', [a.accountId]);
+      assert.equal(currentSeeds.rowCount, 1);
+      assert.ok(replacements.includes(currentSeeds.rows[0].text));
+      assert.equal((await a.request('/me/open-seed', 'PUT', { text: 'x'.repeat(500) })).status, 200);
       for (const [index, outcome] of ['completed', 'progress', 'stuck', 'stopped'].entries()) {
         const key = randomUUID(); const started = await a.start(key, [5, 10, 25, 50][index]); const id = sessionId(started);
         assert.equal((await a.start(key)).data.session?.id, id);
