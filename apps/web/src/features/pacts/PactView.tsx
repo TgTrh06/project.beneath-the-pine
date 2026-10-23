@@ -6,7 +6,7 @@ import { requestKeyStore } from "../../shared/api/requestKey";
 import { Dialog, ErrorMessage } from "../../shared/components/ui";
 import { deviceTimezone, formatTime } from "../../shared/time";
 import { pactActions } from "./pactState";
-export function PactView({ id, accountId, onSession }: { id: string; accountId: string; onSession: (id: string) => void; onNotice: (text: string) => void }) {
+export function PactView({ id, accountId, onSession, onPacts }: { id: string; accountId: string; onSession: (id: string) => void; onPacts: () => void; onNotice: (text: string) => void }) {
   const loader = useCallback(async () => { const [value,profile] = await Promise.all([getPact(id),getProfile()]); return {...value,timezone:profile.profile?.timezone ?? deviceTimezone()}; },[id]);
   const resource = useResource(loader); const pact = resource.data?.pact;
   const [busy,setBusy] = useState(false); const [error,setError] = useState(""); const [message,setMessage] = useState(""); const [confirm,setConfirm] = useState(false); const [now,setNow] = useState(Date.now);
@@ -20,7 +20,7 @@ export function PactView({ id, accountId, onSession }: { id: string; accountId: 
     void resource.reload();
   },[id,now,pact?.startsAt,pact?.status,resource.reload]);
   const act = async (action:()=>Promise<unknown>) => { if (pending.current) return; pending.current = true; setBusy(true); setError(""); try { await action(); } catch(e) { setError((e as Error).message); await resource.reload(); } finally { pending.current = false; setBusy(false); } };
-  if (!pact) return <><ErrorMessage message={resource.error} retry={resource.reload}/>{resource.loading && <p role="status">Đang mở cuộc hẹn…</p>}</>;
+  if (!pact) return <><ErrorMessage message={resource.error} retry={resource.reload}/>{resource.loading && <p role="status">Đang mở cuộc hẹn…</p>}{!resource.loading && <button className="secondary" onClick={onPacts}>Về danh sách cuộc hẹn</button>}</>;
   const allowed = pactActions(pact,accountId,now);
   const status = { scheduled:"Đã hẹn", active:"Đang diễn ra", completed:"Đã khép lại", cancelled:"Đã hủy", expired:"Đã hết hạn" };
   const responses = { invited:"Chưa trả lời", accepted:"Đã nhận lời", declined:"Không tham gia" };
