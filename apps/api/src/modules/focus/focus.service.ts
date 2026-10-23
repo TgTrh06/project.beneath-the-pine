@@ -3,7 +3,7 @@ import { ConflictException, ForbiddenException, Injectable, NotFoundException, O
 import { and, desc, eq, inArray, lte } from 'drizzle-orm';
 import { DatabaseService } from '../../platform/database/database.service';
 import { circleMilestones } from '../memory/public-api';
-import { focusPactParticipants, focusPacts, PactService } from '../pact/public-api';
+import { focusPacts, PactService } from '../pact/public-api';
 import { profiles } from '../profile/public-api';
 import { openSeeds } from '../seed/public-api';
 import { AnalyticsService } from '../analytics/public-api';
@@ -77,15 +77,26 @@ export class FocusService implements OnModuleInit, OnModuleDestroy {
   }
   async join(sessionId:string,accountId:string) {
     const [hint]=await this.database.db.select().from(focusSessions).where(eq(focusSessions.id,sessionId)); if(!hint?.pactId || !hint.circleId) throw new NotFoundException();
-    await this.database.db.transaction(async tx=>{
+    const expired=await this.database.db.transaction(async tx=>{
       await tx.select().from(circles).where(eq(circles.id,hint.circleId!)).for('update');
-      const invite=await this.pacts.requireParticipant(hint.pactId!,accountId,tx); if(invite.response!=='accepted') throw new ForbiddenException();
       const [session]=await tx.select().from(focusSessions).where(eq(focusSessions.id,sessionId)).for('update');
-      if(session.status!=='active' || session.endsAt<=new Date()) throw new ConflictException();
+      if(!session) throw new NotFoundException();
+      const invite=await this.pacts.requireParticipant(session.pactId!,accountId,tx); if(invite.response!=='accepted') throw new ForbiddenException();
+      const now=new Date();
+      if(session.status==='active' && session.endsAt<=now) {
+        await tx.update(focusSessions).set({status:'completed',completedAt:now}).where(and(eq(focusSessions.id,sessionId),eq(focusSessions.status,'active'),lte(focusSessions.endsAt,now)));
+        await tx.update(sessionParticipants).set({presence:'checked_out',activeSlotAccountId:null,checkedOutAt:now,outcome:'stopped'}).where(and(eq(sessionParticipants.sessionId,sessionId),inArray(sessionParticipants.presence,['active','break','disconnected'])));
+        await tx.update(focusPacts).set({status:'completed',updatedAt:now}).where(and(eq(focusPacts.id,session.pactId!),eq(focusPacts.status,'active')));
+        return true;
+      }
+      if(session.status!=='active') throw new ConflictException();
       const [existing]=await tx.select().from(sessionParticipants).where(and(eq(sessionParticipants.sessionId,sessionId),eq(sessionParticipants.accountId,accountId)));
-      if(existing) { if(existing.presence==='checked_out') throw new ConflictException(); return; }
+      if(existing) { if(existing.presence==='checked_out') throw new ConflictException(); return false; }
       await this.ensureFree(accountId,tx); await tx.insert(sessionParticipants).values({sessionId,accountId,activeSlotAccountId:accountId});
-    }); this.changes.next(sessionId); return this.snapshot(sessionId,accountId);
+      return false;
+    });
+    if(expired) { await this.deriveMilestone(sessionId); this.changes.next(sessionId); throw new ConflictException(); }
+    this.changes.next(sessionId); return this.snapshot(sessionId,accountId);
   }
   async active(accountId: string) {
     const [row] = await this.database.db.select({ sessionId: sessionParticipants.sessionId }).from(sessionParticipants).where(eq(sessionParticipants.activeSlotAccountId, accountId));
@@ -94,53 +105,109 @@ export class FocusService implements OnModuleInit, OnModuleDestroy {
     return session.status === 'active' && session.participants.some(person => person.accountId === accountId && person.presence !== 'checked_out') ? session : null;
   }
   async snapshot(sessionId: string, accountId: string) {
-    let [session] = await this.database.db.select().from(focusSessions).where(eq(focusSessions.id, sessionId)); if (!session) throw new NotFoundException(); if(session.pactId) await this.pacts.requireParticipant(session.pactId,accountId); await this.reconcile(session); [session] = await this.database.db.select().from(focusSessions).where(eq(focusSessions.id, sessionId));
-    const mine = (await this.database.db.select().from(sessionParticipants).where(and(eq(sessionParticipants.sessionId, sessionId), eq(sessionParticipants.accountId, accountId))))[0]; if (!mine) throw new NotFoundException();
-    const participants = await this.database.db.select({ accountId: sessionParticipants.accountId, displayName: profiles.displayName, presence: sessionParticipants.presence, joinedAt: sessionParticipants.joinedAt, checkedOutAt: sessionParticipants.checkedOutAt }).from(sessionParticipants).leftJoin(profiles, eq(profiles.accountId, sessionParticipants.accountId)).where(eq(sessionParticipants.sessionId, sessionId));
-    return { id: session.id, kind: session.kind, pactId: session.pactId, status: session.status, startedAt: session.startedAt, endsAt: session.endsAt, serverNow: new Date(), intention: mine.intention, participants };
+    const [hint] = await this.database.db.select().from(focusSessions).where(eq(focusSessions.id, sessionId));
+    if (!hint) throw new NotFoundException();
+    if (hint.pactId) await this.pacts.requireParticipant(hint.pactId, accountId);
+    await this.reconcile(hint);
+    return this.database.db.transaction(async tx => {
+      const [session] = await tx.select().from(focusSessions).where(eq(focusSessions.id, sessionId));
+      if (!session) throw new NotFoundException();
+      if (session.pactId) await this.pacts.requireParticipant(session.pactId, accountId, tx);
+      const [mine] = await tx.select().from(sessionParticipants).where(and(eq(sessionParticipants.sessionId, sessionId), eq(sessionParticipants.accountId, accountId)));
+      if (!mine) throw new NotFoundException();
+      const participants = await tx.select({ accountId: sessionParticipants.accountId, displayName: profiles.displayName, presence: sessionParticipants.presence, joinedAt: sessionParticipants.joinedAt, checkedOutAt: sessionParticipants.checkedOutAt }).from(sessionParticipants).leftJoin(profiles, eq(profiles.accountId, sessionParticipants.accountId)).where(eq(sessionParticipants.sessionId, sessionId));
+      return { id: session.id, kind: session.kind, pactId: session.pactId, status: session.status, startedAt: session.startedAt, endsAt: session.endsAt, serverNow: new Date(), intention: mine.intention, participants };
+    }, { isolationLevel: 'repeatable read' });
   }
   async checkout(sessionId: string, accountId: string, input: { outcome: Outcome; openSeed?: string | null }) {
-    const changed = await this.database.db.transaction(async tx => {
-      // Lock in the same order as expiry: session, then participants.
+    const [hint]=await this.database.db.select().from(focusSessions).where(eq(focusSessions.id,sessionId));
+    if(!hint) throw new NotFoundException();
+    const result = await this.database.db.transaction(async tx => {
+      if(hint.circleId) await tx.select().from(circles).where(eq(circles.id,hint.circleId)).for('update');
       const [current] = await tx.select().from(focusSessions).where(eq(focusSessions.id, sessionId)).for('update');
-      if (!current) throw new NotFoundException(); if(current.pactId) await this.pacts.requireParticipant(current.pactId,accountId,tx);
+      if (!current) throw new NotFoundException();
+      if(current.pactId) await this.pacts.requireParticipant(current.pactId,accountId,tx);
       const [mine] = await tx.select().from(sessionParticipants).where(and(eq(sessionParticipants.sessionId, sessionId), eq(sessionParticipants.accountId, accountId))).for('update');
       if (!mine) throw new NotFoundException();
-      if (mine.presence === 'checked_out' || current.status !== 'active') return false;
+      if (mine.presence === 'checked_out' || current.status !== 'active') return {changed:false,finished:false};
       const now = new Date();
       if (current.endsAt <= now) {
-        await tx.update(focusSessions).set({ status: 'completed', completedAt: now }).where(eq(focusSessions.id, sessionId));
+        await tx.update(focusSessions).set({ status: 'completed', completedAt: now }).where(and(eq(focusSessions.id, sessionId),eq(focusSessions.status,'active'),lte(focusSessions.endsAt,now)));
         await tx.update(sessionParticipants).set({ presence: 'checked_out', activeSlotAccountId: null, checkedOutAt: now, outcome: 'stopped' }).where(and(eq(sessionParticipants.sessionId, sessionId), inArray(sessionParticipants.presence, ['active', 'break', 'disconnected'])));
-        if (current.pactId) await tx.update(focusPacts).set({ status: 'completed', updatedAt: now }).where(eq(focusPacts.id, current.pactId));
-        return false;
+        if (current.pactId) await tx.update(focusPacts).set({ status: 'completed', updatedAt: now }).where(and(eq(focusPacts.id, current.pactId),eq(focusPacts.status,'active')));
+        return {changed:false,finished:true};
       }
       await tx.update(sessionParticipants).set({ presence: 'checked_out', outcome: input.outcome, checkedOutAt: now, activeSlotAccountId: null }).where(eq(sessionParticipants.id, mine.id));
       if (input.openSeed === null) await tx.delete(openSeeds).where(eq(openSeeds.accountId, accountId)); else if (input.openSeed !== undefined) await tx.insert(openSeeds).values({ accountId, text: input.openSeed, sourceSessionId: sessionId }).onConflictDoUpdate({ target: openSeeds.accountId, set: { text: input.openSeed, sourceSessionId: sessionId, updatedAt: new Date() } });
-      const remaining = await tx.select({ id: sessionParticipants.id }).from(sessionParticipants).where(and(eq(sessionParticipants.sessionId, sessionId), inArray(sessionParticipants.presence, ['active', 'break', 'disconnected']))); if (!remaining.length) { await tx.update(focusSessions).set({ status: 'completed', completedAt: new Date() }).where(and(eq(focusSessions.id, sessionId), eq(focusSessions.status, 'active'))); const [session] = await tx.select().from(focusSessions).where(eq(focusSessions.id, sessionId)); if (session?.pactId) await tx.update(focusPacts).set({ status: 'completed', updatedAt: new Date() }).where(eq(focusPacts.id, session.pactId)); }
-      return true;
+      const remaining = await tx.select({ id: sessionParticipants.id }).from(sessionParticipants).where(and(eq(sessionParticipants.sessionId, sessionId), inArray(sessionParticipants.presence, ['active', 'break', 'disconnected'])));
+      let finished=false;
+      if (!remaining.length) {
+        const [closed]=await tx.update(focusSessions).set({ status: 'completed', completedAt: now }).where(and(eq(focusSessions.id, sessionId), eq(focusSessions.status, 'active'))).returning({id:focusSessions.id});
+        finished=Boolean(closed);
+        if (finished && current.pactId) await tx.update(focusPacts).set({ status: 'completed', updatedAt: now }).where(and(eq(focusPacts.id, current.pactId),eq(focusPacts.status,'active')));
+      }
+      return {changed:true,finished};
     });
-    await this.deriveMilestone(sessionId); if (changed) await this.analytics.record(accountId, 'session_checked_out', sessionId, { outcome: input.outcome }); this.changes.next(sessionId); return this.snapshot(sessionId, accountId);
+    if(result.finished) await this.deriveMilestone(sessionId);
+    if (result.changed) await this.analytics.record(accountId, 'session_checked_out', sessionId, { outcome: input.outcome });
+    if(result.changed || result.finished) this.changes.next(sessionId);
+    return this.snapshot(sessionId, accountId);
   }
   async setPresence(sessionId: string, accountId: string, presence: 'active' | 'break' | 'disconnected') {
-    const [session] = await this.database.db.select().from(focusSessions).where(eq(focusSessions.id, sessionId));
-    if (!session) throw new NotFoundException();
-    if (session.pactId) await this.pacts.requireParticipant(session.pactId, accountId);
-    const changed = await this.database.db.transaction(async tx => {
+    return this.updatePresence(sessionId,accountId,presence,false);
+  }
+  async markConnected(sessionId:string,accountId:string) {
+    return this.updatePresence(sessionId,accountId,'active',true);
+  }
+  private async updatePresence(sessionId:string,accountId:string,presence:'active'|'break'|'disconnected',preserveBreak:boolean) {
+    const [hint]=await this.database.db.select().from(focusSessions).where(eq(focusSessions.id,sessionId));
+    if(!hint) throw new NotFoundException();
+    const result = await this.database.db.transaction(async tx => {
+      if(hint.circleId) await tx.select().from(circles).where(eq(circles.id,hint.circleId)).for('update');
+      const [session]=await tx.select().from(focusSessions).where(eq(focusSessions.id,sessionId)).for('update');
+      if(!session) throw new NotFoundException();
+      if(session.pactId) await this.pacts.requireParticipant(session.pactId,accountId,tx);
       const [participant] = await tx.select({ id: sessionParticipants.id, presence: sessionParticipants.presence })
         .from(sessionParticipants)
         .where(and(eq(sessionParticipants.sessionId, sessionId), eq(sessionParticipants.accountId, accountId)))
         .for('update');
-      if (!participant || participant.presence === 'checked_out') throw new NotFoundException();
-      if (participant.presence === presence) return false;
-      await tx.update(sessionParticipants).set({ presence }).where(eq(sessionParticipants.id, participant.id));
-      return true;
+      if (!participant) throw new NotFoundException();
+      const now=new Date();
+      if(session.status==='active' && session.endsAt<=now) {
+          await tx.update(focusSessions).set({status:'completed',completedAt:now}).where(and(eq(focusSessions.id,sessionId),eq(focusSessions.status,'active'),lte(focusSessions.endsAt,now)));
+          await tx.update(sessionParticipants).set({presence:'checked_out',activeSlotAccountId:null,checkedOutAt:now,outcome:'stopped'}).where(and(eq(sessionParticipants.sessionId,sessionId),inArray(sessionParticipants.presence,['active','break','disconnected'])));
+          if(session.pactId) await tx.update(focusPacts).set({status:'completed',updatedAt:now}).where(and(eq(focusPacts.id,session.pactId),eq(focusPacts.status,'active')));
+          return {changed:false,finished:true,presence:null as null|'active'|'break'|'disconnected'};
+      }
+      if(session.status!=='active' || participant.presence==='checked_out') {
+        if(preserveBreak) return {changed:false,finished:false,presence:null as null|'active'|'break'|'disconnected'};
+        throw new ConflictException();
+      }
+      const nextPresence=preserveBreak && participant.presence==='break' ? 'break' : presence;
+      if (participant.presence === nextPresence) return {changed:false,finished:false,presence:null as null|'active'|'break'|'disconnected'};
+      await tx.update(sessionParticipants).set({ presence:nextPresence }).where(eq(sessionParticipants.id, participant.id));
+      return {changed:true,finished:false,presence:nextPresence as 'active'|'break'|'disconnected'};
     });
-    this.changes.next(sessionId);
-    if (changed) this.presenceChanges.next({ sessionId, accountId, presence });
+    if(result.finished) { await this.deriveMilestone(sessionId); this.changes.next(sessionId); throw new ConflictException(); }
+    if(result.changed) { this.changes.next(sessionId); this.presenceChanges.next({sessionId,accountId,presence:result.presence!}); }
   }
   async history(accountId: string) { return this.database.db.select({ id: focusSessions.id, kind: focusSessions.kind, startedAt: focusSessions.startedAt, endsAt: focusSessions.endsAt, status: focusSessions.status, outcome: sessionParticipants.outcome }).from(sessionParticipants).innerJoin(focusSessions, eq(focusSessions.id, sessionParticipants.sessionId)).where(eq(sessionParticipants.accountId, accountId)).orderBy(desc(focusSessions.startedAt)).limit(100); }
-  private async reconcile(session: typeof focusSessions.$inferSelect) { if (session.status === 'active' && session.endsAt <= new Date()) await this.finishSession(session.id, session.pactId); }
-  private async finishSession(sessionId: string, pactId: string | null) { await this.database.db.transaction(async tx => { await tx.update(focusSessions).set({ status: 'completed', completedAt: new Date() }).where(and(eq(focusSessions.id, sessionId), eq(focusSessions.status, 'active'))); await tx.update(sessionParticipants).set({ presence: 'checked_out', activeSlotAccountId: null, checkedOutAt: new Date(), outcome: 'stopped' }).where(and(eq(sessionParticipants.sessionId, sessionId), inArray(sessionParticipants.presence, ['active', 'break', 'disconnected']))); if (pactId) await tx.update(focusPacts).set({ status: 'completed', updatedAt: new Date() }).where(eq(focusPacts.id, pactId)); }); await this.deriveMilestone(sessionId); this.changes.next(sessionId); }
+  private async reconcile(session: typeof focusSessions.$inferSelect) { if (session.status === 'active' && session.endsAt <= new Date()) await this.finishExpiredSession(session.id); }
+  private async finishExpiredSession(sessionId: string) {
+    const [hint]=await this.database.db.select().from(focusSessions).where(eq(focusSessions.id,sessionId)); if(!hint) return;
+    const finished=await this.database.db.transaction(async tx=>{
+      if(hint.circleId) await tx.select().from(circles).where(eq(circles.id,hint.circleId)).for('update');
+      const [session]=await tx.select().from(focusSessions).where(eq(focusSessions.id,sessionId)).for('update');
+      const now=new Date();
+      if(!session || session.status!=='active' || session.endsAt>now) return false;
+      const [closed]=await tx.update(focusSessions).set({status:'completed',completedAt:now}).where(and(eq(focusSessions.id,sessionId),eq(focusSessions.status,'active'),lte(focusSessions.endsAt,now))).returning({id:focusSessions.id});
+      if(!closed) return false;
+      await tx.update(sessionParticipants).set({presence:'checked_out',activeSlotAccountId:null,checkedOutAt:now,outcome:'stopped'}).where(and(eq(sessionParticipants.sessionId,sessionId),inArray(sessionParticipants.presence,['active','break','disconnected'])));
+      if(session.pactId) await tx.update(focusPacts).set({status:'completed',updatedAt:now}).where(and(eq(focusPacts.id,session.pactId),eq(focusPacts.status,'active')));
+      return true;
+    });
+    if(finished) { await this.deriveMilestone(sessionId); this.changes.next(sessionId); }
+  }
   private async deriveMilestone(sessionId: string) { const [session] = await this.database.db.select().from(focusSessions).where(eq(focusSessions.id, sessionId)); if (!session?.circleId || session.status !== 'completed') return; const joined = await this.database.db.select({ accountId: sessionParticipants.accountId }).from(sessionParticipants).where(eq(sessionParticipants.sessionId, sessionId)); if (joined.length < 2) return; const inserted = await this.database.db.insert(circleMilestones).values({ circleId: session.circleId, sessionId }).onConflictDoNothing().returning({ id: circleMilestones.id }); if (inserted.length) await this.analytics.record(session.startedByAccountId ?? joined[0].accountId, 'circle_milestone_recorded', inserted[0].id); }
-  async finalizeExpired() { const expired = await this.database.db.select().from(focusSessions).where(and(eq(focusSessions.status, 'active'), lte(focusSessions.endsAt, new Date()))); for (const session of expired) await this.finishSession(session.id, session.pactId); }
+  async finalizeExpired() { const expired = await this.database.db.select({id:focusSessions.id}).from(focusSessions).where(and(eq(focusSessions.status, 'active'), lte(focusSessions.endsAt, new Date()))); for (const session of expired) await this.finishExpiredSession(session.id); }
 }

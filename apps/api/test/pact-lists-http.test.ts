@@ -89,6 +89,10 @@ test('pact lists, membership, invitation metadata and archive on existing local 
       assert.equal((await a.req('/me/return')).data.openSeed?.text,aSeed);
       assert.equal((await c.req('/me/return')).data.openSeed?.text,cSeed);
       assert.equal((await b.req('/me/return')).data.openSeed,null);
+      const ownerExport=JSON.stringify((await a.req('/me/data-export')).data);
+      const participantExport=JSON.stringify((await c.req('/me/data-export')).data);
+      assert.ok(ownerExport.includes(aSeed));assert.ok(!ownerExport.includes(cSeed));
+      assert.ok(participantExport.includes(cSeed));assert.ok(!participantExport.includes(aSeed));
       for(const path of [`/focus-sessions/${seedSession}`,`/pacts/${seedPact}`,`/circles/${group}`]){
         const response=await a.req(path);assert.equal(response.status,200);
         const projection=JSON.stringify(response.data);assert.ok(!projection.includes(aSeed));assert.ok(!projection.includes(cSeed));
