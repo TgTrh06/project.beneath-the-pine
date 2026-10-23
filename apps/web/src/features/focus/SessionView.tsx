@@ -6,7 +6,7 @@ import { checkOut, getReturnState, getSession, putSeed } from "../../shared/api/
 import { useSessionRealtime } from "../../shared/realtime/useSessionRealtime";
 import { Dialog, ErrorMessage } from "../../shared/components/ui";
 import { ThemeSelect } from "../../shared/theme/ThemeSelect";
-import { canCheckOut, outcomes, remainingSeconds, seedPayload, type Outcome } from "./sessionState";
+import { canCheckOut, outcomes, remainingSeconds, seedPayload, shouldAcceptSnapshot, type Outcome } from "./sessionState";
 import { usePrivateDraft } from "../../shared/auth/usePrivateDraft";
 
 export function SessionView({ id, accountId, onReturn }: { id: string; accountId: string; onReturn: () => void; onNotice: (text: string) => void }) {
@@ -21,9 +21,10 @@ export function SessionView({ id, accountId, onReturn }: { id: string; accountId
   const finish = () => { clearCheckout(); clearOutcome(); clearSeed(); clearMode(); onReturn(); };
   const clock = useRef({ received:0, snapshot:null as FocusSession | null }); const reconciled = useRef(false);
   const accept = useCallback((value: FocusSession) => {
+    if (value.id !== id || !shouldAcceptSnapshot(clock.current.snapshot, value)) return;
     clock.current = { received:performance.now(), snapshot:value };
     setRemaining(remainingSeconds(value.endsAt,value.serverNow,0)); setSession(value); setLoadError(""); setLoading(false);
-  }, []);
+  }, [id]);
   const load = useCallback(async () => { setLoading(true); setLoadError(""); try { accept((await getSession(id)).session); } catch (e) { setLoadError((e as Error).message); } finally { setLoading(false); } }, [id,accept]);
   useEffect(() => { void load(); }, [load]);
   const realtime = useSessionRealtime(id,accept,Boolean(session && session.status === "active"));
@@ -40,7 +41,7 @@ export function SessionView({ id, accountId, onReturn }: { id: string; accountId
   const wasActive = useRef(false);
   const [endedWhileEditing, setEndedWhileEditing] = useState(false);
   const act = async (action: () => Promise<unknown>) => { if (submitting.current) return; submitting.current = true; setBusy(true); setError(""); try { await action(); } catch(e) { setError((e as Error).message); } finally { submitting.current = false; setBusy(false); } };
-  const active = session ? canCheckOut(session,accountId) : false;
+  const active = session ? realtime.authorized && canCheckOut(session,accountId) : false;
   useEffect(() => {
     if (session && wasActive.current && !active) {
       if (checkout) { setEndedWhileEditing(true); setCheckout(false); }
@@ -52,8 +53,9 @@ export function SessionView({ id, accountId, onReturn }: { id: string; accountId
   const presence = { active:"Đang tập trung", break:"Đang nghỉ", disconnected:"Mất kết nối", checked_out:"Đã khép lại" };
   return <main className="focus-room"><div className="focus-room__body"><header className="session-toolbar"><button className="text-action" disabled={busy} onClick={onReturn}>Về trang quay lại</button><ThemeSelect/></header><ErrorMessage message={loadError} retry={load}/>
     {!session ? <>{loading && <p role="status">Đang nối lại phiên…</p>}<button className="secondary" onClick={onReturn}>Về điểm tiếp tục</button></>
+    : !realtime.authorized ? <section className="session-ending"><h1>Quyền truy cập phiên đã thay đổi.</h1><p>Hãy quay lại để tiếp tục từ nội dung riêng của bạn.</p><button className="primary" onClick={onReturn}>Về điểm tiếp tục</button></section>
     : <><p className="eyebrow">{session.kind === "solo" ? "PHIÊN RIÊNG" : "FOCUS PACT"}</p><h1 ref={heading} tabIndex={-1}>{active ? session.intention ?? "Có mặt cùng nhau là đủ." : "Chặng này đã khép lại."}</h1>
-      {active && <><p role="status" className="field-hint">{({ connecting:"Đang đồng bộ phiên…", live:"Đã đồng bộ", reconnecting:"Đang nối lại; đồng hồ vẫn chạy.", offline:"Mất kết nối; đang thử đồng bộ lại." })[realtime.connection]}</p><p className="field-hint">{realtime.error}</p>{remaining === 0 && <p role="status">{loadError ? "Chưa xác nhận được kết thúc. Hãy thử tải lại." : "Đang xác nhận kết thúc…"}</p>}<div className="focus-room__timer" role="timer" aria-live="off" aria-label="Thời gian còn lại">{String(Math.floor(remaining/60)).padStart(2,"0")}:{String(remaining%60).padStart(2,"0")}</div></>}
+      {active && <><p role="status" className="field-hint">{({ connecting:"Đang đồng bộ phiên…", live:"Đã đồng bộ với máy chủ.", reconnecting:"Đang nối lại; đồng hồ hiển thị mốc máy chủ gần nhất.", offline:"Realtime mất kết nối; đang thử đồng bộ lại." })[realtime.connection]}</p><p className="field-hint">{realtime.error}{realtime.lastSyncedAt && realtime.connection !== "live" ? ` Trạng thái gần nhất lúc ${new Date(realtime.lastSyncedAt).toLocaleTimeString()}.` : ""}</p>{realtime.connection !== "live" && <button className="text-action" onClick={realtime.retrySync}>Đồng bộ lại</button>}{remaining === 0 && <p role="status">{loadError ? "Chưa xác nhận được kết thúc. Hãy thử tải lại." : "Đang xác nhận kết thúc…"}</p>}<div className="focus-room__timer" role="timer" aria-live="off" aria-label="Thời gian còn lại">{String(Math.floor(remaining/60)).padStart(2,"0")}:{String(remaining%60).padStart(2,"0")}</div></>}
       {session.kind === "pact" && <ul className="session-presence">{session.participants.map(person => <li key={person.accountId}>{person.displayName ?? "Wanderer"} · {presence[person.presence]}</li>)}</ul>}
       {active ? <><div className="button-row session-actions"><button className="primary" disabled={remaining === 0} onClick={() => setCheckout(true)}>Khép lại chặng này</button>{session.kind === "pact" && <button className="secondary" disabled={realtime.connection !== "live"} onClick={() => realtime.setPresence(mine?.presence === "break" ? "active" : "break")}>{mine?.presence === "break" ? "Trở lại tập trung" : "Báo đang nghỉ"}</button>}</div><p className="field-hint">Rời màn hình hoặc báo đang nghỉ không dừng đồng hồ.</p></>
       : <section className="session-ending">{endedWhileEditing && <p role="status">Chặng đã kết thúc. Điểm tiếp tục của bạn vẫn ở đây.</p>}<ErrorMessage message={error}/><MartenNote pose="stretch">Lần sau, bạn muốn mở từ đâu?</MartenNote><label>Điểm tiếp tục<textarea disabled={busy} aria-describedby="session-seed-count" maxLength={500} value={seed} onChange={e => setSeed(e.target.value)}/></label><p className="field-hint" id="session-seed-count">{seed.length}/500 ký tự · Chỉ riêng bạn.</p><div className="button-row"><button className="primary" disabled={busy || !seed.trim()} onClick={() => void act(async () => { await putSeed(seed.trim()); finish(); })}>{busy ? "Đang lưu…" : "Lưu điểm tiếp tục"}</button><button className="secondary" disabled={busy} onClick={onReturn}>Quay lại</button></div></section>}

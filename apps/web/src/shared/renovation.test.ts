@@ -5,7 +5,7 @@ import { requestKeyStore, stableRequestKey } from "./api/requestKey";
 import { localToIso } from "./time";
 import { safeFrontendErrorRecord } from "./logging/logger";
 import { resolveHashRoute } from "../app/routePaths";
-import { canCheckOut, remainingSeconds, seedPayload } from "../features/focus/sessionState";
+import { canCheckOut, remainingSeconds, seedPayload, shouldAcceptSnapshot } from "../features/focus/sessionState";
 import { pactActions } from "../features/pacts/pactState";
 
 describe("theme and private navigation", () => {
@@ -58,6 +58,15 @@ describe("durable intent and time", () => {
     expect(canCheckOut({...session,status:"completed"},"me")).toBe(false);
     expect(canCheckOut(session,"other")).toBe(false);
     expect(canCheckOut({...session,participants:[{...session.participants[0],presence:"checked_out"}]},"me")).toBe(false);
+  });
+  it("keeps snapshots ordered and never revives a terminal session", () => {
+    const active = { id:"session", status:"active", serverNow:"2026-09-16T02:00:10.000Z" } as FocusSession;
+    const stale = { ...active, serverNow:"2026-09-16T02:00:09.000Z" };
+    const completed = { ...active, status:"completed" as const, serverNow:"2026-09-16T02:00:11.000Z" };
+    expect(shouldAcceptSnapshot(active,stale)).toBe(false);
+    expect(shouldAcceptSnapshot(completed,active)).toBe(false);
+    expect(shouldAcceptSnapshot(active,completed)).toBe(true);
+    expect(shouldAcceptSnapshot(active,{...active,serverNow:"2026-09-16T02:00:12.000Z"})).toBe(true);
   });
 });
 describe("Pact permissions and lifecycle", () => {
