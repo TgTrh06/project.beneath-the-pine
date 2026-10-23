@@ -71,7 +71,7 @@ Ensure your local development environment meets the workspace engine specificati
 pnpm install
 ```
 
-### 2. Start the Local PostgreSQL Database
+### 2. Start PostgreSQL
 
 Launch the isolated PostgreSQL 17 container defined in `compose.local.yml`:
 
@@ -79,28 +79,35 @@ Launch the isolated PostgreSQL 17 container defined in `compose.local.yml`:
 pnpm db:local:up
 ```
 
-*The container exposes PostgreSQL on `127.0.0.1:5433` (database: `btp_review`, user: `btp_local`, password: `btp_local_password`).*
+The container exposes PostgreSQL on `127.0.0.1:5433` (database: `btp_review`, user: `btp_local`, password: `btp_local_password`). Its named volume persists when the container stops. Do not use `pnpm db:local:down` as a database reset command.
 
 ### 3. Environment Configuration
 
-- **API Configuration**: Copy `apps/api/.env.example` to `apps/api/.env` and adjust variables as needed:
-  ```sh
-  cp apps/api/.env.example apps/api/.env
-  ```
-  Uncomment `API_DATABASE_URL` in `apps/api/.env` to connect to the local container.
-- **Web Configuration**: The web client proxies `/api/v1` to `http://localhost:8081` by default via Vite. See `.env.example` if overriding `VITE_API_URL`.
+- **API:** Copy `apps/api/.env.example` to `apps/api/.env`. Set `API_DATABASE_URL` explicitly to the local database URL in that example. `API_HOST=127.0.0.1`, `API_PORT=8081`, and `API_WEB_ORIGIN=http://127.0.0.1:5173` match the development commands below. The API reads `apps/api/.env`; a root `.env` is not loaded by the API.
+- **Web:** Copy `apps/web/.env.example` to `apps/web/.env` only when overriding the defaults. With `VITE_API_URL` and `VITE_REALTIME_URL` empty, Vite proxies `/api/v1` and `/socket.io` to `127.0.0.1:8081`. Use `http://127.0.0.1:5173` for the web page so its origin matches `API_WEB_ORIGIN`. In a separate deployment, set the two `VITE_` variables to the API base URL and origin respectively, and set `API_WEB_ORIGIN` to the web page origin.
+- **Secrets:** Keep `.env` files local and out of Git. The credentials in `compose.local.yml` are for local development only.
+
+For a **new, disposable development database only**, review the SQL in `apps/api/drizzle/`, then apply the existing migrations before starting the API:
+
+```sh
+pnpm --filter @beneath-the-pine/api db:migrate
+```
+
+If the named local volume already contains data, inspect its migration state first. This command is not part of starting the web or API servers and was not run against the existing local database during the Step 6 verification.
 
 ### 4. Run Development Servers
 
 Run the backend and frontend in separate terminals:
 
 ```sh
-# Start NestJS Core API (http://localhost:8081)
+# Start NestJS Core API (http://127.0.0.1:8081)
 pnpm dev:api
 
-# Start Web Validation Client (http://localhost:5173)
-pnpm dev
+# Start Web Validation Client (http://127.0.0.1:5173)
+pnpm dev -- --host 127.0.0.1
 ```
+
+Check `http://127.0.0.1:8081/health/live` for process liveness and `http://127.0.0.1:8081/health/ready` for database readiness. Readiness must report the database as `UP` before exercising account, Circle, or Pact flows. If the browser reports a connection error, check both endpoints, the API terminal, `API_DATABASE_URL`, and that the browser origin matches `API_WEB_ORIGIN`.
 
 ---
 
@@ -119,6 +126,8 @@ pnpm dev
 | `pnpm db:local:up` | Start local PostgreSQL container in background. |
 | `pnpm db:local:down` | Stop and remove the local PostgreSQL container. |
 | `pnpm db:local:logs` | Follow logs from the local PostgreSQL container. |
+
+Database-gated API tests use `BTP_TEST_DATABASE_URL`. The opt-in Solo/Pact HTTP suites use `BTP_SOLO_DATABASE_URL`, `BTP_SOLO_API_URL` (for example `http://127.0.0.1:8081/api/v1`) and `BTP_SOLO_WEB_ORIGIN`; the Circle invite suite uses the database and origin variables. Point these only at **disposable** test services, never the existing local or pilot database. See [Step 6 integration evidence](docs/07-testing/integration-privacy-ui-verification.md) for the exact checks and their limits.
 
 ---
 
