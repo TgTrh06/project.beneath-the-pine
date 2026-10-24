@@ -2,6 +2,9 @@
 
 ## Current
 
+- [ADR-0022 — OpenAI provider for a local Pine Assistance demo](0022-openai-assistance-demo.md) — Accepted for local/preview demo.
+
+- [ADR-0021 — Camp contract and accepted late join](0021-camp-contract-and-late-join.md) — Accepted.
 - [ADR-0014 — Private Circles, Focus Pact and Solo Return](0014-private-circles-focus-pact-product-direction.md) — Accepted.
 - [ADR-0015 — Pine Assistance and Local Model Training](0015-pine-assistance-local-model-training.md) — Accepted.
 - [ADR-0011 — NestJS, Drizzle and React Native + Expo](0011-nestjs-drizzle-mobile-direction.md) — Accepted.

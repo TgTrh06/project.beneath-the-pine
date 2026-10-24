@@ -4,12 +4,12 @@
 | --- | --- |
 | identity | Credentials, sessions and authenticated principal |
 | profile | Display name, timezone and account preferences |
-| circle | Circle, membership, invite and removal lifecycle |
+| camp | Camp, membership, invite and removal lifecycle |
 | pact | Pact, invitation and scheduling lifecycle |
 | focus | Solo/shared session, participant and server time state |
 | seed | Private Open Seed lifecycle |
 | presence | Ephemeral/recoverable realtime presence projection |
-| memory | Circle milestone derived from valid attendance |
+| memory | Camp milestone derived from valid attendance |
 | privacy | Export/delete orchestration and rights audit |
 | analytics | Allowlisted product events without private content |
 | assistance | Future orchestration of user-requested, validated model output |

@@ -9,6 +9,8 @@ This runbook prepares a consented private pilot. It does not authorize choosing 
 - The API container listens on `0.0.0.0:8081` by default. The host must route HTTP and WebSocket traffic to the same API instance and preserve Socket.IO upgrade requests.
 - The container does not run migrations on startup. Run `node scripts/migrate.cjs` as an explicit one-off command using the same image and the target database URL, only after its migration review is approved.
 
+Migration 0002 renames Circle to Camp in PostgreSQL and in the public API. Circle endpoints, payload keys and `#circle` links have no compatibility alias. Before any real rollout, rehearse 0002 on a restored database copy, compare row counts/UUIDs/foreign keys and keep a verified pre-migration backup. The previous API image cannot safely run against the renamed schema; rollback requires a separately approved reverse migration or restore, while a forward-fix requires review. This repository task does not run that migration on local, pilot or production data.
+
 ## Required configuration
 
 Set server configuration through the hosting platform's secret/environment manager. Never bake `.env` files or credentials into the image.
@@ -34,7 +36,7 @@ The web host must route `/api/v1` and the Socket.IO `/realtime` namespace/transp
 4. **Configure secrets and origins.** Set the required API and web variables in the selected hosts; check that credentials are not present in image layers, build output, logs, or client-visible variables.
 5. **Apply the reviewed migration.** Take/verify the required backup, then explicitly run the one-off migration command against the approved target. Stop on any migration error and preserve logs with credentials redacted.
 6. **Start the API and verify health.** `GET /health/live` must return success, then `GET /health/ready` must return success with database status `UP`. Stop if readiness fails.
-7. **Run smoke checks.** Through the public web origin, verify web load, registration/login/logout, cookie and CSRF behavior, a Solo start/check-out, Circle/Pact membership access, and a Socket.IO connection/subscription plus access revocation. Confirm an unauthorized origin is rejected and authenticated responses are not cached.
+7. **Run smoke checks.** Through the public web origin, verify web load, registration/login/logout, cookie and CSRF behavior, a Solo start/check-out, Camp/Pact membership access, and a Socket.IO connection/subscription plus access revocation. Confirm an unauthorized origin is rejected and authenticated responses are not cached.
 8. **Observe before inviting pilot users.** Review API availability, readiness, redacted error logs, database health/connection use, and websocket disconnects. Keep pilot access closed until the owner accepts the checks.
 
 ## Failure handling

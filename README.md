@@ -31,7 +31,7 @@ The backend is structured into clear, decoupled domain modules managed by `AppMo
 | --- | --- |
 | **`identity`** | Account creation, authentication, session tokens, and security principals. |
 | **`profile`** | Minimal user profile, preferences, and timezone configuration. |
-| **`circle`** | Private circles between trusted peers; invite codes, membership lifecycles, and access control. |
+| **`camp`** | Private camps between trusted peers; invite codes, membership lifecycles, and access control. |
 | **`pact`** | Scheduled or immediate Focus Pacts with invite acceptance, decline, cancellation, and expiry. |
 | **`focus`** | Solo and pact focus sessions, server-authoritative timer, and terminal outcome idempotency. |
 | **`seed`** | Single active Open Seed management to anchor and resume unfinished work cleanly. |
@@ -107,7 +107,7 @@ pnpm dev:api
 pnpm dev -- --host 127.0.0.1
 ```
 
-Check `http://127.0.0.1:8081/health/live` for process liveness and `http://127.0.0.1:8081/health/ready` for database readiness. Readiness must report the database as `UP` before exercising account, Circle, or Pact flows. If the browser reports a connection error, check both endpoints, the API terminal, `API_DATABASE_URL`, and that the browser origin matches `API_WEB_ORIGIN`.
+Check `http://127.0.0.1:8081/health/live` for process liveness and `http://127.0.0.1:8081/health/ready` for database readiness. Readiness must report the database as `UP` before exercising account, Camp, or Pact flows. If the browser reports a connection error, check both endpoints, the API terminal, `API_DATABASE_URL`, and that the browser origin matches `API_WEB_ORIGIN`.
 
 ---
 
@@ -127,7 +127,7 @@ Check `http://127.0.0.1:8081/health/live` for process liveness and `http://127.0
 | `pnpm db:local:down` | Stop and remove the local PostgreSQL container. |
 | `pnpm db:local:logs` | Follow logs from the local PostgreSQL container. |
 
-Database-gated API tests use `BTP_TEST_DATABASE_URL`. The opt-in Solo/Pact HTTP suites use `BTP_SOLO_DATABASE_URL`, `BTP_SOLO_API_URL` (for example `http://127.0.0.1:8081/api/v1`) and `BTP_SOLO_WEB_ORIGIN`; the Circle invite suite uses the database and origin variables. Point these only at **disposable** test services, never the existing local or pilot database. See [Step 6 integration evidence](docs/07-testing/integration-privacy-ui-verification.md) for the exact checks and their limits.
+Database-gated API tests use `BTP_TEST_DATABASE_URL`. The opt-in Solo/Pact HTTP suites use `BTP_SOLO_DATABASE_URL`, `BTP_SOLO_API_URL` (for example `http://127.0.0.1:8081/api/v1`) and `BTP_SOLO_WEB_ORIGIN`; the Camp invite suite uses the database and origin variables. Point these only at **disposable** test services, never the existing local or pilot database. See [Step 6 integration evidence](docs/07-testing/integration-privacy-ui-verification.md) for the exact checks and their limits.
 
 ---
 

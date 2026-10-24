@@ -4,7 +4,7 @@
 
 | Layer | Evidence |
 | --- | --- |
-| Domain | State-machine invariants for seed, Circle, invite, pact and session |
+| Domain | State-machine invariants for seed, Camp, invite, pact and session |
 | API | Auth, validation, two-account ownership, stable errors and idempotency |
 | Database | Constraints, transaction rollback and terminal-race behavior on PostgreSQL |
 | Realtime | Authorized join, late join, reconnect snapshot, duplicate command and timer drift |

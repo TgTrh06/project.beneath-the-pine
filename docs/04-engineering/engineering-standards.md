@@ -1,7 +1,7 @@
 # Engineering Standards
 
 - Favor one coherent vertical slice over broad scaffolding.
-- Authorize every resource at owner/Circle/pact/session boundary.
+- Authorize every resource at owner/Camp/pact/session boundary.
 - Persist lifecycle truth before broadcasting it.
 - Treat websocket messages as untrusted input and idempotent commands.
 - Include privacy/export/delete impact in every persistent entity change.

@@ -1,6 +1,6 @@
 # Core API
 
-NestJS modular monolith with PostgreSQL, Drizzle and Socket.IO. The core modules implement account/profile, private Circle invitation, Focus Pact, solo/shared session, Open Seed, presence, milestone, privacy export/deletion and allowlisted events.
+NestJS modular monolith with PostgreSQL, Drizzle and Socket.IO. The core modules implement account/profile, private Camp invitation, Focus Pact, solo/shared session, Open Seed, presence, milestone, privacy export/deletion and allowlisted events.
 
 ## Commands
 

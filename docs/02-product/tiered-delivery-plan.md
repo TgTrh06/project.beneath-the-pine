@@ -1,5 +1,23 @@
 # Delivery Plan
 
+## Current core closeout — 2026-10-24
+
+Stage 1 was estimated at **8–12 engineering days** for C01–C05, including the breaking Circle → Camp migration and browser acceptance. The local core gate is now **met on an isolated PostgreSQL database and one API instance**. Remaining pre-pilot verification is **XS–S**: force a lost start response in a browser, then repeat smoke checks on the chosen pilot environment. This is relative effort, not a calendar promise. Earlier Circle evidence below remains historical; current Camp results are in [C01 baseline](../07-testing/core-c01-baseline.md) and the [demo record](../07-testing/core-closeout-demo.md).
+
+| Task | Current status | Exit evidence still required |
+| --- | --- | --- |
+| C01 baseline | Đạt: pre-change inventory plus final live/browser table; workspace lint, test, build and health checks pass. | Preserve this record as the release baseline. |
+| C02 Solo browser | Đạt for draft/reload, timer, checkout network retry, Seed and return; API live covers duplicate start. | Browser simulation of a lost start response remains an XS follow-up. |
+| C03 Camp/Pact | Đạt: clean and old-data migration on disposable DB; two-account invite, immediate/scheduled Pact, response change, separate start, late join, checkout and cancel. | Rollout of the breaking contract requires its own deploy/migration approval. |
+| C04 realtime/privacy | Đạt within one API instance: two browser sessions share timer/presence, reconnect, outsider denial and revoked-member recovery; privacy marker check passes. | Multi-instance broadcast and long-running pilot logs remain outside this core gate. |
+| C05 blockers | Đạt: late-join domain defect and misleading join button after checkout fixed and rerun. | Track remaining non-blocking limits in the demo record. |
+
+The **local core gate is met** for the Solo and Camp/Pact demo scripts. This does not open the pilot: hosting, backup, production secrets, real-data migration and deployment still require a separate plan and approval. Keep AI off the main screen until the pilot gate. See [ADR-0021](../04-engineering/adr/0021-camp-contract-and-late-join.md) for compatibility and rollback.
+
+An exception for a **local/preview Pine Assistance demo** is approved behind disabled-by-default UI/API flags. It covers only `assisted_start` and `open_seed_draft` with fictional data; it does not open the pilot gate or change the P6 release status. See [ADR-0022](../04-engineering/adr/0022-openai-assistance-demo.md) and the [demo script](../07-testing/pine-assistance-demo.md).
+
+## Historical baseline — 2026-10-21 (Circle contract)
+
 | Phase | Outcome | Baseline status (2026-10-21) | Remaining estimate | Exit evidence |
 | --- | --- | --- | --- | --- |
 | P0 Foundation | Identity, ownership, privacy and contracts are stable | Đã xong: standard workspace build/lint/test pass; 4 opt-in database/migration suites remain skipped | XS | Two-account authorization and data-rights tests pass; run isolated DB suites only when their test database is approved |
@@ -22,7 +40,7 @@ Estimate scale: XS < 1 day; S 1–3 days; M 4–10 days; L > 10 days. These are 
 | Pact | Đã xong: current live API checks pass | Current live suite covers participant-only lists, respond/start/join, revocation, archive and pagination. Responsive UI evidence uses controlled fixtures, not live browser E2E. |
 | Realtime | Đã xong: current auth/snapshot/revocation and presence event checks pass | Realtime tests verify authenticated snapshots, `presence.updated` payload validation, current access recheck before delivery, and no duplicate event for an unchanged presence value. The live Pact suite verifies snapshot delivery and access revocation. A full DB-backed two-client presence event run remains unverified. |
 
-## Current Checks and Blockers
+## Historical checks and blockers — 2026-10-21
 
 | Check / issue | Result | Reproduction and impact |
 | --- | --- | --- |
