@@ -18,6 +18,9 @@ const schema = z.object({
     }).optional()),
   API_DB_POOL_MAX: integer(1, 20).default(5),
   API_DB_TIMEOUT_MS: integer(100, 30000).default(3000),
+  API_ASSISTANCE_PROVIDER: z.enum(['disabled', 'openai']).default('disabled'),
+  OPENAI_API_KEY: z.string().optional(),
+  OPENAI_MODEL: z.string().min(1).default('gpt-6-luna'),
 });
 
 export class ConfigError extends Error {

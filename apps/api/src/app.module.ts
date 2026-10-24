@@ -12,6 +12,7 @@ import { PactModule } from './modules/pact/pact.module';
 import { SeedModule } from './modules/seed/seed.module';
 import { PresenceModule } from './modules/presence/presence.module';
 import { MemoryModule } from './modules/memory/memory.module';
+import { AssistanceModule } from './modules/assistance/assistance.module';
 import { PreferencesModule } from './modules/preferences/preferences.module';
 
 @Module({
@@ -27,6 +28,7 @@ import { PreferencesModule } from './modules/preferences/preferences.module';
     MemoryModule,
     AnalyticsModule,
     PrivacyModule,
+    AssistanceModule,
     PreferencesModule,
   ],
 })

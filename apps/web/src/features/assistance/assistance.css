@@ -1,0 +1,5 @@
+.assistance-coach { margin-block:1rem; padding-block:.75rem; border-block:1px solid var(--line); }
+.assistance-coach > p { line-height:1.6; }
+.assistance-coach__proposal { margin-top:1rem; }
+.assistance-coach__proposal textarea { min-height:5rem; font-size:1rem; line-height:1.6; }
+.assistance-coach__proposal .button-row { margin-top:.75rem; flex-wrap:wrap; }
