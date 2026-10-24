@@ -32,6 +32,13 @@
 .start-help ul { padding:0; list-style:none; }
 .start-help li { overflow-wrap:anywhere; }
 .start-help ul li { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:.25rem .75rem; margin-block:.5rem; }
+.focus-preset { display:grid; justify-items:start; gap:.6rem; margin-block:1rem 1.5rem; }
+.focus-preset label { width:100%; }
+.focus-preset select { width:100%; }
+.focus-preset .secondary { text-align:left; white-space:normal; }
+.first-time-hint { padding:1rem 1.25rem; margin:1rem 0; background:var(--wash); border-left:3px solid var(--chestnut); border-radius:6px; }
+.first-time-hint__header { display:flex; justify-content:space-between; align-items:center; gap:.75rem; flex-wrap:wrap; }
+.first-time-hint p { margin:.75rem 0; line-height:1.6; }
 @media (max-width:800px) {
   .return-grid { grid-template-columns:minmax(0,1fr); gap:2rem; }
   .return-schedule { padding-inline: .25rem; }

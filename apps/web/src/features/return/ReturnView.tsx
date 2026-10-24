@@ -8,6 +8,9 @@ import { useResource } from "../../shared/api/useResource";
 import { Dialog, DurationPicker, ErrorMessage, type Duration } from "../../shared/components/ui";
 import { deviceTimezone, formatTime, validTimezone } from "../../shared/time";
 import { usePrivateDraft } from "../../shared/auth/usePrivateDraft";
+import { PresetFocus } from './PresetFocus';
+import type { SoundId } from '../focus/Soundscape';
+import { draftOwner, writePrivateDraft } from '../../shared/auth/privateDrafts';
 
 const loadReturn = async () => {
   const [state, profile] = await Promise.all([getReturnState(), getProfile()]);
@@ -17,6 +20,7 @@ export function ReturnView({ onSession, onPact }: { onSession: (id: string) => v
   const resource = useResource(loadReturn); const state = resource.data;
   const [intention, setIntention, clearIntention] = usePrivateDraft("return:intention", "", { persist:true });
   const [duration, setDuration, clearDuration] = usePrivateDraft<Duration>("return:duration", 10, { persist:true });
+  const [sound, setSound] = usePrivateDraft<SoundId | null>('return:soundscape',null,{persist:true});
   const [editing, setEditing, clearEditing] = usePrivateDraft("return:editing", false, { persist:true });
   const [startRequest, setStartRequest, clearStartRequest] = usePrivateDraft<{ payload:string; key:string } | null>("return:start-request", null, { persist:true });
   const [seedDraft, setSeedDraft, clearSeedDraft] = usePrivateDraft("return:seed-replacement", "", { persist:true });
@@ -59,9 +63,9 @@ export function ReturnView({ onSession, onPact }: { onSession: (id: string) => v
         const payload = { intention:intention.trim(), durationMinutes:duration };
         const request = stableRequestKey(startRequest, payload, newRequestKey);
         if (request !== startRequest) setStartRequest(request);
-        try { const value = await startSolo(payload, request.key); clearStartRequest(); clearIntention(); clearDuration(); clearEditing(); onSession(value.session.id); }
+        try { const value = await startSolo(payload, request.key); writePrivateDraft(draftOwner(), `session:${value.session.id}:soundscape`, sound, true); clearStartRequest(); clearIntention(); clearDuration(); clearEditing(); onSession(value.session.id); }
         catch (failure) { if (failure instanceof ApiRequestError && failure.status === 409) await resource.reload(); throw failure; }
-      }); }}><fieldset className="return-fields" disabled={busy}><label>Việc nhỏ bạn muốn bắt đầu<textarea ref={input} placeholder="Ví dụ: mở tài liệu và viết một câu đầu tiên" value={intention} required maxLength={280} onChange={e => { clearStartRequest(); setIntention(e.target.value); }} aria-describedby="intention-count" /></label><p className="field-hint" id="intention-count">{intention.length}/280 ký tự · Chỉ riêng bạn nhìn thấy.</p><StartHelp value={intention} onChoose={value => { clearStartRequest(); setIntention(value); requestAnimationFrame(() => input.current?.focus()); }}/><DurationPicker value={duration} onChange={value => { clearStartRequest(); setDuration(value); }}/><ErrorMessage message={confirm ? "" : error}/><button className="primary" disabled={busy || !intention.trim()}>{busy ? "Đang mở phiên…" : "Bắt đầu phiên"}</button></fieldset></form>}
+      }); }}><fieldset className="return-fields" disabled={busy}><label>Việc nhỏ bạn muốn bắt đầu<textarea ref={input} placeholder="Ví dụ: mở tài liệu và viết một câu đầu tiên" value={intention} required maxLength={280} onChange={e => { clearStartRequest(); setIntention(e.target.value); }} aria-describedby="intention-count" /></label><p className="field-hint" id="intention-count">{intention.length}/280 ký tự · Chỉ riêng bạn nhìn thấy.</p><StartHelp value={intention} onChoose={value => { clearStartRequest(); setIntention(value); requestAnimationFrame(() => input.current?.focus()); }}/><DurationPicker value={duration} onChange={value => { clearStartRequest(); setDuration(value); }}/><PresetFocus duration={duration} setDuration={setDuration} sound={sound} setSound={setSound}/><ErrorMessage message={confirm ? "" : error}/><button className="primary" disabled={busy || !intention.trim()}>{busy ? "Đang mở phiên…" : "Bắt đầu phiên"}</button></fieldset></form>}
     </>}
     </div><aside className="return-schedule" aria-labelledby="return-schedule-title"><p className="eyebrow">CÙNG NHAU</p><h2 id="return-schedule-title">Hẹn cùng nhau</h2>
       {state.upcomingPacts.length > 0 ? <><p className="field-hint">Những cuộc hẹn đã nhận lời · {state.timezone}</p><ul className="return-appointments">{state.upcomingPacts.map(pact => <li key={pact.id}><button onClick={() => onPact(pact.id)}><span>{formatTime(pact.startsAt,state.timezone)}</span><span className="field-hint">{pact.durationMinutes} phút · Xem cuộc hẹn</span></button></li>)}</ul></> : <p className="muted">Chưa có cuộc hẹn nào đã nhận lời. Bạn có thể dành chặng này cho riêng mình.</p>}

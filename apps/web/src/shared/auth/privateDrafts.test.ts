@@ -34,9 +34,9 @@ describe("private drafts", () => {
   it("keeps non-opted-in drafts in memory only", async () => {
     const drafts = await import("./privateDrafts");
     drafts.setDraftOwner("a");
-    drafts.writePrivateDraft("a", "circle:private-selection", ["member"]);
+    drafts.writePrivateDraft("a", "camp:private-selection", ["member"]);
     expect(storage.length).toBe(0);
-    expect(drafts.readPrivateDraft("a", "circle:private-selection", () => [])).toEqual(["member"]);
+    expect(drafts.readPrivateDraft("a", "camp:private-selection", () => [])).toEqual(["member"]);
   });
 
   it("isolates accounts and rejects stale writes when the owner changes", async () => {

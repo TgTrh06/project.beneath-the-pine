@@ -8,7 +8,7 @@ test('analytics metadata permits only documented event fields', async () => {
   assert.deepEqual(safeProductMetadata('solo_session_started', { durationMinutes: 25, intention: privateText, openSeed: privateText }), { durationMinutes: 25 });
   assert.deepEqual(safeProductMetadata('pact_created', { durationMinutes: 9, note: privateText }), {});
   assert.deepEqual(safeProductMetadata('session_checked_out', { outcome: 'progress', note: privateText }), { outcome: 'progress' });
-  assert.deepEqual(safeProductMetadata('circle_created', { intention: privateText }), {});
+  assert.deepEqual(safeProductMetadata('camp_created', { intention: privateText }), {});
 
   const writes: unknown[] = [];
   const database = { db: { insert: () => ({ values: async (value: unknown) => { writes.push(value); } }) } } as unknown as DatabaseService;

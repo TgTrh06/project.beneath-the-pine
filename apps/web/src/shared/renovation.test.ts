@@ -19,8 +19,8 @@ describe("theme and private navigation", () => {
     expect(resolveHashRoute("#invite/"+token)).toEqual({view:"invite",id:token});
     expect(resolveHashRoute("#https://evil.example").view).toBe("return");
     expect(resolveHashRoute("#invite/not-valid").view).toBe("return");
-    const record = safeFrontendErrorRecord({event:"failure",area:"api",path:"/circle-invites/"+token+"/accept"});
-    expect(record.path).toBe("/circle-invites/[redacted]/accept");
+    const record = safeFrontendErrorRecord({event:"failure",area:"api",path:"/camp-invites/"+token+"/accept"});
+    expect(record.path).toBe("/camp-invites/[redacted]/accept");
     expect(JSON.stringify(record)).not.toContain(token);
   });
 });
@@ -99,6 +99,7 @@ describe("Pact permissions and lifecycle", () => {
     }
     const active={...pact,status:"active",sessionId:"session",participants:pact.participants.map(person=>person.accountId==="member"?{...person,response:"accepted"}:person)} as FocusPact;
     expect(pactActions(active,"member",time).join).toBe(true);
+    expect(pactActions(active,"member",time,false).join).toBe(false);
     expect(pactActions({...active,participants:active.participants.map(person=>person.accountId==="member"?{...person,response:"declined"}:person)} as FocusPact,"member",time).join).toBe(false);
     expect(pactActions({...active,participants:active.participants.map(person=>person.accountId==="member"?{...person,response:"invited"}:person)} as FocusPact,"member",time).join).toBe(false);
     expect(pactActions({...active,status:"active",sessionId:null},"owner",time).join).toBe(false);

@@ -2,7 +2,7 @@
   "name": "@beneath-the-pine/api",
   "version": "0.1.0",
   "private": true,
-  "description": "Private Circle, Focus Pact and Solo Return core API.",
+  "description": "Private Camp, Focus Pact and Solo Return core API.",
   "scripts": {
     "db:migrate": "node scripts/migrate.cjs",
     "predev": "pnpm --filter @beneath-the-pine/contracts build",
@@ -13,7 +13,7 @@
     "prelint": "pnpm --filter @beneath-the-pine/contracts build",
     "lint": "tsc --noEmit && tsc -p tsconfig.test.json --noEmit && tsc -p tsconfig.tooling.json --noEmit && node scripts/check-boundaries.cjs",
     "pretest": "pnpm --filter @beneath-the-pine/contracts build",
-    "test": "tsc -p tsconfig.test.json && node --test dist-test/test/*.test.js"
+    "test": "node scripts/clean-test-output.cjs && tsc -p tsconfig.test.json && node --test dist-test/test/*.test.js"
   },
   "dependencies": {
     "@beneath-the-pine/contracts": "workspace:*",

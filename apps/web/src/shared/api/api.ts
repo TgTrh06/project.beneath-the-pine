@@ -1,4 +1,4 @@
-import type { Circle, CircleInvitePreview, FocusPact, FocusSession, Profile, ReturnState } from "@beneath-the-pine/contracts";
+import type { AssistanceInteraction, AssistanceRequest, AssistanceResponse, Camp, CampInvitePreview, FocusPact, FocusSession, PactReminderClaim, Preferences, Profile, ReturnState } from "@beneath-the-pine/contracts";
 import { expireSession, getCsrfToken } from "../auth/auth";
 import { logFrontendError } from "../logging/logger";
 
@@ -41,6 +41,8 @@ const mutation = <T>(
 export const newRequestKey = () => crypto.randomUUID();
 export const getReturnState = () => request<ReturnState>("/me/return");
 export const getProfile = () => request<{ profile: Profile | null }>("/me/profile");
+export const getPreferences = () => request<{ preferences: Preferences }>("/me/preferences");
+export const updatePreferences = (value: Partial<Preferences>) => mutation<{ preferences: Preferences }>("/me/preferences", "PATCH", value);
 export const updateProfile = (value: Partial<Profile>) => mutation<{ profile: Profile }>("/me/profile", "PATCH", value);
 export const startSolo = (value: { intention: string; durationMinutes: 5 | 10 | 25 | 50 }, key: string) => mutation<{ session: FocusSession }>("/focus-sessions", "POST", value, key);
 export const getSession = (id: string) => request<{ session: FocusSession }>(`/focus-sessions/${id}`);
@@ -48,34 +50,35 @@ export const joinSession = (id: string) => mutation<{ session: FocusSession }>(`
 export const checkOut = (id: string, value: { outcome: "completed" | "progress" | "stuck" | "stopped"; openSeed?: string | null }) => mutation<{ session: FocusSession }>(`/focus-sessions/${id}/check-out`, "POST", value);
 export const putSeed = (text: string) => mutation<{ openSeed: NonNullable<ReturnState["openSeed"]> }>("/me/open-seed", "PUT", { text });
 export const deleteSeed = () => mutation<void>("/me/open-seed", "DELETE");
-export const listCircles = () => request<{ circles: Circle[] }>("/circles");
-export const getCircle = (id: string) => request<{ circle: Circle }>(`/circles/${id}`);
-export const createCircle = (name: string) => mutation<{ circle: { id: string } }>("/circles", "POST", { name });
-export const createCircleInvite = (id: string) => mutation<{ invite: { id: string; token: string; expiresAt: string } }>(`/circles/${id}/invites`, "POST", { expiresInHours: 72 });
-export const getCircleInvitePreview = (token: string) => request<{ invite: CircleInvitePreview }>(`/circle-invites/${token}/preview`);
-export const declineCircleInvite = (token: string) => mutation<void>(`/circle-invites/${token}/decline`, "POST");
-export const acceptCircleInvite = (token: string) => mutation<{ circleId: string }>(`/circle-invites/${token}/accept`, "POST");
+export const listCamps = () => request<{ camps: Camp[] }>("/camps");
+export const getCamp = (id: string) => request<{ camp: Camp }>(`/camps/${id}`);
+export const getRecentPartners = (id: string) => request<{ accountIds: string[] }>(`/camps/${id}/recent-partners`);
+export const createCamp = (name: string) => mutation<{ camp: { id: string } }>("/camps", "POST", { name });
+export const createCampInvite = (id: string) => mutation<{ invite: { id: string; token: string; expiresAt: string } }>(`/camps/${id}/invites`, "POST", { expiresInHours: 72 });
+export const getCampInvitePreview = (token: string) => request<{ invite: CampInvitePreview }>(`/camp-invites/${token}/preview`);
+export const declineCampInvite = (token: string) => mutation<void>(`/camp-invites/${token}/decline`, "POST");
+export const acceptCampInvite = (token: string) => mutation<{ campId: string }>(`/camp-invites/${token}/accept`, "POST");
 export const createPact = (
-  circleId: string,
+  campId: string,
   value: {
     participantIds: string[];
     startsAt: string;
     durationMinutes: 5 | 10 | 25 | 50
   },
   key: string
-) => mutation<{ pact: FocusPact }>(`/circles/${circleId}/pacts`, "POST", value, key);
+) => mutation<{ pact: FocusPact }>(`/camps/${campId}/pacts`, "POST", value, key);
 
 export const getPact = (id: string) => request<{ pact: FocusPact }>(`/pacts/${id}`);
 export const respondPact = (id: string, response: "accepted" | "declined") => mutation<{ pact: FocusPact }>(`/pacts/${id}/respond`, "POST", { response });
 export const startPact = (id: string, key: string) => mutation<{ session: FocusSession }>(`/pacts/${id}/start`, "POST", undefined, key);
-export const getMemory = () => request<{ milestones: Array<{ id: string; circleId: string; recordedAt: string }> }>("/me/memory");
+export const getMemory = () => request<{ milestones: Array<{ id: string; campId: string; recordedAt: string }> }>("/me/memory");
 export const exportData = () => request<unknown>("/me/data-export");
 export const deleteAccount = (password: string) => mutation<void>("/me/account", "DELETE", { password });
-export const updateCircle = (id: string, name: string) => mutation(`/circles/${id}`, "PATCH", { name });
-export const revokeInvite = (id: string, inviteId: string) => mutation<void>(`/circles/${id}/invites/${inviteId}`, "DELETE");
-export const removeMember = (id: string, accountId: string) => mutation<void>(`/circles/${id}/members/${accountId}`, "DELETE");
-export const leaveCircle = (id: string) => mutation<void>(`/circles/${id}/members/me`, "DELETE");
-export const transferCircle = (id: string, accountId: string) => mutation<void>(`/circles/${id}/ownership-transfer`, "POST", { accountId });
+export const updateCamp = (id: string, name: string) => mutation(`/camps/${id}`, "PATCH", { name });
+export const revokeInvite = (id: string, inviteId: string) => mutation<void>(`/camps/${id}/invites/${inviteId}`, "DELETE");
+export const removeMember = (id: string, accountId: string) => mutation<void>(`/camps/${id}/members/${accountId}`, "DELETE");
+export const leaveCamp = (id: string) => mutation<void>(`/camps/${id}/members/me`, "DELETE");
+export const transferCamp = (id: string, accountId: string) => mutation<void>(`/camps/${id}/ownership-transfer`, "POST", { accountId });
 export const cancelPact = (id: string) => mutation<{ pact: FocusPact }>(`/pacts/${id}/cancel`, "POST");
 export type HistoryEntry = {
   id: string;
@@ -87,11 +90,15 @@ export type HistoryEntry = {
 };
 export const getHistory = () => request<{ sessions: HistoryEntry[] }>("/me/focus-history");
 
-export const listPacts = (group: string, cursor?: string, circleId?: string) =>
-  request<import('@beneath-the-pine/contracts').PactPage>(`${circleId ? `/circles/${circleId}/pacts` : '/me/pacts'}?group=${encodeURIComponent(group)}${cursor ? `&cursor=${encodeURIComponent(cursor)}` : ''}`);
+export const listPacts = (group: string, cursor?: string, campId?: string) =>
+  request<import('@beneath-the-pine/contracts').PactPage>(`${campId ? `/camps/${campId}/pacts` : '/me/pacts'}?group=${encodeURIComponent(group)}${cursor ? `&cursor=${encodeURIComponent(cursor)}` : ''}`);
+export const claimDuePactReminders = () => mutation<PactReminderClaim>('/me/pact-reminders/claim-due', 'POST');
 
-export const listCircleInvites = (id: string, cursor?: string) =>
-  request<import('@beneath-the-pine/contracts').InvitePage>(`/circles/${id}/invites${cursor ? `?cursor=${encodeURIComponent(cursor)}` : ''}`);
+export const listCampInvites = (id: string, cursor?: string) =>
+  request<import('@beneath-the-pine/contracts').InvitePage>(`/camps/${id}/invites${cursor ? `?cursor=${encodeURIComponent(cursor)}` : ''}`);
 
-export const setCircleStatus = (id: string, status: 'active' | 'archived') =>
-  mutation(`/circles/${id}`, 'PATCH', { status });
+export const setCampStatus = (id: string, status: 'active' | 'archived') =>
+  mutation(`/camps/${id}`, 'PATCH', { status });
+
+export const requestAssistance = (value: AssistanceRequest) => mutation<AssistanceResponse>('/me/assistance', 'POST', value);
+export const recordAssistanceInteraction = (value: AssistanceInteraction) => mutation<void>('/me/assistance/interactions', 'POST', value);

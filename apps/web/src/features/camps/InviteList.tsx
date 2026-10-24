@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
 import type { InviteListItem } from '@beneath-the-pine/contracts';
-import { listCircleInvites, revokeInvite } from '../../shared/api/api';
+import { listCampInvites, revokeInvite } from '../../shared/api/api';
 import { Dialog, ErrorMessage } from '../../shared/components/ui';
 import { formatTime } from '../../shared/time';
 export function InviteList({id,timezone,revision,onRevoked}:{id:string;timezone:string;revision:number;onRevoked?:(id:string)=>void}) {
   const [items,setItems]=useState<InviteListItem[]>([]);const [cursor,setCursor]=useState<string|null>(null);const [error,setError]=useState('');const [busy,setBusy]=useState(false);const [confirm,setConfirm]=useState<string|null>(null);const lock=useRef(false);const alive=useRef(true);
-  const load=async(next?:string)=>{setError('');const page=await listCircleInvites(id,next);if(alive.current){setItems(old=>next?[...old,...page.items.filter(item=>!old.some(x=>x.id===item.id))]:page.items);setCursor(page.nextCursor);}};
+  const load=async(next?:string)=>{setError('');const page=await listCampInvites(id,next);if(alive.current){setItems(old=>next?[...old,...page.items.filter(item=>!old.some(x=>x.id===item.id))]:page.items);setCursor(page.nextCursor);}};
   const act=async(action:()=>Promise<void>)=>{if(lock.current)return;lock.current=true;setBusy(true);try{await action();}catch(e){if(alive.current)setError((e as Error).message);}finally{lock.current=false;if(alive.current)setBusy(false);}};
   useEffect(()=>{alive.current=true;void act(()=>load());return()=>{alive.current=false;};},[id,revision]);
   const labels={pending:'Còn hiệu lực',accepted:'Đã sử dụng',revoked:'Đã thu hồi',expired:'Đã hết hạn'};

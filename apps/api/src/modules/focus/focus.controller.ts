@@ -28,6 +28,11 @@ export class FocusController {
     };
   }
 
+  @Get('camps/:campId/recent-partners')
+  async recentPartners(@Param('campId') campId: string, @Req() req: Request) {
+    return { accountIds: await this.focus.recentPartners(campId, principal(req).id) };
+  }
+
   @Post('focus-sessions')
   async start(@Req() req: Request) {
     return {

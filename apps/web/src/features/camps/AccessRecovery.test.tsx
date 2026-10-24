@@ -1,20 +1,20 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { renderToStaticMarkup } from 'react-dom/server';
-import { CircleView } from './CircleView';
+import { CampView } from './CampView';
 import { PactView } from '../pacts/PactView';
 import { ReturnView } from '../return/ReturnView';
 
 let resource: { loading: boolean; error: string; data: unknown; reload: () => Promise<void> };
 vi.mock('../../shared/api/useResource', () => ({ useResource: () => resource }));
 
-describe('unavailable Circle and Pact recovery', () => {
+describe('unavailable Camp and Pact recovery', () => {
   beforeEach(() => { resource = { loading: false, error: 'Bạn không có quyền truy cập.', data: null, reload: async () => {} }; });
 
-  it('offers a safe destination when a Circle cannot be loaded', () => {
-    const html = renderToStaticMarkup(<CircleView id="circle" accountId="outsider" onPact={() => {}} onLeave={() => {}} onNotice={() => {}}/>);
+  it('offers a safe destination when a Camp cannot be loaded', () => {
+    const html = renderToStaticMarkup(<CampView id="camp" accountId="outsider" onPact={() => {}} onLeave={() => {}} onNotice={() => {}}/>);
     expect(html).toContain('Bạn không có quyền truy cập.');
     expect(html).toContain('Thử lại');
-    expect(html).toContain('Về danh sách Circle');
+    expect(html).toContain('Về danh sách Camp');
   });
 
   it('offers a safe destination when a Pact cannot be loaded', () => {
@@ -26,10 +26,10 @@ describe('unavailable Circle and Pact recovery', () => {
 
   it('shows loading instead of denial before the first response', () => {
     resource = { ...resource, loading: true, error: '' };
-    const circle = renderToStaticMarkup(<CircleView id="circle" accountId="outsider" onPact={() => {}} onLeave={() => {}} onNotice={() => {}}/>);
+    const camp = renderToStaticMarkup(<CampView id="camp" accountId="outsider" onPact={() => {}} onLeave={() => {}} onNotice={() => {}}/>);
     const pact = renderToStaticMarkup(<PactView id="pact" accountId="outsider" onSession={() => {}} onPacts={() => {}} onNotice={() => {}}/>);
-    expect(circle).toContain('Đang mở Circle');
-    expect(circle).not.toContain('Về danh sách Circle');
+    expect(camp).toContain('Đang mở Camp');
+    expect(camp).not.toContain('Về danh sách Camp');
     expect(pact).toContain('Đang mở cuộc hẹn');
     expect(pact).not.toContain('Về danh sách cuộc hẹn');
   });

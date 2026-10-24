@@ -1,47 +1,47 @@
 import { z } from "zod";
 import { dateTimeSchema, idSchema } from "./shared";
-export const circleRoleSchema = z.enum(["owner", "member"]);
-export const circleStatusSchema = z.enum(["active", "archived"]);
+export const campRoleSchema = z.enum(["owner", "member"]);
+export const campStatusSchema = z.enum(["active", "archived"]);
 
-export const circleMemberSchema = z.object({
+export const campMemberSchema = z.object({
     accountId: idSchema,
     displayName: z.string().nullable(),
-    role: circleRoleSchema,
+    role: campRoleSchema,
     joinedAt: dateTimeSchema
 });
 
-export const circleSchema = z.object({
+export const campSchema = z.object({
     id: idSchema,
     name: z.string(),
-    status: circleStatusSchema,
-    myRole: circleRoleSchema,
+    status: campStatusSchema,
+    myRole: campRoleSchema,
     memberCount: z.number().int(),
-    members: z.array(circleMemberSchema).optional(),
+    members: z.array(campMemberSchema).optional(),
     createdAt: dateTimeSchema
 });
 
-export const createCircleSchema = z.object({ name: z.string().trim().min(1).max(80) }).strict();
+export const createCampSchema = z.object({ name: z.string().trim().min(1).max(80) }).strict();
 
-export const updateCircleSchema = z.object({
+export const updateCampSchema = z.object({
     name: z.string().trim().min(1).max(80).optional(),
-    status: circleStatusSchema.optional()
+    status: campStatusSchema.optional()
 }).strict().refine(value => Object.keys(value).length > 0);
 
-export const createCircleInviteSchema = z.object({
+export const createCampInviteSchema = z.object({
     expiresInHours: z.number().int().min(1).max(168).default(72)
 }).strict();
 
 export const transferOwnershipSchema = z.object({ accountId: idSchema }).strict();
 
-export const circleInviteSchema = z.object({
+export const campInviteSchema = z.object({
     id: idSchema,
-    circleId: idSchema,
+    campId: idSchema,
     token: z.string().optional(),
     expiresAt: dateTimeSchema,
     status: z.enum(["pending", "accepted", "revoked", "expired"])
 });
 
-export type Circle = z.infer<typeof circleSchema>;
+export type Camp = z.infer<typeof campSchema>;
 
 export const inviteListQuerySchema = z.object({
     limit: z.coerce.number().int().min(1).max(50).default(20),
@@ -52,7 +52,7 @@ export type InviteListQuery = z.infer<typeof inviteListQuerySchema>;
 
 export type InviteListItem = {
     id: string;
-    circleId: string;
+    campId: string;
     createdAt: string;
     expiresAt: string;
     status: 'pending' | 'accepted' | 'revoked' | 'expired'
@@ -63,7 +63,7 @@ export type InvitePage = {
     nextCursor: string | null
 };
 
-export type CircleInvitePreview = {
-    circleName: string;
+export type CampInvitePreview = {
+    campName: string;
     inviterName: string | null;
 };

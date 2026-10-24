@@ -23,7 +23,7 @@ export const pactParticipantSchema = z.object({
 
 export const pactSchema = z.object({
     id: idSchema,
-    circleId: idSchema,
+    campId: idSchema,
     creatorId: idSchema.nullable(),
     startsAt: dateTimeSchema,
     durationMinutes: durationMinutesSchema,
@@ -35,6 +35,19 @@ export const pactSchema = z.object({
 
 export type FocusPact = z.infer<typeof pactSchema>;
 
+export const recentPartnersSchema = z.object({ accountIds: z.array(idSchema).max(7) });
+
+export const pactReminderClaimSchema = z.object({
+    serverNow: dateTimeSchema,
+    items: z.array(z.object({
+        id: idSchema,
+        campName: z.string(),
+        startsAt: dateTimeSchema,
+        durationMinutes: durationMinutesSchema
+    })).max(5)
+});
+export type PactReminderClaim = z.infer<typeof pactReminderClaimSchema>;
+
 export const pactListQuerySchema = z.object({
     group: z.enum(['pending', 'upcoming', 'active', 'past']).default('pending'),
     limit: z.coerce.number().int().min(1).max(50).default(20),
@@ -45,8 +58,8 @@ export type PactListQuery = z.infer<typeof pactListQuerySchema>;
 
 export type PactListItem = {
     id: string;
-    circleId: string;
-    circleName: string;
+    campId: string;
+    campName: string;
     startsAt: string;
     durationMinutes: number;
     status: z.infer<typeof pactStatusSchema>;

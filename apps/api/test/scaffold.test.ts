@@ -33,11 +33,11 @@ test('application composition, HTTP foundation and fail-closed access', async t 
   t.after(() => app.close());
   const server = app.getHttpServer();
   await t.test('target core modules compose and removed legacy routes stay absent', async () => {
-    const expected = ['Identity', 'Profile', 'Circle', 'Pact', 'Focus', 'Seed', 'Presence', 'Memory', 'Analytics', 'Privacy'].map(name => `${name}Module`);
+    const expected = ['Identity', 'Profile', 'Camp', 'Pact', 'Focus', 'Seed', 'Presence', 'Memory', 'Analytics', 'Privacy'].map(name => `${name}Module`);
     const names = [...app.get(ModulesContainer).values()].map(module => module.metatype.name);
     for (const name of expected) assert.ok(names.includes(name), `${name} missing`);
-    assert.ok(!names.includes('AiModule'));
-    for (const route of ['/api/v1/tasks', '/api/v1/captures']) {
+    assert.ok(names.includes('AssistanceModule'));
+    for (const route of ['/api/v1/tasks', '/api/v1/captures', '/api/v1/circles', '/api/v1/circle-invites/unknown/preview']) {
       const response = await request(server).get(route).expect(404);
       assert.equal(response.body.code, 'NOT_FOUND');
     }
@@ -60,6 +60,7 @@ test('application composition, HTTP foundation and fail-closed access', async t 
       assert.ok(!JSON.stringify(response.body).includes('shouldNeverReach'));
     }
     await request(server).post('/test-only/protected').send({ userId: 'owner' }).expect(401);
+    await request(server).post('/api/v1/me/assistance').send({ capability: 'assisted_start', description: 'Mở tài liệu' }).expect(401);
   });
   await t.test('malformed and oversized JSON use safe error envelopes', async () => {
     const invalid = await request(server).post('/test-only/protected').set('Content-Type', 'application/json').send('{"secret":').expect(400);

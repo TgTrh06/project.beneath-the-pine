@@ -15,6 +15,20 @@
       "when": 1792655072207,
       "tag": "0001_white_spacker_dave",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1792777135458,
+      "tag": "0002_camp-rename",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1792805243092,
+      "tag": "0003_account-preferences-and-pact-reminders",
+      "breakpoints": true
     }
   ]
 }

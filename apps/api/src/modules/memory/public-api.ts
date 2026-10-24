@@ -1,2 +1,2 @@
 export { MemoryService } from './memory.service';
-export { circleMilestones } from './infrastructure/memory.schema';
+export { campMilestones } from './infrastructure/memory.schema';

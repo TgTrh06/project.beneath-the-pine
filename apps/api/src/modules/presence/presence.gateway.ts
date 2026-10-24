@@ -6,6 +6,7 @@ import { API_CONFIG, ApiConfig } from '../../platform/config/api-config';
 import { Inject } from '@nestjs/common';
 import { IdentityService } from '../identity/public-api';
 import { FocusService } from '../focus/public-api';
+import { PreferencesService } from '../preferences/public-api';
 import type { Subscription } from 'rxjs';
 
 type PineSocket = Socket & { data: { account?: { id: string; email: string }; sessions?: Set<string> } };
@@ -15,12 +16,14 @@ export class PresenceGateway implements OnGatewayInit, OnGatewayDisconnect, OnMo
   @WebSocketServer() server!: Namespace;
   private subscription?: Subscription;
   private presenceSubscription?: Subscription;
-  constructor(private readonly identity: IdentityService, private readonly focus: FocusService, @Inject(API_CONFIG) private readonly config: ApiConfig) {}
+  private preferenceSubscription?: Subscription;
+  constructor(private readonly identity: IdentityService, private readonly focus: FocusService, private readonly preferences: PreferencesService, @Inject(API_CONFIG) private readonly config: ApiConfig) {}
   onModuleInit() {
     this.subscription = this.focus.changes.subscribe(id => void this.publish(id));
     this.presenceSubscription = this.focus.presenceChanges.subscribe(change => void this.publishPresence(change));
+    this.preferenceSubscription = this.preferences.presenceSharingChanges.subscribe(accountId => void this.refreshSharedSession(accountId));
   }
-  onModuleDestroy() { this.subscription?.unsubscribe(); this.presenceSubscription?.unsubscribe(); }
+  onModuleDestroy() { this.subscription?.unsubscribe(); this.presenceSubscription?.unsubscribe(); this.preferenceSubscription?.unsubscribe(); }
   afterInit(server: Namespace) {
     // Complete asynchronous authentication before Socket.IO announces connect;
     // otherwise the client's first subscribe can arrive before account is set.
@@ -104,5 +107,11 @@ export class PresenceGateway implements OnGatewayInit, OnGatewayDisconnect, OnMo
     }
   }
   private async publish(sessionId: string) { if (!this.server) return; const sockets = await this.server.in(this.room(sessionId)).fetchSockets(); for (const socket of sockets as unknown as PineSocket[]) { const account = socket.data.account; if (!account) continue; try { const snapshot = await this.focus.snapshot(sessionId, account.id); socket.emit(snapshot.status === 'active' ? realtimeEvents.sessionUpdated : realtimeEvents.ended, snapshot); if(snapshot.status!=='active') await this.unsubscribe(socket,sessionId); } catch { /* Membership changed; stop exposing the room. */ this.fail(socket,'FORBIDDEN'); await this.unsubscribe(socket,sessionId); } } }
+  private async refreshSharedSession(accountId: string) {
+    try {
+      const session = await this.focus.active(accountId);
+      if (session?.kind === 'pact') await this.publish(session.id);
+    } catch { /* The preference was saved; the next heartbeat still sends a fresh snapshot. */ }
+  }
   private async markDisconnectedIfAbsent(sessionId: string, accountId: string) { const sockets = await this.server.in(this.room(sessionId)).fetchSockets(); if (sockets.some(socket => (socket.data as { account?: { id: string } }).account?.id === accountId)) return; try { await this.focus.setPresence(sessionId, accountId, 'disconnected'); } catch { /* Terminal or removed participant. */ } }
 }
