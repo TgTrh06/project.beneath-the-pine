@@ -22,4 +22,10 @@ describe("frontend error logging", () => {
     });
     expect(JSON.stringify(record)).not.toContain("must-not-log");
   });
+  it("redacts a Camp invitation token from failed request paths", () => {
+    const token = "a".repeat(64);
+    const record = safeFrontendErrorRecord({ event: "api_request_failed", area: "api", path: `/camp-invites/${token}/preview` });
+    expect(record.path).toBe("/camp-invites/[redacted]/preview");
+    expect(JSON.stringify(record)).not.toContain(token);
+  });
 });

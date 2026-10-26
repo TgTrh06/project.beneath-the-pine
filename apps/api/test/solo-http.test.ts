@@ -67,12 +67,25 @@ test('solo HTTP lifecycle on an existing local database', { skip: !apiUrl || !da
       assert.equal((await a.request('/me/open-seed', 'PUT', { text: 'x'.repeat(501) })).status, 400);
       assert.equal((await a.request('/me/open-seed', 'PUT', { text: 'x'.repeat(500) })).status, 200);
       assert.equal((await b.request('/me/return')).data.openSeed, null);
+      const replacements = ['Concurrent seed one', 'Concurrent seed two', 'Concurrent seed three'];
+      const writes = await Promise.all(replacements.map(text => a.request('/me/open-seed', 'PUT', { text })));
+      assert.ok(writes.every(result => result.status === 200));
+      const currentSeeds = await pool.query('select text from open_seeds where account_id=$1', [a.accountId]);
+      assert.equal(currentSeeds.rowCount, 1);
+      assert.ok(replacements.includes(currentSeeds.rows[0].text));
+      assert.equal((await a.request('/me/open-seed', 'PUT', { text: 'x'.repeat(500) })).status, 200);
       for (const [index, outcome] of ['completed', 'progress', 'stuck', 'stopped'].entries()) {
         const key = randomUUID(); const started = await a.start(key, [5, 10, 25, 50][index]); const id = sessionId(started);
         assert.equal((await a.start(key)).data.session?.id, id);
         assert.equal((await a.start()).status, 409);
         assert.equal((await b.request(`/focus-sessions/${id}`)).status, 404);
         assert.equal((await b.request(`/focus-sessions/${id}/check-out`, 'POST', { outcome })).status, 404);
+        const ownerExport = await a.request('/me/data-export');
+        const otherExport = await b.request('/me/data-export');
+        assert.equal(ownerExport.status, 200);
+        assert.equal(otherExport.status, 200);
+        assert.ok(JSON.stringify(ownerExport.data).includes('Test-only next step'));
+        assert.ok(!JSON.stringify(otherExport.data).includes('Test-only next step'));
         assert.equal((await a.request(`/focus-sessions/${id}`)).data.session?.endsAt, started.data.session?.endsAt);
         assert.equal((await a.request(`/focus-sessions/${id}/check-out`, 'POST', { outcome })).status, 201);
         assert.equal((await a.request('/me/focus-history')).data.sessions?.find(row => row.id === id)?.outcome, outcome);

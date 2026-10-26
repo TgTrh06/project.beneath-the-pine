@@ -11,11 +11,11 @@ flowchart LR
 
 ```mermaid
 flowchart TD
-  I[Identity/Profile] --> C[Circle]
+  I[Identity/Profile] --> C[Camp]
   C --> P[Focus Pact]
   P --> S[Focus Session]
   S --> X[Participant/Presence]
   S --> O[Open Seed]
-  S --> M[Circle Milestone]
+  S --> M[Camp Milestone]
   I --> O
 ```

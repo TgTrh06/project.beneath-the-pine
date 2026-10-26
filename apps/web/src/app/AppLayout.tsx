@@ -7,7 +7,7 @@ import { ThemeSelect } from "../shared/theme/ThemeSelect";
 
 export function AppLayout({ view, onNavigate, onLogout, children }: {
   view: View;
-  onNavigate: (view: View) => void;
+  onNavigate: (view: View | string) => void;
   session: AuthSession | null;
   onLogout: () => void;
   children: ReactNode;
@@ -23,7 +23,7 @@ export function AppLayout({ view, onNavigate, onLogout, children }: {
   const nav = <>
     <a className="nav-item" href="#home">Về Beneath the Pine</a>
     {navigationItems.map(item => {
-      const active = view === item.view || (item.view === "pacts" && view === "pact") || (item.view === "circles" && ["circle", "invite"].includes(view));
+      const active = view === item.view || (item.view === "pacts" && view === "pact") || (item.view === "camps" && ["camp", "invite"].includes(view));
       return <button
         key={item.view}
         className={active ? "nav-item active" : "nav-item"}

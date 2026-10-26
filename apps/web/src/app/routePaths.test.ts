@@ -7,11 +7,13 @@ describe("landing and application routes", () => {
       expect(resolveHashView(hash)).toBe("landing");
     }
   });
-  it("preserves existing app deep links and the unknown-route fallback", () => {
-    for (const view of ["login", "register", "return", "circles", "memory", "settings"]) {
+  it("uses Camp deep links and routes old Circle hashes to the safe fallback", () => {
+    for (const view of ["login", "register", "return", "camps", "memory", "settings"]) {
       expect(resolveHashView(`#${view}`)).toBe(view);
     }
     expect(resolveHashView("#not-a-page")).toBe("return");
-    expect(resolveHashRoute("#circle/f9194eb2-3b02-47da-97fe-9ac81a6095ca")).toEqual({ view: "circle", id: "f9194eb2-3b02-47da-97fe-9ac81a6095ca" });
+    expect(resolveHashRoute("#camp/f9194eb2-3b02-47da-97fe-9ac81a6095ca")).toEqual({ view: "camp", id: "f9194eb2-3b02-47da-97fe-9ac81a6095ca" });
+    expect(resolveHashView("#circles")).toBe("return");
+    expect(resolveHashView("#circle/f9194eb2-3b02-47da-97fe-9ac81a6095ca")).toBe("return");
   });
 });

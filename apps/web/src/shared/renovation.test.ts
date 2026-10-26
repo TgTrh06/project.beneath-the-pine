@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest";
 import type { FocusPact, FocusSession } from "@beneath-the-pine/contracts";
 import { resolveTheme, validTheme } from "./theme/theme";
-import { requestKeyStore } from "./api/requestKey";
+import { requestKeyStore, stableRequestKey } from "./api/requestKey";
 import { localToIso } from "./time";
 import { safeFrontendErrorRecord } from "./logging/logger";
 import { resolveHashRoute } from "../app/routePaths";
-import { canCheckOut, remainingSeconds, seedPayload } from "../features/focus/sessionState";
+import { canCheckOut, remainingSeconds, seedPayload, shouldAcceptSnapshot } from "../features/focus/sessionState";
 import { pactActions } from "../features/pacts/pactState";
 
 describe("theme and private navigation", () => {
@@ -19,8 +19,8 @@ describe("theme and private navigation", () => {
     expect(resolveHashRoute("#invite/"+token)).toEqual({view:"invite",id:token});
     expect(resolveHashRoute("#https://evil.example").view).toBe("return");
     expect(resolveHashRoute("#invite/not-valid").view).toBe("return");
-    const record = safeFrontendErrorRecord({event:"failure",area:"api",path:"/circle-invites/"+token+"/accept"});
-    expect(record.path).toBe("/circle-invites/[redacted]/accept");
+    const record = safeFrontendErrorRecord({event:"failure",area:"api",path:"/camp-invites/"+token+"/accept"});
+    expect(record.path).toBe("/camp-invites/[redacted]/accept");
     expect(JSON.stringify(record)).not.toContain(token);
   });
 });
@@ -31,6 +31,12 @@ describe("durable intent and time", () => {
     expect(keys.for({intention:"Read",minutes:10})).toBe("1");
     expect(keys.for({intention:"Write",minutes:10})).toBe("2");
     keys.clear(); expect(keys.for({intention:"Write",minutes:10})).toBe("3");
+  });
+  it("restores a serializable start key for the same payload and rotates it when the payload changes", () => {
+    let n=0; const create=()=>String(++n); const payload={intention:"Read",durationMinutes:10};
+    const saved=stableRequestKey(null,payload,create);
+    expect(stableRequestKey(JSON.parse(JSON.stringify(saved)),payload,create)).toEqual(saved);
+    expect(stableRequestKey(saved,{...payload,durationMinutes:25},create)).toEqual({payload:JSON.stringify({...payload,durationMinutes:25}),key:"2"});
   });
   it("uses the profile timezone, not the browser timezone, and rejects a DST gap", () => {
     expect(localToIso("2026-09-16T09:00","Asia/Ho_Chi_Minh")).toBe("2026-09-16T02:00:00.000Z");
@@ -53,6 +59,15 @@ describe("durable intent and time", () => {
     expect(canCheckOut(session,"other")).toBe(false);
     expect(canCheckOut({...session,participants:[{...session.participants[0],presence:"checked_out"}]},"me")).toBe(false);
   });
+  it("keeps snapshots ordered and never revives a terminal session", () => {
+    const active = { id:"session", status:"active", serverNow:"2026-09-16T02:00:10.000Z" } as FocusSession;
+    const stale = { ...active, serverNow:"2026-09-16T02:00:09.000Z" };
+    const completed = { ...active, status:"completed" as const, serverNow:"2026-09-16T02:00:11.000Z" };
+    expect(shouldAcceptSnapshot(active,stale)).toBe(false);
+    expect(shouldAcceptSnapshot(completed,active)).toBe(false);
+    expect(shouldAcceptSnapshot(active,completed)).toBe(true);
+    expect(shouldAcceptSnapshot(active,{...active,serverNow:"2026-09-16T02:00:12.000Z"})).toBe(true);
+  });
 });
 describe("Pact permissions and lifecycle", () => {
   const time=Date.parse("2026-09-16T02:00:00Z");
@@ -63,10 +78,30 @@ describe("Pact permissions and lifecycle", () => {
     expect(pactActions(pact,"owner",time+1800001).start).toBe(false);
     expect(pactActions(pact,"member",time).start).toBe(false);
     expect(pactActions(pact,"member",time).respond).toBe(true);
+    expect(pactActions(pact,"owner",time).cancel).toBe(true);
   });
-  it("removes mutating controls from terminal Pacts and only lets accepted people join", () => {
-    expect(pactActions({...pact,status:"completed"},"owner",time)).toEqual({respond:false,cancel:false,start:false,join:false});
-    expect(pactActions({...pact,status:"active",sessionId:"session"},"member",time).join).toBe(false);
-    expect(pactActions({...pact,status:"active",sessionId:"session"},"owner",time).join).toBe(true);
+  it("allows an invitee to change their response until the Pact starts or expires", () => {
+    const invited=pactActions(pact,"member",time);
+    const accepted=pactActions({...pact,participants:pact.participants.map(person=>person.accountId==="member"?{...person,response:"accepted"}:person)} as FocusPact,"member",time);
+    const declined=pactActions({...pact,participants:pact.participants.map(person=>person.accountId==="member"?{...person,response:"declined"}:person)} as FocusPact,"member",time);
+    expect(invited.respond).toBe(true);
+    expect(accepted.respond).toBe(true);
+    expect(declined.respond).toBe(true);
+    expect(pactActions(pact,"owner",time).respond).toBe(false);
+    expect(pactActions(pact,"outsider",time).respond).toBe(false);
+    expect(pactActions(pact,"member",time+1800000).respond).toBe(true);
+    expect(pactActions(pact,"member",time+1800001).respond).toBe(false);
+    expect(pactActions(pact,"owner",time+1800001).cancel).toBe(false);
+  });
+  it("removes every action from terminal Pacts and only lets accepted people join", () => {
+    for (const status of ["completed","cancelled","expired"] as const) {
+      expect(pactActions({...pact,status},"owner",time)).toEqual({respond:false,cancel:false,start:false,join:false});
+    }
+    const active={...pact,status:"active",sessionId:"session",participants:pact.participants.map(person=>person.accountId==="member"?{...person,response:"accepted"}:person)} as FocusPact;
+    expect(pactActions(active,"member",time).join).toBe(true);
+    expect(pactActions(active,"member",time,false).join).toBe(false);
+    expect(pactActions({...active,participants:active.participants.map(person=>person.accountId==="member"?{...person,response:"declined"}:person)} as FocusPact,"member",time).join).toBe(false);
+    expect(pactActions({...active,participants:active.participants.map(person=>person.accountId==="member"?{...person,response:"invited"}:person)} as FocusPact,"member",time).join).toBe(false);
+    expect(pactActions({...active,status:"active",sessionId:null},"owner",time).join).toBe(false);
   });
 });

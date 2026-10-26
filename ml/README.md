@@ -14,6 +14,6 @@ Read [ML governance](../docs/05-machine-learning/README.md) before creating a da
 
 ## Privacy boundary
 
-Private training data stays in `ml/data/private/` and is excluded from Git. Never train on raw production intentions, Open Seeds, Circle data, user messages, transcripts or scraped text. Record only aggregate counts and checksums in committed documentation.
+Private training data stays in `ml/data/private/` and is excluded from Git. Never train on raw production intentions, Open Seeds, Camp data, user messages, transcripts or scraped text. Record only aggregate counts and checksums in committed documentation.
 
 `services/inference-service/` can serve reviewed local artifacts later, but a training run does not authorize API integration or production use.

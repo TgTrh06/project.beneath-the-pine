@@ -7,18 +7,20 @@ import { ProfileModule } from './modules/profile/profile.module';
 import { FocusModule } from './modules/focus/focus.module';
 import { AnalyticsModule } from './modules/analytics/analytics.module';
 import { PrivacyModule } from './modules/privacy/privacy.module';
-import { CircleModule } from './modules/circle/circle.module';
+import { CampModule } from './modules/camp/camp.module';
 import { PactModule } from './modules/pact/pact.module';
 import { SeedModule } from './modules/seed/seed.module';
 import { PresenceModule } from './modules/presence/presence.module';
 import { MemoryModule } from './modules/memory/memory.module';
+import { AssistanceModule } from './modules/assistance/assistance.module';
+import { PreferencesModule } from './modules/preferences/preferences.module';
 
 @Module({
   imports: [
     ConfigModule, SecurityModule, HealthModule,
     IdentityModule,
     ProfileModule,
-    CircleModule,
+    CampModule,
     PactModule,
     FocusModule,
     SeedModule,
@@ -26,6 +28,8 @@ import { MemoryModule } from './modules/memory/memory.module';
     MemoryModule,
     AnalyticsModule,
     PrivacyModule,
+    AssistanceModule,
+    PreferencesModule,
   ],
 })
 export class AppModule {}

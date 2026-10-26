@@ -70,7 +70,7 @@ export function LandingPage({ signedIn = false }: { signedIn?: boolean }) {
         <div className="lp-principle-list">
           <article><span aria-hidden="true">↳</span><div><h3>Một việc, tại một thời điểm.</h3><p>Bước đang làm được đặt ở trung tâm. Những việc khác có thể chờ đến lượt.</p></div></article>
           <article><span aria-hidden="true">↳</span><div><h3>Bạn giữ quyền quyết định.</h3><p>Bạn chọn việc và thời lượng. Có tiến triển, đang vướng hay muốn dừng đều là những cách khép lại hợp lệ.</p></div></article>
-          <article><span aria-hidden="true">↳</span><div><h3>Có mặt cùng người quen.</h3><p>Tạo Circle riêng, hẹn một Focus Pact. Mỗi người làm việc của mình; nội dung công việc vẫn riêng tư. Không streak, không bảng xếp hạng.</p></div></article>
+          <article><span aria-hidden="true">↳</span><div><h3>Có mặt cùng người quen.</h3><p>Tạo Camp riêng, hẹn một Focus Pact. Mỗi người làm việc của mình; nội dung công việc vẫn riêng tư. Không streak, không bảng xếp hạng.</p></div></article>
         </div>
       </section>
 

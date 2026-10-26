@@ -2,7 +2,8 @@ import { z } from "zod";
 import { dateTimeSchema, durationMinutesSchema, idSchema } from "./shared";
 
 export const focusSessionStatusSchema = z.enum(["active", "completed", "cancelled"]);
-export const participantPresenceSchema = z.enum(["active", "break", "disconnected", "checked_out"]);
+// `hidden` is a projection only. It is never persisted or accepted by presence.set.
+export const participantPresenceSchema = z.enum(["active", "break", "disconnected", "checked_out", "hidden"]);
 export const checkoutOutcomeSchema = z.enum(["completed", "progress", "stuck", "stopped"]);
 
 export const openSeedSchema = z.object({
@@ -51,7 +52,7 @@ export const returnStateSchema = z.object({
     profileReady: z.boolean(),
     openSeed: openSeedSchema.nullable(),
     activeSession: focusSessionSchema.nullable(),
-    upcomingPacts: z.array(z.object({ id: idSchema, circleId: idSchema, startsAt: dateTimeSchema, durationMinutes: durationMinutesSchema }))
+    upcomingPacts: z.array(z.object({ id: idSchema, campId: idSchema, startsAt: dateTimeSchema, durationMinutes: durationMinutesSchema }))
 });
 
 export type FocusSession = z.infer<typeof focusSessionSchema>;

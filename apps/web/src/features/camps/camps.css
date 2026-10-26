@@ -1,0 +1,39 @@
+.camps-page { width:100%; max-width:960px; margin-inline:auto; overflow-wrap:anywhere; }
+.camp-panel { border-radius:12px; box-shadow:none; }
+.camps-page h1 { font-size:clamp(2rem,4vw,3rem); line-height:1.2; }
+.camp-list { margin-block:2rem; }
+.camps-page .row-list { padding:0; list-style:none; }
+.camps-page .row-list > li { padding-block:1rem; border-bottom:1px solid var(--line); }
+.camps-page .row-list button { white-space:normal; overflow-wrap:anywhere; text-align:left; }
+.camp-panel { background:var(--surface); padding:clamp(1rem,3vw,2rem); border-radius:10px; margin-block:1.5rem; }
+.camp-detail { display:grid; grid-template-columns:minmax(0,1fr) 280px; gap:1.5rem 2rem; align-items:start; }
+.camp-detail > .page-intro, .camp-detail > .notice { grid-column:1/-1; }
+.camp-detail .pact-composer { grid-column:1; grid-row:auto / span 2; margin:0; }
+.camp-members, .camp-management { grid-column:2; min-width:0; }
+.camp-detail:not(:has(.pact-composer)) .camp-members,
+.camp-detail:not(:has(.pact-composer)) .camp-management { grid-column:1/-1; }
+.camp-management { padding-block:1rem; }
+.camps-page summary { cursor:pointer; min-height:44px; padding-block:.75rem; color:var(--chestnut); }
+.camp-invite { margin-top:1rem; padding-block:1rem; }
+.camp-invite .invite-link { overflow-wrap:anywhere; user-select:all; }
+.pact-composer fieldset { border:0; padding:0; margin:0; min-width:0; }
+.pact-composer h3 { font-size:1rem; margin-top:1.5rem; }
+.pact-composer .check-label { align-items:start; }
+.pact-composer input[type=checkbox] { flex-shrink:0; }
+.pact-detail, .invite-detail { max-width:720px; }
+.pact-detail > .row-list { margin-block:2rem; }
+@media(max-width:800px) {
+  .camp-detail { display:flex; flex-direction:column; align-items:stretch; }
+  .camp-detail .page-intro { order:0; }
+  .camp-detail > .notice { order:1; }
+  .camp-detail .pact-composer { order:2; }
+  .camp-members { order:3; }
+  .camp-management { order:4; }
+}
+@media(prefers-reduced-motion:reduce) { .camps-page * { animation:none!important; transition:none!important; } }
+
+.camp-pacts { grid-column:1/-1; width:100%; min-width:0; }
+@media(max-width:800px) { .camp-pacts { order:5; } }
+.first-time-hint { padding:1rem 1.25rem; margin:1rem 0; background:var(--wash); border-left:3px solid var(--chestnut); border-radius:6px; }
+.first-time-hint__header { display:flex; justify-content:space-between; align-items:center; gap:.75rem; flex-wrap:wrap; }
+.first-time-hint p { margin:.75rem 0; line-height:1.6; }

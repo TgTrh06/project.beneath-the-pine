@@ -1,6 +1,6 @@
 # Web/Mobile API Strategy
 
-Web proves flows and HTTP/realtime contracts; it must not become the source of product business state. A later React Native client consumes the same authenticated account, Circle, pact, session and seed APIs.
+Web proves flows and HTTP/realtime contracts; it must not become the source of product business state. A later React Native client consumes the same authenticated account, Camp, pact, session and seed APIs.
 
 ## Mobile gate
 

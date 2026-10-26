@@ -12,6 +12,8 @@ Validation: production build and 22 existing web tests passed. Mounted Return br
 
 Show active session recovery first, then the current Open Seed, then one intention input and duration choice. The primary action is resume or start, never both. A missing timezone blocks start with one explicit confirmation action.
 
+An existing Open Seed can be continued, left in place while starting different work, replaced directly at Return, or explicitly deleted. Direct replacement uses the Seed's 500-character limit; the current Seed record changes only after the server confirms the update. Recoverable save errors preserve the draft for retry.
+
 ### Return layout — step 2, 2026-09-17
 
 The Return content is capped at 960px inside the existing application shell. Above 800px, a flexible main column sits beside a 248px appointments column; at 800px and below these stack in reading order. A single surface groups intention, duration and start. Open Seed is a flat text section with a chestnut marker; primary actions and selected durations retain pine tokens. Empty appointments use explanatory text rather than another card.
@@ -20,19 +22,19 @@ Both seed continuation and starting different work move focus into the intention
 
 Validation: web build and 22 tests passed. An isolated mounted Return component with mocked HTTP responses was exercised in headless Edge at 320/390/768/1280/1920px in light and dark: no horizontal overflow with long seed content. Checks passed for long-seed handling/focus, failed-start draft retention, different-work focus, active-session priority/navigation, timezone gate, and disabled empty start. A desktop dark screenshot was inspected. These are component fixture checks, not real API integration, complete keyboard auditing, or physical-device validation.
 
-## Circles
+## Camps
 
 ### Step 4 delivery — 2026-09-17
 
-Circle lists use a 960px content cap and an explicitly opened create form. Detail prioritizes the Pact composer, with members and expandable owner management beside it on desktop; below 800px the composer precedes members. Archived groups omit the composer and use full-width member content. Owner actions retain confirmation; full groups explain the eight-person limit.
+Camp lists use a 960px content cap and an explicitly opened create form. Detail prioritizes the Pact composer, with members and expandable owner management beside it on desktop; below 800px the composer precedes members. Archived groups omit the composer and use full-width member content. Owner actions retain confirmation; full groups explain the eight-person limit.
 
-Pact composition keeps selected people, duration, date and stable retry information in account/Circle-scoped memory. Success clears the form; changing Circle/account does not reuse the draft. A refreshed member list removes stale selections and announces the change. The creator is excluded. Creation does not imply starting a session; copy now says “Hẹn ngay bây giờ” and explains the separate start action. Forbidden/not-found responses clear stale Circle data before refresh. Form fields are locked during submission, with a synchronous duplicate guard.
+Pact composition keeps selected people, duration, date and stable retry information in account/Camp-scoped memory. Success clears the form; changing Camp/account does not reuse the draft. A refreshed member list removes stale selections and announces the change. The creator is excluded. Creation does not imply starting a session; copy now says “Hẹn ngay bây giờ” and explains the separate start action. Forbidden/not-found responses clear stale Camp data before refresh. Form fields are locked during submission, with a synchronous duplicate guard.
 
 Invite tokens remain ephemeral. Clipboard feedback is local to the link. Invitation acceptance remains explicit and generic errors are retained because the API does not expose reliable distinctions for all failure causes. Pact distinguishes load, operation and clipboard errors and explains accepted-but-waiting state. Terminal Pact states expose no primary start/join command.
 
-Validation: web build and 22 existing tests passed. Mounted CircleView with mocked HTTP was checked at 320/390/768/1280/1920px in light/dark with no horizontal overflow. Browser assertions passed for creator exclusion, draft remount recovery, deselection of a removed member, member/owner control separation and archived composer removal. Pact fixtures passed accepted waiting copy and absence of terminal primary commands. Local PostgreSQL port 5433 was unavailable; no two-account live integration, migration or database reset was performed. Full invite acceptance, clipboard permissions, all confirmation keyboard paths and real auth-expiry recovery remain integration/device validation items; fixture evidence is not a claim that those checks passed.
+Validation: web build and 22 existing tests passed. Mounted CampView with mocked HTTP was checked at 320/390/768/1280/1920px in light/dark with no horizontal overflow. Browser assertions passed for creator exclusion, draft remount recovery, deselection of a removed member, member/owner control separation and archived composer removal. Pact fixtures passed accepted waiting copy and absence of terminal primary commands. Local PostgreSQL port 5433 was unavailable; no two-account live integration, migration or database reset was performed. Full invite acceptance, clipboard permissions, all confirmation keyboard paths and real auth-expiry recovery remain integration/device validation items; fixture evidence is not a claim that those checks passed.
 
-List only joined Circles. Circle detail shows members, private invite controls for the owner and a compact pact composer. Invite tokens are shown once for deliberate sharing.
+List only joined Camps. Camp detail shows members, private invite controls for the owner and a compact pact composer. Invite tokens are shown once for deliberate sharing.
 
 ## Pact
 
@@ -52,10 +54,10 @@ Current backend boundary: manual check-out offers four outcomes while the partic
 
 ## Memory and Settings
 
-Memory contains personal history and non-competitive Circle milestones. Settings owns profile, export, re-authenticated deletion and sign-out. No ranking, streak, feed or AI consent appears in core.
+Memory contains personal history and non-competitive Camp milestones. Settings owns profile, export, re-authenticated deletion and sign-out. No ranking, streak, feed or AI consent appears in core.
 
 The client now provides a pending-Pact inbox and owner invitation metadata list. Invite preview remains unavailable. An invite link requires explicit acceptance; newly created tokens are shown in memory only. Theme is a browser preference; no persisted presence-sharing preference is implemented.
 
-## Part 1 — Pact discovery and Circle lifecycle
+## Part 1 — Pact discovery and Camp lifecycle
 
-The Cuộc hẹn navigation destination groups pending, upcoming, active and past Pacts with load-more pagination. Circle detail reuses the list, explicitly limited to the current participant. Profile timezone is used. Owners can list invitation metadata, revoke with confirmation, and archive/restore with impact copy. Active or scheduled Pacts block archive; pending links are revoked on archive and are not restored. See the part 1 verification report for live API/Socket.IO and separate UI fixture evidence.
+The Cuộc hẹn navigation destination groups pending, upcoming, active and past Pacts with load-more pagination. Camp detail reuses the list, explicitly limited to the current participant. Profile timezone is used. Owners can list invitation metadata, revoke with confirmation, and archive/restore with impact copy. Active or scheduled Pacts block archive; pending links are revoked on archive and are not restored. See the part 1 verification report for live API/Socket.IO and separate UI fixture evidence.

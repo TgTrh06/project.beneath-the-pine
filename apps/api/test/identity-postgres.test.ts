@@ -17,8 +17,10 @@ test('PostgreSQL migration enforces unique accounts and session cascade', { skip
   try {
     await client.query(`CREATE SCHEMA "${schema}"`);
     await client.query(`SET search_path TO "${schema}"`);
-    const migration = readFileSync(resolve(__dirname, '../../drizzle/0000_core_baseline.sql'), 'utf8').replaceAll('"public"', `"${schema}"`);
-    await client.query(migration);
+    for (const file of ['0000_core_baseline.sql', '0001_white_spacker_dave.sql', '0002_camp-rename.sql', '0003_account-preferences-and-pact-reminders.sql']) {
+      const migration = readFileSync(resolve(__dirname, `../../drizzle/${file}`), 'utf8').replaceAll('"public"', `"${schema}"`);
+      await client.query(migration);
+    }
     const db = drizzle(client);
     const [before] = await db.insert(accounts).values({ email: 'owner@example.test', passwordHash: 'test-fixture-only' }).returning();
     await db.insert(accounts).values({ email: 'wanderer@example.test', passwordHash: 'test-fixture-only' });

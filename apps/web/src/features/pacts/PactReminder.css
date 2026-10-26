@@ -1,0 +1,4 @@
+.pact-reminder { width:min(720px,calc(100% - 2rem)); margin:1rem auto; padding:1rem 1.25rem; border:1px solid var(--line); border-left:4px solid var(--chestnut); border-radius:8px; background:var(--surface); }
+.pact-reminder__item + .pact-reminder__item { border-top:1px solid var(--line); padding-top:.75rem; }
+.pact-reminder p { margin:.25rem 0 .75rem; }
+.pact-reminder .button-row { flex-wrap:wrap; }

@@ -23,32 +23,48 @@ test('pact lists, membership, invitation metadata and archive on existing local 
   try {
     for(let i=0;i<4;i++){const client=new Client();await client.req('/auth/session');const result=await client.req('/auth/register','POST',{email:client.email,password:client.password});assert.equal(result.status,201);client.id=result.data.account.id;users.push(client);assert.equal((await pool.query('select id from identity_accounts where id=$1 and email=$2',[client.id,client.email])).rowCount,1);}
     const [a,b,c,d]=users;
-    const makeGroup=async()=>{const result=await a.req('/circles','POST',{name:'Integration fixture'});assert.equal(result.status,201);groups.push(result.data.circle.id);return result.data.circle.id as string;};
-    const invite=async(group:string)=>{const result=await a.req(`/circles/${group}/invites`,'POST',{});assert.equal(result.status,201);assert.equal(result.data.invite.tokenHash,undefined);return result.data.invite;};
+    const makeGroup=async()=>{const result=await a.req('/camps','POST',{name:'Integration fixture'});assert.equal(result.status,201);groups.push(result.data.camp.id);return result.data.camp.id as string;};
+    const invite=async(group:string)=>{const result=await a.req(`/camps/${group}/invites`,'POST',{});assert.equal(result.status,201);assert.equal(result.data.invite.tokenHash,undefined);return result.data.invite;};
     const group=await makeGroup();
-    for(const user of [b,c]){const link=await invite(group);assert.equal((await user.req(`/circle-invites/${link.token}/accept`,'POST')).status,201);}
-    const create=async(key=randomUUID())=>a.req(`/circles/${group}/pacts`,'POST',{participantIds:[b.id],startsAt:new Date().toISOString(),durationMinutes:5},key);
+    for(const user of [b,c]){const link=await invite(group);assert.equal((await user.req(`/camp-invites/${link.token}/accept`,'POST')).status,201);}
+    const create=async(key=randomUUID(),participantIds=[b.id])=>a.req(`/camps/${group}/pacts`,'POST',{participantIds,startsAt:new Date().toISOString(),durationMinutes:5},key);
     let pact=''; let session='';
     await t.test('same-key creation and participant-only inbox',async()=>{
-      const key=randomUUID();const results=await Promise.all([create(key),create(key)]);assert.deepEqual(results.map(r=>r.status),[201,201]);assert.equal(results[0].data.pact.id,results[1].data.pact.id);pact=results[0].data.pact.id;
+      const key=randomUUID();const results=await Promise.all([create(key,[a.id,b.id,a.id]),create(key,[a.id,b.id,a.id])]);assert.deepEqual(results.map(r=>r.status),[201,201]);assert.equal(results[0].data.pact.id,results[1].data.pact.id);pact=results[0].data.pact.id;
+      assert.equal(results[0].data.pact.status,'scheduled');assert.equal(results[0].data.pact.sessionId,null);
+      assert.equal(results[0].data.pact.participants.filter((person:any)=>person.accountId===a.id).length,1);
+      assert.equal(results[0].data.pact.participants.find((person:any)=>person.accountId===a.id).response,'accepted');
+      assert.equal(results[0].data.pact.participants.find((person:any)=>person.accountId===b.id).response,'invited');
       assert.equal((await b.req('/me/pacts?group=pending')).data.items[0].id,pact);
-      assert.equal((await c.req(`/circles/${group}/pacts?group=pending`)).data.items.length,0);
+      assert.equal((await c.req(`/camps/${group}/pacts?group=pending`)).data.items.length,0);
       for(const user of [c,d])assert.equal((await user.req(`/pacts/${pact}`)).status,404);
-      assert.equal((await d.req(`/circles/${group}/pacts`)).status,404);
-      assert.equal((await b.req(`/circles/${group}/invites`)).status,403);
+      assert.equal((await c.req(`/pacts/${pact}/respond`,'POST',{response:'accepted'})).status,404);
+      assert.equal((await d.req(`/camps/${group}/pacts`)).status,404);
+      assert.equal((await b.req(`/camps/${group}/invites`)).status,403);
       assert.equal((await a.req('/me/pacts?limit=51')).status,400);
       assert.equal((await a.req('/me/pacts?cursor=invalid')).status,400);
     });
     await t.test('respond, start, join and removal revoke access',async()=>{
-      assert.equal((await a.req(`/circles/${group}`,'PATCH',{status:'archived'})).status,409);
-      assert.equal((await b.req(`/pacts/${pact}/respond`,'POST',{response:'accepted'})).status,201);
+      assert.equal((await a.req(`/camps/${group}`,'PATCH',{status:'archived'})).status,409);
+      for(const response of ['accepted','declined','accepted'] as const) {
+        const result=await b.req(`/pacts/${pact}/respond`,'POST',{response});assert.equal(result.status,201);
+        assert.equal(result.data.pact.participants.find((person:any)=>person.accountId===b.id).response,response);
+        if(response==='declined') {
+          const invitations=await b.req('/me/pacts?group=pending');
+          assert.equal(invitations.data.items.find((item:any)=>item.id===pact)?.response,'declined');
+          const history=await b.req('/me/pacts?group=past');
+          assert.equal(history.data.items.some((item:any)=>item.id===pact),false);
+        }
+      }
+      assert.equal((await b.req(`/pacts/${pact}/start`,'POST',{},randomUUID())).status,403);
       assert.equal((await b.req('/me/pacts?group=upcoming')).data.items[0].id,pact);
       const start=await a.req(`/pacts/${pact}/start`,'POST',{},randomUUID());assert.equal(start.status,201);session=start.data.session.id;
+      assert.equal((await b.req(`/pacts/${pact}/respond`,'POST',{response:'declined'})).status,409);
       assert.equal((await b.req(`/focus-sessions/${session}/join`,'POST')).status,201);
       assert.equal((await b.req('/me/pacts?group=active')).data.items[0].sessionId,session);
       const socket=io(new URL(base!).origin+'/realtime',{transports:['websocket'],reconnection:false,extraHeaders:{Origin:origin,Cookie:b.cookie}});sockets.push(socket);await receive(socket,'connect');
       const snap=receive(socket,realtimeEvents.snapshot);socket.emit(realtimeEvents.subscribe,{sessionId:session});assert.equal((await snap).id,session);
-      assert.equal((await a.req(`/circles/${group}/members/${b.id}`,'DELETE')).status,204);
+      assert.equal((await a.req(`/camps/${group}/members/${b.id}`,'DELETE')).status,204);
       const denied=receive(socket,realtimeEvents.error);socket.emit(realtimeEvents.heartbeat,{sessionId:session});await denied;socket.close();
       for(const path of [`/pacts/${pact}`,`/focus-sessions/${session}`])assert.equal((await b.req(path)).status,404);
       assert.equal((await b.req(`/focus-sessions/${session}/join`,'POST')).status,404);
@@ -60,36 +76,124 @@ test('pact lists, membership, invitation metadata and archive on existing local 
       await pool.query("update focus_sessions set ends_at=now()-interval '1 second' where id=$1 and started_by_account_id=$2",[session,a.id]);
       await a.req(`/focus-sessions/${session}`);
     });
+    await t.test('Pact checkout keeps each participant Open Seed private',async()=>{
+      const created=await a.req(`/camps/${group}/pacts`,'POST',{participantIds:[c.id],startsAt:new Date().toISOString(),durationMinutes:5},randomUUID());assert.equal(created.status,201);
+      const seedPact=created.data.pact.id as string;
+      assert.equal((await c.req(`/pacts/${seedPact}/respond`,'POST',{response:'accepted'})).status,201);
+      const started=await a.req(`/pacts/${seedPact}/start`,'POST',{},randomUUID());assert.equal(started.status,201);
+      const seedSession=started.data.session.id as string;
+      assert.equal((await c.req(`/focus-sessions/${seedSession}/join`,'POST')).status,201);
+      const aSeed='Owner-only next step';const cSeed='Participant-only next step';
+      assert.equal((await a.req(`/focus-sessions/${seedSession}/check-out`,'POST',{outcome:'progress',openSeed:aSeed})).status,201);
+      assert.equal((await c.req(`/focus-sessions/${seedSession}/check-out`,'POST',{outcome:'stuck',openSeed:cSeed})).status,201);
+      assert.equal((await a.req('/me/return')).data.openSeed?.text,aSeed);
+      assert.equal((await c.req('/me/return')).data.openSeed?.text,cSeed);
+      assert.equal((await b.req('/me/return')).data.openSeed,null);
+      const ownerExport=JSON.stringify((await a.req('/me/data-export')).data);
+      const participantExport=JSON.stringify((await c.req('/me/data-export')).data);
+      assert.ok(ownerExport.includes(aSeed));assert.ok(!ownerExport.includes(cSeed));
+      assert.ok(participantExport.includes(cSeed));assert.ok(!participantExport.includes(aSeed));
+      for(const path of [`/focus-sessions/${seedSession}`,`/pacts/${seedPact}`,`/camps/${group}`]){
+        const response=await a.req(path);assert.equal(response.status,200);
+        const projection=JSON.stringify(response.data);assert.ok(!projection.includes(aSeed));assert.ok(!projection.includes(cSeed));
+      }
+    });
+    await t.test('accepted invitee joins after creator checkout but not after expiry',async()=>{
+      const late=await create(randomUUID(),[c.id]);assert.equal(late.status,201);
+      const latePact=late.data.pact.id as string;
+      assert.equal((await c.req(`/pacts/${latePact}/respond`,'POST',{response:'accepted'})).status,201);
+      const started=await a.req(`/pacts/${latePact}/start`,'POST',{},randomUUID());assert.equal(started.status,201);
+      const lateSession=started.data.session.id as string;
+      assert.equal((await a.req(`/focus-sessions/${lateSession}/check-out`,'POST',{outcome:'progress'})).status,201);
+      assert.equal((await a.req(`/pacts/${latePact}`)).data.pact.status,'active');
+      assert.equal((await d.req(`/focus-sessions/${lateSession}/join`,'POST')).status,404);
+      assert.equal((await c.req(`/focus-sessions/${lateSession}/join`,'POST')).status,201);
+      assert.equal((await c.req(`/focus-sessions/${lateSession}/check-out`,'POST',{outcome:'completed'})).status,201);
+      assert.equal((await a.req(`/pacts/${latePact}`)).data.pact.status,'completed');
+
+      const expires=await create(randomUUID(),[c.id]);assert.equal(expires.status,201);
+      const expiryPact=expires.data.pact.id as string;
+      assert.equal((await c.req(`/pacts/${expiryPact}/respond`,'POST',{response:'accepted'})).status,201);
+      const expiryStart=await a.req(`/pacts/${expiryPact}/start`,'POST',{},randomUUID());assert.equal(expiryStart.status,201);
+      const expirySession=expiryStart.data.session.id as string;
+      assert.equal((await a.req(`/focus-sessions/${expirySession}/check-out`,'POST',{outcome:'progress'})).status,201);
+      await pool.query("update focus_sessions set ends_at=now()-interval '1 second' where id=$1 and started_by_account_id=$2",[expirySession,a.id]);
+      assert.equal((await c.req(`/focus-sessions/${expirySession}/join`,'POST')).status,409);
+      assert.equal((await a.req(`/pacts/${expiryPact}`)).data.pact.status,'completed');
+    });
+    await t.test('creation, expiry, cancellation and completion respect Pact state',async()=>{
+      const lifecycleGroup=await makeGroup();
+      for(const user of [b,c]){const link=await invite(lifecycleGroup);assert.equal((await user.req(`/camp-invites/${link.token}/accept`,'POST')).status,201);}
+      const createLifecycle=async(participantId:string,startsAt=new Date().toISOString())=>{
+        const result=await a.req(`/camps/${lifecycleGroup}/pacts`,'POST',{participantIds:[participantId],startsAt,durationMinutes:5},randomUUID());
+        assert.equal(result.status,201);assert.equal(result.data.pact.status,'scheduled');assert.equal(result.data.pact.sessionId,null);return result.data.pact.id as string;
+      };
+      const cancelId=await createLifecycle(b.id,new Date(Date.now()+3600000).toISOString());
+      assert.equal((await b.req(`/pacts/${cancelId}/cancel`,'POST')).status,403);
+      const cancelled=await a.req(`/pacts/${cancelId}/cancel`,'POST');assert.equal(cancelled.status,201);assert.equal(cancelled.data.pact.status,'cancelled');
+      assert.equal((await a.req(`/pacts/${cancelId}/cancel`,'POST')).data.pact.status,'cancelled');
+      assert.equal((await b.req(`/pacts/${cancelId}/respond`,'POST',{response:'accepted'})).status,409);
+      assert.equal((await a.req(`/pacts/${cancelId}/start`,'POST',{},randomUUID())).status,409);
+
+      const detailExpiry=await createLifecycle(b.id);await pool.query("update focus_pacts set starts_at=now()-interval '31 minutes' where id=$1",[detailExpiry]);
+      assert.equal((await b.req(`/pacts/${detailExpiry}`)).data.pact.status,'expired');
+      assert.equal((await a.req(`/pacts/${detailExpiry}/start`,'POST',{},randomUUID())).status,409);
+
+      const responseExpiry=await createLifecycle(b.id);await pool.query("update focus_pacts set starts_at=now()-interval '31 minutes' where id=$1",[responseExpiry]);
+      assert.equal((await b.req(`/pacts/${responseExpiry}/respond`,'POST',{response:'accepted'})).status,409);
+      assert.equal((await a.req(`/pacts/${responseExpiry}`)).data.pact.status,'expired');
+
+      const cancelExpiry=await createLifecycle(b.id);await pool.query("update focus_pacts set starts_at=now()-interval '31 minutes' where id=$1",[cancelExpiry]);
+      assert.equal((await a.req(`/pacts/${cancelExpiry}/cancel`,'POST')).status,409);
+      assert.equal((await b.req(`/pacts/${cancelExpiry}`)).data.pact.status,'expired');
+
+      const startExpiry=await createLifecycle(b.id);assert.equal((await b.req(`/pacts/${startExpiry}/respond`,'POST',{response:'accepted'})).status,201);
+      await pool.query("update focus_pacts set starts_at=now()-interval '31 minutes' where id=$1",[startExpiry]);
+      assert.equal((await a.req(`/pacts/${startExpiry}/start`,'POST',{},randomUUID())).status,409);
+      assert.equal((await b.req(`/pacts/${startExpiry}`)).data.pact.status,'expired');
+
+      const completedId=await createLifecycle(b.id);assert.equal((await b.req(`/pacts/${completedId}/respond`,'POST',{response:'accepted'})).status,201);
+      const started=await a.req(`/pacts/${completedId}/start`,'POST',{},randomUUID());assert.equal(started.status,201);
+      const completedSession=started.data.session.id as string;
+      assert.equal((await b.req(`/focus-sessions/${completedSession}/join`,'POST')).status,201);
+      assert.equal((await a.req(`/focus-sessions/${completedSession}/check-out`,'POST',{outcome:'progress'})).status,201);
+      assert.equal((await b.req(`/focus-sessions/${completedSession}/check-out`,'POST',{outcome:'stopped'})).status,201);
+      assert.equal((await a.req(`/pacts/${completedId}`)).data.pact.status,'completed');
+      assert.equal((await a.req(`/pacts/${completedId}/start`,'POST',{},randomUUID())).status,409);
+      assert.equal((await b.req(`/pacts/${completedId}/respond`,'POST',{response:'declined'})).status,409);
+      assert.equal((await a.req(`/pacts/${completedId}/cancel`,'POST')).status,409);
+      assert.equal((await b.req(`/focus-sessions/${completedSession}/join`,'POST')).status,409);
+    });
     await t.test('archive revokes invitations and restore does not revive tokens',async()=>{
       const link=await invite(group);
-      assert.equal((await a.req(`/circles/${group}`,'PATCH',{status:'archived'})).status,200);
-      assert.equal((await a.req(`/circles/${group}/invites`,'POST',{})).status,409);
-      assert.equal((await d.req(`/circle-invites/${link.token}/accept`,'POST')).status,409);
-      const metadata=await a.req(`/circles/${group}/invites`);assert.equal(metadata.status,200);assert.ok(metadata.data.items.every((item:any)=>!('token' in item)&&!('tokenHash' in item)));
+      assert.equal((await a.req(`/camps/${group}`,'PATCH',{status:'archived'})).status,200);
+      assert.equal((await a.req(`/camps/${group}/invites`,'POST',{})).status,409);
+      assert.equal((await d.req(`/camp-invites/${link.token}/accept`,'POST')).status,409);
+      const metadata=await a.req(`/camps/${group}/invites`);assert.equal(metadata.status,200);assert.ok(metadata.data.items.every((item:any)=>!('token' in item)&&!('tokenHash' in item)));
       assert.equal(metadata.data.items.find((item:any)=>item.id===link.id).status,'revoked');
-      assert.equal((await a.req(`/circles/${group}`,'PATCH',{status:'active'})).status,200);
-      assert.equal((await d.req(`/circle-invites/${link.token}/accept`,'POST')).status,409);
-      const fresh=await invite(group);assert.equal((await b.req(`/circle-invites/${fresh.token}/accept`,'POST')).status,201);
+      assert.equal((await a.req(`/camps/${group}`,'PATCH',{status:'active'})).status,200);
+      assert.equal((await d.req(`/camp-invites/${link.token}/accept`,'POST')).status,409);
+      const fresh=await invite(group);assert.equal((await b.req(`/camp-invites/${fresh.token}/accept`,'POST')).status,201);
     });
     await t.test('stable pagination, filter cursor binding and invite owner transfer',async()=>{
       const startsAt=new Date(Date.now()+3600000).toISOString();
-      for(let i=0;i<3;i++)assert.equal((await a.req(`/circles/${group}/pacts`,'POST',{participantIds:[b.id],startsAt,durationMinutes:5},randomUUID())).status,201);
+      for(let i=0;i<3;i++)assert.equal((await a.req(`/camps/${group}/pacts`,'POST',{participantIds:[b.id],startsAt,durationMinutes:5},randomUUID())).status,201);
       const first=await b.req('/me/pacts?group=pending&limit=2');assert.equal(first.data.items.length,2);assert.ok(first.data.nextCursor);
       const second=await b.req('/me/pacts?group=pending&limit=2&cursor='+encodeURIComponent(first.data.nextCursor));assert.equal(second.data.items.length,1);assert.equal(new Set([...first.data.items,...second.data.items].map((x:any)=>x.id)).size,3);
       assert.equal((await b.req('/me/pacts?group=past&cursor='+encodeURIComponent(first.data.nextCursor))).status,400);
-      const one=await a.req(`/circles/${group}/invites?limit=1`);assert.ok(one.data.nextCursor);const two=await a.req(`/circles/${group}/invites?limit=1&cursor=${encodeURIComponent(one.data.nextCursor)}`);assert.notEqual(one.data.items[0].id,two.data.items[0].id);
-      assert.equal((await a.req(`/circles/${group}/ownership-transfer`,'POST',{accountId:c.id})).status,204);
-      assert.equal((await a.req(`/circles/${group}/invites`)).status,403);assert.equal((await c.req(`/circles/${group}/invites`)).status,200);
+      const one=await a.req(`/camps/${group}/invites?limit=1`);assert.ok(one.data.nextCursor);const two=await a.req(`/camps/${group}/invites?limit=1&cursor=${encodeURIComponent(one.data.nextCursor)}`);assert.notEqual(one.data.items[0].id,two.data.items[0].id);
+      assert.equal((await a.req(`/camps/${group}/ownership-transfer`,'POST',{accountId:c.id})).status,204);
+      assert.equal((await a.req(`/camps/${group}/invites`)).status,403);assert.equal((await c.req(`/camps/${group}/invites`)).status,200);
     });
     await t.test('archive races creation and invitation acceptance without inconsistent state',async()=>{
       for(let i=0;i<3;i++){
-        const g=await makeGroup();const link=await invite(g);await b.req(`/circle-invites/${link.token}/accept`,'POST');
-        const result=await Promise.all([a.req(`/circles/${g}`,'PATCH',{status:'archived'}),a.req(`/circles/${g}/pacts`,'POST',{participantIds:[b.id],startsAt:new Date().toISOString(),durationMinutes:5},randomUUID())]);
+        const g=await makeGroup();const link=await invite(g);await b.req(`/camp-invites/${link.token}/accept`,'POST');
+        const result=await Promise.all([a.req(`/camps/${g}`,'PATCH',{status:'archived'}),a.req(`/camps/${g}/pacts`,'POST',{participantIds:[b.id],startsAt:new Date().toISOString(),durationMinutes:5},randomUUID())]);
         assert.ok((result[0].status===200&&result[1].status===409)||(result[0].status===409&&result[1].status===201));
-        const g2=await makeGroup();const link2=await invite(g2);const race=await Promise.all([a.req(`/circles/${g2}`,'PATCH',{status:'archived'}),d.req(`/circle-invites/${link2.token}/accept`,'POST')]);assert.equal(race[0].status,200);assert.ok([201,409].includes(race[1].status));
+        const g2=await makeGroup();const link2=await invite(g2);const race=await Promise.all([a.req(`/camps/${g2}`,'PATCH',{status:'archived'}),d.req(`/camp-invites/${link2.token}/accept`,'POST')]);assert.equal(race[0].status,200);assert.ok([201,409].includes(race[1].status));
       }
     });
   } finally {
-    try {for(const socket of sockets)socket.close();for(const group of groups){await pool.query('delete from focus_sessions where circle_id=$1',[group]);await pool.query('delete from circles where id=$1',[group]);}for(const user of users){await pool.query('delete from focus_sessions where started_by_account_id=$1',[user.id]);await pool.query('delete from identity_accounts where id=$1 and email=$2',[user.id,user.email]);}} finally {await pool.end();}
+    try {for(const socket of sockets)socket.close();for(const group of groups){await pool.query('delete from focus_sessions where camp_id=$1',[group]);await pool.query('delete from camps where id=$1',[group]);}for(const user of users){await pool.query('delete from focus_sessions where started_by_account_id=$1',[user.id]);await pool.query('delete from identity_accounts where id=$1 and email=$2',[user.id,user.email]);}} finally {await pool.end();}
   }
 });

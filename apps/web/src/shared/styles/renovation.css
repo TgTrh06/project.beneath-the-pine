@@ -98,8 +98,8 @@ fieldset { min-width:0; }
 /* Cozy pixel accents stay with the companion art; product controls stay quiet and familiar. */
 button, input:not([type="checkbox"]), select, textarea { border-radius:var(--pixel-round); }
 .primary, .secondary, .danger, .choice, .close, .nav-item { border-radius:var(--pixel-round); }
-.feature-card, .return-panel, .session-ending, .circle-panel, .pine-dialog, .modal, .lp-note, .lp-focus-example, .lp-trail-result { border-radius:12px; }
-.return-panel, .session-ending, .circle-panel, .pine-dialog, .modal, .lp-trail-result { box-shadow:none; }
+.feature-card, .return-panel, .session-ending, .camp-panel, .pine-dialog, .modal, .lp-note, .lp-focus-example, .lp-trail-result { border-radius:12px; }
+.return-panel, .session-ending, .camp-panel, .pine-dialog, .modal, .lp-trail-result { box-shadow:none; }
 .lp-note, .feature-card, .lp-focus-example { box-shadow:var(--shadow-soft); }
 .primary, .public-header .public-cta, .public-menu-links .public-cta, .landing .lp-button { box-shadow:var(--shadow-control); }
 .marten-note__name, .lp-marten-intro strong { font-family:var(--font-pixel); letter-spacing:0; }

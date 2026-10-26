@@ -3,8 +3,8 @@
 | Threat | Baseline control |
 | --- | --- |
 | Account takeover | Secure session lifecycle, rate limit, re-auth for destructive actions |
-| Cross-account/Circle access | Principal-derived ownership and two-account integration tests |
-| Unauthorized realtime join | Authenticate socket, authorize every session/Circle subscription |
+| Cross-account/Camp access | Principal-derived ownership and two-account integration tests |
+| Unauthorized realtime join | Authenticate socket, authorize every session/Camp subscription |
 | Presence oversharing | Minimal state projection; private text never broadcast |
 | Timer command race | Server state machine, transaction, idempotency key and durable snapshot |
 | Invitation abuse | Expiry, revoke, membership checks and rate limits |

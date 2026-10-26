@@ -7,6 +7,13 @@ export function remainingSeconds(endsAt: string, serverNow: string, elapsedMs: n
 export function canCheckOut(session: FocusSession, accountId: string) {
   return session.status === "active" && session.participants.some(person => person.accountId === accountId && person.presence !== "checked_out");
 }
+export function shouldAcceptSnapshot(previous: FocusSession | null, next: FocusSession) {
+  if (!previous || previous.id !== next.id) return true;
+  const previousEnded = previous.status !== "active";
+  const nextEnded = next.status !== "active";
+  if (previousEnded && !nextEnded) return false;
+  return Date.parse(next.serverNow) >= Date.parse(previous.serverNow);
+}
 export function seedPayload(mode: "keep" | "replace" | "remove", text: string) {
   return mode === "keep" ? {} : { openSeed: mode === "remove" ? null : text.trim() };
 }

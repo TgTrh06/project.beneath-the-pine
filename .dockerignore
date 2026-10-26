@@ -1,0 +1,13 @@
+.git
+.github
+node_modules
+**/node_modules
+**/dist
+**/dist-test
+**/.env*
+**/*.log
+coverage
+.cache
+ml/data/private
+ml/artifacts
+services/inference-service/.venv
