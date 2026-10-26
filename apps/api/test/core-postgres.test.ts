@@ -6,16 +6,21 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { Pool } from 'pg';
 import { drizzle } from 'drizzle-orm/node-postgres';
+import { eq } from 'drizzle-orm';
 import type { DatabaseService } from '../src/platform/database/database.service';
 import { accounts } from '../src/modules/identity/infrastructure/identity.schema';
+import { IdentityStore } from '../src/modules/identity/identity.store';
 import { profiles } from '../src/modules/profile/infrastructure/profile.schema';
 import { AnalyticsService } from '../src/modules/analytics/analytics.service';
 import { CampService } from '../src/modules/camp/camp.service';
 import { PactService } from '../src/modules/pact/pact.service';
+import { focusPacts, pactReminderReceipts } from '../src/modules/pact/infrastructure/pact.schema';
 import { FocusService } from '../src/modules/focus/focus.service';
 import { MemoryService } from '../src/modules/memory/memory.service';
 import { SeedService } from '../src/modules/seed/seed.service';
 import { PreferencesService } from '../src/modules/preferences/preferences.service';
+import { accountPreferences } from '../src/modules/preferences/infrastructure/preferences.schema';
+import { PrivacyService } from '../src/modules/privacy/privacy.service';
 
 test('core PostgreSQL flow preserves ownership, reconnect state, seed uniqueness and shared milestone', { skip: !process.env.BTP_TEST_DATABASE_URL }, async () => {
   const pool = new Pool({ connectionString: process.env.BTP_TEST_DATABASE_URL, max: 4 }); const client = await pool.connect(); const concurrentClient = await pool.connect(); const schema = `core_test_${randomBytes(8).toString('hex')}`;
@@ -75,6 +80,22 @@ test('core PostgreSQL flow preserves ownership, reconnect state, seed uniqueness
     assert.equal((await pacts.claimDueReminders(ids[1])).items.length,0);
     assert.equal((await pacts.claimDueReminders(ids[0])).items.length,0,'disabled account has no reminders');
     await pacts.cancel(duePact.id,ids[0]);
+    const cancelledDue = await pacts.create(camp.id,ids[0],{participantIds:[ids[1]],startsAt:new Date(Date.now()+5*60000).toISOString(),durationMinutes:5},randomUUID());
+    await pacts.respond(cancelledDue.id,ids[1],'accepted');
+    await pacts.cancel(cancelledDue.id,ids[0]);
+    assert.equal((await pacts.claimDueReminders(ids[1])).items.some(item => item.id === cancelledDue.id),false,'a cancelled Pact is not reminded');
+    const startedDue = await pacts.create(camp.id,ids[0],{participantIds:[ids[1]],startsAt:new Date(Date.now()+5*60000).toISOString(),durationMinutes:5},randomUUID());
+    await pacts.respond(startedDue.id,ids[1],'accepted');
+    const startedDueSession = await focus.startPact(startedDue.id,ids[0],randomUUID());
+    assert.equal((await pacts.claimDueReminders(ids[1])).items.some(item => item.id === startedDue.id),false,'an active Pact is not reminded');
+    await focus.join(startedDueSession.id,ids[1]);
+    await focus.checkout(startedDueSession.id,ids[0],{outcome:'stopped'});
+    await focus.checkout(startedDueSession.id,ids[1],{outcome:'stopped'});
+    const expiredDue = await pacts.create(camp.id,ids[0],{participantIds:[ids[1]],startsAt:new Date(Date.now()+5*60000).toISOString(),durationMinutes:5},randomUUID());
+    await pacts.respond(expiredDue.id,ids[1],'accepted');
+    await db.update(focusPacts).set({startsAt:new Date(Date.now()-31*60000)}).where(eq(focusPacts.id,expiredDue.id));
+    assert.equal((await pacts.claimDueReminders(ids[1])).items.some(item => item.id === expiredDue.id),false,'an expired Pact is not reminded');
+    assert.equal((await pacts.get(expiredDue.id,ids[1])).status,'expired');
     const solo = await focus.startSolo(ids[0], { intention: 'Mở lại chương đang dở', durationMinutes: 5 }, randomUUID()); assert.equal((await focus.snapshot(solo.id, ids[0])).intention, 'Mở lại chương đang dở'); await assert.rejects(focus.snapshot(solo.id, ids[1])); await focus.checkout(solo.id, ids[0], { outcome: 'stopped', openSeed: 'Đọc từ mục tiếp theo' }); await seeds.upsert(ids[0], { text: 'Viết một đoạn mở đầu' }); assert.equal((await seeds.get(ids[0]))?.text, 'Viết một đoạn mở đầu');
 
     const racePact = await pacts.create(camp.id, ids[0], { participantIds: [], startsAt: new Date().toISOString(), durationMinutes: 5 }, randomUUID());
@@ -91,9 +112,14 @@ test('core PostgreSQL flow preserves ownership, reconnect state, seed uniqueness
     const presencePact = await pacts.create(camp.id, ids[0], { participantIds: [ids[1]], startsAt: new Date().toISOString(), durationMinutes: 5 }, randomUUID());
     await pacts.respond(presencePact.id, ids[1], 'accepted'); const presenceSession = await focus.startPact(presencePact.id, ids[0], randomUUID()); await focus.join(presenceSession.id, ids[1]);
     await focus.setPresence(presenceSession.id, ids[1], 'break'); await concurrentFocus.markConnected(presenceSession.id, ids[1]);
-    assert.equal((await focus.snapshot(presenceSession.id, ids[0])).participants.find(person => person.accountId === ids[1])?.presence, 'break', 'heartbeat preserves a chosen break state');
+    assert.equal((await focus.snapshot(presenceSession.id, ids[1])).participants.find(person => person.accountId === ids[1])?.presence, 'break', 'heartbeat preserves a chosen break state for the owner');
+    assert.equal((await focus.snapshot(presenceSession.id, ids[0])).participants.find(person => person.accountId === ids[1])?.presence, 'hidden', 'default sharing is off');
+    await preferences.update(ids[1],{sharePresence:true});
+    assert.equal((await focus.snapshot(presenceSession.id, ids[0])).participants.find(person => person.accountId === ids[1])?.presence, 'break', 'sharing reveals the persisted state');
     await focus.setPresence(presenceSession.id, ids[1], 'disconnected'); await concurrentFocus.markConnected(presenceSession.id, ids[1]);
     assert.equal((await focus.snapshot(presenceSession.id, ids[0])).participants.find(person => person.accountId === ids[1])?.presence, 'active', 'reconnect restores a disconnected participant');
+    await preferences.update(ids[1],{sharePresence:false});
+    assert.equal((await focus.snapshot(presenceSession.id, ids[0])).participants.find(person => person.accountId === ids[1])?.presence, 'hidden', 'turning sharing off masks the next snapshot');
     await focus.checkout(presenceSession.id, ids[0], { outcome: 'stopped' }); await concurrentFocus.checkout(presenceSession.id, ids[1], { outcome: 'stopped' });
 
     const joinPact = await pacts.create(camp.id, ids[0], { participantIds: [ids[3]], startsAt: new Date().toISOString(), durationMinutes: 5 }, randomUUID());
@@ -146,5 +172,13 @@ test('core PostgreSQL flow preserves ownership, reconnect state, seed uniqueness
     await assert.rejects(concurrentFocus.snapshot(revokeSession.id, ids[1]));
     assert.equal(await focus.active(ids[1]), null, 'a removed participant releases their active slot when reconnecting');
     await focus.checkout(revokeSession.id, ids[0], { outcome: 'stopped' });
+
+    const identityStore = new IdentityStore(database);
+    const exported = await new PrivacyService(database, identityStore).export(ids[1]);
+    assert.equal(exported.preferences?.remindAcceptedPacts, true, 'data export includes the owner preference');
+    assert.ok(exported.pactReminders.some(receipt => receipt.pactId === duePact.id), 'data export includes the owner reminder receipt');
+    await identityStore.deleteAccount(ids[1]);
+    assert.equal((await db.select().from(accountPreferences).where(eq(accountPreferences.accountId, ids[1]))).length, 0, 'account deletion removes preferences');
+    assert.equal((await db.select().from(pactReminderReceipts).where(eq(pactReminderReceipts.accountId, ids[1]))).length, 0, 'account deletion removes reminder receipts');
   } finally { await Promise.all([client.query('SET search_path TO public'), concurrentClient.query('SET search_path TO public')]); await client.query(`DROP SCHEMA IF EXISTS "${schema}" CASCADE`); concurrentClient.release(); client.release(); await pool.end(); }
 });
