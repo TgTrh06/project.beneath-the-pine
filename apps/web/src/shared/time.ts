@@ -17,6 +17,18 @@ export function formatTime(value: string, timezone = deviceTimezone()) {
   }).format(new Date(value));
 }
 
+export function formatTimeWithOffset(value: string, timezone = deviceTimezone()) {
+  return new Intl.DateTimeFormat("vi-VN", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    timeZone: timezone,
+    timeZoneName: "shortOffset",
+  }).format(new Date(value));
+}
+
 export function localToIso(value: string, timezone: string): string | null {
   if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(value) || !validTimezone(timezone)) return null;
 
