@@ -8,3 +8,4 @@
 - [Private Pilot Plan](private-beta-plan.md)
 - [Pilot field kit](pilot-field-kit.md)
 - [Pilot log](pilot-log.md)
+- [Stage 2 gentle support acceptance](stage-2-gentle-support-acceptance.md)

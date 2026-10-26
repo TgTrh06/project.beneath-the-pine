@@ -6,6 +6,7 @@ All routes use `/api/v1`, cookie authentication and CSRF on unsafe methods. Crea
 | --- | --- |
 | Identity | `GET auth/session`, `POST auth/register`, `POST auth/login`, `POST auth/logout` |
 | Profile | `GET/PATCH me/profile` |
+| Preferences | `GET/PATCH me/preferences` |
 | Return | `GET me/return`, `GET/PUT/DELETE me/open-seed` |
 | Focus | `POST focus-sessions`, `GET focus-sessions/active`, `GET focus-sessions/:id`, `POST focus-sessions/:id/join`, `POST focus-sessions/:id/check-out`, `GET me/focus-history` |
 | Camp | `GET/POST camps`, `GET/PATCH camps/:id`, invite/member/ownership subresources |
@@ -13,6 +14,10 @@ All routes use `/api/v1`, cookie authentication and CSRF on unsafe methods. Crea
 | Rights | `GET me/data-export`, `DELETE me/account` with current password |
 | Memory | `GET me/memory` |
 | Pine Assistance demo | `POST me/assistance`, `POST me/assistance/interactions` (204) |
+
+`GET me/preferences` returns `{preferences:{sharePresence:false,remindAcceptedPacts:false,focusPreset:null}}` when no row exists. `PATCH me/preferences` accepts a non-empty subset of those fields; `focusPreset` is null or `{durationMinutes:5|10|25|50,soundscapeId:"rain"|"forest"|"stream"|null}`. Unknown fields are rejected. Both routes are account-only; PATCH requires CSRF. A missing row is created on the first update.
+
+`GET camps/:campId/recent-partners` returns `{accountIds:[...]}` (at most seven) for actual co-participants of completed Pact sessions who are still active Camp members. It requires current active Camp membership and contains no personal text. `POST me/pact-reminders/claim-due` requires login and CSRF. It returns `{serverNow,items:[{id,campName,startsAt,durationMinutes}]}` (at most five). Claims are one per account/Pact across concurrent requests and only for accepted, scheduled Pacts in active Camps from now through ten minutes ahead when the caller opted in. No background notification is sent.
 
 Errors use `{code,message,requestId,details}` and never echo private input. IDs and ownership in bodies do not grant access.
 

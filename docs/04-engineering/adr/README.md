@@ -2,6 +2,7 @@
 
 ## Current
 
+- [ADR-0023 — Gentle focus support without AI](0023-gentle-focus-support.md) — Accepted for local Stage 2 implementation.
 - [ADR-0022 — OpenAI provider for a local Pine Assistance demo](0022-openai-assistance-demo.md) — Accepted for local/preview demo.
 
 - [ADR-0021 — Camp contract and accepted late join](0021-camp-contract-and-late-join.md) — Accepted.

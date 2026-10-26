@@ -16,6 +16,23 @@ The **local core gate is met** for the Solo and Camp/Pact demo scripts. This doe
 
 An exception for a **local/preview Pine Assistance demo** is approved behind disabled-by-default UI/API flags. It covers only `assisted_start` and `open_seed_draft` with fictional data; it does not open the pilot gate or change the P6 release status. See [ADR-0022](../04-engineering/adr/0022-openai-assistance-demo.md) and the [demo script](../07-testing/pine-assistance-demo.md).
 
+## Stage 2 — Gentle support for starting and returning (2026-10-25–26)
+
+S06–S07, then S03–S05, then S01–S02 and S08 are implemented locally. The [Stage 2 acceptance record](../07-testing/stage-2-gentle-support-acceptance.md) separates browser/live evidence from checks still open. The estimated remaining verification is **XS–S** for another browser engine and screen-reader review. The current sound recordings were accepted for demo, with better versions left as a later improvement. These are relative engineering estimates; this section does not authorize pilot rollout.
+
+| Task | Current implementation | Local evidence and remaining gate |
+| --- | --- | --- |
+| S06 Presence sharing | Account setting defaults off; snapshots and events project `hidden` to other Pact members. | Two authenticated browsers observed immediate on/off changes during one Pact. DB suite covers default and repeat snapshot. Multi-instance broadcast remains out of scope. |
+| S07 Stuck recovery | Private microstep/Seed drafts, two-minute break and checkout path. | Browser reload, break countdown, API outage/retry and keyboard checkout verified; server Focus clock continued. |
+| S03 Invite again | Recent actual co-participants fill Camp form after current membership filtering. | Browser checked recent partner after completed Pact, then removal hid quick-select; no Pact created by selection. |
+| S04 Repeat Pact | Checkout opens a review dialog and fills eligible members, duration and an empty scheduled time. | Browser checked completed Pact and removed-member case; create stayed disabled until valid recipient/time. |
+| S05 Accepted-Pact reminder | Opt-in, one DB receipt per account/Pact, in-web only within ten minutes. | Concurrent DB claim, closed-page reopening, cancellation invalidation and profile timezone/offset verified. A headless Chrome tab switched to `hidden` during the component's delayed settings request made no claim until reactivated. |
+| S01 Soundscape | Three bundled CC0 Ogg recordings with manual play/stop and volume. | Chrome playback control and stopping on checkout/reload verified. Separate accounts chose rain and stream for the same session without sharing choices. The user accepted the current recordings for demo; another browser engine remains to check before pilot. |
+| S02 Focus preset | One account duration/sound choice, applied only by action. | Browser verified an unsaved draft wins on reload and applying preset does not start Focus or audio. |
+| S08 First-use hints | Inline Return, Camp, Pact and Seed hints, dismissible and reopenable per browser account. | Browser inspected all four locations and tested Enter, focus restoration and reload persistence; screen-reader review remains. |
+
+The local implementation does not change the pilot gate: real-data migration, infrastructure, deployment, backup and invitation to real participants still need a separate reviewed plan and approval. AI remains disabled by default and is not required for any Stage 2 action. See [ADR-0023](../04-engineering/adr/0023-gentle-focus-support.md).
+
 ## Historical baseline — 2026-10-21 (Circle contract)
 
 | Phase | Outcome | Baseline status (2026-10-21) | Remaining estimate | Exit evidence |

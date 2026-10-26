@@ -26,6 +26,18 @@ The preview does not disclose the member list or private work. Choosing not to p
 
 The client never assumes that a locally running timer is authoritative.
 
+Sharing live Pact presence is an account choice, off by default. The owner sees their actual state. Other authorized participants see that the person joined (`hidden`) or checked out until sharing is enabled; turning it off updates the current session projection. Neither choice changes the Focus clock or participation rights.
+
 ## Stuck state
 
 During solo/shared session, user may choose: reduce the step, take a short break, stop honestly, or continue. The MVP uses manual choices; AI assistance is not required.
+
+The manual stuck panel holds a private microstep draft, offers a two-minute break without pausing server time, saves a private Open Seed after explicit confirmation, and opens checkout with the `stuck` outcome. The draft survives reload in the same tab; saving errors keep the text.
+
+## Gentle return shortcuts
+
+After completing a Pact, **Hẹn lại** opens the Camp form with a review step. It carries forward only current Camp members and the old duration, selects scheduled mode and leaves date/time blank. The user still confirms creation and invitees still accept. The Camp form can also select recent actual co-participants without sending an invitation.
+
+An accepted Pact may show one opt-in in-web reminder during the ten minutes before the scheduled time, while the page is open and visible. It uses the profile timezone and excludes terminal/started Pacts. There is no notification when the page is closed.
+
+On Return, a saved Focus preset fills duration and a sound choice only when explicitly applied; an existing draft wins on reload. In an active session, a bundled sound starts only after the user's play action and stops on checkout or leaving. Each member controls their own playback. Short hints at Return, Camp, Pact and Open Seed can be dismissed or reopened.
