@@ -1,4 +1,4 @@
-# Beneath Pine AI Dataset Card
+# Pyneath AI Dataset Card
 
 - Dataset version:
 - Scenario counts by capability/safety tag:

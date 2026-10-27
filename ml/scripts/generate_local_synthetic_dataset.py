@@ -1,4 +1,4 @@
-"""Generate the deterministic, local-only Beneath Pine synthetic v0 dataset.
+"""Generate the deterministic, local-only Pyneath synthetic v0 dataset.
 
 The generated data is fictional, private, and suitable only for local pipeline
 experiments. It is not an owner-reviewed dataset and must not be used to release

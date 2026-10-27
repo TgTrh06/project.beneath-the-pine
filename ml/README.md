@@ -1,6 +1,6 @@
-# Pine Assistance Training Workspace
+# Pyneath Assistance Training Workspace
 
-This directory contains reproducible, data-safe material for a Vietnamese Pine Assistance model. The model is intended only to suggest a small start, a stuck-recovery step or a draft Open Seed; it is not a general chatbot.
+This directory contains reproducible, data-safe material for a Vietnamese Pyneath Assistance model. The model is intended only to suggest a small start, a stuck-recovery step or a draft Open Seed; it is not a general chatbot.
 
 Read [ML governance](../docs/05-machine-learning/README.md) before creating a dataset, training an adapter or serving an artifact.
 

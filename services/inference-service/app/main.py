@@ -1,7 +1,7 @@
-"""Beneath Pine local inference service.
+"""Pyneath local inference service.
 
 Start in safe mock mode: `uv run uvicorn app.main:app --port 8010`.
-Set BENEATH_PINE_GGUF_PATH and install the `local` extra to use a merged GGUF.
+Set PYNEATH_GGUF_PATH and install the `local` extra to use a merged GGUF.
 A future NestJS AI adapter or worker is the intended caller; this service rejects missing bearer tokens.
 """
 from __future__ import annotations
@@ -14,10 +14,10 @@ from typing import Literal
 from fastapi import FastAPI, Header, HTTPException
 from pydantic import BaseModel, Field
 
-app = FastAPI(title="Beneath Pine Inference", version="0.1.0")
+app = FastAPI(title="Pyneath Inference", version="0.1.0")
 TOKEN = os.getenv("INFERENCE_SERVICE_TOKEN", "")
-MODEL_PATH = os.getenv("BENEATH_PINE_GGUF_PATH", "")
-MODEL_VERSION = os.getenv("BENEATH_PINE_MODEL_VERSION", "manual-fixture-v0")
+MODEL_PATH = os.getenv("PYNEATH_GGUF_PATH", "")
+MODEL_VERSION = os.getenv("PYNEATH_MODEL_VERSION", "manual-fixture-v0")
 
 
 class GenerateInput(BaseModel):
@@ -48,7 +48,7 @@ def model_generate(kind: Literal["brain_dump", "help_me_start"], content: str) -
         from llama_cpp import Llama  # type: ignore[import-not-found]
         model = Llama(model_path=MODEL_PATH, n_ctx=2048, n_gpu_layers=-1, verbose=False)
         prompt = prompt_for(kind, content)
-        response = model.create_chat_completion(messages=[{"role": "system", "content": "Bạn là Beneath Pine AI. Chỉ trả về JSON hợp lệ theo schema."}, {"role": "user", "content": prompt}], temperature=0.2, response_format={"type": "json_object"})
+        response = model.create_chat_completion(messages=[{"role": "system", "content": "Bạn là Pyneath AI. Chỉ trả về JSON hợp lệ theo schema."}, {"role": "user", "content": prompt}], temperature=0.2, response_format={"type": "json_object"})
         return json.loads(response["choices"][0]["message"]["content"])
     except Exception:
         return fixture(kind, content)

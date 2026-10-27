@@ -1,7 +1,7 @@
 [project]
-name = "beneath-pine-inference"
+name = "pyneath-inference"
 version = "0.1.0"
-description = "Private local inference gateway for Beneath Pine AI adapters."
+description = "Private local inference gateway for Pyneath AI adapters."
 requires-python = ">=3.11,<3.13"
 dependencies = ["fastapi>=0.115,<1", "uvicorn[standard]>=0.30,<1", "pydantic>=2.8,<3"]
 
