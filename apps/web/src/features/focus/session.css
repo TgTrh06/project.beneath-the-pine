@@ -4,6 +4,7 @@
 .session-toolbar { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:1rem; margin-bottom:clamp(2rem,7vh,4rem); }
 .focus-room h1 { font-size:clamp(1.75rem,4vw,2.75rem); line-height:1.3; text-align:center; overflow-wrap:anywhere; margin-block:1rem; }
 .focus-room__body > .eyebrow, .focus-room__body > .field-hint, .focus-room__body > [role="status"] { text-align:center; }
+.focus-room:not(.solo-session) .session-identity > .eyebrow, .focus-room:not(.solo-session) .session-sync { text-align:center; }
 .focus-room .focus-room__timer { font-size:clamp(3.5rem,14vw,7rem); font-variant-numeric:tabular-nums; margin-block:clamp(1.5rem,5vh,3rem); }
 .session-actions { justify-content:center; margin-block:1.5rem 1rem; }
 .focus-room .session-presence { justify-content:center; margin-block:1.5rem; overflow-wrap:anywhere; }

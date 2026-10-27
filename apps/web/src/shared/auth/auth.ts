@@ -1,5 +1,5 @@
 import { logFrontendError } from "../logging/logger";
-import { accountSessionSchema, type AccountSessionPayload } from "@beneath-the-pine/contracts";
+import { accountSessionSchema, type AccountSessionPayload } from "@pyneath/contracts";
 import { discardPrivateDrafts, setDraftOwner } from "./privateDrafts";
 
 const apiUrl = (import.meta.env.VITE_API_URL as string | undefined) || "/api/v1";

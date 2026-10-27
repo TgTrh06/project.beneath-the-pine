@@ -1,6 +1,8 @@
+import { legacyStorageKey, readBrandValue } from '../brandStorage';
+
 let owner: string | null = null;
 const drafts = new Map<string, unknown>();
-const storagePrefix = "btp:private-draft:v1:";
+const storagePrefix = "pyneath:private-draft:v1:";
 
 function accountPrefix(accountId: string) {
   return `${storagePrefix}${encodeURIComponent(accountId)}:`;
@@ -12,7 +14,7 @@ function clearStoredDrafts(accountId: string) {
     const keys: string[] = [];
     for (let index = 0; index < sessionStorage.length; index += 1) {
       const key = sessionStorage.key(index);
-      if (key?.startsWith(prefix)) keys.push(key);
+      if (key && (key.startsWith(prefix) || key.startsWith(legacyStorageKey(prefix)!))) keys.push(key);
     }
     keys.forEach(key => sessionStorage.removeItem(key));
   } catch {
@@ -26,7 +28,8 @@ function clearStoredDraftsForOtherAccounts(accountId: string) {
     const keys: string[] = [];
     for (let index = 0; index < sessionStorage.length; index += 1) {
       const key = sessionStorage.key(index);
-      if (key?.startsWith(storagePrefix) && !key.startsWith(currentPrefix)) keys.push(key);
+      if (key && (key.startsWith(storagePrefix) || key.startsWith(legacyStorageKey(storagePrefix)!))
+        && !key.startsWith(currentPrefix) && !key.startsWith(legacyStorageKey(currentPrefix)!)) keys.push(key);
     }
     keys.forEach(key => sessionStorage.removeItem(key));
   } catch {
@@ -58,7 +61,7 @@ export function readPrivateDraft<T>(accountId: string | null, key: string, initi
     let value = initial();
     if (persist) {
       try {
-        const saved = sessionStorage.getItem(storedKey(accountId, key));
+        const saved = readBrandValue(sessionStorage, storedKey(accountId, key));
         if (saved !== null) value = JSON.parse(saved) as T;
       } catch {
         // Ignore malformed or inaccessible storage and use a fresh in-memory value.
@@ -71,7 +74,7 @@ export function readPrivateDraft<T>(accountId: string | null, key: string, initi
 export function restoreStoredPrivateDraft<T>(accountId: string | null, key: string): { found: boolean; value?: T } {
   if (!accountId || accountId !== owner) return { found: false };
   try {
-    const saved = sessionStorage.getItem(storedKey(accountId, key));
+    const saved = readBrandValue(sessionStorage, storedKey(accountId, key));
     if (saved === null) return { found: false };
     const value = JSON.parse(saved) as T;
     drafts.set(key, value);
@@ -84,7 +87,7 @@ export function writePrivateDraft<T>(accountId: string | null, key: string, valu
   if (!accountId || accountId !== owner) return;
   drafts.set(key, value);
   if (persist) {
-    try { sessionStorage.setItem(storedKey(accountId, key), JSON.stringify(value)); }
+    try { const target = storedKey(accountId, key); sessionStorage.setItem(target, JSON.stringify(value)); sessionStorage.removeItem(legacyStorageKey(target)!); }
     catch { /* Storage may be disabled or full; retain the in-memory draft. */ }
   }
 }
@@ -92,7 +95,7 @@ export function removePrivateDraft(accountId: string | null, key: string, persis
   if (!accountId || accountId !== owner) return;
   drafts.delete(key);
   if (persist) {
-    try { sessionStorage.removeItem(storedKey(accountId, key)); }
+    try { const target = storedKey(accountId, key); sessionStorage.removeItem(target); sessionStorage.removeItem(legacyStorageKey(target)!); }
     catch { /* Storage may be disabled. */ }
   }
 }

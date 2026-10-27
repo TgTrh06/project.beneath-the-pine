@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { durationMinutesSchema, productEventNames } from "@beneath-the-pine/contracts";
+import { durationMinutesSchema, productEventNames } from "@pyneath/contracts";
 
 describe("core contracts", () => {
   it("keeps duration choices and private core events explicit", () => {

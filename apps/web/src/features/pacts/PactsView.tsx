@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import type { PactListItem } from '@beneath-the-pine/contracts';
+import type { PactListItem } from '@pyneath/contracts';
 import { listPacts, respondPact, getProfile } from '../../shared/api/api';
 import { useResource } from '../../shared/api/useResource';
 import { ErrorMessage } from '../../shared/components/ui';

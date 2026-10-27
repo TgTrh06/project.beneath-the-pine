@@ -17,11 +17,11 @@ export function AppLayout({ view, onNavigate, onLogout, children }: {
 
   useEffect(() => {
     contentRef.current?.focus();
-    document.title = (navigationItems.find(item => item.view === view)?.label ?? "Beneath the Pine") + " — Beneath the Pine";
+    document.title = (navigationItems.find(item => item.view === view)?.label ?? "Pyneath") + " — Pyneath";
   }, [view]);
 
   const nav = <>
-    <a className="nav-item" href="#home">Về Beneath the Pine</a>
+    <a className="nav-item" href="#home">Về Pyneath</a>
     {navigationItems.map(item => {
       const active = view === item.view || (item.view === "pacts" && view === "pact") || (item.view === "camps" && ["camp", "invite"].includes(view));
       return <button
@@ -33,13 +33,20 @@ export function AppLayout({ view, onNavigate, onLogout, children }: {
     })}
   </>;
 
+  if (view === "camp") return <div className="camp-immersive-shell">
+    <a className="skip-link" href="#main-content" onClick={event => { event.preventDefault(); contentRef.current?.focus(); }}>Đến nội dung Camp</a>
+    <button type="button" className="camp-app-menu" aria-haspopup="dialog" aria-expanded={menu} onClick={() => setMenu(true)}>Menu <span aria-hidden="true">☰</span></button>
+    <main id="main-content" ref={contentRef} tabIndex={-1}>{children}</main>
+    {menu && <Dialog kind="menu" title="Điều hướng" onClose={() => setMenu(false)}><nav className="app-dialog-nav" aria-label="Điều hướng ứng dụng">{nav}</nav><ThemeSelect/><button className="text-action" onClick={onLogout}>Đăng xuất</button></Dialog>}
+  </div>;
+
   return <div className="site-shell">
     <a className="skip-link" href="#main-content" onClick={event => { event.preventDefault(); contentRef.current?.focus(); }}>Đến nội dung chính</a>
     <header className="site-header">
       <div className="site-header-inner">
-        <button className="brand" onClick={() => onNavigate("return")} aria-label="Beneath the Pine, về điểm tiếp tục">
+        <button className="brand" onClick={() => onNavigate("return")} aria-label="Pyneath, về điểm tiếp tục">
           <svg width="28" height="32" viewBox="0 0 32 36" fill="none" aria-hidden="true"><path d="M16 31V5M16 5 8 15h5L5 25h22l-8-10h5L16 5Z" stroke="currentColor" strokeWidth="2"/></svg>
-          <span>Beneath the Pine.</span>
+          <span>Pyneath.</span>
         </button>
         <div className="header-actions">
           <ThemeSelect/>

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { focusSessionSchema, realtimeEvents, type FocusSession } from "@beneath-the-pine/contracts";
+import { focusSessionSchema, realtimeEvents, type FocusSession } from "@pyneath/contracts";
 import { io, type Socket } from "socket.io-client";
 import { ApiRequestError, getSession, realtimeUrl } from "../api/api";
 

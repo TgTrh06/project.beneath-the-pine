@@ -52,10 +52,10 @@ fieldset { min-width:0; }
 .public-menu-panel::backdrop { background:rgb(0 0 0 / 60%); }
 .public-menu-panel > .theme-select { margin-top:1.5rem; }
 .public-tools { grid-column:3; grid-row:1; display:flex; align-items:center; justify-self:end; gap:1rem; }
-.pine-dialog { width:min(520px,calc(100% - 2rem)); max-height:calc(100dvh - 2rem); overflow:auto; background:var(--surface-raised); color:var(--ink); border:0; border-radius:10px; box-shadow:var(--shadow-soft); padding:1.5rem; animation:dialog-in 220ms ease-out; }
-.pine-dialog::backdrop { background:rgb(0 0 0 / 60%); }
-.pine-dialog-menu { width:min(320px,calc(100% - 2rem)); animation:menu-rise 320ms var(--ease); }
-.pine-dialog-menu .theme-select { margin-block:1rem; }
+.pyneath-dialog { width:min(520px,calc(100% - 2rem)); max-height:calc(100dvh - 2rem); overflow:auto; background:var(--surface-raised); color:var(--ink); border:0; border-radius:10px; box-shadow:var(--shadow-soft); padding:1.5rem; animation:dialog-in 220ms ease-out; }
+.pyneath-dialog::backdrop { background:rgb(0 0 0 / 60%); }
+.pyneath-dialog-menu { width:min(320px,calc(100% - 2rem)); animation:menu-rise 320ms var(--ease); }
+.pyneath-dialog-menu .theme-select { margin-block:1rem; }
 @keyframes menu-rise { from { opacity:0; transform:translateY(50dvh); } to { opacity:1; transform:translateY(0); } }
 .dialog-heading { display:flex; align-items:start; justify-content:space-between; gap:1rem; }
 .dialog-heading h2 { margin-top:.25rem; }
@@ -98,8 +98,8 @@ fieldset { min-width:0; }
 /* Cozy pixel accents stay with the companion art; product controls stay quiet and familiar. */
 button, input:not([type="checkbox"]), select, textarea { border-radius:var(--pixel-round); }
 .primary, .secondary, .danger, .choice, .close, .nav-item { border-radius:var(--pixel-round); }
-.feature-card, .return-panel, .session-ending, .camp-panel, .pine-dialog, .modal, .lp-note, .lp-focus-example, .lp-trail-result { border-radius:12px; }
-.return-panel, .session-ending, .camp-panel, .pine-dialog, .modal, .lp-trail-result { box-shadow:none; }
+.feature-card, .return-panel, .session-ending, .camp-panel, .pyneath-dialog, .modal, .lp-note, .lp-focus-example, .lp-trail-result { border-radius:12px; }
+.return-panel, .session-ending, .camp-panel, .pyneath-dialog, .modal, .lp-trail-result { box-shadow:none; }
 .lp-note, .feature-card, .lp-focus-example { box-shadow:var(--shadow-soft); }
 .primary, .public-header .public-cta, .public-menu-links .public-cta, .landing .lp-button { box-shadow:var(--shadow-control); }
 .marten-note__name, .lp-marten-intro strong { font-family:var(--font-pixel); letter-spacing:0; }

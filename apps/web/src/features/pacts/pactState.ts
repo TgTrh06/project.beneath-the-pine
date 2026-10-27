@@ -1,4 +1,4 @@
-import type { FocusPact } from "@beneath-the-pine/contracts";
+import type { FocusPact } from "@pyneath/contracts";
 export function pactActions(pact: FocusPact, accountId: string, now: number, canJoin = true) {
   const mine = pact.participants.find(person => person.accountId === accountId);
   const creator = pact.creatorId === accountId; const scheduled = pact.status === "scheduled";

@@ -9,7 +9,7 @@ export function AuthView({ mode, connectionError, onRetry, onSuccess }: { mode: 
   const [busy, setBusy] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const creating = mode === "register";
-  useEffect(() => { document.title = `${creating ? "Đăng ký" : "Đăng nhập"} — Beneath the Pine`; heading.current?.focus({ preventScroll: true }); window.scrollTo(0, 0); }, [creating]);
+  useEffect(() => { document.title = `${creating ? "Đăng ký" : "Đăng nhập"} — Pyneath`; heading.current?.focus({ preventScroll: true }); window.scrollTo(0, 0); }, [creating]);
   const submit: SubmitEventHandler<HTMLFormElement> = async event => {
     event.preventDefault();
     if (busy) return;
@@ -29,7 +29,7 @@ export function AuthView({ mode, connectionError, onRetry, onSuccess }: { mode: 
     <SiteHeader />
     <main className="auth-shell" id="auth-main" tabIndex={-1}>
     <section className="feature-card auth-card">
-      <p className="eyebrow">BENEATH THE PINE</p><h1 ref={heading} tabIndex={-1}>{creating ? "Tạo khoảng riêng của bạn." : "Về dưới tán thông."}</h1>
+      <p className="eyebrow">PYNEATH</p><h1 ref={heading} tabIndex={-1}>{creating ? "Tạo khoảng riêng của bạn." : "Về dưới tán thông."}</h1>
       <p>{creating ? "Tạo tài khoản để bắt đầu hoặc quay lại việc đang dở." : "Đăng nhập vào không gian của bạn."}</p>
       {connectionError && <div className="notice" role="alert">{connectionError} <button className="link-button" onClick={onRetry}>Thử kết nối lại</button></div>}
       <form onSubmit={submit} aria-busy={busy}>

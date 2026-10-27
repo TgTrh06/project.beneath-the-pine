@@ -3,7 +3,7 @@ import { renderToStaticMarkup } from 'react-dom/server';
 
 afterEach(() => { vi.unstubAllEnvs(); vi.resetModules(); });
 
-describe('Pine Assistance demo controls', () => {
+describe('Pyneath Assistance demo controls', () => {
   it('are absent by default so the manual Solo and Seed forms remain available', async () => {
     vi.stubEnv('VITE_ASSISTANCE_DEMO', 'false');
     const { AssistanceCoach } = await import('./AssistanceCoach');

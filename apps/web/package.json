@@ -1,5 +1,5 @@
 {
-  "name": "@beneath-the-pine/web",
+  "name": "@pyneath/web",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -10,14 +10,17 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@beneath-the-pine/contracts": "workspace:*",
+    "@pyneath/contracts": "workspace:*",
+    "@react-three/fiber": "9.8.2",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
-    "socket.io-client": "^4.8.1"
+    "socket.io-client": "^4.8.1",
+    "three": "0.186.1"
   },
   "devDependencies": {
     "@types/react": "^19.0.8",
     "@types/react-dom": "^19.0.3",
+    "@types/three": "0.186.0",
     "@vitejs/plugin-react": "^5.0.4",
     "typescript": "^5.9.3",
     "vite": "^7.1.7",

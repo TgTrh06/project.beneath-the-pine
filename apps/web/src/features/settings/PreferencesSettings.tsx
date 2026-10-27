@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { getPreferences, updatePreferences } from '../../shared/api/api';
 import { useResource } from '../../shared/api/useResource';
 import { ErrorMessage } from '../../shared/components/ui';
-import type { Preferences } from '@beneath-the-pine/contracts';
+import type { Preferences } from '@pyneath/contracts';
 
 export function PreferencesSettings() {
   const resource = useResource(getPreferences);
@@ -18,7 +18,7 @@ export function PreferencesSettings() {
       const result = await updatePreferences(patch);
       resource.setData(result);
       setMessage(success);
-      window.dispatchEvent(new Event('pine:preferences-updated'));
+      window.dispatchEvent(new Event('pyneath:preferences-updated'));
     } catch (failure) {
       setError((failure as Error).message);
     } finally {

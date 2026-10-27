@@ -20,7 +20,7 @@ export function safeFrontendErrorRecord(context: FrontendErrorContext): SafeReco
 export function logFrontendError(context: FrontendErrorContext): void {
   if (configuredLevel === "off") return;
   const record = safeFrontendErrorRecord(context);
-  console.groupCollapsed(`%cBeneath the Pine · ${record.event}`, "color:#963b31;font-weight:700");
+  console.groupCollapsed(`%cPyneath · ${record.event}`, "color:#963b31;font-weight:700");
   console.error(record);
   console.groupEnd();
 }

@@ -19,7 +19,7 @@ export function Dialog({ title, children, onClose, kind }: { title: string; chil
 
   return (
     <dialog
-      className={kind === "menu" ? "pine-dialog pine-dialog-menu" : "pine-dialog"}
+      className={kind === "menu" ? "pyneath-dialog pyneath-dialog-menu" : "pyneath-dialog"}
       ref={ref}
       aria-labelledby={id}
       onCancel={event => { event.preventDefault(); onClose(); }}

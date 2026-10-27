@@ -18,6 +18,20 @@ describe("private drafts", () => {
     vi.stubGlobal("sessionStorage", storage);
   });
 
+  it("migrates only the current account's legacy draft and clears both namespaces on logout", async () => {
+    storage.setItem('btp:private-draft:v1:a:return%3Aintention', JSON.stringify('Keep my draft'));
+    storage.setItem('btp:private-draft:v1:b:return%3Aintention', JSON.stringify('Other account'));
+    const drafts = await import('./privateDrafts');
+    drafts.setDraftOwner('a');
+    expect(storage.getItem('btp:private-draft:v1:b:return%3Aintention')).toBeNull();
+    expect(drafts.readPrivateDraft('a', 'return:intention', () => '', true)).toBe('Keep my draft');
+    expect(storage.getItem('pyneath:private-draft:v1:a:return%3Aintention')).toBe(JSON.stringify('Keep my draft'));
+    expect(storage.getItem('btp:private-draft:v1:a:return%3Aintention')).toBeNull();
+    storage.setItem('btp:private-draft:v1:a:unread', '"Still old"');
+    drafts.discardPrivateDrafts();
+    expect(storage.length).toBe(0);
+  });
+
   it("restores opted-in drafts after a page reload in the same account", async () => {
     const beforeReload = await import("./privateDrafts");
     beforeReload.setDraftOwner("a");
