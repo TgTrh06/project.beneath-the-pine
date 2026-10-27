@@ -12,18 +12,18 @@ jobs:
       postgres:
         image: postgres:17-alpine
         env:
-          POSTGRES_DB: btp_ci
-          POSTGRES_USER: btp_ci
-          POSTGRES_PASSWORD: btp_ci
+          POSTGRES_DB: pyneath_ci
+          POSTGRES_USER: pyneath_ci
+          POSTGRES_PASSWORD: pyneath_ci
         ports:
           - 5432:5432
         options: >-
-          --health-cmd "pg_isready -U btp_ci -d btp_ci"
+          --health-cmd "pg_isready -U pyneath_ci -d pyneath_ci"
           --health-interval 5s
           --health-timeout 3s
           --health-retries 10
     env:
-      BTP_TEST_DATABASE_URL: postgresql://btp_ci:btp_ci@127.0.0.1:5432/btp_ci
+      PYNEATH_TEST_DATABASE_URL: postgresql://pyneath_ci:pyneath_ci@127.0.0.1:5432/pyneath_ci
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -38,20 +38,20 @@ jobs:
       - run: pnpm test
       - run: pnpm build
       - name: Build API container
-        run: docker build --tag beneath-the-pine-api:ci .
+        run: docker build --tag pyneath-api:ci .
       - name: Apply migrations to disposable CI database
         run: >-
           docker run --rm --network host
-          --env API_DATABASE_URL="$BTP_TEST_DATABASE_URL"
-          beneath-the-pine-api:ci node scripts/migrate.cjs
+          --env API_DATABASE_URL="$PYNEATH_TEST_DATABASE_URL"
+          pyneath-api:ci node scripts/migrate.cjs
       - name: Start API container
         run: >-
-          docker run --detach --network host --name beneath-the-pine-api-ci
+          docker run --detach --network host --name pyneath-api-ci
           --env API_HOST=127.0.0.1
           --env API_PORT=8081
           --env API_WEB_ORIGIN=http://127.0.0.1:5173
-          --env API_DATABASE_URL="$BTP_TEST_DATABASE_URL"
-          beneath-the-pine-api:ci
+          --env API_DATABASE_URL="$PYNEATH_TEST_DATABASE_URL"
+          pyneath-api:ci
       - name: Wait for API readiness
         run: |
           for attempt in $(seq 1 30); do
@@ -61,14 +61,14 @@ jobs:
             fi
             sleep 2
           done
-          docker logs beneath-the-pine-api-ci
+          docker logs pyneath-api-ci
           exit 1
       - name: Run live Solo, Pact, and realtime API suites
         env:
-          BTP_SOLO_API_URL: http://127.0.0.1:8081/api/v1
-          BTP_SOLO_DATABASE_URL: postgresql://btp_ci:btp_ci@127.0.0.1:5432/btp_ci
-          BTP_SOLO_WEB_ORIGIN: http://127.0.0.1:5173
+          PYNEATH_SOLO_API_URL: http://127.0.0.1:8081/api/v1
+          PYNEATH_SOLO_DATABASE_URL: postgresql://pyneath_ci:pyneath_ci@127.0.0.1:5432/pyneath_ci
+          PYNEATH_SOLO_WEB_ORIGIN: http://127.0.0.1:5173
         run: node --test apps/api/dist-test/test/solo-http.test.js apps/api/dist-test/test/pact-lists-http.test.js
       - name: Stop API container
         if: always()
-        run: docker rm --force beneath-the-pine-api-ci || true
+        run: docker rm --force pyneath-api-ci || true
