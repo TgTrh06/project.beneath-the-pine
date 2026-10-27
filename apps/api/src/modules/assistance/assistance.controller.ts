@@ -1,6 +1,6 @@
 import { Controller, HttpCode, Post, Req } from '@nestjs/common';
 import type { Request } from 'express';
-import { assistanceInteractionSchema, assistanceRequestSchema } from '@beneath-the-pine/contracts';
+import { assistanceInteractionSchema, assistanceRequestSchema } from '@pyneath/contracts';
 import { body, principal } from '../../platform/http/request';
 import { AssistanceService } from './assistance.service';
 

@@ -1,7 +1,7 @@
 import { ConflictException, ForbiddenException, Injectable, NotFoundException, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
 import { ConnectedSocket, MessageBody, OnGatewayInit, OnGatewayDisconnect, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Namespace, Socket } from 'socket.io';
-import { heartbeatSchema, realtimeEvents, setPresenceSchema, subscribeSessionSchema } from '@beneath-the-pine/contracts';
+import { heartbeatSchema, realtimeEvents, setPresenceSchema, subscribeSessionSchema } from '@pyneath/contracts';
 import { API_CONFIG, ApiConfig } from '../../platform/config/api-config';
 import { Inject } from '@nestjs/common';
 import { IdentityService } from '../identity/public-api';

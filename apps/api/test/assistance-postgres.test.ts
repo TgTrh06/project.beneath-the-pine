@@ -10,9 +10,9 @@ import { accounts } from '../src/modules/identity/infrastructure/identity.schema
 import { AnalyticsService } from '../src/modules/analytics/analytics.service';
 import type { DatabaseService } from '../src/platform/database/database.service';
 
-test('assistance quotas reserve atomically on isolated PostgreSQL', { skip: !process.env.BTP_TEST_DATABASE_URL }, async () => {
+test('assistance quotas reserve atomically on isolated PostgreSQL', { skip: !process.env.PYNEATH_TEST_DATABASE_URL }, async () => {
   const schema = `assistance_test_${randomBytes(8).toString('hex')}`;
-  const setup = new Pool({ connectionString: process.env.BTP_TEST_DATABASE_URL, max: 1 });
+  const setup = new Pool({ connectionString: process.env.PYNEATH_TEST_DATABASE_URL, max: 1 });
   let pool: Pool | undefined;
   try {
     await setup.query(`CREATE SCHEMA "${schema}"`);
@@ -21,7 +21,7 @@ test('assistance quotas reserve atomically on isolated PostgreSQL', { skip: !pro
       const migration = readFileSync(resolve(__dirname, `../../drizzle/${file}`), 'utf8').replaceAll('"public"', `"${schema}"`);
       await setup.query(migration);
     }
-    pool = new Pool({ connectionString: process.env.BTP_TEST_DATABASE_URL, max: 12, options: `-c search_path=${schema}` });
+    pool = new Pool({ connectionString: process.env.PYNEATH_TEST_DATABASE_URL, max: 12, options: `-c search_path=${schema}` });
     const db = drizzle(pool);
     const analytics = new AnalyticsService({ db } as unknown as DatabaseService);
     const ids = Array.from({ length: 11 }, () => randomUUID());

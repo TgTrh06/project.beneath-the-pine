@@ -22,8 +22,8 @@ import { PreferencesService } from '../src/modules/preferences/preferences.servi
 import { accountPreferences } from '../src/modules/preferences/infrastructure/preferences.schema';
 import { PrivacyService } from '../src/modules/privacy/privacy.service';
 
-test('core PostgreSQL flow preserves ownership, reconnect state, seed uniqueness and shared milestone', { skip: !process.env.BTP_TEST_DATABASE_URL }, async () => {
-  const pool = new Pool({ connectionString: process.env.BTP_TEST_DATABASE_URL, max: 4 }); const client = await pool.connect(); const concurrentClient = await pool.connect(); const schema = `core_test_${randomBytes(8).toString('hex')}`;
+test('core PostgreSQL flow preserves ownership, reconnect state, seed uniqueness and shared milestone', { skip: !process.env.PYNEATH_TEST_DATABASE_URL }, async () => {
+  const pool = new Pool({ connectionString: process.env.PYNEATH_TEST_DATABASE_URL, max: 4 }); const client = await pool.connect(); const concurrentClient = await pool.connect(); const schema = `core_test_${randomBytes(8).toString('hex')}`;
   try {
     await client.query(`CREATE SCHEMA "${schema}"`); await client.query(`SET search_path TO "${schema}"`); await concurrentClient.query(`SET search_path TO "${schema}"`);
     const legacyAccountId = randomUUID(); const legacyCampId = randomUUID(); const legacyMembershipId = randomUUID(); const legacyEventId = randomUUID();

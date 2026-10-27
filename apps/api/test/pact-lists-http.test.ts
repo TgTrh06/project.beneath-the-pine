@@ -1,12 +1,12 @@
 import { io, type Socket } from 'socket.io-client';
-import { realtimeEvents } from '@beneath-the-pine/contracts';
+import { realtimeEvents } from '@pyneath/contracts';
 import assert from 'node:assert/strict';
 import { randomBytes, randomUUID } from 'node:crypto';
 import { test } from 'node:test';
 import { Pool } from 'pg';
-const base=process.env.BTP_SOLO_API_URL;
-const database=process.env.BTP_SOLO_DATABASE_URL;
-const origin=process.env.BTP_SOLO_WEB_ORIGIN ?? 'http://localhost:5173';
+const base=process.env.PYNEATH_SOLO_API_URL;
+const database=process.env.PYNEATH_SOLO_DATABASE_URL;
+const origin=process.env.PYNEATH_SOLO_WEB_ORIGIN ?? 'http://localhost:5173';
 class Client {
   id=''; cookie=''; csrf=''; email=`pact-regression-${randomUUID()}@example.test`; password=randomBytes(24).toString('hex');
   async req(path:string,method='GET',body?:unknown,key?:string) {

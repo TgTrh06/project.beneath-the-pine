@@ -10,8 +10,8 @@ import { AppModule } from '../src/app.module';
 import { API_CONFIG, readApiConfig } from '../src/platform/config/api-config';
 import { configureHttp } from '../src/platform/http/configure-http';
 
-const database = process.env.BTP_SOLO_DATABASE_URL;
-const origin = process.env.BTP_SOLO_WEB_ORIGIN ?? 'http://localhost:5173';
+const database = process.env.PYNEATH_SOLO_DATABASE_URL;
+const origin = process.env.PYNEATH_SOLO_WEB_ORIGIN ?? 'http://localhost:5173';
 
 class Client {
   constructor(private readonly server: ReturnType<NestExpressApplication['getHttpServer']>) {}

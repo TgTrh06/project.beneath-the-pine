@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import type { Preferences } from '@beneath-the-pine/contracts';
+import type { Preferences } from '@pyneath/contracts';
 import { eq } from 'drizzle-orm';
 import { Subject } from 'rxjs';
 import { DatabaseService } from '../../platform/database/database.service';

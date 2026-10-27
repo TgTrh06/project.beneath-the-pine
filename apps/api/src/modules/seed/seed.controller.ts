@@ -1,6 +1,6 @@
 import { Controller, Delete, Get, HttpCode, Put, Req } from '@nestjs/common';
 import type { Request } from 'express';
-import { upsertOpenSeedSchema } from '@beneath-the-pine/contracts';
+import { upsertOpenSeedSchema } from '@pyneath/contracts';
 import { body, principal } from '../../platform/http/request';
 import { SeedService } from './seed.service';
 

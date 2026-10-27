@@ -1,5 +1,5 @@
 import { decodeCursor, encodeCursor } from '../../platform/http/pagination';
-import type { CampInvitePreview, InviteListQuery } from '@beneath-the-pine/contracts';
+import type { CampInvitePreview, InviteListQuery } from '@pyneath/contracts';
 import { ConflictException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { and, eq, desc, lt, or, sql } from 'drizzle-orm';
 import { createHash, randomBytes } from 'node:crypto';

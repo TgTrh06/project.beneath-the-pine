@@ -54,7 +54,7 @@ test('application composition, HTTP foundation and fail-closed access', async t 
     assert.equal(notReady.body.requestId, notReady.headers['x-request-id']);
   });
   await t.test('private routes reject absent or forged credentials', async () => {
-    for (const headers of [{}, { Authorization: 'Bearer fabricated', Cookie: 'BTP_SESSION=fabricated', 'X-User-ID': 'owner' }]) {
+    for (const headers of [{}, { Authorization: 'Bearer fabricated', Cookie: 'PYNEATH_SESSION=fabricated', 'X-User-ID': 'owner' }]) {
       const response = await request(server).get('/test-only/protected').set(headers).expect(401);
       assert.equal(response.body.code, 'UNAUTHENTICATED');
       assert.ok(!JSON.stringify(response.body).includes('shouldNeverReach'));

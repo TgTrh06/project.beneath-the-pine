@@ -1,6 +1,6 @@
 import { Controller, Get, Param, Post, Req } from '@nestjs/common';
 import type { Request } from 'express';
-import { checkOutSchema, startSoloSessionSchema } from '@beneath-the-pine/contracts';
+import { checkOutSchema, startSoloSessionSchema } from '@pyneath/contracts';
 import { body, idempotencyKey, principal } from '../../platform/http/request';
 import { PactService } from '../pact/public-api';
 import { ProfileService } from '../profile/public-api';

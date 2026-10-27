@@ -10,8 +10,8 @@ import { eq } from 'drizzle-orm';
 import { accounts, sessions } from '../src/modules/identity/infrastructure/identity.schema';
 
 // Opt-in only: never uses API_DATABASE_URL or the user's normal schema.
-test('PostgreSQL migration enforces unique accounts and session cascade', { skip: !process.env.BTP_TEST_DATABASE_URL }, async () => {
-  const pool = new Pool({ connectionString: process.env.BTP_TEST_DATABASE_URL, max: 1, connectionTimeoutMillis: 3000 });
+test('PostgreSQL migration enforces unique accounts and session cascade', { skip: !process.env.PYNEATH_TEST_DATABASE_URL }, async () => {
+  const pool = new Pool({ connectionString: process.env.PYNEATH_TEST_DATABASE_URL, max: 1, connectionTimeoutMillis: 3000 });
   const client = await pool.connect();
   const schema = `identity_test_${randomBytes(8).toString('hex')}`;
   try {

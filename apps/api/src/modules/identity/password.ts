@@ -1,5 +1,5 @@
 import { randomBytes, scrypt, timingSafeEqual } from 'node:crypto';
-export { credentialsSchema } from '@beneath-the-pine/contracts';
+export { credentialsSchema } from '@pyneath/contracts';
 const derive = (password: string, salt: string) => new Promise<Buffer>((resolve, reject) => {
   scrypt(password, salt, 64, { N: 32768, r: 8, p: 3, maxmem: 64 * 1024 * 1024 }, (error, hash) => error ? reject(error) : resolve(hash));
 });

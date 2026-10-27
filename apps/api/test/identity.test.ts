@@ -69,6 +69,43 @@ test('registration normalizes email, rotates session and returns a safe account 
   await agent.post('/api/v1/auth/register').set('Origin', origin).set('X-XSRF-TOKEN', result.body.csrfToken)
     .send({ email: 'WANDERER@example.test', password }).expect(409);
 });
+
+test('legacy cookie migrates without changing token, CSRF or expiry and logout revokes both names', async t => {
+  const { server, register, store } = await setup(t);
+  const signed = await register('migration@example.test').expect(201);
+  const modern = signed.headers['set-cookie'][0].split(';')[0];
+  assert.match(modern, /^PYNEATH_SESSION=/);
+  const legacy = modern.replace('PYNEATH_SESSION=', 'BTP_SESSION=');
+  const token = modern.split('=')[1];
+  const expiry = store.sessions.get(sessionHash(token))!.expiresAt;
+  const result = await request(server).get('/api/v1/auth/session').set('Cookie', legacy).expect(200);
+  assert.equal(result.body.account.id, signed.body.account.id);
+  assert.equal(result.body.csrfToken, signed.body.csrfToken);
+  const cookies: unknown = result.headers['set-cookie'];
+  assert.ok(Array.isArray(cookies));
+  assert.ok(cookies.some((value: string) => value.startsWith(modern + ';') && value.includes(expiry.toUTCString()) && value.includes('HttpOnly')));
+  assert.ok(cookies.some((value: string) => value.startsWith('BTP_SESSION=;')));
+  assert.equal(store.sessions.get(sessionHash(token))!.expiresAt, expiry);
+  const second = 'b'.repeat(64);
+  store.sessions.set(sessionHash(second), { ...store.sessions.get(sessionHash(token))!, tokenHash: sessionHash(second) });
+  const logout = await request(server).post('/api/v1/auth/logout').set('Cookie', `${modern}; BTP_SESSION=${second}`)
+    .set('Origin', origin).set('X-XSRF-TOKEN', signed.body.csrfToken).expect(204);
+  assert.equal(store.sessions.size, 0);
+  assert.equal(logout.headers['set-cookie'].length, 2);
+  await request(server).get('/api/v1/me/profile').set('Cookie', legacy).expect(401);
+});
+
+test('new cookie takes precedence and legacy support does not bypass authentication or CSRF', async t => {
+  const { server, register } = await setup(t);
+  const signed = await register('precedence@example.test').expect(201);
+  const legacy = signed.headers['set-cookie'][0].split(';')[0].replace('PYNEATH_SESSION=', 'BTP_SESSION=');
+  for (const cookie of [`PYNEATH_SESSION=invalid; ${legacy}`, `PYNEATH_SESSION=${'c'.repeat(64)}; ${legacy}`, 'BTP_SESSION=invalid']) {
+    await request(server).get('/api/v1/me/profile').set('Cookie', cookie).expect(401);
+  }
+  await request(server).post('/api/v1/auth/logout').set('Cookie', legacy).set('Origin', origin).expect(403);
+  await request(server).post('/api/v1/auth/logout').set('Cookie', legacy).set('Origin', 'https://evil.test')
+    .set('X-XSRF-TOKEN', signed.body.csrfToken).expect(403);
+});
 test('CSRF rejects absent, forged, stale tokens and foreign origins without registering', async t => {
   const { agent, anon, store } = await setup(t);
   for (const headers of [{}, { Origin: origin, 'X-XSRF-TOKEN': '0'.repeat(64) }, { Origin: 'https://evil.test', 'X-XSRF-TOKEN': anon.body.csrfToken }]) {

@@ -1,5 +1,5 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
-import { assistanceResponseSchema, type AssistanceInteraction, type AssistanceRequest, type AssistanceResponse } from '@beneath-the-pine/contracts';
+import { assistanceResponseSchema, type AssistanceInteraction, type AssistanceRequest, type AssistanceResponse } from '@pyneath/contracts';
 import { API_CONFIG, type ApiConfig } from '../../platform/config/api-config';
 import { AnalyticsService } from '../analytics/public-api';
 import { ASSISTANCE_PROVIDER, type AssistanceProvider } from './assistance.provider';
