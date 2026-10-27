@@ -4,7 +4,7 @@
 
 ## Mục đích và thời gian
 
-Bạn được mời thử Beneath the Pine trong một pilot riêng tư kéo dài 2 tuần (có thể gia hạn tối đa 4 tuần nếu được thông báo trước). Bạn có thể thử bắt đầu một phiên Solo, quay lại từ Open Seed và hẹn Focus Pact với Camp người quen. Đây không phải dịch vụ y tế hay công cụ đánh giá năng suất.
+Bạn được mời thử Pyneath trong một pilot riêng tư kéo dài 2 tuần (có thể gia hạn tối đa 4 tuần nếu được thông báo trước). Bạn có thể thử bắt đầu một phiên Solo, quay lại từ Open Seed và hẹn Focus Pact với Camp người quen. Đây không phải dịch vụ y tế hay công cụ đánh giá năng suất.
 
 - Ngày pilot dự kiến: **[ĐIỀN NGÀY BẮT ĐẦU – KẾT THÚC]**.
 - Người/kênh hỗ trợ, rút lui và yêu cầu xóa dữ liệu: **[ĐIỀN KÊNH LIÊN HỆ DO CHỦ PILOT QUẢN LÝ]**.

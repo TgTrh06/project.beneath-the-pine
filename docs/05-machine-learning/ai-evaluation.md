@@ -1,8 +1,8 @@
-# Pine Assistance Evaluation
+# Pyneath Assistance Evaluation
 
 ## Offline gates
 
-Compare the reviewed adapter with base/prompt baseline on a frozen Pine Assistance holdout.
+Compare the reviewed adapter with base/prompt baseline on a frozen Pyneath Assistance holdout.
 
 | Dimension | Pass condition |
 | --- | --- |

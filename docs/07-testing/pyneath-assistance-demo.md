@@ -1,4 +1,4 @@
-# Pine Assistance demo script — local/preview only
+# Pyneath Assistance demo script — local/preview only
 
 ## Setup
 

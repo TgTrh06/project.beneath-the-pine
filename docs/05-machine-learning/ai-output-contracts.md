@@ -1,4 +1,4 @@
-# Pine Assistance Output Contracts
+# Pyneath Assistance Output Contracts
 
 Responses are validated at the API boundary before reaching a client. The model is never trusted to select a database action.
 

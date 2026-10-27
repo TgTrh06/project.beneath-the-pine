@@ -29,12 +29,12 @@
 
 ## Kết quả sau đổi Camp — 2026-10-24
 
-Toàn bộ lượt live/browser dưới đây dùng container PostgreSQL tạm `btp-core-closeout-20261024` tại `127.0.0.1:5544`, API `127.0.0.1:8081` và web `127.0.0.1:5173`. Không migrate/reset database local đang dùng. Browser A là tab IAB mới; B/C dùng tab Chrome mới, đăng xuất giữa hai tài khoản.
+Toàn bộ lượt live/browser dưới đây dùng container PostgreSQL tạm `pyneath-core-closeout-20261024` tại `127.0.0.1:5544`, API `127.0.0.1:8081` và web `127.0.0.1:5173`. Không migrate/reset database local đang dùng. Browser A là tab IAB mới; B/C dùng tab Chrome mới, đăng xuất giữa hai tài khoản.
 
 | Hạng mục | Trạng thái | Bằng chứng và giới hạn |
 | --- | --- | --- |
 | Workspace lint/test/build | Đạt | `pnpm lint` đạt, boundary check 62 file; `pnpm test` với DB tạm và API live: web 37/37, API 47 pass/0 fail/0 skip; `pnpm build` đạt. |
-| Migration sạch | Đạt | `pnpm --filter @beneath-the-pine/api db:migrate` hoàn tất trên DB tạm mới; có 5 bảng Camp; `/health/live` và `/health/ready` đều `UP`. |
+| Migration sạch | Đạt | `pnpm --filter @pyneath/api db:migrate` hoàn tất trên DB tạm mới; có 5 bảng Camp; `/health/live` và `/health/ready` đều `UP`. |
 | Migration Circle → Camp có dữ liệu | Đạt trong fixture | Test tạo schema cũ, chèn 1 Circle, membership, invite, Pact, session, participant, milestone và event rồi áp dụng 0002. ID và liên kết giữ nguyên; 5 FK được kiểm tra; chủ nhóm vẫn đọc Camp/Pact/session; event đổi thành `camp_created`. Chưa chạy trên dữ liệu pilot/thật. |
 | C02 Solo browser | Đạt phần đã chạy | Draft ý định và 5 phút sống qua reload; start tạo một session, reload khôi phục cùng ID/timer; ngắt API lúc checkout giữ outcome và Seed, thử lại thành công; reload Return vẫn thấy Seed, “Tiếp tục từ đây” điền lại ý định. Mất response của **start** chưa ép bằng browser, đã được API idempotency suite kiểm tra. |
 | C03 Camp/Pact browser | Đạt | A tạo Camp/link, B thấy preview giới hạn rồi tham gia; Pact ngay tạo ở `scheduled` chưa có session, B đổi declined → accepted, A start riêng; A checkout trước, B vẫn join trước `endsAt`, checkout cuối chuyển Pact thành `completed`. Pact theo lịch không có nút start sớm, hủy qua dialog xác nhận và không còn nút hành động. C bị từ chối ở Camp/Pact. |

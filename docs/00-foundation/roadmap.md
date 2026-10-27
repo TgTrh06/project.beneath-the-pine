@@ -22,6 +22,6 @@ React Native + Expo, quick actions, deep links, widget and opt-in notification a
 
 ## P5 — Conditional assistance
 
-Pine Assistance tự train/fine-tune cho activation step, stuck recovery và Open Seed draft; personalization, audio/theme/preset hoặc host tools chỉ sau evidence, privacy, safety và cost review.
+Pyneath Assistance tự train/fine-tune cho activation step, stuck recovery và Open Seed draft; personalization, audio/theme/preset hoặc host tools chỉ sau evidence, privacy, safety và cost review.
 
 Public discovery, stranger rooms, voice/video and competitive mechanics are not roadmap commitments.

@@ -1,10 +1,10 @@
-# Pine Assistance — Product Specification
+# Pyneath Assistance — Product Specification
 
 - **Status:** Two-capability local/preview demo behind disabled-by-default flags; not a pilot or MVP release
 
 ## Purpose
 
-Pine Assistance reduces activation friction inside the Pine ritual. It appears only after a user asks for help and never replaces their decision.
+Pyneath Assistance reduces activation friction inside the Pyneath ritual. It appears only after a user asks for help and never replaces their decision.
 
 ## Capabilities
 

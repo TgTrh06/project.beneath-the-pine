@@ -1,11 +1,11 @@
-# ADR-0022 — OpenAI provider for a local Pine Assistance demo
+# ADR-0022 — OpenAI provider for a local Pyneath Assistance demo
 
 - **Status:** Accepted for the approved local/preview demo only
 - **Date:** 2026-10-24
 
 ## Decision
 
-Add one NestJS Assistance boundary for `assisted_start` and `open_seed_draft`. Clients use the Pine contract, never OpenAI directly. The provider is `disabled` by default or `openai` when configured. `stuck_recovery` and the local Pine model path in ADR-0015 remain separate future work. The web control is also disabled by default.
+Add one NestJS Assistance boundary for `assisted_start` and `open_seed_draft`. Clients use the Pyneath contract, never OpenAI directly. The provider is `disabled` by default or `openai` when configured. `stuck_recovery` and the local Pyneath model path in ADR-0015 remain separate future work. The web control is also disabled by default.
 
 The OpenAI provider uses the Responses API with structured output, `store:false`, no tools, bounded output and a six-second deadline. Moderation and local checks precede rendering. Provider errors return fixed manual text. Suggestions are transient until the user edits and confirms a normal core operation.
 

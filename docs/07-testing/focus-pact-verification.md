@@ -11,7 +11,7 @@
 - `pnpm lint` — passed for contracts, API and web.
 - `pnpm test` — web: 31 passed; API: 20 passed, 5 database-gated tests skipped, 0 failed.
 - `pnpm build` — contracts, API and web production builds passed.
-- `pnpm --filter @beneath-the-pine/api exec node --test --test-concurrency=1 dist-test/test/pact-lists-http.test.js` with the Pact API and database environment pointed at the disposable services — 8 passed, 0 failed, 0 skipped.
+- `pnpm --filter @pyneath/api exec node --test --test-concurrency=1 dist-test/test/pact-lists-http.test.js` with the Pact API and database environment pointed at the disposable services — 8 passed, 0 failed, 0 skipped.
 
 The live Pact coverage verifies:
 

@@ -5,7 +5,7 @@
 
 ## Promise
 
-Pine helps a person start a small piece of personal work and leave a clear return point. They may do this alone or in a private Camp with trusted people; no one needs to reveal what they are working on.
+Pyneath helps a person start a small piece of personal work and leave a clear return point. They may do this alone or in a private Camp with trusted people; no one needs to reveal what they are working on.
 
 ## Core outcomes
 
@@ -35,6 +35,6 @@ Pine helps a person start a small piece of personal work and leave a clear retur
 - No raw private text in logs or analytics.
 - API business rules independent from web so a mobile client can share account/session data.
 
-## Future Pine Assistance
+## Future Pyneath Assistance
 
 After P0–P3 evidence, the API may offer user-triggered assisted start, stuck recovery and Open Seed draft. Model output is structured, validated, private to the requester and manually confirmable. Training/inference is governed by [ML documentation](../05-machine-learning/README.md); it never replaces the manual MVP flow.

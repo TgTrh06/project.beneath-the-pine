@@ -1,6 +1,6 @@
-# Pine Assistance Dataset Specification
+# Pyneath Assistance Dataset Specification
 
-- **Status:** Proposed; target dataset for Pine Assistance
+- **Status:** Proposed; target dataset for Pyneath Assistance
 
 ## Coverage
 
@@ -17,4 +17,4 @@
 
 ## Existing artifact migration
 
-`local-synthetic-v0` remains a local pipeline artifact. Its `brain_dump` rows are not production training material for Pine Assistance. Its `help_me_start` rows may be retained only after capability mapping, substantive Vietnamese rewrite and new review; no row transfers automatically.
+`local-synthetic-v0` remains a local pipeline artifact. Its `brain_dump` rows are not production training material for Pyneath Assistance. Its `help_me_start` rows may be retained only after capability mapping, substantive Vietnamese rewrite and new review; no row transfers automatically.

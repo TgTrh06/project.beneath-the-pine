@@ -10,6 +10,6 @@
 | Realtime | Authorized join, late join, reconnect snapshot, duplicate command and timer drift |
 | Web | Responsive/keyboard flow, loading/error/recovery and privacy visibility |
 | Mobile future | Native auth/resume/deep-link/notification tests after platform decision |
-| Pine Assistance future | Frozen holdout, structured-output/safety tests, timeout/manual fallback and no-raw-text telemetry checks |
+| Pyneath Assistance future | Frozen holdout, structured-output/safety tests, timeout/manual fallback and no-raw-text telemetry checks |
 
 Timer display is not proof of work. Pilot evaluation combines event data and user feedback.

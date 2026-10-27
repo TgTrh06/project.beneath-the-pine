@@ -7,7 +7,7 @@
 
 > Historical record. The non-shaming and opt-in principles remain useful, but reminder/Weekly Letter delivery is not current product scope.
 
-Beneath the Pine cần hỗ trợ người dùng quay lại sau focus session hoặc gián đoạn mà không dùng streak, pressure notification hay lưu nội dung nhạy cảm trong analytics. Reminder outbound là external side effect, trong khi private beta chưa chọn provider hoặc credential.
+Pyneath cần hỗ trợ người dùng quay lại sau focus session hoặc gián đoạn mà không dùng streak, pressure notification hay lưu nội dung nhạy cảm trong analytics. Reminder outbound là external side effect, trong khi private beta chưa chọn provider hoặc credential.
 
 ## Decision
 

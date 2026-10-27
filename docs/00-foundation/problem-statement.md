@@ -20,4 +20,4 @@ Thiết kế một ritual ngắn giúp người dùng:
 
 > Một hệ thống Focus Pact riêng tư, kết hợp presence realtime tối giản và Open Seed, có hỗ trợ người dùng khởi động và quay lại với công việc cá nhân tốt hơn trải nghiệm tự làm không?
 
-Pine không tuyên bố tăng năng suất, điều trị ADHD, thay thế trị liệu hoặc phù hợp với mọi người.
+Pyneath không tuyên bố tăng năng suất, điều trị ADHD, thay thế trị liệu hoặc phù hợp với mọi người.

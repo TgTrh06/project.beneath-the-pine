@@ -4,8 +4,10 @@ This runbook prepares a consented private pilot. It does not authorize choosing 
 
 ## Current deployment artifact
 
+The product and build packages now use Pyneath. Before applying renamed local infrastructure defaults to an existing installation, follow [ADR-0024](../04-engineering/adr/0024-pyneath-brand-transition.md): preserve the actual PostgreSQL volume/database/user and runtime database URL. Renaming a Compose project or its environment does not rename stored PostgreSQL roles or databases. The branding change does not authorize a deployment or data migration.
+
 - The web client is a static Vite build in `apps/web/dist`; `vercel.json` defines its current build settings.
-- The API is packaged as a Docker image from the repository root with `docker build -t beneath-the-pine-api .`.
+- The API is packaged as a Docker image from the repository root with `docker build -t pyneath-api .`.
 - The API container listens on `0.0.0.0:8081` by default. The host must route HTTP and WebSocket traffic to the same API instance and preserve Socket.IO upgrade requests.
 - The container does not run migrations on startup. Run `node scripts/migrate.cjs` as an explicit one-off command using the same image and the target database URL, only after its migration review is approved.
 
