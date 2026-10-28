@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
+import { MartenModel } from './MartenModel';
 import { Group, Quaternion, Vector3 } from 'three';
 
 function Form({at,scale,color,rotation=[0,0,0]}:{at:[number,number,number];scale:[number,number,number];color:string;rotation?:[number,number,number]}) {
@@ -40,6 +41,8 @@ export function SoloRest({animate}:{animate:boolean}) {
         <Form at={[.34,.48,.5]} scale={[.085,.06,.12]} color={skin}/>
         <mesh position={[0,.79,-.12]} rotation={[Math.PI/2,0,0]} castShadow><torusGeometry args={[.185,.06,8,20]}/><meshStandardMaterial color="#d9bd7d" roughness={1}/></mesh>
         <Form at={[.09,.61,.155]} scale={[.065,.19,.035]} color="#d9bd7d"/>
+        {[0,1,2].map(i=><Form key={i} at={[0,.43+i*.1,.17]} scale={[.017,.017,.012]} color="#d1b98b"/>)}
+        <Form at={[0,.51,.16]} scale={[.009,.2,.014]} color="#3c5949"/>
         <group ref={head} position={[0,1,-.14]} rotation={[-.16,-.25,-.065]}>
           <Form at={[0,0,0]} scale={[.235,.26,.22]} color={skin}/>
           <Form at={[0,.13,-.025]} scale={[.245,.19,.225]} color="#70513b"/>
@@ -51,20 +54,6 @@ export function SoloRest({animate}:{animate:boolean}) {
         </group>
       </group>
     </group>
-    {/* Curled tail, paws and lowered head keep Marten settled beside the legs. */}
-    <group position={[-1.55,.2,-1.95]} rotation={[0,1.05,0]}>
-      <group ref={marten}>
-        <Form at={[.04,0,0]} scale={[.34,.18,.24]} color="#80502f"/>
-        <Form at={[.31,-.055,.03]} scale={[.2,.11,.28]} color="#684128" rotation={[0,-.5,0]}/>
-        <Form at={[.08,-.075,.22]} scale={[.3,.095,.13]} color="#684128"/>
-        <Form at={[-.23,-.09,.21]} scale={[.12,.07,.14]} color="#94623a"/>
-        <group position={[-.22,.01,.08]} rotation={[.2,-.15,-.12]}>
-          <Form at={[0,0,0]} scale={[.165,.145,.155]} color="#94623a"/>
-          <Form at={[0,-.04,.12]} scale={[.115,.07,.09]} color="#dfc799"/>
-          <Form at={[0,-.025,.2]} scale={[.027,.022,.025]} color="#39291f"/>
-          {[-1,1].map(side=><group key={side}><Form at={[side*.12,.1,-.02]} scale={[.065,.07,.05]} color="#80502f"/><Form at={[side*.075,.012,.137]} scale={[.03,.008,.012]} color="#39291f" rotation={[0,0,side*.12]}/></group>)}
-        </group>
-      </group>
-    </group>
+    <group position={[-1.55,.025,-1.95]} rotation={[0,1.05,0]}><MartenModel animate={animate} sleeping ambient/></group>
   </>;
 }

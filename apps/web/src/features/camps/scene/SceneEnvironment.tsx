@@ -2,15 +2,23 @@ import { useEffect, useMemo, useRef } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import { BufferGeometry, CatmullRomCurve3, Color, DirectionalLight, Float32BufferAttribute, Fog, Group, HemisphereLight, LineBasicMaterial, PointLight, Vector3, Mesh, MeshBasicMaterial } from 'three';
 import { environmentTarget, type DayPhase, type Weather } from './environment';
+import { canopySkyPalette, canopySunDirection } from './canopySky';
 
-export function Environment({ phase, weather, animate, solo = false, mirrored = false, viewDistanceOffset = 0 }: { phase: DayPhase; weather: Weather; animate: boolean; solo?: boolean; mirrored?: boolean; viewDistanceOffset?: number }) {
+export function Environment({ phase, weather, animate, solo = false, mirrored = false, viewDistanceOffset = 0, naturalOnly = false, pinePortrait = false }: { phase: DayPhase; weather: Weather; animate: boolean; solo?: boolean; mirrored?: boolean; viewDistanceOffset?: number; naturalOnly?: boolean; pinePortrait?: boolean }) {
   const { scene, gl, invalidate } = useThree();
   const sun = useRef<DirectionalLight>(null), fill = useRef<DirectionalLight>(null), hemi = useRef<HemisphereLight>(null), fire = useRef<PointLight>(null);
   const lanterns = useRef<Group>(null), transition = useRef(0), shadowElapsed = useRef(0), initialized = useRef(false);
   const target = useMemo(() => {
     const p = environmentTarget(phase, weather);
+    if (pinePortrait) {
+      const mist = weather === 'fog', wet = weather === 'rain';
+      return { ...p, power: p.power * 1.15, hemi: p.hemi * .95, fill: phase === 'night' ? .6 : 1.1,
+        fogNear: mist ? 17 : weather === 'clear' ? 50 : 32, fogFar: mist ? 62 : wet ? 85 : weather === 'clear' ? 160 : 125,
+        skyColor: new Color(canopySkyPalette(phase, weather).horizon), sunColor: new Color(p.sun), ambientColor: new Color(p.ambient), groundColor: new Color(phase === 'night' ? '#314b50' : '#78936e'),
+        sunPosition: new Vector3(...canopySunDirection).multiplyScalar(48) };
+    }
     return { ...p, fogNear: p.fogNear + viewDistanceOffset, fogFar: p.fogFar + viewDistanceOffset, skyColor: new Color(p.sky), sunColor: new Color(p.sun), ambientColor: new Color(p.ambient), groundColor: new Color(p.ground), sunPosition: new Vector3(...p.position as [number, number, number]) };
-  }, [phase, weather, viewDistanceOffset]);
+  }, [phase, weather, viewDistanceOffset, pinePortrait]);
   const currentFire = useRef(target.fire);
   function apply(a: number) {
     if (!sun.current || !fill.current || !hemi.current) return;
@@ -18,6 +26,7 @@ export function Environment({ phase, weather, animate, solo = false, mirrored = 
     const fog = scene.fog as Fog;
     fog.color.lerp(target.skyColor, a); fog.near += (target.fogNear - fog.near) * a; fog.far += (target.fogFar - fog.far) * a;
     sun.current.color.lerp(target.sunColor, a); sun.current.intensity += (target.power - sun.current.intensity) * a; sun.current.position.lerp(target.sunPosition, a);
+    fill.current.color.lerp(new Color(pinePortrait && phase === 'night' ? '#a2c7dc' : '#d9c9a0'), a);
     fill.current.intensity += (target.fill - fill.current.intensity) * a;
     hemi.current.color.lerp(target.ambientColor, a); hemi.current.groundColor.lerp(target.groundColor, a); hemi.current.intensity += (target.hemi - hemi.current.intensity) * a;
     currentFire.current += (target.fire - currentFire.current) * a;
@@ -42,14 +51,14 @@ export function Environment({ phase, weather, animate, solo = false, mirrored = 
   return <>
     <color attach="background" args={['#1c3535']} /><fog attach="fog" args={['#1c3535', 22, 68]} />
     <hemisphereLight ref={hemi} args={['#b5d2cc', '#4d4b2e', 1.4]} />
-    <directionalLight ref={sun} position={[-6, 20, -5]} color="#badcd6" intensity={2.2} castShadow shadow-mapSize={[1024,1024]} shadow-camera-left={-15} shadow-camera-right={15} shadow-camera-top={18} shadow-camera-bottom={-12} shadow-camera-far={65} shadow-normalBias={.035} />
-    <directionalLight ref={fill} position={[3,8,7]} color="#d9c9a0" intensity={1.1} />
+    <directionalLight ref={sun} position={[-6, 20, -5]} color="#badcd6" intensity={2.2} castShadow shadow-mapSize={[1024,1024]} shadow-camera-left={-15} shadow-camera-right={15} shadow-camera-top={pinePortrait ? 45 : 18} shadow-camera-bottom={-12} shadow-camera-far={pinePortrait ? 85 : 65} shadow-normalBias={.035} />
+    <directionalLight ref={fill} position={pinePortrait ? [6,-10,9] : [3,8,7]} color="#d9c9a0" intensity={1.1} />
     <pointLight ref={fire} position={[0,1.37,0]} color="#ffc078" intensity={30} distance={12} decay={2} />
-    <group ref={lanterns} scale={[mirrored ? -1 : 1,1,1]}>{solo ? <pointLight position={[-.6,.7,-1.45]} color="#ffd69a" intensity={3} distance={7} /> : <><pointLight position={[-4.8,.6,-1]} color="#ffd69a" intensity={3} distance={5} /><pointLight position={[4.3,.6,2.2]} color="#ffd69a" intensity={3} distance={5} /></>}</group>
+    {!naturalOnly && <group ref={lanterns} scale={[mirrored ? -1 : 1,1,1]}>{solo ? <pointLight position={[-.6,.7,-1.45]} color="#ffd69a" intensity={3} distance={7} /> : <><pointLight position={[-4.8,.6,-1]} color="#ffd69a" intensity={3} distance={5} /><pointLight position={[4.3,.6,2.2]} color="#ffd69a" intensity={3} distance={5} /></>}</group>}
   </>;
 }
 
-export function Rain({ weather, animate }: { weather: Weather; animate: boolean }) {
+export function Rain({ weather, animate, waterRipples = true }: { weather: Weather; animate: boolean; waterRipples?: boolean }) {
   const material = useRef<LineBasicMaterial>(null), ripples = useRef<Group>(null), opacity = useRef(0), elapsed = useRef(0);
   const drops = useMemo(() => Array.from({length:220}, (_, i) => {
     let x = ((i * 7.137) % 30) - 13, z = ((i * 5.731) % 28) - 20;
@@ -69,13 +78,12 @@ export function Rain({ weather, animate }: { weather: Weather; animate: boolean 
     const dt=Math.min(delta,.1); elapsed.current+=dt;
     opacity.current += ((weather==='rain'?.38:0)-opacity.current)*(1-Math.exp(-dt*.65));
     material.current.opacity=opacity.current;
-    if(ripples.current)ripples.current.visible=opacity.current>.005;
-    if(opacity.current<.005)return;
+    if(ripples.current)ripples.current.visible=true;
     const positions=geometry.getAttribute('position');
     drops.forEach(([x,z,offset],i)=>{const y=12-((elapsed.current*5+offset)%12);positions.setXYZ(i*2,x,y,z);positions.setXYZ(i*2+1,x+.07,y+.4,z);});
     positions.needsUpdate=true;
-    ripples.current?.children.forEach((child,i)=>{const mesh=child as Mesh,progress=(elapsed.current*.65+i*.173)%1;mesh.scale.setScalar(.08+progress*.3);(mesh.material as MeshBasicMaterial).opacity=(1-progress)*opacity.current;});
+    ripples.current?.children.forEach((child,i)=>{const mesh=child as Mesh,progress=(elapsed.current*.65+i*.173)%1;mesh.scale.setScalar(.08+progress*.3);(mesh.material as MeshBasicMaterial).opacity=(1-progress)*(weather==='rain'?opacity.current:.09);});
   });
   return <><lineSegments geometry={geometry} frustumCulled={false} renderOrder={1}><lineBasicMaterial ref={material} color="#b8d1d6" transparent opacity={0} depthWrite={false} /></lineSegments>
-    <group ref={ripples} visible={false}>{water.map((p,i)=><mesh key={i} position={p} rotation={[-Math.PI/2,0,0]}><ringGeometry args={[.85,1,16]} /><meshBasicMaterial color="#9abcb8" transparent opacity={0} depthWrite={false} /></mesh>)}</group></>;
+    {waterRipples && <group ref={ripples} visible={false}>{water.map((p,i)=><mesh key={i} position={p} rotation={[-Math.PI/2,0,0]}><ringGeometry args={[.85,1,16]} /><meshBasicMaterial color="#9abcb8" transparent opacity={0} depthWrite={false} /></mesh>)}</group>}</>;
 }

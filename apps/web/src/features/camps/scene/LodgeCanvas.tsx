@@ -1,10 +1,11 @@
 import { Suspense, useEffect, useMemo, useRef } from 'react';
 import { Canvas, useFrame, useLoader, useThree, type ThreeEvent } from '@react-three/fiber';
-import { ACESFilmicToneMapping, Group, Mesh, MeshStandardMaterial, OrthographicCamera, PCFSoftShadowMap } from 'three';
+import { ACESFilmicToneMapping, Group, Mesh, MeshStandardMaterial, OrthographicCamera, PCFSoftShadowMap, Vector2 } from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { appearanceIndex, wandererColors, type LodgeMember } from './lodgeState';
 import { Environment, Rain } from './SceneEnvironment';
 import type { DayPhase, Weather } from './environment';
+import { MartenModel } from './MartenModel';
 import { SoloRest } from './SoloRest';
 
 type Props = {
@@ -49,6 +50,9 @@ function Wanderer({ member, seat, chosen, animate, onClick }: { member: LodgeMem
       </group>)}
       <mesh position={[0, .54, 0]} rotation={[Math.PI / 2, 0, 0]}><torusGeometry args={[.19, .065, 8, 20]} /><meshStandardMaterial color={phase % 2 ? '#d9bd7d' : '#c49a72'} /></mesh>
       <Pebble at={[.12, .35, .235]} scale={[.075, .23, .04]} color={phase % 2 ? '#d9bd7d' : '#c49a72'} />
+      {[0,1,2].map(i=><Pebble key={i} at={[0,.2+i*.1,.235]} scale={[.018,.018,.012]} color="#d1b98b"/>)}
+      <Pebble at={[0,.33,.21]} scale={[.012,.22,.024]} color="#45604b"/>
+      {[-1,1].map(side=><group key={side}><Pebble at={[side*.17,-.57,.5]} scale={[.135,.035,.195]} color="#241f1a"/><Pebble at={[side*.3,.13,.2]} scale={[.12,.045,.12]} color="#d1b98b"/></group>)}
       <group ref={head} position={[0, .75, 0]}>
         <Pebble at={[0, 0, 0]} scale={[.235, .26, .22]} color={skin} />
         <Pebble at={[0, .12, -.025]} scale={[.245, .19, .225]} color={hair} />
@@ -62,21 +66,11 @@ function Wanderer({ member, seat, chosen, animate, onClick }: { member: LodgeMem
   </group>;
 }
 
-export function Marten({ animate }: { animate: boolean }) {
-  const head = useRef<Group>(null);
-  useFrame(({ clock }) => { if (animate && head.current) head.current.rotation.y = Math.sin(clock.elapsedTime * .3) * .13; });
-  useEffect(() => { if (!animate && head.current) head.current.rotation.y = 0; }, [animate]);
-  return <group position={[-2.7, .3, -2]} rotation={[0, -.7, 0]}>
-    <Pebble at={[.06, 0, 0]} scale={[.35, .19, .23]} color="#80502f" />
-    <Pebble at={[.35, -.02, -.12]} scale={[.38, .11, .13]} color="#684128" rotation={[0, -.6, 0]} />
-    <group ref={head} position={[-.19, .14, .12]}>
-      <Pebble at={[0, 0, 0]} scale={[.17, .17, .16]} color="#94623a" />
-      <Pebble at={[0, -.075, .12]} scale={[.12, .085, .1]} color="#dfc799" />
-      <Pebble at={[0, -.045, .21]} scale={[.03, .025, .025]} color="#39291f" />
-      {[-1, 1].map(side => <group key={side}><Pebble at={[side * .13, .13, 0]} scale={[.075, .08, .055]} color="#80502f" /><Pebble at={[side * .075, .01, .142]} scale={[.017, .023, .013]} color="#2e251e" /></group>)}
-    </group>
-  </group>;
+export function Marten({ animate, pose = "sit" }: { animate: boolean; pose?: "sit" | "stand" }) {
+ return <group position={[-2.7,.025,-2]} rotation={[0,-.7,0]}><MartenModel animate={animate} pose={pose} ambient/></group>;
 }
+
+const flameProfile = [[0,-1],[.65,-.75],[1,-.25],[.72,.2],[.28,.65],[0,1]].map(([x,y])=>new Vector2(x,y));
 
 function Hearth({ animate }: { animate: boolean }) {
   const flames = useRef<Group>(null);
@@ -94,9 +88,10 @@ function Hearth({ animate }: { animate: boolean }) {
     });
   });
   return <group position={[0, .27, 0]}>
+    {Array.from({length:14},(_,i)=><Pebble key={i} at={[Math.sin(i*2.4)*.45,.08,Math.cos(i*2.4)*.45]} scale={[.065,.035,.045]} color={i%3?'#752e1d':'#e4792d'}/>)}
     <group ref={flames}>{[-2, -1, 0, 1, 2].map(n => <group key={n} position={[n * .14, 0, Math.abs(n) * .06]}>
-      <mesh position={[0, .42, 0]} scale={[.2, .6 - Math.abs(n) * .11, .17]} rotation={[0, 0, -n * .1]}><coneGeometry args={[1, 2, 9]} /><meshBasicMaterial color={n % 2 ? '#f39836' : '#ffc665'} /></mesh>
-      <mesh position={[0, .2, .09]} scale={[.1, .3, .1]}><coneGeometry args={[1, 2, 9]} /><meshBasicMaterial color="#ffedba" /></mesh>
+      <mesh position={[0, .42, 0]} scale={[.2, .6 - Math.abs(n) * .11, .17]} rotation={[0, 0, -n * .1]}><latheGeometry args={[flameProfile, 10]} /><meshBasicMaterial color={n % 2 ? '#f39836' : '#ffc665'} /></mesh>
+      <mesh position={[0, .2, .09]} scale={[.1, .3, .1]}><latheGeometry args={[flameProfile, 10]} /><meshBasicMaterial color="#ffedba" /></mesh>
     </group>)}</group>
     {animate && <group ref={sparks}>{Array.from({ length: 9 }, (_, i) => <mesh key={i} scale={0}><sphereGeometry args={[1, 5, 4]} /><meshBasicMaterial color="#ffd291" /></mesh>)}</group>}
   </group>;
@@ -111,8 +106,8 @@ export function WindBranches({ animate, weather }: { animate: boolean; weather: 
   </group>;
 }
 
-export function Room({ onReady, attempt, weather, animate, solo }: { onReady: () => void; attempt: number; weather: Weather; animate: boolean; solo?: boolean }) {
-  const gltf = useLoader(GLTFLoader, `${solo?'/solo/pine-solo.glb':'/camp/pine-camp.glb'}${attempt ? `?retry=${attempt}` : ''}`);
+export function Room({ onReady, attempt, weather, animate, solo, landing }: { onReady: () => void; attempt: number; weather: Weather; animate: boolean; solo?: boolean; landing?: boolean }) {
+  const gltf = useLoader(GLTFLoader, `${landing?'/landing/pine-landing.glb':solo?'/solo/pine-solo.glb':'/camp/pine-camp.glb'}${attempt ? `?retry=${attempt}` : ''}`);
   const room = useMemo(() => {
     const clone = gltf.scene.clone(true);
     clone.traverse(object => { if (object instanceof Mesh) { object.castShadow = true; object.receiveShadow = true;
@@ -128,7 +123,7 @@ export function Room({ onReady, attempt, weather, animate, solo }: { onReady: ()
     const result: { material: MeshStandardMaterial; color: MeshStandardMaterial['color']; roughness: number }[] = [];
     room.traverse(object => { if(object instanceof Mesh) for(const m of (Array.isArray(object.material)?object.material:[object.material])) {
       // Darken exposed earth, bridge and rocks; leave sheltered bark/people alone.
-      if(m instanceof MeshStandardMaterial && ['645d44','263e35','865131','945e39','a66c42','657166'].includes(m.color.getHexString()))result.push({material:m,color:m.color.clone(),roughness:m.roughness});
+      if(m instanceof MeshStandardMaterial && ['ffffff','645d44','263e35','865131','945e39','a66c42','657166'].includes(m.color.getHexString()))result.push({material:m,color:m.color.clone(),roughness:m.roughness});
     }});return result;
   }, [room]);
   function applyWet() { for(const s of surfaces){s.material.color.copy(s.color).multiplyScalar(1-.18*wet.current);s.material.roughness=s.roughness-.22*wet.current;} }
