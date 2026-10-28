@@ -1,0 +1,57 @@
+/* Shared signed-in chrome; scene and composition are exclusive to Return. */
+.site-shell.forest-shell {
+  --app-sidebar-width:196px; --app-content-gutter:clamp(24px,3vw,48px);
+  --paper:#edf0e4; --surface:#f7f4e9; --surface-raised:#fffaf0; --wash:#e5e9d9;
+  --ink:#233a2c; --muted:#53624e; --line:#cad1bc; --control-line:#75856c;
+  --accent:#31583e; --accent-hover:#24452f; --on-accent:#fff9e9;
+  --chestnut:#79512f; --chestnut-hover:#5c3b20; --focus-ring:#31583e;
+  position:relative; isolation:isolate; background:var(--paper); color:var(--ink);
+}
+:root[data-theme="dark"] .site-shell.forest-shell {
+  --paper:#13281f; --surface:#20392c; --surface-raised:#294333; --wash:#2b4736;
+  --ink:#f4ecd9; --muted:#c1ceb7; --line:#49624a; --control-line:#849676;
+  --accent:#b7cba3; --accent-hover:#ccddba; --on-accent:#1c3023;
+  --chestnut:#e1b77b; --chestnut-hover:#f1d3a3; --focus-ring:#f4d7a5;
+}
+.forest-shell .site-header, .forest-shell .navigation {
+  --surface:#173126; --surface-raised:#223e2d; --wash:#2c4a35; --ink:#f4ecd9;
+  --muted:#c1ceb7; --line:#49624a; --control-line:#849676; --chestnut:#e1b77b;
+  --chestnut-hover:#f1d3a3; --focus-ring:#f4d7a5;
+  background:var(--surface); color:var(--ink);
+}
+.forest-shell .site-header { border-bottom:1px solid #ffffff16; }
+.forest-shell .site-header-inner { position:relative; flex-wrap:wrap; padding:8px 24px; }
+.forest-shell .brand { color:#f4ecd9; gap:10px; font-size:1.25rem; }
+.forest-shell .brand svg { color:#d1b383; }
+.forest-shell .navigation { padding:32px 14px; border-right:1px solid #ffffff12; }
+.forest-shell .nav-label { font-size:.62rem; color:#b8c6aa; padding-left:12px; }
+.forest-shell .nav-item, .app-dialog-nav .nav-item { display:flex; align-items:center; gap:12px; text-decoration:none; }
+.forest-shell .nav-item { color:#c1ceb7; border:1px solid transparent; min-height:48px; }
+.forest-shell .nav-item:hover { background:#243f2e; color:#fff7e6; }
+.forest-shell .nav-item.active { background:#304b34; border-color:#718060; color:#fff0d2; box-shadow:inset 3px 0 #d7b17b; }
+.forest-shell .nav-item svg { flex-shrink:0; }
+.forest-shell .app-logout { color:#e1b77b; text-decoration:none; padding:8px 12px; border:1px solid #6b795d; border-radius:8px; }
+.forest-shell .app-logout:hover { background:#294632; color:#fff0d2; }
+.forest-shell .header-actions { gap:10px; margin-left:auto; }
+.forest-shell .primary { background:#e1b77b; color:#302318; border:1px solid #93663d; box-shadow:0 3px 0 #775332; }
+.forest-shell .primary:not(:disabled):hover { background:#efce9c; }
+.forest-shell .secondary, .forest-shell .choice { border:1px solid var(--line); background:var(--wash); color:var(--ink); }
+.forest-shell .choice[aria-pressed="true"] { background:#35573e; color:#fff1d5; border-color:#82976d; }
+.forest-shell .text-action:hover { color:var(--chestnut-hover); }
+.forest-shell footer { color:var(--muted); font-size:.75rem; padding-block:28px; text-align:left; }
+.forest-appearance { position:relative; }
+.forest-appearance summary { list-style:none; width:44px; height:44px; display:grid; place-items:center; color:#eadfc5; border:1px solid #6b795d; border-radius:8px; background:#294632; cursor:pointer; }
+.forest-appearance summary::-webkit-details-marker { display:none; }
+.forest-appearance summary:hover { background:#36553c; }
+.forest-appearance-panel { position:absolute; right:0; top:calc(100% + 12px); width:min(292px,calc(100vw - 32px)); max-height:calc(100dvh - 100px); overflow:auto; padding:20px; border:1px solid #718060; border-radius:10px; background:#173126; color:#f4ecd9; box-shadow:0 12px 40px #08180b60; }
+.forest-appearance-panel h2 { font-size:1rem; margin:0 0 16px; }
+.forest-appearance-panel .theme-select { display:grid; gap:8px; font-size:.875rem; }
+.forest-appearance-panel .theme-select select { width:100%; }
+.forest-appearance-panel .secondary { display:block; width:100%; margin-top:8px; text-align:left; }
+.forest-shell .pact-reminder { width:100%; margin:0 0 20px; padding:14px 18px; }
+.forest-shell .pact-reminder .error-notice { margin:0; background:transparent; }
+.forest-shell .error-notice > .text-action { margin-inline-start:8px; }
+
+@media (prefers-reduced-motion:reduce) {
+  .forest-shell *, .forest-shell *::before, .forest-shell *::after { animation:none!important; transition:none!important; }
+}

@@ -5,8 +5,8 @@ import { readBrandValue } from '../brandStorage';
 function storageKey(topic:string) { return `pyneath:hint:v1:${encodeURIComponent(draftOwner() ?? 'guest')}:${topic}`; }
 function wasDismissed(topic:string) { try { return readBrandValue(localStorage, storageKey(topic)) === 'done'; } catch { return false; } }
 
-export function FirstTimeHint({topic,title,children}: {topic:'focus'|'seed'|'camp'|'pact';title:string;children:ReactNode}) {
-  const [open,setOpen] = useState(() => !wasDismissed(topic));
+export function FirstTimeHint({topic,title,children,compact = false}: {topic:'focus'|'seed'|'camp'|'pact';title:string;children:ReactNode;compact?:boolean}) {
+  const [open,setOpen] = useState(() => !compact && !wasDismissed(topic));
   const id = useId();
   const toggle = useRef<HTMLButtonElement>(null);
   const dismiss = () => { setOpen(false); try { localStorage.setItem(storageKey(topic),'done'); } catch { /* Hint remains dismissed in memory. */ } requestAnimationFrame(() => toggle.current?.focus()); };

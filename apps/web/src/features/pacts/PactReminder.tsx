@@ -71,6 +71,7 @@ export function PactReminder({ onOpen }: { onOpen: (id: string) => void }) {
 
   if (!items.length && !error) return null;
   return <aside className="pact-reminder" aria-label="Nhắc cuộc hẹn đã nhận">
+    {error && <p className="eyebrow">NHẮC CUỘC HẸN</p>}
     <ErrorMessage message={error} retry={() => void refresh()}/>
     {items.map(item => <div key={item.id} className="pact-reminder__item" role="status">
       <p>Cuộc hẹn trong Camp “{item.campName}” sắp bắt đầu lúc {formatTimeWithOffset(item.startsAt, timezone)} ({timezone}).</p>

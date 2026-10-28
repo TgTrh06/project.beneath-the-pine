@@ -50,3 +50,83 @@
 @media (prefers-reduced-motion:reduce) {
   .return-page *, .return-page *::before, .return-page *::after { animation:none!important; transition:none!important; }
 }
+
+/* Forest remains behind the document; opaque controls keep text predictable. */
+.return-world { position:fixed; inset:0; background:#18362a; pointer-events:none; }
+.return-world picture, .return-world img, .return-world-render, .return-world-weather { position:absolute; inset:0; width:100%; height:100%; }
+.return-world img { object-fit:cover; }
+.return-world-render canvas { display:block; }
+.return-world[data-static="true"][data-weather="rain"] .return-world-weather { background:#20455250; }
+.return-world[data-static="true"][data-weather="cloudy"] .return-world-weather { background:#56716b33; }
+.return-world[data-static="true"][data-weather="fog"] .return-world-weather { background:linear-gradient(#c7d5c166,#bac9ba33); }
+.site-shell.forest-shell.forest-shell-return { background:linear-gradient(90deg,#0f261ef2 0%,#0f261ee6 32%,#122c2377 58%,#122c230a 100%); }
+.site-shell.forest-shell-return .navigation { background:#142e24d9; }
+.forest-shell-return .app-main-column { width:100%; max-width:1440px; padding-top:32px; }
+.forest-shell-return .content { position:relative; }
+.forest-shell-return .app-main-column footer { color:#c7d4bf; }
+.forest-shell-return .return-page { max-width:none; }
+.forest-shell-return .return-grid { grid-template-columns:minmax(0,610px) minmax(220px,300px); justify-content:space-between; gap:clamp(24px,4vw,72px); }
+.forest-shell-return .return-main .page-intro { padding:0; margin-bottom:22px; color:#f4ecd9; }
+.forest-shell-return .return-main h1 { font-size:clamp(2.25rem,2.6vw,2.75rem); line-height:1.15; margin:12px 0 16px; text-wrap:balance; }
+.forest-shell-return .page-intro > .eyebrow { color:#d1c49c; letter-spacing:.18em; }
+.return-marten-note { display:flex; align-items:center; gap:12px; }
+.return-marten-note img { width:76px; height:64px; object-fit:contain; flex-shrink:0; }
+.return-marten-note p { font-size:.9375rem; line-height:1.6; margin:0; }
+.return-marten-note span { display:block; font-size:.75rem; color:var(--chestnut); font-weight:600; margin-bottom:3px; }
+.forest-shell-return .page-intro .return-marten-note { color:#d7e1cb; }
+.forest-shell-return .page-intro .return-marten-note span { color:#e1b77b; }
+.forest-shell-return .return-panel { padding:clamp(22px,3vw,32px); border:1px solid var(--line); border-radius:14px; box-shadow:0 10px 32px #08160d24; }
+.return-form-heading { margin-bottom:24px; }
+.return-form-heading .eyebrow { margin-bottom:6px; }
+.return-form-heading h2 { font-size:1.375rem; margin:0; }
+.forest-shell-return .return-fields textarea { min-height:104px; background:var(--paper); margin:0; font-weight:400; }
+.forest-shell-return .return-fields > .primary { width:100%; min-height:50px; }
+.forest-shell-return .return-fields .duration-picker { margin-block:22px; }
+.forest-shell-return .focus-preset { gap:0; margin-bottom:16px; }
+.forest-shell-return .focus-preset > .text-action { font-size:.8125rem; }
+.return-options { margin-bottom:12px; border-top:1px solid var(--line); border-bottom:1px solid var(--line); }
+.return-options summary { padding:14px 0; cursor:pointer; font-size:.875rem; color:var(--muted); }
+.return-options[open] summary { color:var(--ink); }
+.forest-shell-return .focus-preset select { margin:0; }
+.forest-shell-return .return-fields > label { margin-bottom:6px; }
+.forest-shell-return .first-time-hint { padding:8px 16px; margin:0 0 16px; border:1px solid var(--line); border-radius:10px; background:var(--surface); font-size:.875rem; }
+.forest-shell-return .first-time-hint__header { gap:0 12px; }
+.forest-shell-return .first-time-hint__header strong { font-weight:500; }
+.forest-shell-return .first-time-hint__header button { font-size:.8125rem; }
+.forest-shell-return .first-time-hint p { margin-block:8px; }
+.forest-shell-return .return-seed { padding:24px; margin-bottom:20px; background:var(--surface); border:1px solid var(--line); border-radius:12px; }
+.forest-shell-return .return-schedule { margin-top:clamp(340px,44vh,480px); padding:24px; background:var(--surface); border:1px solid var(--line); border-radius:12px; }
+.return-schedule-icon { color:var(--chestnut); margin-bottom:16px; }
+.forest-shell-return .return-schedule h2 { font-size:1.25rem; }
+.forest-shell-return .return-schedule .muted { margin-bottom:0; }
+.forest-shell-return .return-appointments button { border:1px solid var(--line); }
+.forest-shell-return .return-loading { padding:24px; border-radius:12px; background:var(--surface); max-width:610px; margin-inline:0; }
+.forest-shell-return .return-resume .primary { margin-top:24px; }
+
+@media (max-width:1100px) {
+  .forest-shell-return .return-grid { grid-template-columns:minmax(0,1fr) 230px; gap:24px; }
+  .forest-shell-return .app-main-column { padding-inline:24px; }
+}
+@media (max-width:900px) {
+  .forest-shell-return .return-grid { grid-template-columns:minmax(0,1fr); max-width:620px; }
+  .forest-shell-return .return-schedule { margin-top:0; }
+}
+@media (max-width:759px) {
+  .return-world { height:680px; }
+  .site-shell.forest-shell.forest-shell-return { background:linear-gradient(180deg,#10291d22 68px,#10291d66 180px,#132b21f5 420px,#132b21 680px); }
+  .forest-shell-return .app-main-column { padding:170px 16px 0; }
+  .forest-shell-return .return-main h1 { font-size:2.5rem; max-width:17ch; }
+  .site-shell.forest-shell .site-header-inner { padding-inline:16px; }
+  .site-shell .forest-appearance { position:static; }
+  .site-shell .forest-appearance-panel { position:absolute; top:calc(100% + 8px); right:16px; max-height:60dvh; }
+  .forest-shell-return .return-panel { padding:20px; }
+  .forest-shell-return .return-fields .duration-picker > div { gap:6px; }
+  .forest-shell-return .return-fields .choice { padding:10px 4px; }
+  .forest-shell-return .return-schedule { padding:20px; }
+  .site-shell.forest-shell .header-actions { gap:8px; }
+}
+@media (max-width:480px) {
+  .forest-shell .app-logout { display:none; }
+  .site-shell.forest-shell .brand { font-size:1.1rem; }
+  .forest-shell .brand svg { width:24px; }
+}
