@@ -1,5 +1,6 @@
 import { lazy, Suspense, useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 import { SceneBoundary } from '../camps/scene/SceneBoundary';
+import { canopyPoster } from '../camps/scene/canopySky';
 import { ThemeSelect } from '../../shared/theme/ThemeSelect';
 import { readBrandValue } from '../../shared/brandStorage';
 import { parseSettings, resolveTime, resolveWeather, times, weathers, type SceneSettings, type TimeChoice, type WeatherChoice } from '../camps/scene/environment';
@@ -69,7 +70,7 @@ export function LandingScene({ children }: { children: (controls: ReactNode) => 
     </div>;
   return <>
     <div className="lp-world" aria-hidden="true" data-ready={ready} data-weather={weather} data-static={settings.light || failed || !ready}>
-      <picture><source media="(max-width: 759px)" srcSet={`/landing/forest-${phase}-mobile.webp`} /><img src={`/landing/forest-${phase}.webp`} alt="" width="1600" height="1000" fetchPriority="high" /></picture>
+      <picture><source media="(max-width: 759px)" srcSet={canopyPoster(phase, weather, true)} /><img src={canopyPoster(phase, weather)} alt="" width="1600" height="1000" fetchPriority="high" /></picture>
       {!settings.light && !failed && <SceneBoundary key={attempt} onFailure={onFailure}><div className="lp-world-render" style={{ opacity: ready ? 1 : 0 }}><Suspense fallback={null}><Forest phase={phase} weather={weather} animate={animate} visible={visible} attempt={attempt} onReady={onReady} onFailure={onFailure} /></Suspense></div></SceneBoundary>}
       <div className="lp-world-weather" />
     </div>
