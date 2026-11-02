@@ -9,6 +9,8 @@ import { drizzle } from 'drizzle-orm/node-postgres';
 import { eq } from 'drizzle-orm';
 import type { DatabaseService } from '../src/platform/database/database.service';
 import { accounts } from '../src/modules/identity/infrastructure/identity.schema';
+import { IdentityService } from '../src/modules/identity/identity.service';
+import { readApiConfig } from '../src/platform/config/api-config';
 import { IdentityStore } from '../src/modules/identity/identity.store';
 import { profiles } from '../src/modules/profile/infrastructure/profile.schema';
 import { AnalyticsService } from '../src/modules/analytics/analytics.service';
@@ -174,7 +176,7 @@ test('core PostgreSQL flow preserves ownership, reconnect state, seed uniqueness
     await focus.checkout(revokeSession.id, ids[0], { outcome: 'stopped' });
 
     const identityStore = new IdentityStore(database);
-    const exported = await new PrivacyService(database, identityStore).export(ids[1]);
+    const exported = await new PrivacyService(database, identityStore, new IdentityService(identityStore, readApiConfig({}))).export(ids[1]);
     assert.equal(exported.preferences?.remindAcceptedPacts, true, 'data export includes the owner preference');
     assert.ok(exported.pactReminders.some(receipt => receipt.pactId === duePact.id), 'data export includes the owner reminder receipt');
     await identityStore.deleteAccount(ids[1]);

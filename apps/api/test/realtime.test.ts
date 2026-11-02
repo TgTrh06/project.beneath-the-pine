@@ -20,10 +20,10 @@ test('realtime authenticates Origin/session, authorizes subscribe and returns du
   const accountId = '9e52c17c-999d-4add-88b7-89c1b63a79ef';
   const participant: { accountId: string; displayName: string | null; presence: 'active' | 'break' | 'disconnected' | 'checked_out'; joinedAt: Date; checkedOutAt: Date | null } = { accountId, displayName: 'Member', presence: 'active', joinedAt: new Date(), checkedOutAt: null };
   const snapshot = { id: 'f9194eb2-3b02-47da-97fe-9ac81a6095ca', kind: 'solo', pactId: null, status: 'active', startedAt: new Date(), endsAt: new Date(Date.now()+60000), serverNow: new Date(), intention: 'private', participants: [participant] };
-  const identity = { sessionFromCookie: async (cookie?: string) => {
+  const identity = { revokedSessions: new Subject<string>(), deletedAccounts: new Subject<string>(), tokenFromCookie: () => undefined, sessionFromCookie: async (cookie?: string) => {
     // A real database lookup completes after Socket.IO has begun connecting.
     await new Promise(resolve => setTimeout(resolve, 50));
-    return cookie === 'PYNEATH_SESSION=valid' ? { account: { id: '9e52c17c-999d-4add-88b7-89c1b63a79ef', email: 'member@example.test' } } : undefined;
+    return cookie === 'PYNEATH_SESSION=valid' ? { session: { expiresAt: new Date(Date.now()+60000) }, account: { id: '9e52c17c-999d-4add-88b7-89c1b63a79ef', email: 'member@example.test' } } : undefined;
   } };
   let authorized = true;
   const focus = { changes, presenceChanges, snapshot: async (id: string) => { calls.push(id); if (!authorized) throw new Error('Membership revoked'); return snapshot; }, markConnected: async () => undefined, setPresence: async () => undefined };
@@ -44,7 +44,7 @@ test('realtime authenticates Origin/session, authorizes subscribe and returns du
   let leakedUpdates = 0; client.on(realtimeEvents.presenceUpdated, () => { leakedUpdates++; }); authorized = false;
   participant.presence = 'active';
   presenceChanges.next({ ...presence, presence: 'active' });
-  await new Promise(resolve => setTimeout(resolve, 50));
+  await new Promise(resolve => setTimeout(resolve, 150));
   assert.equal(leakedUpdates, 0, 'a socket whose current snapshot is unauthorized receives no presence event');
   authorized = true; snapshot.status = 'completed';
   const terminal = waitFor<{ status: string }>(client, realtimeEvents.snapshot);

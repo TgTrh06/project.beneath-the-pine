@@ -27,7 +27,8 @@ class Client {
         ...(key ? { 'Idempotency-Key': key } : {}) },
       body: body === undefined ? undefined : JSON.stringify(body),
     });
-    for (const cookie of response.headers.getSetCookie()) this.cookie = cookie.split(';')[0];
+    // Track the active cookie; clearing the legacy cookie must not overwrite it.
+    for (const cookie of response.headers.getSetCookie()) if (cookie.startsWith('PYNEATH_SESSION=')) this.cookie = cookie.split(';')[0];
     const data: Payload = response.status === 204 ? {} : await response.json();
     if (data.csrfToken) this.csrf = data.csrfToken;
     return { status: response.status, data };

@@ -20,16 +20,16 @@ export function configureHttp(app: NestExpressApplication, config: ApiConfig): v
   app.enableCors({
     origin: config.API_WEB_ORIGIN,
     credentials: true,
-    methods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-XSRF-TOKEN', 'X-Request-ID'],
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-XSRF-TOKEN', 'X-Request-ID', 'Idempotency-Key'],
     exposedHeaders: ['X-Request-ID']
   });
 
-  app.useBodyParser('json', { limit: '32kb' });
+  app.useBodyParser('json', { limit: '32kb', inflate: false });
 
   app.use((error: unknown, _request: Request, response: Response, _next: NextFunction) => {
     const type = (error as { type?: string }).type;
-    const status = type === 'entity.parse.failed' ? 400 : type === 'entity.too.large' ? 413 : 500;
+    const status = type === 'entity.parse.failed' ? 400 : type === 'entity.too.large' ? 413 : type === 'encoding.unsupported' || type === 'charset.unsupported' ? 415 : 500;
     response.status(status).json(safeError(status, response.getHeader('X-Request-ID')));
   });
 

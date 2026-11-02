@@ -3,6 +3,7 @@ import type { Request, Response } from 'express';
 import { createHash, randomBytes, timingSafeEqual } from 'node:crypto';
 import { API_CONFIG, ApiConfig } from '../../platform/config/api-config';
 import { IdentityStore } from './identity.store';
+import { Subject } from 'rxjs';
 
 export const sessionHash = (token: string) => createHash('sha256').update(token).digest('hex');
 const cookieName = 'PYNEATH_SESSION';
@@ -13,6 +14,8 @@ function cookieValue(cookie: string | undefined, name: string) {
 }
 @Injectable()
 export class IdentityService {
+  readonly revokedSessions = new Subject<string>();
+  readonly deletedAccounts = new Subject<string>();
   private readonly attempts = new Map<string, { count: number; until: number }>();
   constructor(readonly store: IdentityStore, @Inject(API_CONFIG) private readonly config: ApiConfig) {}
   tokenFromCookie(cookie?: string) {
@@ -56,13 +59,18 @@ export class IdentityService {
     await this.store.rotateSession(oldToken ? sessionHash(oldToken) : undefined, {
       tokenHash: sessionHash(token), accountId: account?.id ?? null, csrfToken, expiresAt: new Date(Date.now() + maxAge),
     });
+    if (oldToken) this.revokedSessions.next(sessionHash(oldToken));
     response.cookie(cookieName, token, { ...this.cookieOptions(), maxAge });
     if (cookieValue(request.headers.cookie, legacyCookieName) !== undefined) response.clearCookie(legacyCookieName, this.cookieOptions());
     return { authenticated: Boolean(account), account, csrfToken };
   }
   async logout(request: Request, response: Response) {
     const tokens = [cookieValue(request.headers.cookie, cookieName), cookieValue(request.headers.cookie, legacyCookieName)];
-    for (const token of new Set(tokens)) if (token && /^[a-f0-9]{64}$/.test(token)) await this.store.revoke(sessionHash(token));
+    for (const token of new Set(tokens)) if (token && /^[a-f0-9]{64}$/.test(token)) {
+      const hash = sessionHash(token);
+      await this.store.revoke(hash);
+      this.revokedSessions.next(hash);
+    }
     response.clearCookie(cookieName, this.cookieOptions());
     response.clearCookie(legacyCookieName, this.cookieOptions());
   }

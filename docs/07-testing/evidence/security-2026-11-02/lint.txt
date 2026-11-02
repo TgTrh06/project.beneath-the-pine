@@ -1,0 +1,16 @@
+
+> pyneath@0.1.0 lint D:\projects\apps\project.beneath-the-pine
+> pnpm -r --if-present lint
+
+Scope: 3 of 4 workspace projects
+packages/contracts lint$ tsc --noEmit
+packages/contracts lint: Done
+apps/web lint$ tsc -b
+apps/api prelint$ pnpm --filter @pyneath/contracts build
+apps/api prelint: > @pyneath/contracts@0.1.0 build D:\projects\apps\project.beneath-the-pine\packages\contracts
+apps/api prelint: > tsc
+apps/api prelint: Done
+apps/api lint$ tsc --noEmit && tsc -p tsconfig.test.json --noEmit && tsc -p tsconfig.tooling.json --noEmit && node scripts/check-boundaries.cjs
+apps/web lint: Done
+apps/api lint: Boundary check passed (71 TypeScript files; no import cycles).
+apps/api lint: Done

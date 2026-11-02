@@ -1,0 +1,323 @@
+
+> pyneath@0.1.0 test D:\projects\apps\project.beneath-the-pine
+> pnpm -r --if-present test && node --test scripts/check-audit.test.cjs
+
+Scope: 3 of 4 workspace projects
+apps/api pretest$ pnpm --filter @pyneath/contracts build
+apps/web test$ vitest run
+apps/api pretest: > @pyneath/contracts@0.1.0 build D:\projects\apps\project.beneath-the-pine\packages\contracts
+apps/api pretest: > tsc
+apps/web test:  RUN  v5.0.5 D:/projects/apps/project.beneath-the-pine/apps/web
+apps/web test:  Test Files  17 passed (17)
+apps/web test:       Tests  68 passed (68)
+apps/web test:    Start at  16:05:48
+apps/web test:    Duration  5.15s (import 35%, tests 30%, transform 29%, worker 6%)
+apps/web test:     Isolate  17 workers spawned · ~1.44s startup each (spawn + environment, per file)
+apps/web test:              at least ~788ms faster with isolate: false — reuses workers across files instead of one per file
+apps/web test: Done
+apps/api pretest: Done
+apps/api test$ node scripts/clean-test-output.cjs && tsc -p tsconfig.test.json && node --test dist-test/test/*.test.js
+apps/api test: TAP version 13
+apps/api test: # Subtest: analytics metadata permits only documented event fields
+apps/api test: ok 1 - analytics metadata permits only documented event fields
+apps/api test:   ---
+apps/api test:   duration_ms: 7.7334
+apps/api test:   ...
+apps/api test: # Subtest: assistance quotas reserve atomically on isolated PostgreSQL
+apps/api test: ok 2 - assistance quotas reserve atomically on isolated PostgreSQL
+apps/api test:   ---
+apps/api test:   duration_ms: 8203.1472
+apps/api test:   ...
+apps/api test: # Subtest: assistance contract validates capability inputs and rejects private extra fields
+apps/api test: ok 3 - assistance contract validates capability inputs and rejects private extra fields
+apps/api test:   ---
+apps/api test:   duration_ms: 16.5826
+apps/api test:   ...
+apps/api test: # Subtest: disabled provider keeps manual path usable without quota or model call
+apps/api test: ok 4 - disabled provider keeps manual path usable without quota or model call
+apps/api test:   ---
+apps/api test:   duration_ms: 17.5195
+apps/api test:   ...
+apps/api test: # Subtest: start and Seed suggestions use the same validated response contract
+apps/api test: ok 5 - start and Seed suggestions use the same validated response contract
+apps/api test:   ---
+apps/api test:   duration_ms: 5.2971
+apps/api test:   ...
+apps/api test: # Subtest: quota, invalid provider result and crisis cues return safe responses
+apps/api test: ok 6 - quota, invalid provider result and crisis cues return safe responses
+apps/api test:   ---
+apps/api test:   duration_ms: 8.4049
+apps/api test:   ...
+apps/api test: # Subtest: interaction records and metadata never include prompt or suggestion text
+apps/api test: ok 7 - interaction records and metadata never include prompt or suggestion text
+apps/api test:   ---
+apps/api test:   duration_ms: 4.9942
+apps/api test:   ...
+apps/api test: # Subtest: OpenAI adapter sends only explicit text with store disabled and validates moderation
+apps/api test: ok 8 - OpenAI adapter sends only explicit text with store disabled and validates moderation
+apps/api test:   ---
+apps/api test:   duration_ms: 106.7298
+apps/api test:   ...
+apps/api test: # Subtest: OpenAI adapter refuses unsafe or malformed generated output
+apps/api test: ok 9 - OpenAI adapter refuses unsafe or malformed generated output
+apps/api test:   ---
+apps/api test:   duration_ms: 7.8302
+apps/api test:   ...
+apps/api test: # Subtest: OpenAI adapter aborts a stalled provider within the six-second budget
+apps/api test: ok 10 - OpenAI adapter aborts a stalled provider within the six-second budget
+apps/api test:   ---
+apps/api test:   duration_ms: 6026.587
+apps/api test:   ...
+apps/api test: # Subtest: Camp invitation preview, decline and membership lifecycle on isolated local database
+apps/api test: ok 11 - Camp invitation preview, decline and membership lifecycle on isolated local database # SKIP
+apps/api test:   ---
+apps/api test:   duration_ms: 9.9932
+apps/api test:   ...
+apps/api test: # Subtest: API config is isolated from legacy environment, with bounded values and redacted errors
+apps/api test: ok 12 - API config is isolated from legacy environment, with bounded values and redacted errors
+apps/api test:   ---
+apps/api test:   duration_ms: 184.7803
+apps/api test:   ...
+apps/api test: # Subtest: module checks reject cross-owner persistence, infrastructure in domain and inward platform imports
+apps/api test: ok 13 - module checks reject cross-owner persistence, infrastructure in domain and inward platform imports
+apps/api test:   ---
+apps/api test:   duration_ms: 1613.0711
+apps/api test:   ...
+apps/api test: # (node:21844) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+apps/api test: # (Use `node --trace-deprecation ...` to show where the warning was created)
+apps/api test: # Subtest: core PostgreSQL flow preserves ownership, reconnect state, seed uniqueness and shared milestone
+apps/api test: ok 14 - core PostgreSQL flow preserves ownership, reconnect state, seed uniqueness and shared milestone
+apps/api test:   ---
+apps/api test:   duration_ms: 14738.3912
+apps/api test:   ...
+apps/api test: # Subtest: no database configuration makes no connection and reports unavailable
+apps/api test: ok 15 - no database configuration makes no connection and reports unavailable
+apps/api test:   ---
+apps/api test:   duration_ms: 17.7178
+apps/api test:   ...
+apps/api test: # [Nest] 12912  - 11/02/2026, 4:06:22 PM    WARN [DatabaseService] Object(1) {
+apps/api test: #   event: 'database_unreachable'
+apps/api test: # }
+apps/api test: # Subtest: an unavailable PostgreSQL driver fails within the configured timeout and closes cleanly
+apps/api test: ok 16 - an unavailable PostgreSQL driver fails within the configured timeout and closes cleanly
+apps/api test:   ---
+apps/api test:   duration_ms: 214.6379
+apps/api test:   ...
+apps/api test: # Subtest: PostgreSQL migration enforces unique accounts and session cascade
+apps/api test: ok 17 - PostgreSQL migration enforces unique accounts and session cascade
+apps/api test:   ---
+apps/api test:   duration_ms: 2702.7867
+apps/api test:   ...
+apps/api test: # Subtest: registration normalizes email, rotates session and returns a safe account DTO
+apps/api test: ok 18 - registration normalizes email, rotates session and returns a safe account DTO
+apps/api test:   ---
+apps/api test:   duration_ms: 4590.7673
+apps/api test:   ...
+apps/api test: # Subtest: legacy cookie migrates without changing token, CSRF or expiry and logout revokes both names
+apps/api test: ok 19 - legacy cookie migrates without changing token, CSRF or expiry and logout revokes both names
+apps/api test:   ---
+apps/api test:   duration_ms: 1456.343
+apps/api test:   ...
+apps/api test: # Subtest: new cookie takes precedence and legacy support does not bypass authentication or CSRF
+apps/api test: ok 20 - new cookie takes precedence and legacy support does not bypass authentication or CSRF
+apps/api test:   ---
+apps/api test:   duration_ms: 1221.3635
+apps/api test:   ...
+apps/api test: # Subtest: CSRF rejects absent, forged, stale tokens and foreign origins without registering
+apps/api test: ok 21 - CSRF rejects absent, forged, stale tokens and foreign origins without registering
+apps/api test:   ---
+apps/api test:   duration_ms: 167.5052
+apps/api test:   ...
+apps/api test: # Subtest: login errors do not disclose account existence; logout and expiry revoke access
+apps/api test: ok 22 - login errors do not disclose account existence; logout and expiry revoke access
+apps/api test:   ---
+apps/api test:   duration_ms: 4885.6563
+apps/api test:   ...
+apps/api test: # Subtest: identity separation is server enforced and the removed admin route stays absent
+apps/api test: ok 23 - identity separation is server enforced and the removed admin route stays absent
+apps/api test:   ---
+apps/api test:   duration_ms: 2284.523
+apps/api test:   ...
+apps/api test: # Subtest: password hashing verifies without exposing or reusing salts
+apps/api test: ok 24 - password hashing verifies without exposing or reusing salts
+apps/api test:   ---
+apps/api test:   duration_ms: 4624.5135
+apps/api test:   ...
+apps/api test: # Subtest: auth requests are rate limited
+apps/api test: ok 25 - auth requests are rate limited
+apps/api test:   ---
+apps/api test:   duration_ms: 354.3441
+apps/api test:   ...
+apps/api test: # Subtest: pact lists, membership, invitation metadata and archive on existing local database
+apps/api test: ok 26 - pact lists, membership, invitation metadata and archive on existing local database # SKIP
+apps/api test:   ---
+apps/api test:   duration_ms: 2.8693
+apps/api test:   ...
+apps/api test: # (node:22944) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+apps/api test: # (Use `node --trace-deprecation ...` to show where the warning was created)
+apps/api test: # Subtest: PostgreSQL export excludes revoked Camp activity and deletion notifies only after commit
+apps/api test: ok 27 - PostgreSQL export excludes revoked Camp activity and deletion notifies only after commit
+apps/api test:   ---
+apps/api test:   duration_ms: 8867.9684
+apps/api test:   ...
+apps/api test: # Subtest: logout disconnects every socket for that session but preserves another session
+apps/api test: ok 28 - logout disconnects every socket for that session but preserves another session
+apps/api test:   ---
+apps/api test:   duration_ms: 1728.5878
+apps/api test:   ...
+apps/api test: # Subtest: rotation and account deletion disconnect only the intended credentials
+apps/api test: ok 29 - rotation and account deletion disconnect only the intended credentials
+apps/api test:   ---
+apps/api test:   duration_ms: 128.9691
+apps/api test:   ...
+apps/api test: # Subtest: expiry disconnects an idle socket without waiting for a heartbeat
+apps/api test: ok 30 - expiry disconnects an idle socket without waiting for a heartbeat
+apps/api test:   ---
+apps/api test:   duration_ms: 626.8329
+apps/api test:   ...
+apps/api test: # Subtest: database revocation prevents session.subscribe without an in-process notification
+apps/api test: ok 31 - database revocation prevents session.subscribe without an in-process notification
+apps/api test:   ---
+apps/api test:   duration_ms: 78.5559
+apps/api test:   ...
+apps/api test: # Subtest: database revocation prevents presence.heartbeat without an in-process notification
+apps/api test: ok 32 - database revocation prevents presence.heartbeat without an in-process notification
+apps/api test:   ---
+apps/api test:   duration_ms: 80.0529
+apps/api test:   ...
+apps/api test: # Subtest: database revocation prevents presence.set without an in-process notification
+apps/api test: ok 33 - database revocation prevents presence.set without an in-process notification
+apps/api test:   ---
+apps/api test:   duration_ms: 111.6386
+apps/api test:   ...
+apps/api test: # Subtest: server push fails closed for snapshot
+apps/api test: ok 34 - server push fails closed for snapshot
+apps/api test:   ---
+apps/api test:   duration_ms: 64.2422
+apps/api test:   ...
+apps/api test: # Subtest: server push fails closed for presence
+apps/api test: ok 35 - server push fails closed for presence
+apps/api test:   ---
+apps/api test:   duration_ms: 53.9629
+apps/api test:   ...
+apps/api test: # Subtest: server push fails closed for outage
+apps/api test: ok 36 - server push fails closed for outage
+apps/api test:   ---
+apps/api test:   duration_ms: 84.0345
+apps/api test:   ...
+apps/api test: # Subtest: server push fails closed for changed-owner
+apps/api test: ok 37 - server push fails closed for changed-owner
+apps/api test:   ---
+apps/api test:   duration_ms: 44.6447
+apps/api test:   ...
+apps/api test: # Subtest: database outage prevents session.subscribe from writing presence
+apps/api test: ok 38 - database outage prevents session.subscribe from writing presence
+apps/api test:   ---
+apps/api test:   duration_ms: 43.4575
+apps/api test:   ...
+apps/api test: # Subtest: database outage prevents presence.heartbeat from writing presence
+apps/api test: ok 39 - database outage prevents presence.heartbeat from writing presence
+apps/api test:   ---
+apps/api test:   duration_ms: 42.0097
+apps/api test:   ...
+apps/api test: # Subtest: database outage prevents presence.set from writing presence
+apps/api test: ok 40 - database outage prevents presence.set from writing presence
+apps/api test:   ---
+apps/api test:   duration_ms: 40.2276
+apps/api test:   ...
+apps/api test: # Subtest: realtime authenticates Origin/session, authorizes subscribe and returns durable snapshot
+apps/api test: ok 41 - realtime authenticates Origin/session, authorizes subscribe and returns durable snapshot
+apps/api test:   ---
+apps/api test:   duration_ms: 2667.5132
+apps/api test:   ...
+apps/api test: # Subtest: focus presence publishes only persisted state transitions
+apps/api test: ok 42 - focus presence publishes only persisted state transitions
+apps/api test:   ---
+apps/api test:   duration_ms: 9.3304
+apps/api test:   ...
+apps/api test: # Subtest: application composition, HTTP foundation and fail-closed access
+apps/api test:     # Subtest: target core modules compose and removed legacy routes stay absent
+apps/api test:     ok 1 - target core modules compose and removed legacy routes stay absent
+apps/api test:       ---
+apps/api test:       duration_ms: 226.0091
+apps/api test:       ...
+apps/api test:     # Subtest: liveness works without DB and readiness reports unavailable truthfully
+apps/api test:     ok 2 - liveness works without DB and readiness reports unavailable truthfully
+apps/api test:       ---
+apps/api test:       duration_ms: 46.7349
+apps/api test:       ...
+apps/api test:     # Subtest: private routes reject absent or forged credentials
+apps/api test:     ok 3 - private routes reject absent or forged credentials
+apps/api test:       ---
+apps/api test:       duration_ms: 164.4139
+apps/api test:       ...
+apps/api test:     # Subtest: malformed and oversized JSON use safe error envelopes
+apps/api test:     ok 4 - malformed and oversized JSON use safe error envelopes
+apps/api test:       ---
+apps/api test:       duration_ms: 70.1823
+apps/api test:       ...
+apps/api test:     # Subtest: unexpected errors redact private exception details
+apps/api test:     ok 5 - unexpected errors redact private exception details
+apps/api test:       ---
+apps/api test:       duration_ms: 19.4255
+apps/api test:       ...
+apps/api test:     # Subtest: compressed JSON is rejected safely and leaves the API available
+apps/api test:     ok 6 - compressed JSON is rejected safely and leaves the API available
+apps/api test:       ---
+apps/api test:       duration_ms: 123.3684
+apps/api test:       ...
+apps/api test:     # Subtest: all browser command preflights permit method, CSRF and idempotency headers
+apps/api test:     ok 7 - all browser command preflights permit method, CSRF and idempotency headers
+apps/api test:       ---
+apps/api test:       duration_ms: 114.3528
+apps/api test:       ...
+apps/api test:     # Subtest: CORS uses the configured origin and does not reflect arbitrary origins
+apps/api test:     ok 8 - CORS uses the configured origin and does not reflect arbitrary origins
+apps/api test:       ---
+apps/api test:       duration_ms: 26.6246
+apps/api test:       ...
+apps/api test:     1..8
+apps/api test: ok 43 - application composition, HTTP foundation and fail-closed access
+apps/api test:   ---
+apps/api test:   duration_ms: 1919.0504
+apps/api test:   ...
+apps/api test: # Subtest: readiness success reports connectivity only with an injected reachable database
+apps/api test: ok 44 - readiness success reports connectivity only with an injected reachable database
+apps/api test:   ---
+apps/api test:   duration_ms: 101.0494
+apps/api test:   ...
+apps/api test: # Subtest: solo HTTP lifecycle on an existing local database
+apps/api test: ok 45 - solo HTTP lifecycle on an existing local database # SKIP
+apps/api test:   ---
+apps/api test:   duration_ms: 7.885
+apps/api test:   ...
+apps/api test: 1..45
+apps/api test: # tests 53
+apps/api test: # suites 0
+apps/api test: # pass 50
+apps/api test: # fail 0
+apps/api test: # cancelled 0
+apps/api test: # skipped 3
+apps/api test: # todo 0
+apps/api test: # duration_ms 34300.699
+apps/api test: Done
+TAP version 13
+# Subtest: audit exceptions match exact advisory, version, path, severity and expiry
+ok 1 - audit exceptions match exact advisory, version, path, severity and expiry
+  ---
+  duration_ms: 4.795
+  ...
+# Subtest: audit fails closed on registry errors and malformed or missing findings
+ok 2 - audit fails closed on registry errors and malformed or missing findings
+  ---
+  duration_ms: 1.2392
+  ...
+1..2
+# tests 2
+# suites 0
+# pass 2
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 333.2902

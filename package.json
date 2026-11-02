@@ -16,7 +16,8 @@
     "db:local:logs": "docker compose -f compose.local.yml logs -f postgres",
     "build": "pnpm -r --if-present build",
     "lint": "pnpm -r --if-present lint",
-    "test": "pnpm -r --if-present test"
+    "test": "pnpm -r --if-present test && node --test scripts/check-audit.test.cjs",
+    "audit:security": "node scripts/check-audit.cjs"
   },
   "devDependencies": {
     "typescript": "^5.9.3"

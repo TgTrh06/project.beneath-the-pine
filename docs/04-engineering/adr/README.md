@@ -2,6 +2,8 @@
 
 ## Current
 
+- [ADR-0025 — Realtime session revocation and private exports](0025-realtime-session-revocation.md) — Accepted for local security remediation.
+
 - [ADR-0024 — Pyneath naming and state transition](0024-pyneath-brand-transition.md) — Accepted for local implementation; preserves browser drafts/preferences and existing sessions.
 
 - [ADR-0023 — Gentle focus support without AI](0023-gentle-focus-support.md) — Accepted for local Stage 2 implementation.

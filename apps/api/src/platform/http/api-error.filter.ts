@@ -9,6 +9,7 @@ const errors: Record<number, [string, string]> = {
   409: ['STATE_CONFLICT', 'Trạng thái đã thay đổi hoặc thao tác này không còn hợp lệ.'],
   429: ['RATE_LIMITED', 'Bạn thao tác quá nhanh. Vui lòng thử lại sau một phút.'],
   413: ['PAYLOAD_TOO_LARGE', 'The request body is too large.'],
+  415: ['UNSUPPORTED_MEDIA_TYPE', 'The request encoding is not supported.'],
   503: ['SERVICE_UNAVAILABLE', 'The service is not ready.'],
 };
 

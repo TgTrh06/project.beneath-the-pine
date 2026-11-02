@@ -1,3 +1,4 @@
+import { expireSession } from "../auth/auth";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { focusSessionSchema, realtimeEvents, type FocusSession } from "@pyneath/contracts";
 import { io, type Socket } from "socket.io-client";
@@ -106,7 +107,20 @@ export function useSessionRealtime(sessionId: string | undefined, onSnapshot: (v
     socket.on(realtimeEvents.presenceUpdated, (value: { sessionId: string }) => {
       if (value.sessionId === sessionId) void refresh();
     });
-    socket.on(realtimeEvents.error, () => {
+    socket.on(realtimeEvents.error, (failure: { code?: string }) => {
+      if (failure?.code === 'UNAUTHENTICATED') {
+        terminal = true;
+        setAuthorized(false);
+        socket.disconnect();
+        expireSession();
+        return;
+      }
+      if (failure?.code === 'SERVICE_UNAVAILABLE') {
+        synced = false;
+        setConnection("offline");
+        setError("Chưa thể xác minh phiên. Đang thử kết nối lại.");
+        return;
+      }
       synced = false;
       setConnection("reconnecting");
       setError("Chưa đồng bộ được phiên. Đang tải lại trạng thái từ máy chủ.");
@@ -129,6 +143,7 @@ export function useSessionRealtime(sessionId: string | undefined, onSnapshot: (v
       if (terminal) return;
       if (socket.connected && synced) socket.emit(realtimeEvents.heartbeat, { sessionId });
       if (!synced) {
+        if (!socket.connected) socket.connect();
         void refresh();
         if (socket.connected) socket.emit(realtimeEvents.subscribe, { sessionId });
       }

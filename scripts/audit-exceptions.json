@@ -1,0 +1,72 @@
+[
+  {
+    "id": "GHSA-67mh-4wv8-2f99",
+    "package": "esbuild",
+    "version": "0.18.20",
+    "severity": "moderate",
+    "path": "apps__api>drizzle-kit>@esbuild-kit/esm-loader>@esbuild-kit/core-utils>esbuild",
+    "scope": "development",
+    "expires": "2026-12-02",
+    "owner": "project maintainers",
+    "reason": "Drizzle Kit 0.31.11 still includes the deprecated loader. Its esbuild serve mode is not used by this project; migrations use drizzle-orm, not this loader.",
+    "mitigation": "Do not expose esbuild serve or Drizzle Studio. Run schema tooling only on trusted sources and disposable/local databases.",
+    "removeWhen": "Drizzle Kit removes the loader or updates its esbuild chain. Do not force an incompatible pre-1.0 esbuild update under core-utils.",
+    "exploitConditions": "Requires starting the vulnerable esbuild development HTTP server and visiting an attacker-controlled website that reads its wildcard-CORS responses. This chain is used for schema tooling, not API request handling."
+  },
+  {
+    "id": "GHSA-gcqx-w48m-w2h4",
+    "package": "deepmerge",
+    "version": "4.3.1",
+    "severity": "low",
+    "path": "apps__api>@nestjs/cli>fork-ts-checker-webpack-plugin>deepmerge",
+    "scope": "development",
+    "expires": "2026-12-02",
+    "owner": "project maintainers",
+    "reason": "No patched version is published in the advisory. The dependency is a build-time configuration merger, outside the API runtime.",
+    "mitigation": "Use repository-controlled build configuration; do not merge untrusted request data into build options.",
+    "removeWhen": "A fixed upstream version or compatible parent replacement becomes available.",
+    "exploitConditions": "Requires merging attacker-controlled object keys into build configuration; prototype poisoning can alter inherited values."
+  },
+  {
+    "id": "GHSA-g3hv-75wg-m249",
+    "package": "minimatch",
+    "version": "3.1.5",
+    "severity": "moderate",
+    "path": "apps__api>@nestjs/cli>fork-ts-checker-webpack-plugin>minimatch",
+    "scope": "development",
+    "expires": "2026-12-02",
+    "owner": "project maintainers",
+    "reason": "The reported fix is major 11, incompatible with the callable major-3 API used by this build dependency.",
+    "mitigation": "Only repository-controlled glob patterns are supplied to the build; do not accept external patterns or run untrusted builds with secrets.",
+    "removeWhen": "The checker plugin supports a patched minimatch without changing the build architecture.",
+    "exploitConditions": "Advisory describes attacker-controlled patterns with optimizationLevel >= 2 causing preprocessing amplification and CPU/memory exhaustion. Its range also flags major 3; no compatibility-breaking override is assumed safe."
+  },
+  {
+    "id": "GHSA-g3hv-75wg-m249",
+    "package": "minimatch",
+    "version": "10.2.6",
+    "severity": "moderate",
+    "path": "apps__api>@nestjs/cli>glob>minimatch",
+    "scope": "development",
+    "expires": "2026-12-02",
+    "owner": "project maintainers",
+    "reason": "The reported patch requires minimatch major 11 through an upstream glob upgrade.",
+    "mitigation": "Build patterns are trusted repository configuration, not remote request input.",
+    "removeWhen": "Nest CLI supports the patched glob/minimatch chain on the approved Node runtime.",
+    "exploitConditions": "Advisory describes attacker-controlled patterns with optimizationLevel >= 2 causing preprocessing amplification and CPU/memory exhaustion. Its range also flags major 3; no compatibility-breaking override is assumed safe."
+  },
+  {
+    "id": "GHSA-3g3m-2fjr-6pw4",
+    "package": "glob",
+    "version": "13.0.6",
+    "severity": "moderate",
+    "path": "apps__api>@nestjs/cli>glob",
+    "scope": "development",
+    "expires": "2026-12-02",
+    "owner": "project maintainers",
+    "reason": "The cancellation fix requires glob major 14. Replacing this internal CLI API is outside a compatible dependency update.",
+    "mitigation": "Builds traverse a bounded trusted checkout and have a CI job timeout. No runtime route invokes glob.",
+    "removeWhen": "Nest CLI publishes a compatible dependency update to glob >=14.0.2.",
+    "exploitConditions": "Requires a costly async directory walk whose caller relies on AbortSignal cancellation; the affected walk continues background I/O after abort."
+  }
+]

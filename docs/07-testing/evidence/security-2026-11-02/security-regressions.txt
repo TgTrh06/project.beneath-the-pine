@@ -1,0 +1,82 @@
+TAP version 13
+# (node:27996) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+# (Use `node --trace-deprecation ...` to show where the warning was created)
+# Subtest: PostgreSQL export excludes revoked Camp activity and deletion notifies only after commit
+ok 1 - PostgreSQL export excludes revoked Camp activity and deletion notifies only after commit
+  ---
+  duration_ms: 5921.1642
+  ...
+# Subtest: logout disconnects every socket for that session but preserves another session
+ok 2 - logout disconnects every socket for that session but preserves another session
+  ---
+  duration_ms: 1166.1764
+  ...
+# Subtest: rotation and account deletion disconnect only the intended credentials
+ok 3 - rotation and account deletion disconnect only the intended credentials
+  ---
+  duration_ms: 68.5019
+  ...
+# Subtest: expiry disconnects an idle socket without waiting for a heartbeat
+ok 4 - expiry disconnects an idle socket without waiting for a heartbeat
+  ---
+  duration_ms: 622.5127
+  ...
+# Subtest: database revocation prevents session.subscribe without an in-process notification
+ok 5 - database revocation prevents session.subscribe without an in-process notification
+  ---
+  duration_ms: 53.6336
+  ...
+# Subtest: database revocation prevents presence.heartbeat without an in-process notification
+ok 6 - database revocation prevents presence.heartbeat without an in-process notification
+  ---
+  duration_ms: 63.8306
+  ...
+# Subtest: database revocation prevents presence.set without an in-process notification
+ok 7 - database revocation prevents presence.set without an in-process notification
+  ---
+  duration_ms: 42.6914
+  ...
+# Subtest: server push fails closed for snapshot
+ok 8 - server push fails closed for snapshot
+  ---
+  duration_ms: 37.9659
+  ...
+# Subtest: server push fails closed for presence
+ok 9 - server push fails closed for presence
+  ---
+  duration_ms: 46.3678
+  ...
+# Subtest: server push fails closed for outage
+ok 10 - server push fails closed for outage
+  ---
+  duration_ms: 51.9521
+  ...
+# Subtest: server push fails closed for changed-owner
+ok 11 - server push fails closed for changed-owner
+  ---
+  duration_ms: 32.8314
+  ...
+# Subtest: database outage prevents session.subscribe from writing presence
+ok 12 - database outage prevents session.subscribe from writing presence
+  ---
+  duration_ms: 34.6605
+  ...
+# Subtest: database outage prevents presence.heartbeat from writing presence
+ok 13 - database outage prevents presence.heartbeat from writing presence
+  ---
+  duration_ms: 34.9165
+  ...
+# Subtest: database outage prevents presence.set from writing presence
+ok 14 - database outage prevents presence.set from writing presence
+  ---
+  duration_ms: 31.4724
+  ...
+1..14
+# tests 14
+# suites 0
+# pass 14
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 10382.5682

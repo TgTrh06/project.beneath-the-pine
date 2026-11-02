@@ -1,0 +1,133 @@
+TAP version 13
+# Subtest: Camp invitation preview, decline and membership lifecycle on isolated local database
+    # Subtest: preview reveals only the Camp name and inviter display name
+    ok 1 - preview reveals only the Camp name and inviter display name
+      ---
+      duration_ms: 509.6006
+      ...
+    # Subtest: preview handles a creator without a display name
+    ok 2 - preview handles a creator without a display name
+      ---
+      duration_ms: 111.0468
+      ...
+    # Subtest: revoke and expiry prevent preview and membership
+    ok 3 - revoke and expiry prevent preview and membership
+      ---
+      duration_ms: 323.8566
+      ...
+    # Subtest: leave, removal and ownership transfer revoke access without losing ownership
+    ok 4 - leave, removal and ownership transfer revoke access without losing ownership
+      ---
+      duration_ms: 1185.1382
+      ...
+    # Subtest: accept and decline serialize per invitation
+    ok 5 - accept and decline serialize per invitation
+      ---
+      duration_ms: 284.8307
+      ...
+    # Subtest: revoke and accept serialize without a usable revoked link
+    ok 6 - revoke and accept serialize without a usable revoked link
+      ---
+      duration_ms: 224.7609
+      ...
+    # Subtest: archive and acceptance serialize, and restore does not revive a link
+    ok 7 - archive and acceptance serialize, and restore does not revive a link
+      ---
+      duration_ms: 278.7042
+      ...
+    # Subtest: full Camp rejects another member
+    ok 8 - full Camp rejects another member
+      ---
+      duration_ms: 233.6154
+      ...
+    1..8
+ok 1 - Camp invitation preview, decline and membership lifecycle on isolated local database
+  ---
+  duration_ms: 12154.4759
+  ...
+# Subtest: pact lists, membership, invitation metadata and archive on existing local database
+    # Subtest: same-key creation and participant-only inbox
+    ok 1 - same-key creation and participant-only inbox
+      ---
+      duration_ms: 288.0249
+      ...
+    # Subtest: respond, start, join and removal revoke access
+    ok 2 - respond, start, join and removal revoke access
+      ---
+      duration_ms: 1956.9429
+      ...
+    # Subtest: Pact checkout keeps each participant Open Seed private
+    ok 3 - Pact checkout keeps each participant Open Seed private
+      ---
+      duration_ms: 2868.0908
+      ...
+    # Subtest: accepted invitee joins after creator checkout but not after expiry
+    ok 4 - accepted invitee joins after creator checkout but not after expiry
+      ---
+      duration_ms: 3737.2094
+      ...
+    # Subtest: creation, expiry, cancellation and completion respect Pact state
+    ok 5 - creation, expiry, cancellation and completion respect Pact state
+      ---
+      duration_ms: 4288.4184
+      ...
+    # Subtest: archive revokes invitations and restore does not revive tokens
+    ok 6 - archive revokes invitations and restore does not revive tokens
+      ---
+      duration_ms: 636.424
+      ...
+    # Subtest: stable pagination, filter cursor binding and invite owner transfer
+    ok 7 - stable pagination, filter cursor binding and invite owner transfer
+      ---
+      duration_ms: 1129.676
+      ...
+    # Subtest: archive races creation and invitation acceptance without inconsistent state
+    ok 8 - archive races creation and invitation acceptance without inconsistent state
+      ---
+      duration_ms: 2059.0207
+      ...
+    1..8
+ok 2 - pact lists, membership, invitation metadata and archive on existing local database
+  ---
+  duration_ms: 20049.7372
+  ...
+# Subtest: solo HTTP lifecycle on an existing local database
+    # Subtest: validation, privacy, retry and all four outcomes
+    ok 1 - validation, privacy, retry and all four outcomes
+      ---
+      duration_ms: 3301.692
+      ...
+    # Subtest: old checkout cannot overwrite/delete a newer seed or duplicate its event
+    ok 2 - old checkout cannot overwrite/delete a newer seed or duplicate its event
+      ---
+      duration_ms: 1172.4803
+      ...
+    # Subtest: concurrent starts return one session or an explicit conflict
+    ok 3 - concurrent starts return one session or an explicit conflict
+      ---
+      duration_ms: 1283.0103
+      ...
+    # Subtest: expiry wins over late checkout; active endpoint never returns an ended session
+    ok 4 - expiry wins over late checkout; active endpoint never returns an ended session
+      ---
+      duration_ms: 948.5719
+      ...
+    # Subtest: logout and expired authentication recover without losing the seed
+    ok 5 - logout and expired authentication recover without losing the seed
+      ---
+      duration_ms: 3003.8542
+      ...
+    1..5
+ok 3 - solo HTTP lifecycle on an existing local database
+  ---
+  duration_ms: 18381.3275
+  ...
+1..3
+# tests 24
+# suites 0
+# pass 24
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 60873.7235

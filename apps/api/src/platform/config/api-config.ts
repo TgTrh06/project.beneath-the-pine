@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 const integer = (min: number, max: number) => z.coerce.number().int().min(min).max(max);
 const schema = z.object({
-  API_HOST: z.string().ip().default('127.0.0.1'),
+  API_HOST: z.union([z.ipv4(), z.ipv6()]).default('127.0.0.1'),
   API_PORT: integer(1, 65535).default(8081),
   API_WEB_ORIGIN: z.string().url().refine(value => {
     try {

@@ -11,7 +11,7 @@ class Client {
   id=''; cookie=''; csrf=''; email=`pact-regression-${randomUUID()}@example.test`; password=randomBytes(24).toString('hex');
   async req(path:string,method='GET',body?:unknown,key?:string) {
     const result=await fetch(base+path,{method,signal:AbortSignal.timeout(15000),headers:{origin,cookie:this.cookie,'Content-Type':'application/json',...(method==='GET'?{}:{'X-XSRF-TOKEN':this.csrf}),...(key?{'Idempotency-Key':key}:{})},body:body===undefined?undefined:JSON.stringify(body)});
-    for(const value of result.headers.getSetCookie())this.cookie=value.split(';')[0];
+    for(const value of result.headers.getSetCookie())if(value.startsWith('PYNEATH_SESSION='))this.cookie=value.split(';')[0];
     const data= result.status===204?{}:await result.json(); if(data.csrfToken)this.csrf=data.csrfToken;
     return {status:result.status,data};
   }

@@ -1,0 +1,14 @@
+2026-11-02 local cleanup verification
+
+Removed: pyneath-security-test-20261102 (label pyneath.audit=20261102 verified before removal).
+Storage: tmpfs /var/lib/postgresql/data; no pre-existing local volume mounted.
+Removed: pyneath-security-audit:20261102 image, built only for this verification.
+Stopped: test API on 127.0.0.1:18081 and test web on 127.0.0.1:15173.
+Verified: no listeners on those ports; no matching test container or image remains.
+Temporary browser JSON export was content-checked and removed. Screenshot and test evidence intentionally remain in docs.
+Docker Desktop, pre-existing images/volumes and shared build cache were left intact; no global prune.
+
+INCOMPLETE: C:\Users\admin\AppData\Local\Temp\pyneath-security-audit-20261102
+Automatic command approval review rejected recursive deletion with 'blocked by policy' and no more detailed reason.
+The exact absolute path was verified to be the task-specific child of the user TEMP directory. A separate literal-path PowerShell deletion was also rejected. No alternate tool was used to bypass this restriction.
+This folder contains the disposable pip-audit virtualenv and package-scan inputs/output; it has no running service. Manual cleanup of this one directory remains.

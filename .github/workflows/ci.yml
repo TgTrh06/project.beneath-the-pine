@@ -8,6 +8,7 @@ on:
 jobs:
   workspace-verify:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     services:
       postgres:
         image: postgres:17-alpine
@@ -34,7 +35,10 @@ jobs:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      - run: pnpm audit:security
       - run: pnpm lint
+      - name: Require PostgreSQL integration prerequisites
+        run: node apps/api/scripts/check-test-database.cjs
       - run: pnpm test
       - run: pnpm build
       - name: Build API container
@@ -63,12 +67,12 @@ jobs:
           done
           docker logs pyneath-api-ci
           exit 1
-      - name: Run live Solo, Pact, and realtime API suites
+      - name: Run live Solo, Pact, and Camp invitation API suites
         env:
           PYNEATH_SOLO_API_URL: http://127.0.0.1:8081/api/v1
           PYNEATH_SOLO_DATABASE_URL: postgresql://pyneath_ci:pyneath_ci@127.0.0.1:5432/pyneath_ci
           PYNEATH_SOLO_WEB_ORIGIN: http://127.0.0.1:5173
-        run: node --test apps/api/dist-test/test/solo-http.test.js apps/api/dist-test/test/pact-lists-http.test.js
+        run: node apps/api/scripts/run-http-tests.cjs
       - name: Stop API container
         if: always()
         run: docker rm --force pyneath-api-ci || true
