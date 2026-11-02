@@ -4,8 +4,8 @@ export function SoloToolPanel({enabled,open,title,onClose,children}:{enabled:boo
   const ref=useRef<HTMLDialogElement>(null),id=useId();
   useEffect(()=>{
     if(!enabled||!open)return;
-    const previous=document.activeElement as HTMLElement|null,dialog=ref.current!;dialog.showModal();
-    return ()=>{dialog.close();if(previous?.isConnected)previous.focus();};
+    const previous=document.activeElement as HTMLElement|null,dialog=ref.current!;const overflow=document.body.style.overflow;document.body.style.overflow="hidden";dialog.showModal();
+    return ()=>{document.body.style.overflow=overflow;dialog.close();if(previous?.isConnected)previous.focus();};
   },[enabled,open]);
   if(!enabled)return <>{children}</>;
   return <dialog ref={ref} className="solo-tool-panel" aria-labelledby={id} onCancel={e=>{e.preventDefault();onClose();}}>

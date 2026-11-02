@@ -1,4 +1,5 @@
 import { lazy, Suspense, useCallback, useEffect, useState, type ReactNode } from 'react';
+import type { ForestPlace } from './forestPlaces';
 import { ForestAppearance } from '../../app/ForestAppearance';
 import { SceneBoundary } from '../camps/scene/SceneBoundary';
 import { parseSettings, resolveTime, resolveWeather, times, weathers, type SceneSettings, type TimeChoice, type WeatherChoice } from '../camps/scene/environment';
@@ -7,7 +8,7 @@ const Forest = lazy(() => import('./ReturnCanvas'));
 const key = 'pyneath:return-scene';
 function readSettings() { try { return parseSettings(JSON.parse(localStorage.getItem(key) ?? '{}')); } catch { return parseSettings(null); } }
 
-export function ReturnScene({ children }: { children: (controls: ReactNode) => ReactNode }) {
+export function ReturnScene({ children, place = 'return' }: { place?:ForestPlace; children: (controls: ReactNode) => ReactNode }) {
   const [settings, setSettings] = useState(readSettings);
   const [reduced, setReduced] = useState(true), [visible, setVisible] = useState(false);
   const [ready, setReady] = useState(false), [failed, setFailed] = useState(false), [attempt, setAttempt] = useState(0), [now, setNow] = useState(Date.now);
@@ -41,9 +42,9 @@ export function ReturnScene({ children }: { children: (controls: ReactNode) => R
     <p role="status" className="field-hint">{reduced ? 'Cảnh tĩnh theo cài đặt giảm chuyển động của thiết bị.' : failed ? <>Đang dùng cảnh tĩnh. <button className="text-action" onClick={() => { setFailed(false); setReady(false); setAttempt(n => n + 1); update({ ...settings, light: false }); }}>Thử lại 3D</button></> : settings.light ? 'Đang dùng cảnh tĩnh.' : !ready ? 'Đang mở khu rừng…' : ''}</p>
   </ForestAppearance>;
   return <>
-    <div className="return-world" aria-hidden="true" data-ready={ready} data-weather={weather} data-static={staticScene || !ready}>
-      <picture><source media="(max-width: 759px)" srcSet={`/return/forest-${phase}-mobile.webp`}/><img src={`/return/forest-${phase}.webp`} alt="" width="1600" height="1000"/></picture>
-      {!staticScene && <SceneBoundary key={attempt} onFailure={onFailure}><div className="return-world-render" style={{ opacity: ready ? 1 : 0 }}><Suspense fallback={null}><Forest phase={phase} weather={weather} animate={animate} visible={visible} attempt={attempt} onReady={onReady} onFailure={onFailure}/></Suspense></div></SceneBoundary>}
+    <div className="return-world" data-place={place} aria-hidden="true" data-ready={ready} data-weather={weather} data-static={staticScene || !ready}>
+      <picture><source media="(max-width: 759px)" srcSet={`/forest/${place}-${phase}-mobile.webp`}/><img src={`/forest/${place}-${phase}.webp`} alt="" width="1600" height="1000"/></picture>
+      {!staticScene && <SceneBoundary key={attempt} onFailure={onFailure}><div className="return-world-render" style={{ opacity: ready ? 1 : 0 }}><Suspense fallback={null}><Forest place={place} phase={phase} weather={weather} animate={animate} visible={visible} attempt={attempt} onReady={onReady} onFailure={onFailure}/></Suspense></div></SceneBoundary>}
       <div className="return-world-weather"/>
     </div>
     {children(controls)}

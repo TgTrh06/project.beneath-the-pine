@@ -10,6 +10,7 @@ import { PactView } from "../features/pacts/PactView";
 import { SessionView } from "../features/focus/SessionView";
 import { MemoryView } from "../features/memory/MemoryView";
 import { CoreSettingsView } from "../features/settings/CoreSettingsView";
+import { AuthLoading } from "../features/auth/AuthLoading";
 import { AppLayout } from "./AppLayout";
 import { useHashRouter } from "./router";
 import { InviteView } from "../features/camps/InviteView";
@@ -24,7 +25,7 @@ export function App() {
   useEffect(() => { if (route.view === "invite") setNotice(""); }, [route.view, route.id]);
   const signOut = () => void logout().then(() => { pendingRoute.current = null; navigate("landing"); }).catch(() => setNotice("Chưa thể đăng xuất."));
   if (route.view === "landing") return <LandingPage signedIn={Boolean(session)} />;
-  if (checking) return <main className="auth-shell"><p role="status">Đang kiểm tra phiên đăng nhập…</p></main>;
+  if (checking) return <AuthLoading/>;
   if (!session) return <AuthView mode={route.view === "register" ? "register" : "login"} connectionError={notice} onRetry={() => setRetry(value => value+1)} onSuccess={() => { setNotice(""); const destination = pendingRoute.current ?? "return"; pendingRoute.current = null; navigate(destination); }} />;
   const reminder = <PactReminder key={session.subject} onOpen={id => navigate(`pact/${id}`)}/>;
   if (route.view === "session" && route.id) return <>{reminder}<SessionView key={`${session.subject}:${route.id}`} id={route.id} accountId={session.subject} onReturn={() => navigate("return")} onRepeatPact={(campId, pactId) => { writePrivateDraft(draftOwner(), `camp:${campId}:repeat`, pactId, true); navigate(`camp/${campId}`); }} onNotice={setNotice} /></>;

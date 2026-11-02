@@ -28,7 +28,7 @@ export function PreferencesSettings() {
 
   return <section className="feature-card">
     <h2>Hiện diện trong Pact</h2>
-    <p>Thành viên cùng Pact luôn biết bạn đã tham gia hoặc đã khép phiên. Bạn có thể chọn có chia sẻ thêm trạng thái đang tập trung, nghỉ và mất kết nối hay không.</p>
+    <p>Luôn hiển thị đã tham gia và đã khép phiên. Bạn chọn chia sẻ thêm trạng thái tập trung, nghỉ và mất kết nối.</p>
     <ErrorMessage message={resource.error} retry={resource.reload}/>
     <ErrorMessage message={error}/>
     {resource.loading && <p role="status">Đang tải lựa chọn riêng tư…</p>}

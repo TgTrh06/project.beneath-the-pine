@@ -7,8 +7,8 @@ export function CampPanel({ title, children, onClose }: { title: string; childre
   useEffect(() => {
     const previous = document.activeElement as HTMLElement | null;
     const dialog = ref.current!;
-    dialog.showModal();
-    return () => { dialog.close(); if (previous?.isConnected) previous.focus({ preventScroll: true }); };
+    const overflow=document.body.style.overflow;document.body.style.overflow="hidden";dialog.showModal();
+    return () => { document.body.style.overflow=overflow;dialog.close(); if (previous?.isConnected) previous.focus({ preventScroll: true }); };
   }, []);
   return <dialog ref={ref} className="camp-task-panel" aria-labelledby={titleId} onCancel={event => { event.preventDefault(); onClose(); }}>
     <header className="camp-task-heading"><div><p className="eyebrow">BÊN LỬA TRẠI</p><h2 id={titleId}>{title}</h2></div><button type="button" className="secondary" onClick={onClose} aria-label="Đóng bảng, trở lại Camp">×</button></header>

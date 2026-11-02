@@ -1,6 +1,6 @@
-/* Shared signed-in chrome; scene and composition are exclusive to Return. */
+/* Shared woodland controls and navigation, with room for the scene. */
 .site-shell.forest-shell {
-  --app-sidebar-width:196px; --app-content-gutter:clamp(24px,3vw,48px);
+  --app-header-height:64px; --app-sidebar-width:188px; --app-content-gutter:clamp(24px,3vw,48px);
   --paper:#edf0e4; --surface:#f7f4e9; --surface-raised:#fffaf0; --wash:#e5e9d9;
   --ink:#233a2c; --muted:#53624e; --line:#cad1bc; --control-line:#75856c;
   --accent:#31583e; --accent-hover:#24452f; --on-accent:#fff9e9;
@@ -20,6 +20,11 @@
   background:var(--surface); color:var(--ink);
 }
 .forest-shell .site-header { border-bottom:1px solid #ffffff16; }
+.site-shell.forest-app .navigation { height:auto; max-height:calc(100dvh - 100px); margin:24px 0 24px 16px; padding:12px 8px; background:#173126; border:1px solid #49624a; border-radius:12px; top:88px; }
+.forest-app .navigation .nav-label { margin:8px 0 12px; padding-left:10px; letter-spacing:.08em; }
+.forest-app .navigation .nav-item { padding:10px; gap:10px; min-height:44px; }
+.forest-account-button { display:inline-flex; align-items:center; gap:8px; min-height:44px; font-size:.8125rem; }
+.forest-bottom-nav { display:none; }
 .forest-shell .site-header-inner { position:relative; flex-wrap:wrap; padding:8px 24px; }
 .forest-shell .brand { color:#f4ecd9; gap:10px; font-size:1.25rem; }
 .forest-shell .brand svg { color:#d1b383; }
@@ -35,8 +40,13 @@
 .forest-shell .header-actions { gap:10px; margin-left:auto; }
 .forest-shell .primary { background:#e1b77b; color:#302318; border:1px solid #93663d; box-shadow:0 3px 0 #775332; }
 .forest-shell .primary:not(:disabled):hover { background:#efce9c; }
-.forest-shell .secondary, .forest-shell .choice { border:1px solid var(--line); background:var(--wash); color:var(--ink); }
-.forest-shell .choice[aria-pressed="true"] { background:#35573e; color:#fff1d5; border-color:#82976d; }
+.forest-shell .secondary, .forest-shell .choice { border:1px solid var(--control-line); background:var(--wash); color:var(--ink); }
+.forest-shell .choice[aria-pressed="true"] { background:#35573e; color:#fff1d5; border-color:#9daf87; }
+.forest-shell .choice[aria-pressed="true"] { box-shadow:inset 0 -3px #c2d2a8; animation:none; }
+.forest-shell .choice[aria-pressed="true"]:hover { background:#35573e; color:#fff1d5; }
+.forest-shell :is(.primary,.secondary,.choice,.nav-item,.auth-password-toggle) { transition:background 160ms ease,border-color 160ms ease,box-shadow 160ms ease; }
+.forest-shell .primary:not(:disabled):active { transform:translateY(2px); box-shadow:0 1px 0 #775332; }
+.forest-shell :is(input,textarea,select):focus-visible { border-color:var(--focus-ring); }
 .forest-shell .text-action:hover { color:var(--chestnut-hover); }
 .forest-shell footer { color:var(--muted); font-size:.75rem; padding-block:28px; text-align:left; }
 .forest-appearance { position:relative; }
@@ -51,6 +61,22 @@
 .forest-shell .pact-reminder { width:100%; margin:0 0 20px; padding:14px 18px; }
 .forest-shell .pact-reminder .error-notice { margin:0; background:transparent; }
 .forest-shell .error-notice > .text-action { margin-inline-start:8px; }
+
+@media(max-width:759px) {
+  .forest-app .forest-account-button { display:none; }
+  .forest-app { padding-bottom:calc(var(--mobile-nav-height,84px) + 16px); }
+  .forest-bottom-nav { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); position:fixed; inset:auto 0 0; z-index:12; padding:6px 8px calc(6px + env(safe-area-inset-bottom)); background:#173126; border-top:1px solid #718060; color:#c1ceb7; }
+  .forest-bottom-nav button { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:5px; min-width:0; min-height:56px; padding:6px 2px; border:0; border-top:2px solid transparent; border-radius:6px; background:transparent; color:inherit; font-size:.75rem; line-height:1.5; overflow-wrap:anywhere; }
+  .forest-bottom-nav svg { flex-shrink:0; }
+  .forest-bottom-nav button[aria-current="page"] { color:#fff0d2; background:#304b34; border-top-color:#d7b17b; }
+  .forest-bottom-nav button:hover { background:#243f2e; }
+  .forest-bottom-nav button:focus-visible { outline-offset:-3px; }
+  .forest-app :is(input,textarea,select,button,a,summary) { scroll-margin-block:84px calc(var(--mobile-nav-height,84px) + 24px); }
+  .forest-app .app-main-column footer { padding-block:16px; }
+}
+@media(max-width:759px) and (max-height:480px) {
+  .forest-app:has(:is(input,textarea):focus) .forest-bottom-nav { display:none; }
+}
 
 @media (prefers-reduced-motion:reduce) {
   .forest-shell *, .forest-shell *::before, .forest-shell *::after { animation:none!important; transition:none!important; }

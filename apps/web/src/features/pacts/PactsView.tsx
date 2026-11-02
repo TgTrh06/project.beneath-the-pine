@@ -9,8 +9,8 @@ import '../camps/camps.css';
 const groups = {pending:'Lời mời',upcoming:'Sắp tới',active:'Đang diễn ra',past:'Đã qua'} as const;
 const status = {scheduled:'Đã hẹn',active:'Đang diễn ra',completed:'Đã khép lại',cancelled:'Đã hủy',expired:'Đã hết hạn'};
 export function PactsView({campId,onOpen,onSession}:{campId?:string;onOpen:(id:string)=>void;onSession?:(id:string)=>void}) {
-  const [group,setGroup]=useState<keyof typeof groups>('pending');
-  return <section className="camps-page pact-list"><p className="eyebrow">FOCUS PACT</p>{campId ? <h2>Cuộc hẹn của bạn trong nhóm</h2> : <h1>Cuộc hẹn của tôi</h1>}<p>Chỉ những cuộc hẹn bạn được chọn tham gia.</p>
+  const [group,setGroup]=useState<keyof typeof groups>('upcoming');
+  return <section className="camps-page pact-list"><p className="eyebrow">FOCUS PACT</p>{campId ? <h2>Cuộc hẹn của bạn trong nhóm</h2> : <h1>Cuộc hẹn của tôi</h1>}
     <div className="button-row" role="group" aria-label="Nhóm cuộc hẹn">{Object.entries(groups).map(([key,label])=><button key={key} className="choice" aria-pressed={key===group} onClick={()=>setGroup(key as keyof typeof groups)}>{label}</button>)}</div>
     <PactRows key={`${campId ?? 'all'}:${group}`} campId={campId} group={group} onOpen={onOpen} onSession={onSession}/>
   </section>;
@@ -27,7 +27,7 @@ function PactRows({campId,group,onOpen,onSession}:{campId?:string;group:keyof ty
     {!loading && !error && !items.length && <p className="field-hint">Chưa có cuộc hẹn trong mục “{groups[group]}”.</p>}
     <ul className="row-list">{items.map(item=><li key={item.id}><button className="text-action" onClick={()=>onOpen(item.id)}>{item.campName}</button><p>{formatTime(item.startsAt,timezone)} · {item.durationMinutes} phút</p><p className="field-hint">{status[item.status]} · {item.response==='invited'?'Chưa trả lời':item.response==='accepted'?'Đã nhận lời':'Không tham gia'}{item.isCreator?' · Bạn tạo cuộc hẹn':''}</p>
       {group==='pending' && <div className="button-row"><button className="primary" disabled={busy} onClick={()=>void act(async()=>{await respondPact(item.id,'accepted');setMessage('Đã nhận lời. Cuộc hẹn nằm trong mục Sắp tới.');})}>Nhận lời</button><button className="secondary" disabled={busy} onClick={()=>void act(async()=>{await respondPact(item.id,'declined');setMessage('Đã cập nhật: không tham gia.');})}>Không tham gia</button></div>}
-      <button className="text-action" onClick={()=>onOpen(item.id)}>Xem cuộc hẹn</button></li>)}</ul>
+      <details className="forest-row-details"><summary>Chi tiết</summary><p className="field-hint">Chỉ người được chọn mới có thể tham gia.</p><button className="secondary" onClick={()=>onOpen(item.id)}>Mở cuộc hẹn</button></details></li>)}</ul>
     {loading && <p role="status">Đang tải cuộc hẹn…</p>}<div className="button-row">{cursor && <button className="secondary" disabled={loading||busy} onClick={()=>void load(cursor)}>Tải thêm</button>}<button className="text-action" disabled={loading||busy} onClick={()=>void load()}>Cập nhật danh sách</button></div>
   </>;
 }
