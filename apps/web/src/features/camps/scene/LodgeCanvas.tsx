@@ -7,9 +7,14 @@ import { Environment, Rain } from './SceneEnvironment';
 import type { DayPhase, Weather } from './environment';
 import { MartenModel } from './MartenModel';
 import { SoloRest } from './SoloRest';
+import { ForestLife } from './ForestLife';
+import { activityStrength, windAt, type SessionLife, type LifeLevel } from './forestActivity';
+import { livingMaterial } from './forestMaterials';
+import { dampMotion, motionDelta } from './motion';
 
 type Props = {
   solo?: boolean;
+  life?: SessionLife;
   attempt: number;
   phase: DayPhase; weather: Weather;
   members: LodgeMember[]; selected: string[]; animate: boolean; visible: boolean;
@@ -106,19 +111,23 @@ export function WindBranches({ animate, weather }: { animate: boolean; weather: 
   </group>;
 }
 
-export function Room({ onReady, attempt, weather, animate, solo, landing }: { onReady: () => void; attempt: number; weather: Weather; animate: boolean; solo?: boolean; landing?: boolean }) {
+export function Room({ onReady, attempt, weather, animate, solo, landing, life }: { onReady: () => void; attempt: number; weather: Weather; animate: boolean; solo?: boolean; landing?: boolean; life?:LifeLevel }) {
   const gltf = useLoader(GLTFLoader, `${landing?'/landing/pine-landing.glb':solo?'/solo/pine-solo.glb':'/camp/pine-camp.glb'}${attempt ? `?retry=${attempt}` : ''}`);
-  const room = useMemo(() => {
+  const living=life!==undefined;
+  const {room,motion} = useMemo(() => {
     const clone = gltf.scene.clone(true);
+    const motion:ReturnType<typeof livingMaterial>[]=[];
     clone.traverse(object => { if (object instanceof Mesh) { object.castShadow = true; object.receiveShadow = true;
       // The cached GLB is shared: weather only changes this instance's materials.
       object.material = Array.isArray(object.material) ? object.material.map(m=>m.clone()) : object.material.clone();
+      if(living&&object.material instanceof MeshStandardMaterial){const animated=livingMaterial(object.material);motion.push(animated);object.customDepthMaterial=animated.depth;}
     } });
-    return clone;
-  }, [gltf]);
+    return {room:clone,motion};
+  }, [gltf,living]);
   const gl = useThree(state => state.gl);
   const invalidate = useThree(state => state.invalidate);
   const wet = useRef(weather === 'rain' ? 1 : 0);
+  const elapsed=useRef(0),shadowElapsed=useRef(0),strength=useRef(0),wind=useRef(windAt(0,weather)),previousWeather=useRef(weather);
   const surfaces = useMemo(() => {
     const result: { material: MeshStandardMaterial; color: MeshStandardMaterial['color']; roughness: number }[] = [];
     room.traverse(object => { if(object instanceof Mesh) for(const m of (Array.isArray(object.material)?object.material:[object.material])) {
@@ -127,9 +136,17 @@ export function Room({ onReady, attempt, weather, animate, solo, landing }: { on
     }});return result;
   }, [room]);
   function applyWet() { for(const s of surfaces){s.material.color.copy(s.color).multiplyScalar(1-.18*wet.current);s.material.roughness=s.roughness-.22*wet.current;} }
-  useEffect(()=>{if(!animate){wet.current=weather==='rain'?1:0;applyWet();invalidate();}},[weather,animate,surfaces,invalidate]);
-  useFrame((_,delta)=>{if(!animate)return;const next=weather==='rain'?1:0;if(Math.abs(next-wet.current)<.001)return;wet.current+=(next-wet.current)*(1-Math.exp(-Math.min(delta,.1)*.65));applyWet();});
-  useEffect(()=>()=>{room.traverse(object=>{if(object instanceof Mesh)for(const m of (Array.isArray(object.material)?object.material:[object.material]))m.dispose();});},[room]);
+  useEffect(()=>{applyWet();},[surfaces]);
+  useEffect(()=>{if(!animate&&weather!==previousWeather.current){wet.current=weather==='rain'?1:0;applyWet();invalidate();}previousWeather.current=weather;},[weather,animate,surfaces,invalidate]);
+  useFrame((_,delta)=>{
+    if(!animate)return;const dt=motionDelta(delta);elapsed.current+=dt;
+    strength.current=dampMotion(strength.current,activityStrength(life??'still'),2,dt);wind.current=dampMotion(wind.current,windAt(elapsed.current,weather),1.5,dt);
+    for(const m of motion){m.uniforms.forestTime.value=elapsed.current;m.uniforms.forestWind.value=wind.current;m.uniforms.forestStrength.value=strength.current;}
+    if(living){shadowElapsed.current+=dt;if(shadowElapsed.current>.33){gl.shadowMap.needsUpdate=true;shadowElapsed.current=0;}}
+    const next=weather==='rain'?1:0;if(Math.abs(next-wet.current)<.001)return;
+    wet.current=living&&next===0?Math.max(0,wet.current-dt/85):wet.current+(next-wet.current)*(1-Math.exp(-dt*.65));applyWet();
+  });
+  useEffect(()=>()=>{room.traverse(object=>{if(object instanceof Mesh)for(const m of (Array.isArray(object.material)?object.material:[object.material]))m.dispose();});motion.forEach(m=>m.depth.dispose());},[room,motion]);
   useEffect(() => { gl.shadowMap.needsUpdate = true; invalidate(); onReady(); }, [gl, invalidate, onReady]);
   return <primitive object={room} dispose={null} />;
 }
@@ -156,15 +173,16 @@ function CameraAndLifecycle({ visible, onFailure, memberKey, solo }: Pick<Props,
 
 export default function LodgeCanvas(props: Props) {
   return <div className="lodge-canvas" aria-hidden="true">
-    <Canvas orthographic camera={{ near: .1, far: 80, zoom: 45 }} dpr={[1, 1.5]} shadows frameloop={!props.visible ? 'never' : props.animate ? 'always' : 'demand'} gl={{ antialias: true, alpha: false, powerPreference: 'low-power' }} onCreated={({ gl }) => { gl.toneMapping = ACESFilmicToneMapping; gl.toneMappingExposure = 1.15; gl.shadowMap.type = PCFSoftShadowMap; gl.shadowMap.autoUpdate = false; gl.shadowMap.needsUpdate = true; }} fallback={<span>Thiết bị đang dùng cảnh tĩnh.</span>}>
-      <Environment phase={props.phase} weather={props.weather} animate={props.animate} solo={props.solo} />
+    <Canvas orthographic camera={{ near: .1, far: 80, zoom: 45 }} dpr={props.life?.level==='gentle'?1:props.life?[1,1.25]:[1,1.5]} shadows frameloop={!props.visible ? 'never' : props.animate ? 'always' : 'demand'} gl={{ antialias: true, alpha: false, powerPreference: 'low-power' }} onCreated={({ gl }) => { gl.toneMapping = ACESFilmicToneMapping; gl.toneMappingExposure = 1.15; gl.shadowMap.type = PCFSoftShadowMap; gl.shadowMap.autoUpdate = false; gl.shadowMap.needsUpdate = true; }} fallback={<span>Thiết bị đang dùng cảnh tĩnh.</span>}>
+      <Environment phase={props.phase} weather={props.weather} animate={props.animate} solo={props.solo} living={!!props.life}/>
       <Rain weather={props.weather} animate={props.animate} />
       <CameraAndLifecycle visible={props.visible} onFailure={props.onFailure} memberKey={props.members.map(member => member.accountId).join(':')} solo={props.solo} />
-      <Suspense fallback={null}><Room onReady={props.onReady} attempt={props.attempt} weather={props.weather} animate={props.animate} solo={props.solo} /></Suspense>
+      <Suspense fallback={null}><Room onReady={props.onReady} attempt={props.attempt} weather={props.weather} animate={props.animate} solo={props.solo} life={props.life?.level}/></Suspense>
       {!props.solo && <Hearth animate={props.animate} />}
       {!props.solo && <Marten animate={props.animate} />}
-      <WindBranches animate={props.animate} weather={props.weather} />
-      {props.solo ? <SoloRest animate={props.animate}/> : props.members.map((member, seat) => <Wanderer key={member.accountId} member={member} seat={seat} chosen={props.selected.includes(member.accountId)} animate={props.animate} onClick={() => props.onMember(member.accountId)} />)}
+      {!props.life&&<WindBranches animate={props.animate} weather={props.weather} />}
+      {props.life&&<ForestLife animate={props.animate} level={props.life.level} drift={props.life.drift} phase={props.phase} weather={props.weather} close/>}
+      {props.solo ? <SoloRest animate={props.animate} life={props.life?.level}/> : props.members.map((member, seat) => <Wanderer key={member.accountId} member={member} seat={seat} chosen={props.selected.includes(member.accountId)} animate={props.animate} onClick={() => props.onMember(member.accountId)} />)}
       {props.onCompose && <mesh position={[0, .6, 0]} onClick={event => { event.stopPropagation(); props.onCompose?.(); }}><cylinderGeometry args={[.85, .85, 1.2, 24]} /><meshBasicMaterial transparent opacity={0} depthWrite={false} /></mesh>}
     </Canvas>
   </div>;

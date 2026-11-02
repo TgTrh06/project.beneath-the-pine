@@ -1,10 +1,28 @@
 .focus-room.solo-session { position:fixed; inset:0; display:block; padding:0; width:100%; height:100dvh; min-height:0; overflow:auto; background:#18362e; isolation:isolate; }
 .solo-session .focus-room__body { position:relative; width:100%; min-height:100%; padding:0; pointer-events:none; }
 .solo-session .focus-room__body > * { pointer-events:auto; }
-.solo-session .session-toolbar { position:absolute; top:24px; left:28px; right:150px; margin:0; z-index:4; }
-.solo-session .session-toolbar > .text-action { color:#f4efdd; text-shadow:0 1px 3px #142a22; min-height:44px; }
-.solo-session .session-toolbar .theme-select { color:#f4efdd; }
-.solo-session .session-toolbar select { background:#20372d; color:#f4efdd; border-color:#7e9078; }
+.solo-session .session-toolbar { position:absolute; top:max(24px,env(safe-area-inset-top)); left:max(28px,env(safe-area-inset-left)); right:max(28px,env(safe-area-inset-right)); margin:0; z-index:6; pointer-events:none; }
+.solo-session .session-toolbar > * { pointer-events:auto; }
+.focus-room .session-toolbar .session-back { display:inline-flex; align-items:center; justify-content:center; gap:9px; min-height:44px; padding:10px 14px; border:1px solid #8f987a; border-radius:12px 8px 12px 8px; background:#20372d; color:#f4efdd; text-decoration:none; font-size:.8125rem; line-height:1.5; box-shadow:0 3px 9px #081b1640; transition:background .16s ease, border-color .16s ease, transform .16s ease; }
+.focus-room .session-toolbar .session-back svg { flex-shrink:0; }
+.focus-room .session-toolbar .session-back:not(:disabled):hover { background:#304b39; border-color:#c6b28b; color:#fff3d7; }
+.focus-room .session-toolbar .session-back:not(:disabled):active { transform:translateY(1px); }
+.focus-room .session-toolbar .session-back:disabled { opacity:.55; }
+.solo-session .session-toolbar .forest-appearance > summary { width:46px; height:46px; border:1px solid #8f987a; border-radius:12px 8px 12px 8px; background:#20372d; color:#f4efdd; box-shadow:0 3px 9px #081b1640; transition:background .16s ease, border-color .16s ease, transform .16s ease; }
+.solo-session .session-toolbar .forest-appearance > summary:hover, .solo-session .session-toolbar .forest-appearance[open] > summary { background:#304b39; border-color:#c6b28b; }
+.solo-session .session-toolbar .forest-appearance > summary:active { transform:translateY(1px); }
+.solo-session .forest-appearance-panel { width:min(316px,calc(100vw - 32px)); max-height:calc(100dvh - max(24px,env(safe-area-inset-top)) - 70px - env(safe-area-inset-bottom)); padding:20px; overscroll-behavior:contain; scrollbar-width:thin; background:#173126; color:#f4ecd9; border-color:#8f987a; color-scheme:dark; }
+.solo-session .forest-appearance-panel h2 { font-family:var(--font-body); font-size:1rem; line-height:1.5; text-align:left; margin:0 0 16px; }
+.solo-session .forest-appearance-panel label { display:grid; gap:6px; margin:0; font-size:.8125rem; color:#f4ecd9; }
+.solo-session .forest-appearance-panel select { width:100%; min-width:0; min-height:44px; margin:0; padding:9px 10px; border:1px solid #849676; border-radius:6px; background:#203b2d; color:#f4ecd9; font:inherit; }
+.solo-session .session-atmosphere-group { display:grid; gap:12px; min-width:0; margin:18px 0 0; padding:14px 0 0; border:0; border-top:1px solid #607356; }
+.solo-session .session-atmosphere-group legend { padding:0 8px 0 0; color:#e1b77b; font-size:.75rem; font-weight:600; }
+.solo-session .forest-appearance-panel .check-label { display:flex; align-items:center; gap:10px; min-height:44px; }
+.solo-session .forest-appearance-panel .check-label input { margin:0; flex-shrink:0; accent-color:#e1b77b; }
+.solo-session .forest-appearance-panel .secondary { margin:0; min-height:44px; padding:10px; border:1px solid #849676; background:#2c4a35; color:#f4ecd9; font-size:.8125rem; box-shadow:none; }
+.solo-session .forest-appearance-panel .secondary:not(:disabled):hover { background:#36553c; }
+.solo-session .forest-appearance-panel .secondary[aria-pressed="true"] { border-color:#e1b77b; }
+.solo-session .forest-appearance-panel .lodge-environment-note { margin:0; color:#c1ceb7; }
 .solo-session .session-identity { position:absolute; top:100px; left:32px; width:min(500px,43vw); max-height:26vh; overflow:auto; color:#f5efdc; text-shadow:0 1px 4px #071a16; z-index:2; }
 .solo-session .session-identity .eyebrow { color:#d2dcca; }
 .solo-session .session-identity h1 { font-family:var(--font-display); font-size:clamp(1.5rem,2.5vw,2.7rem); text-align:left; margin:.5rem 0; }
@@ -20,7 +38,8 @@
 .solo-session .session-actions .secondary { background:transparent; color:#eee7d0; }
 .solo-session .session-actions .primary { background:#e4cca0; color:#26362b; }
 .solo-session .session-bottom .field-hint,.solo-break-note { color:#d2dcca; font-size:.75rem; text-shadow:0 1px 4px #071a16; margin:.3rem 0; }
-.solo-scene .camp-scene-settings { right:28px; z-index:5; }
+.lodge-controls .check-label { display:flex; align-items:center; gap:10px; min-height:44px; }
+.lodge-controls .check-label input { flex-shrink:0; }
 .solo-scene-status { position:absolute; bottom:max(8px,env(safe-area-inset-bottom)); left:16px; right:16px; text-align:center; font-size:.6875rem; color:#d2dcca; z-index:3; margin:0; }
 .solo-scene-status button { color:#f4efdd; min-height:44px; }
 .solo-session .session-load-error { position:relative; padding:80px 24px 0; z-index:5; pointer-events:none; }
@@ -42,9 +61,8 @@
 .solo-session .session-ending .button-row { flex-wrap:wrap; }
 .solo-session :is(.session-toolbar,.session-actions,.session-sync,.camp-scene-settings) :focus-visible { outline:2px solid #ffe0a5; outline-offset:3px; }
 @media(max-width:699px) {
-  .solo-session .session-toolbar { top:12px; left:16px; right:115px; gap:.4rem; }
-  .solo-session .session-toolbar .theme-select { display:none; }
-  .solo-scene .camp-scene-settings { top:16px; right:16px; }
+  .solo-session .session-toolbar { top:max(12px,env(safe-area-inset-top)); left:max(16px,env(safe-area-inset-left)); right:max(16px,env(safe-area-inset-right)); gap:.4rem; }
+  .solo-session .forest-appearance-panel { max-height:calc(100dvh - max(12px,env(safe-area-inset-top)) - 70px - env(safe-area-inset-bottom)); }
   .solo-session .session-identity { top:80px; left:20px; width:calc(100% - 40px); max-height:18vh; }
   .solo-session .session-identity h1 { font-size:1.5rem; }
   .solo-session .session-clock { top:26%; right:20px; width:calc(100% - 40px); }

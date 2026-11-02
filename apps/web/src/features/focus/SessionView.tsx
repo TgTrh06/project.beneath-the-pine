@@ -67,7 +67,7 @@ export function SessionView({ id, accountId, onReturn, onRepeatPact }: { id: str
   useEffect(() => { if (!active) setTool(null); }, [active]);
   const mine = session?.participants.find(person => person.accountId === accountId);
   const presence = { active:"Đang tập trung", break:"Đang nghỉ", disconnected:"Mất kết nối", checked_out:"Đã khép lại", hidden:"Đã tham gia" };
-  const renderSession = (controls?:ReactNode) => <main className={`focus-room${solo ? " solo-session" : " site-shell forest-shell forest-session"}`}>{solo && <SoloScene active={active}/>}<div className="focus-room__body"><header className="session-toolbar"><button className="text-action" disabled={busy} onClick={onReturn}>← Quay lại</button>{controls ?? <ThemeSelect/>}</header><div className="session-load-error"><ErrorMessage message={loadError} retry={load}/></div>
+  const renderSession = (controls?:ReactNode, scene?:ReactNode) => <main className={`focus-room${solo ? " solo-session" : " site-shell forest-shell forest-session"}`}>{scene}<div className="focus-room__body"><header className="session-toolbar" aria-label="Điều khiển phiên"><button className="text-action session-back" disabled={busy} onClick={onReturn}><svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m10 5-7 7 7 7M3 12h18" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"/></svg><span>Quay lại</span></button>{controls ?? <ThemeSelect/>}</header><div className="session-load-error"><ErrorMessage message={loadError} retry={load}/></div>
     {!session ? <>{loading && <p role="status">Đang nối lại phiên…</p>}<button className="secondary" onClick={onReturn}>Về điểm tiếp tục</button></>
     : !realtime.authorized ? <section className="session-ending"><h1>Quyền truy cập phiên đã thay đổi.</h1><p>Hãy quay lại để tiếp tục từ nội dung riêng của bạn.</p><button className="primary" onClick={onReturn}>Về điểm tiếp tục</button></section>
     : <><div className="session-identity"><p className="eyebrow">{session.kind === "solo" ? "PHIÊN RIÊNG" : "FOCUS PACT"}</p><h1 ref={heading} tabIndex={-1}>{active ? session.intention ?? "Có mặt cùng nhau là đủ." : "Chặng này đã khép lại."}</h1></div>
@@ -85,5 +85,5 @@ export function SessionView({ id, accountId, onReturn, onRepeatPact }: { id: str
         accept(result.session); finish(session.kind === 'pact'); })}>{busy ? "Đang lưu…" : "Xác nhận và quay lại"}</button></fieldset></Dialog>}
     </>}
   </div></main>;
-  return solo ? renderSession() : <ReturnScene place="session">{renderSession}</ReturnScene>;
+  return solo ? <SoloScene active={active&&remaining>0}>{renderSession}</SoloScene> : <ReturnScene place="session" active={active&&remaining>0}>{renderSession}</ReturnScene>;
 }

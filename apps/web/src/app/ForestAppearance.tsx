@@ -5,7 +5,11 @@ export function ForestAppearance({ children }: { children?: ReactNode }) {
   const panel = useRef<HTMLDetailsElement>(null);
   useEffect(() => {
     const close = (event: PointerEvent) => {
-      if (event.target instanceof Node && !panel.current?.contains(event.target) && panel.current) panel.current.open = false;
+      const details = panel.current;
+      if (event.target instanceof Node && details?.open && !details.contains(event.target)) {
+        if (details.contains(document.activeElement)) details.querySelector('summary')?.focus();
+        details.open = false;
+      }
     };
     document.addEventListener('pointerdown', close);
     return () => document.removeEventListener('pointerdown', close);

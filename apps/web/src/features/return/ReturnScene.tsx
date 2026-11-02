@@ -2,19 +2,22 @@ import { lazy, Suspense, useCallback, useEffect, useState, type ReactNode } from
 import type { ForestPlace } from './forestPlaces';
 import { ForestAppearance } from '../../app/ForestAppearance';
 import { SceneBoundary } from '../camps/scene/SceneBoundary';
+import { SessionLifeControls, useSessionLife } from '../focus/SessionLifeControls';
 import { parseSettings, resolveTime, resolveWeather, times, weathers, type SceneSettings, type TimeChoice, type WeatherChoice } from '../camps/scene/environment';
 
 const Forest = lazy(() => import('./ReturnCanvas'));
 const key = 'pyneath:return-scene';
 function readSettings() { try { return parseSettings(JSON.parse(localStorage.getItem(key) ?? '{}')); } catch { return parseSettings(null); } }
 
-export function ReturnScene({ children, place = 'return' }: { place?:ForestPlace; children: (controls: ReactNode) => ReactNode }) {
+export function ReturnScene({ children, place = 'return', active = true }: { place?:ForestPlace; active?:boolean; children: (controls: ReactNode) => ReactNode }) {
   const [settings, setSettings] = useState(readSettings);
+  const [life,setLife]=useSessionLife(settings.motion);
   const [reduced, setReduced] = useState(true), [visible, setVisible] = useState(false);
   const [ready, setReady] = useState(false), [failed, setFailed] = useState(false), [attempt, setAttempt] = useState(0), [now, setNow] = useState(Date.now);
   const phase = resolveTime(settings.time, new Date(now)), weather = resolveWeather(settings.weather, now);
   const staticScene = settings.light || reduced || failed;
-  const animate = settings.motion && !staticScene && visible;
+  const session=place==='session';
+  const animate = (session?active&&life.level!=='still':settings.motion) && !staticScene && visible;
   const onReady = useCallback(() => setReady(true), []), onFailure = useCallback(() => setFailed(true), []);
   useEffect(() => {
     const pref = matchMedia('(prefers-reduced-motion: reduce)');
@@ -38,13 +41,13 @@ export function ReturnScene({ children, place = 'return' }: { place?:ForestPlace
     <label>Thời tiết<select aria-label="Thời tiết" value={settings.weather} onChange={e => update({ ...settings, weather: e.target.value as WeatherChoice })}>{Object.entries(weathers).map(([value,label]) => <option key={value} value={value}>{label}</option>)}</select></label>
     <p className="field-hint">Thời tiết mô phỏng{settings.weather === 'auto' ? ' · đổi mỗi 20 phút' : ''}.</p>
     <button type="button" className="secondary" aria-pressed={settings.light} onClick={() => { setReady(false); update({ ...settings, light: !settings.light }); }}>Chế độ nhẹ · {settings.light ? 'Bật' : 'Tắt'}</button>
-    <button type="button" className="secondary" aria-pressed={animate} disabled={staticScene} onClick={() => update({ ...settings, motion: !settings.motion })}>Chuyển động · {animate ? 'Bật' : 'Tắt'}</button>
+    {session?<SessionLifeControls value={life} onChange={setLife} disabled={staticScene||!active}/>:<button type="button" className="secondary" aria-pressed={animate} disabled={staticScene} onClick={() => update({ ...settings, motion: !settings.motion })}>Chuyển động · {animate ? 'Bật' : 'Tắt'}</button>}
     <p role="status" className="field-hint">{reduced ? 'Cảnh tĩnh theo cài đặt giảm chuyển động của thiết bị.' : failed ? <>Đang dùng cảnh tĩnh. <button className="text-action" onClick={() => { setFailed(false); setReady(false); setAttempt(n => n + 1); update({ ...settings, light: false }); }}>Thử lại 3D</button></> : settings.light ? 'Đang dùng cảnh tĩnh.' : !ready ? 'Đang mở khu rừng…' : ''}</p>
   </ForestAppearance>;
   return <>
     <div className="return-world" data-place={place} aria-hidden="true" data-ready={ready} data-weather={weather} data-static={staticScene || !ready}>
       <picture><source media="(max-width: 759px)" srcSet={`/forest/${place}-${phase}-mobile.webp`}/><img src={`/forest/${place}-${phase}.webp`} alt="" width="1600" height="1000"/></picture>
-      {!staticScene && <SceneBoundary key={attempt} onFailure={onFailure}><div className="return-world-render" style={{ opacity: ready ? 1 : 0 }}><Suspense fallback={null}><Forest place={place} phase={phase} weather={weather} animate={animate} visible={visible} attempt={attempt} onReady={onReady} onFailure={onFailure}/></Suspense></div></SceneBoundary>}
+      {!staticScene && <SceneBoundary key={attempt} onFailure={onFailure}><div className="return-world-render" style={{ opacity: ready ? 1 : 0 }}><Suspense fallback={null}><Forest place={place} life={session?life:undefined} phase={phase} weather={weather} animate={animate} visible={visible} attempt={attempt} onReady={onReady} onFailure={onFailure}/></Suspense></div></SceneBoundary>}
       <div className="return-world-weather"/>
     </div>
     {children(controls)}
