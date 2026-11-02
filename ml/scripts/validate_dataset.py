@@ -3,6 +3,7 @@ from __future__ import annotations
 import hashlib
 import json
 import sys
+import argparse
 from collections import Counter
 from pathlib import Path
 
@@ -56,7 +57,14 @@ def validate_output(row: dict) -> None:
         fail(scenario_id, "acknowledgement length is invalid")
 
 
-def main(path: str) -> None:
+def main(path: str, require_reviewed: bool = False) -> None:
+    from pyneath_dataset import CAPABILITIES, read_rows, validate_file
+    first = next(read_rows(path), None)
+    if first is not None and first.get("capability") in CAPABILITIES:
+        print(json.dumps(validate_file(path, require_reviewed), ensure_ascii=False))
+        return
+    if require_reviewed:
+        raise SystemExit("Legacy fixtures cannot be certified training-ready")
     rows = [json.loads(line) for line in Path(path).read_text(encoding="utf-8").splitlines() if line.strip()]
     ids = [row.get("scenario_id") for row in rows]
     if len(ids) != len(set(ids)):
@@ -70,4 +78,8 @@ def main(path: str) -> None:
 
 
 if __name__ == "__main__":
-    main(sys.argv[1])
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("path")
+    parser.add_argument("--require-reviewed", action="store_true", help="Reject drafts and rows without reviewer/license sign-off")
+    args = parser.parse_args()
+    main(args.path, args.require_reviewed)
