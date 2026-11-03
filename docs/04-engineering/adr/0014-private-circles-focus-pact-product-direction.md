@@ -13,14 +13,14 @@ Adopt `solo return + private Circle + Focus Pact + realtime focus session + Open
 
 Pacts occur only among private Circle members. Intentions and Open Seed text are private by default; presence is minimal. Circle memory is non-competitive and cannot be currency, streak, rank or reward for elapsed minutes.
 
-Public rooms, stranger matching, public Signal, voice/video, feed/DM, ranking, streaks and task/habit systems are out of current scope. Pine Assistance training/inference is a post-core roadmap capability, governed by ADR-0015; it is not required for MVP session flow.
+Public rooms, stranger matching, public Signal, voice/video, feed/DM, ranking, streaks and task/habit systems are out of current scope. Pyneath Assistance training/inference is a post-core roadmap capability, governed by ADR-0015; it is not required for MVP session flow.
 
 ## Consequences
 
 - Domain and API focus on Circle, pact, session, participant/presence and seed.
 - Server timestamps/state are authoritative for realtime recovery.
 - ADR-0006 is superseded for product direction; its non-shaming/opt-in principles remain compatible.
-- ADR-0013 remains valid only for the implemented authentication mechanics; its Wanderer/Pine Keeper product roles are superseded.
+- ADR-0013 remains valid only for the implemented authentication mechanics; its Wanderer/Pyneath Keeper product roles are superseded.
 - Existing API modules and ML assets are legacy/experimental until a separately approved code migration.
 
 ## Validation

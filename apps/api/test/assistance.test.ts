@@ -1,7 +1,7 @@
 import 'reflect-metadata';
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { assistanceRequestSchema, assistanceResponseSchema } from '@beneath-the-pine/contracts';
+import { assistanceRequestSchema, assistanceResponseSchema } from '@pyneath/contracts';
 import { safeProductMetadata } from '../src/modules/analytics/analytics.service';
 import type { AnalyticsService } from '../src/modules/analytics/analytics.service';
 import type { AssistanceProvider } from '../src/modules/assistance/assistance.provider';

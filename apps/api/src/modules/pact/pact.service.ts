@@ -1,5 +1,5 @@
 import { decodeCursor, encodeCursor } from '../../platform/http/pagination';
-import type { PactListQuery } from '@beneath-the-pine/contracts';
+import type { PactListQuery } from '@pyneath/contracts';
 import { ConflictException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { and, eq, inArray, isNull, or, lt, gt, gte, lte, asc, desc, sql } from 'drizzle-orm';
 import { DatabaseService } from '../../platform/database/database.service';

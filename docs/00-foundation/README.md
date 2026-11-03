@@ -1,6 +1,6 @@
 # 00 — Foundation
 
-Nguồn chân lý về lý do Beneath the Pine tồn tại, người dùng đầu tiên, giới hạn sản phẩm và cách nhận biết giá trị thật.
+Nguồn chân lý về lý do Pyneath tồn tại, người dùng đầu tiên, giới hạn sản phẩm và cách nhận biết giá trị thật.
 
 - [Product Direction](product-direction.md)
 - [Product Vision](product-vision.md)

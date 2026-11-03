@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
-import type { ProductEventName } from '@beneath-the-pine/contracts';
+import type { ProductEventName } from '@pyneath/contracts';
 import { and, count, eq, gte, lt, sql } from 'drizzle-orm';
 import { DatabaseService } from '../../platform/database/database.service';
 import { productEvents } from './infrastructure/analytics.schema';

@@ -1,4 +1,4 @@
-# ADR-0013 — Wanderer / Pine Keeper browser authentication
+# ADR-0013 — Wanderer / Pyneath Keeper browser authentication
 
 Status: Superseded by ADR-0017 on 2026-09-16. Cookie/session/CSRF mechanics remain an implementation reference; the role and seed design below is historical and is no longer implemented. No deployment or migration execution authorized by this ADR.
 
@@ -10,7 +10,7 @@ Keep NestJS, PostgreSQL and Drizzle. Identity owns accounts and sessions. Use na
 
 A random 256-bit opaque cookie identifies a database session through its SHA-256 hash. Cookies are HttpOnly, SameSite=Lax, Path=/ and Secure with an HTTPS web origin. Production requires HTTPS and same-site web/API hosting. Anonymous CSRF sessions expire after one hour; authenticated sessions expire absolutely after seven days. Login/register rotates the session and CSRF secret; logout revokes it. Expired rows are cleaned on session issuance. Account deletion cascades sessions. Retention/lifecycle for account deletion and password recovery is a separate feature.
 
-All non-public controllers require a valid session. Unsafe methods also require the configured exact Origin and a session-bound CSRF token. Pine Keeper routes additionally check the current database role on every request. Client user IDs, roles and bearer headers grant no access. Only account metadata is exposed to Keepers, not notes or passwords. Future resource repositories must scope queries to the authenticated account UUID; no task/content endpoints ship in this slice.
+All non-public controllers require a valid session. Unsafe methods also require the configured exact Origin and a session-bound CSRF token. Pyneath Keeper routes additionally check the current database role on every request. Client user IDs, roles and bearer headers grant no access. Only account metadata is exposed to Keepers, not notes or passwords. Future resource repositories must scope queries to the authenticated account UUID; no task/content endpoints ship in this slice.
 
 Authentication requests are limited per IP (20/minute, bounded map) in this single API process. A multi-instance deployment requires a shared limiter or rate limiting at the ingress; this in-process limiter resets on restart. Proxy trust is not enabled implicitly. Anonymous session creation is also rate limited.
 

@@ -1,4 +1,4 @@
-# Pine Assistance Model Card
+# Pyneath Assistance Model Card
 
 - Base model revision:
 - Adapter revision:

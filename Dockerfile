@@ -13,9 +13,9 @@ RUN pnpm install --frozen-lockfile
 
 COPY packages/contracts packages/contracts
 COPY apps/api apps/api
-RUN pnpm --filter @beneath-the-pine/contracts build \
-    && pnpm --filter @beneath-the-pine/api build \
-    && pnpm --filter @beneath-the-pine/api deploy --prod --legacy /api-runtime
+RUN pnpm --filter @pyneath/contracts build \
+    && pnpm --filter @pyneath/api build \
+    && pnpm --filter @pyneath/api deploy --prod --legacy /api-runtime
 
 FROM node:22-alpine AS runtime
 ENV NODE_ENV=production \

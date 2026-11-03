@@ -14,7 +14,7 @@ Stage 1 was estimated at **8–12 engineering days** for C01–C05, including th
 
 The **local core gate is met** for the Solo and Camp/Pact demo scripts. This does not open the pilot: hosting, backup, production secrets, real-data migration and deployment still require a separate plan and approval. Keep AI off the main screen until the pilot gate. See [ADR-0021](../04-engineering/adr/0021-camp-contract-and-late-join.md) for compatibility and rollback.
 
-An exception for a **local/preview Pine Assistance demo** is approved behind disabled-by-default UI/API flags. It covers only `assisted_start` and `open_seed_draft` with fictional data; it does not open the pilot gate or change the P6 release status. See [ADR-0022](../04-engineering/adr/0022-openai-assistance-demo.md) and the [demo script](../07-testing/pine-assistance-demo.md).
+An exception for a **local/preview Pyneath Assistance demo** is approved behind disabled-by-default UI/API flags. It covers only `assisted_start` and `open_seed_draft` with fictional data; it does not open the pilot gate or change the P6 release status. See [ADR-0022](../04-engineering/adr/0022-openai-assistance-demo.md) and the [demo script](../07-testing/pyneath-assistance-demo.md).
 
 ## Stage 2 — Gentle support for starting and returning (2026-10-25–26)
 
@@ -61,10 +61,10 @@ Estimate scale: XS < 1 day; S 1–3 days; M 4–10 days; L > 10 days. These are 
 
 | Check / issue | Result | Reproduction and impact |
 | --- | --- | --- |
-| Web unit tests | Đã xong | `pnpm --filter @beneath-the-pine/web test` — 22 tests pass. |
-| Web production build | Đã xong | `pnpm --filter @beneath-the-pine/web build` — passes. |
+| Web unit tests | Đã xong | `pnpm --filter @pyneath/web test` — 22 tests pass. |
+| Web production build | Đã xong | `pnpm --filter @pyneath/web build` — passes. |
 | API default suite | Đã xong | `pnpm test` — API default suite has 20 pass, 4 opt-in database/migration suites skipped. |
-| Live Solo/Pact API suites | Đã xong | With the local API and PostgreSQL running, compile test files and run `node --test dist-test/test/solo-http.test.js dist-test/test/pact-lists-http.test.js` using localhost `BTP_SOLO_API_URL`, `BTP_SOLO_DATABASE_URL` and `BTP_SOLO_WEB_ORIGIN` — 12 pass, 0 skipped/failed. No migration was run. |
+| Live Solo/Pact API suites | Đã xong | With the local API and PostgreSQL running, compile test files and run `node --test dist-test/test/solo-http.test.js dist-test/test/pact-lists-http.test.js` using localhost `PYNEATH_SOLO_API_URL`, `PYNEATH_SOLO_DATABASE_URL` and `PYNEATH_SOLO_WEB_ORIGIN` — 12 pass, 0 skipped/failed. No migration was run. |
 | Workspace build, lint and tests | Đã xong | `pnpm build` and `pnpm lint` pass. `pnpm test` passes the web suite (22 tests) and API default suite (20 pass, 4 opt-in database/migration suites skipped). The earlier TS5095 failure was caused by combining CommonJS output with Bundler module resolution in the contracts project; using Node resolution resolves the mismatch. |
 | Realtime presence event | Đã xong qua regression tests | `pnpm test:api` exercises the gateway event path with an authenticated Socket.IO client, validates the declared payload, and confirms sockets that fail the current snapshot authorization do not receive it. A FocusService regression confirms no event is published for an unchanged presence value. Full DB-backed two-client verification remains future coverage. |
 

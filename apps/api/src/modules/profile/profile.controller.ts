@@ -1,6 +1,6 @@
 import { Controller, Get, Patch, Req } from '@nestjs/common';
 import type { Request } from 'express';
-import { updateProfileSchema } from '@beneath-the-pine/contracts';
+import { updateProfileSchema } from '@pyneath/contracts';
 import { body, principal } from '../../platform/http/request';
 import { ProfileService } from './profile.service';
 

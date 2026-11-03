@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { getPreferences, updatePreferences } from '../../shared/api/api';
 import { useResource } from '../../shared/api/useResource';
 import { ErrorMessage } from '../../shared/components/ui';
-import type { Preferences } from '@beneath-the-pine/contracts';
+import type { Preferences } from '@pyneath/contracts';
 
 export function PreferencesSettings() {
   const resource = useResource(getPreferences);
@@ -18,7 +18,7 @@ export function PreferencesSettings() {
       const result = await updatePreferences(patch);
       resource.setData(result);
       setMessage(success);
-      window.dispatchEvent(new Event('pine:preferences-updated'));
+      window.dispatchEvent(new Event('pyneath:preferences-updated'));
     } catch (failure) {
       setError((failure as Error).message);
     } finally {
@@ -28,7 +28,7 @@ export function PreferencesSettings() {
 
   return <section className="feature-card">
     <h2>Hiện diện trong Pact</h2>
-    <p>Thành viên cùng Pact luôn biết bạn đã tham gia hoặc đã khép phiên. Bạn có thể chọn có chia sẻ thêm trạng thái đang tập trung, nghỉ và mất kết nối hay không.</p>
+    <p>Luôn hiển thị đã tham gia và đã khép phiên. Bạn chọn chia sẻ thêm trạng thái tập trung, nghỉ và mất kết nối.</p>
     <ErrorMessage message={resource.error} retry={resource.reload}/>
     <ErrorMessage message={error}/>
     {resource.loading && <p role="status">Đang tải lựa chọn riêng tư…</p>}

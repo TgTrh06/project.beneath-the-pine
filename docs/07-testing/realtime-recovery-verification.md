@@ -13,7 +13,7 @@
 - `pnpm lint` — passed.
 - `pnpm test` — web: 32 passed; API: 20 passed, 5 PostgreSQL/HTTP-gated tests skipped without live test configuration.
 - `pnpm build` — contracts, API and web production builds passed.
-- API suite with `BTP_TEST_DATABASE_URL` pointed at a disposable PostgreSQL 17 container — 22 passed, 0 failed, 3 HTTP-server-gated tests skipped. The PostgreSQL flow used two independent connections to race Pact start/cancel, Pact join/session checkout, and checkout/expiry. It also verified break-preserving heartbeat, reconnect from disconnected, and access denial after Circle removal.
+- API suite with `PYNEATH_TEST_DATABASE_URL` pointed at a disposable PostgreSQL 17 container — 22 passed, 0 failed, 3 HTTP-server-gated tests skipped. The PostgreSQL flow used two independent connections to race Pact start/cancel, Pact join/session checkout, and checkout/expiry. It also verified break-preserving heartbeat, reconnect from disconnected, and access denial after Circle removal.
 - Socket.IO gateway test — two authenticated clients received the same minimal presence state; resubscribe to a terminal session returned the terminal snapshot; a socket whose current authorization failed received no presence payload. The event keys were asserted to be exactly `sessionId`, `accountId` and `presence`.
 - Web state test — older snapshots and active snapshots after a terminal snapshot are rejected.
 

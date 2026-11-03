@@ -37,7 +37,7 @@ export function InviteView({ token, onOpen, onDeclined, onCamps }: {
 
   return <section className="camps-page invite-detail">
     <p className="eyebrow">LỜI MỜI RIÊNG</p>
-    <h1>Một khoảng yên cùng người quen.</h1>
+    <h1>Một chỗ đang đợi bạn.</h1>
     {resource.loading && <p role="status">Đang kiểm tra lời mời…</p>}
     <ErrorMessage message={resource.error} retry={() => void resource.reload()}/>
     {!resource.loading && resource.data?.state === "unavailable" && <>

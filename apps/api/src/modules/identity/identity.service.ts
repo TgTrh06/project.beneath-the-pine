@@ -3,15 +3,24 @@ import type { Request, Response } from 'express';
 import { createHash, randomBytes, timingSafeEqual } from 'node:crypto';
 import { API_CONFIG, ApiConfig } from '../../platform/config/api-config';
 import { IdentityStore } from './identity.store';
+import { Subject } from 'rxjs';
 
 export const sessionHash = (token: string) => createHash('sha256').update(token).digest('hex');
-const cookieName = 'BTP_SESSION';
+const cookieName = 'PYNEATH_SESSION';
+// Read-only compatibility until pre-rebrand sessions have expired.
+const legacyCookieName = 'BTP_SESSION';
+function cookieValue(cookie: string | undefined, name: string) {
+  return cookie?.split(';').map(item => item.trim()).find(item => item.startsWith(`${name}=`))?.slice(name.length + 1);
+}
 @Injectable()
 export class IdentityService {
+  readonly revokedSessions = new Subject<string>();
+  readonly deletedAccounts = new Subject<string>();
   private readonly attempts = new Map<string, { count: number; until: number }>();
   constructor(readonly store: IdentityStore, @Inject(API_CONFIG) private readonly config: ApiConfig) {}
   tokenFromCookie(cookie?: string) {
-    const value = cookie?.split(';').map(item => item.trim()).find(item => item.startsWith(`${cookieName}=`))?.slice(cookieName.length + 1);
+    // A present new cookie always wins, including invalid values (no downgrade).
+    const value = cookieValue(cookie, cookieName) ?? cookieValue(cookie, legacyCookieName);
     return value && /^[a-f0-9]{64}$/.test(value) ? value : undefined;
   }
   token(request: Request) { return this.tokenFromCookie(request.headers.cookie); }
@@ -34,6 +43,14 @@ export class IdentityService {
   private cookieOptions() {
     return { httpOnly: true, secure: this.config.API_WEB_ORIGIN.startsWith('https:'), sameSite: 'lax' as const, path: '/' };
   }
+  migrateCookie(request: Request, response: Response, expiresAt: Date) {
+    if (cookieValue(request.headers.cookie, legacyCookieName) === undefined) return;
+    const token = this.token(request);
+    if (token && cookieValue(request.headers.cookie, cookieName) === undefined) {
+      response.cookie(cookieName, token, { ...this.cookieOptions(), expires: expiresAt });
+    }
+    response.clearCookie(legacyCookieName, this.cookieOptions());
+  }
   async issue(request: Request, response: Response, account: { id: string; email: string } | null) {
     const token = randomBytes(32).toString('hex');
     const csrfToken = randomBytes(32).toString('hex');
@@ -42,13 +59,20 @@ export class IdentityService {
     await this.store.rotateSession(oldToken ? sessionHash(oldToken) : undefined, {
       tokenHash: sessionHash(token), accountId: account?.id ?? null, csrfToken, expiresAt: new Date(Date.now() + maxAge),
     });
+    if (oldToken) this.revokedSessions.next(sessionHash(oldToken));
     response.cookie(cookieName, token, { ...this.cookieOptions(), maxAge });
+    if (cookieValue(request.headers.cookie, legacyCookieName) !== undefined) response.clearCookie(legacyCookieName, this.cookieOptions());
     return { authenticated: Boolean(account), account, csrfToken };
   }
   async logout(request: Request, response: Response) {
-    const token = this.token(request);
-    if (token) await this.store.revoke(sessionHash(token));
+    const tokens = [cookieValue(request.headers.cookie, cookieName), cookieValue(request.headers.cookie, legacyCookieName)];
+    for (const token of new Set(tokens)) if (token && /^[a-f0-9]{64}$/.test(token)) {
+      const hash = sessionHash(token);
+      await this.store.revoke(hash);
+      this.revokedSessions.next(hash);
+    }
     response.clearCookie(cookieName, this.cookieOptions());
+    response.clearCookie(legacyCookieName, this.cookieOptions());
   }
   limit(request: Request) {
     const now = Date.now();

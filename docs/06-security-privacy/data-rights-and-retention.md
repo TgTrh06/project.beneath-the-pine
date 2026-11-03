@@ -14,3 +14,7 @@ The account export includes the account's Camp invitation declines. Deleting the
 | OpenAI demo processing | Fictional inputs only. Responses use `store:false`; OpenAI's default abuse-monitoring logs may contain content for up to 30 days. Review separately before real-data use. |
 
 Final backup/processor retention must be decided with real deployment providers before release.
+
+## Export authorization after leaving a Camp
+
+Milestones are exported only while the requesting account has an active membership in that Camp. This applies to all milestones, including those recorded after leaving or removal. Historical membership records stay in the account export; their current Camp `name` and `status` are `null` when membership is no longer active. The account's own session intention/outcome and Open Seed remain available. Rejoining restores the active-membership policy. See ADR-0025 and the November 2026 security verification.

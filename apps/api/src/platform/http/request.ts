@@ -1,7 +1,7 @@
 import { BadRequestException, UnauthorizedException } from '@nestjs/common';
 import type { Request } from 'express';
 import type { ZodType } from 'zod';
-import { idempotencyKeySchema } from '@beneath-the-pine/contracts';
+import { idempotencyKeySchema } from '@pyneath/contracts';
 
 export type Principal = { id: string; email: string };
 export function principal(request: Request): Principal {

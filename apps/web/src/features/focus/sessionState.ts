@@ -1,4 +1,4 @@
-import type { FocusSession } from "@beneath-the-pine/contracts";
+import type { FocusSession } from "@pyneath/contracts";
 export const outcomes = { completed: "Hoàn thành", progress: "Có tiến triển", stuck: "Đang vướng", stopped: "Dừng tại đây" } as const;
 export type Outcome = keyof typeof outcomes;
 export function remainingSeconds(endsAt: string, serverNow: string, elapsedMs: number) {

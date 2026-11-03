@@ -2,12 +2,12 @@ import assert from 'node:assert/strict';
 import { randomBytes, randomUUID } from 'node:crypto';
 import { test } from 'node:test';
 import { Pool } from 'pg';
-import type { FocusSession, ReturnState } from '@beneath-the-pine/contracts';
+import type { FocusSession, ReturnState } from '@pyneath/contracts';
 
 // Opt-in against an already migrated local API/database. Never runs migrations.
-const apiUrl = process.env.BTP_SOLO_API_URL;
-const databaseUrl = process.env.BTP_SOLO_DATABASE_URL;
-const origin = process.env.BTP_SOLO_WEB_ORIGIN ?? 'http://localhost:5173';
+const apiUrl = process.env.PYNEATH_SOLO_API_URL;
+const databaseUrl = process.env.PYNEATH_SOLO_DATABASE_URL;
+const origin = process.env.PYNEATH_SOLO_WEB_ORIGIN ?? 'http://localhost:5173';
 type Payload = Partial<ReturnState> & {
   account?: { id: string }; csrfToken?: string; session?: FocusSession | null;
   sessions?: Array<{ id: string; outcome: string | null }>;
@@ -27,7 +27,8 @@ class Client {
         ...(key ? { 'Idempotency-Key': key } : {}) },
       body: body === undefined ? undefined : JSON.stringify(body),
     });
-    for (const cookie of response.headers.getSetCookie()) this.cookie = cookie.split(';')[0];
+    // Track the active cookie; clearing the legacy cookie must not overwrite it.
+    for (const cookie of response.headers.getSetCookie()) if (cookie.startsWith('PYNEATH_SESSION=')) this.cookie = cookie.split(';')[0];
     const data: Payload = response.status === 204 ? {} : await response.json();
     if (data.csrfToken) this.csrf = data.csrfToken;
     return { status: response.status, data };

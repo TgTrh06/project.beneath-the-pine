@@ -2,7 +2,7 @@
 
 ## Môi trường và phạm vi
 
-- Docker Desktop chạy PostgreSQL 17 trong container tạm `btp-step6-postgres`, cổng `127.0.0.1:5543`. Chỉ database tạm mới nhận migration hiện có; container local của người dùng ở cổng `5433` không bị migrate, reset hay sửa dữ liệu.
+- Docker Desktop chạy PostgreSQL 17 trong container tạm `pyneath-step6-postgres`, cổng `127.0.0.1:5543`. Chỉ database tạm mới nhận migration hiện có; container local của người dùng ở cổng `5433` không bị migrate, reset hay sửa dữ liệu.
 - API chạy `127.0.0.1:8081`, web chạy `127.0.0.1:5173`; `/health/live` và `/health/ready` trả `UP` khi browser walkthrough bắt đầu. Browser dùng ba tài khoản thử (chủ Circle, thành viên được mời, người ngoài) và một Circle/Pact do lượt này tạo.
 - Các kiểm tra HTTP live tự tạo và dọn bản ghi của mình. Không dùng dữ liệu pilot hoặc production, không deploy.
 
@@ -11,7 +11,7 @@
 | Trạng thái | Phạm vi | Bằng chứng và giới hạn |
 | --- | --- | --- |
 | Đạt | Workspace | `pnpm lint`, `pnpm test`, `pnpm build` đều exit 0. Web 36/36 test; API mặc định 21 pass, 5 skip vì chưa đặt biến live, 0 fail. |
-| Đạt | PostgreSQL/API live | API với `BTP_TEST_DATABASE_URL` trỏ database tạm: 23 pass, 3 HTTP-gated skip. Solo, Pact và Circle HTTP live chạy trên database/API tạm: 23 pass, 0 skip. Các ca bổ sung xác nhận export của chủ chứa intention/Seed của mình, export người khác không chứa chuỗi đó. |
+| Đạt | PostgreSQL/API live | API với `PYNEATH_TEST_DATABASE_URL` trỏ database tạm: 23 pass, 3 HTTP-gated skip. Solo, Pact và Circle HTTP live chạy trên database/API tạm: 23 pass, 0 skip. Các ca bổ sung xác nhận export của chủ chứa intention/Seed của mình, export người khác không chứa chuỗi đó. |
 | Đạt | Solo → Return | Nhập intention, chọn 5 phút, reload draft, bắt đầu, reload phiên đang chạy, checkout `progress` với Seed; Return hiển thị Seed. Dialog checkout đóng bằng Escape và trả focus về nút mở. |
 | Đạt | Circle → Pact | Chủ tạo Circle và link mời; người được mời chỉ thấy tên Circle và người mời trước khi tham gia. Người ngoài bị từ chối khi mở Circle/Pact. Người được mời đổi phản hồi, chủ tạo Pact ngay nhưng phiên chỉ mở sau nút bắt đầu riêng; người được mời tham gia, cả hai checkout. Pact đã hoàn tất/hủy không còn nút bắt đầu hoặc tham gia. |
 | Đạt | Quyền sau khi loại thành viên | Sau khi chủ loại thành viên, tài khoản đó vẫn đọc được Seed riêng; các link Circle, Pact và session cũ trả 404 và có nút quay về danh sách an toàn. API live cũng kiểm tra quyền đọc/ghi và projection nhóm không chứa Seed hoặc intention của người khác. |
@@ -38,7 +38,7 @@ Nếu readiness không `UP`, không tiếp tục walkthrough account/Circle/Pact
 
 ## Bổ sung: bàn phím, accessibility, zoom và browser — 2026-10-23
 
-Lượt này dùng PostgreSQL 17 tạm `btp-a11y-postgres` trên `127.0.0.1:5543`, API/web local và hai tài khoản mới. Migration hiện có chỉ chạy trên DB tạm; container tạm và hai tab thử nghiệm đã được dọn sau lượt chạy. Database local cổng `5433` không được đụng tới.
+Lượt này dùng PostgreSQL 17 tạm `pyneath-a11y-postgres` trên `127.0.0.1:5543`, API/web local và hai tài khoản mới. Migration hiện có chỉ chạy trên DB tạm; container tạm và hai tab thử nghiệm đã được dọn sau lượt chạy. Database local cổng `5433` không được đụng tới.
 
 | Trạng thái | Kiểm tra | Bằng chứng / giới hạn |
 | --- | --- | --- |

@@ -6,7 +6,7 @@ sequenceDiagram
   participant C as Client
   participant API as API
   participant DB as PostgreSQL
-  U->>C: Open Pine
+  U->>C: Open Pyneath
   C->>API: Get bootstrap
   API->>DB: Read current Open Seed and active session
   API-->>C: Return Card state

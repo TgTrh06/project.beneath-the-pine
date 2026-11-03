@@ -9,3 +9,6 @@
 - [Pilot field kit](pilot-field-kit.md)
 - [Pilot log](pilot-log.md)
 - [Stage 2 gentle support acceptance](stage-2-gentle-support-acceptance.md)
+
+- [Security remediation and dependency audit — 2026-11-02](security-remediation-2026-11-02.md)
+- [Python dependency follow-up — 2026-11-02](python-dependency-followup-2026-11-02.md)

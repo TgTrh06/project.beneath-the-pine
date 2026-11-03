@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { idSchema } from "./shared";
 
 export const assistanceCapabilitySchema = z.enum(["assisted_start", "open_seed_draft"]);
 export type AssistanceCapability = z.infer<typeof assistanceCapabilitySchema>;
@@ -34,7 +35,7 @@ export type AssistanceOutput = z.infer<typeof assistanceOutputSchema>;
 export const assistanceResponseSchema = z.object({
   status: z.enum(["suggestion", "fallback", "boundary"]),
   output: assistanceOutputSchema,
-  suggestionId: z.string().uuid().optional()
+  suggestionId: idSchema.optional()
 }).strict().superRefine((response, context) => {
   if (response.status === "suggestion" && (!response.suggestionId || response.output.message || response.output.needsHumanSupport)) context.addIssue({ code: "custom", message: "Invalid suggestion response" });
   if (response.status !== "suggestion" && (response.suggestionId || !response.output.message || response.output.needsHumanSupport !== (response.status === "boundary"))) context.addIssue({ code: "custom", message: "Invalid fallback response" });
@@ -43,7 +44,7 @@ export type AssistanceResponse = z.infer<typeof assistanceResponseSchema>;
 
 export const assistanceInteractionSchema = z.object({
   capability: assistanceCapabilitySchema,
-  suggestionId: z.string().uuid(),
+  suggestionId: idSchema,
   action: z.enum(["viewed", "selected", "edited", "discarded"])
 }).strict();
 export type AssistanceInteraction = z.infer<typeof assistanceInteractionSchema>;

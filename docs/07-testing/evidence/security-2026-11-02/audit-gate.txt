@@ -1,0 +1,51 @@
+
+> pyneath@0.1.0 audit:security D:\projects\apps\project.beneath-the-pine
+> node scripts/check-audit.cjs
+
+{
+  "vulnerabilities": {
+    "info": 0,
+    "low": 1,
+    "moderate": 4,
+    "high": 0,
+    "critical": 0
+  },
+  "unknown": [],
+  "accepted": [
+    {
+      "id": "GHSA-67mh-4wv8-2f99",
+      "package": "esbuild",
+      "version": "0.18.20",
+      "severity": "moderate",
+      "path": "apps__api>drizzle-kit>@esbuild-kit/esm-loader>@esbuild-kit/core-utils>esbuild"
+    },
+    {
+      "id": "GHSA-gcqx-w48m-w2h4",
+      "package": "deepmerge",
+      "version": "4.3.1",
+      "severity": "low",
+      "path": "apps__api>@nestjs/cli>fork-ts-checker-webpack-plugin>deepmerge"
+    },
+    {
+      "id": "GHSA-g3hv-75wg-m249",
+      "package": "minimatch",
+      "version": "3.1.5",
+      "severity": "moderate",
+      "path": "apps__api>@nestjs/cli>fork-ts-checker-webpack-plugin>minimatch"
+    },
+    {
+      "id": "GHSA-g3hv-75wg-m249",
+      "package": "minimatch",
+      "version": "10.2.6",
+      "severity": "moderate",
+      "path": "apps__api>@nestjs/cli>glob>minimatch"
+    },
+    {
+      "id": "GHSA-3g3m-2fjr-6pw4",
+      "package": "glob",
+      "version": "13.0.6",
+      "severity": "moderate",
+      "path": "apps__api>@nestjs/cli>glob"
+    }
+  ]
+}

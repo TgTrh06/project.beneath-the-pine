@@ -43,10 +43,10 @@ Web verification: 25 tests passed; web lint and production build passed. Browser
 
 ## Repeating the live HTTP suite
 
-Compile API tests with `pnpm --filter @beneath-the-pine/api exec tsc -p tsconfig.test.json`. From `apps/api`, run `node --test --test-concurrency=1 dist-test/test/solo-http.test.js dist-test/test/pact-lists-http.test.js` with these process environment variables:
+Compile API tests with `pnpm --filter @pyneath/api exec tsc -p tsconfig.test.json`. From `apps/api`, run `node --test --test-concurrency=1 dist-test/test/solo-http.test.js dist-test/test/pact-lists-http.test.js` with these process environment variables:
 
-- `BTP_SOLO_API_URL`: existing local API base including `/api/v1` (or the Vite proxy).
-- `BTP_SOLO_DATABASE_URL`: the same existing local database used by that API.
-- `BTP_SOLO_WEB_ORIGIN`: the configured allowed web Origin.
+- `PYNEATH_SOLO_API_URL`: existing local API base including `/api/v1` (or the Vite proxy).
+- `PYNEATH_SOLO_DATABASE_URL`: the same existing local database used by that API.
+- `PYNEATH_SOLO_WEB_ORIGIN`: the configured allowed web Origin.
 
-Do not print credentials. The suite checks local hosts, creates unique fixture accounts, verifies API/database identity alignment, and cleans its own sessions/accounts. It never applies migrations. Leave `BTP_TEST_DATABASE_URL` unset when running the default suite if schema-mutating tests are not authorized.
+Do not print credentials. The suite checks local hosts, creates unique fixture accounts, verifies API/database identity alignment, and cleans its own sessions/accounts. It never applies migrations. Leave `PYNEATH_TEST_DATABASE_URL` unset when running the default suite if schema-mutating tests are not authorized.

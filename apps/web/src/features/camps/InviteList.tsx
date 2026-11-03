@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import type { InviteListItem } from '@beneath-the-pine/contracts';
+import type { InviteListItem } from '@pyneath/contracts';
 import { listCampInvites, revokeInvite } from '../../shared/api/api';
 import { Dialog, ErrorMessage } from '../../shared/components/ui';
 import { formatTime } from '../../shared/time';

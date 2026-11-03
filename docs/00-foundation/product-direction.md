@@ -5,7 +5,7 @@
 
 ## Product definition
 
-> Beneath the Pine là sản phẩm mobile-first giúp một người bắt đầu và quay lại với việc cá nhân: tự mình khi đủ sức, hoặc qua một Focus Pact trong Camp riêng tư khi cần sự hiện diện của bạn bè.
+> Pyneath là sản phẩm mobile-first giúp một người bắt đầu và quay lại với việc cá nhân: tự mình khi đủ sức, hoặc qua một Focus Pact trong Camp riêng tư khi cần sự hiện diện của bạn bè.
 
 Web là client kiểm chứng đầu tiên cho domain, API và realtime. React Native + Expo là client sản phẩm đích; quyết định về hệ điều hành ra mắt, native auth, push và offline sync vẫn mở.
 
@@ -29,7 +29,7 @@ Một phiên có giá trị khi người dùng bắt đầu một bước có ch
 
 - Widget, deep link, quick action, notification opt-in và Focus Mode trên mobile.
 - Theme, audio, preset, richer Camp memory và personalisation.
-- Pine Assistance tự train/fine-tune để thu nhỏ bước, stuck recovery hoặc nháp return seed, sau core evidence, dataset governance, safety và privacy review.
+- Pyneath Assistance tự train/fine-tune để thu nhỏ bước, stuck recovery hoặc nháp return seed, sau core evidence, dataset governance, safety và privacy review.
 - Công cụ cho Camp lớn/host kín nếu private-camp usage chứng minh nhu cầu.
 
 ### Explicitly out of scope

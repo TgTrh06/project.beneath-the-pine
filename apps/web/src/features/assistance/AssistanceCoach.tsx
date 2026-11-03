@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import type { AssistanceCapability, AssistanceResponse } from '@beneath-the-pine/contracts';
+import type { AssistanceCapability, AssistanceResponse } from '@pyneath/contracts';
 import { recordAssistanceInteraction, requestAssistance } from '../../shared/api/api';
 import './assistance.css';
 

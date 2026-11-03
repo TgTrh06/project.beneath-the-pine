@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import type { FocusPact, FocusSession } from "@beneath-the-pine/contracts";
+import type { FocusPact, FocusSession } from "@pyneath/contracts";
 import { resolveTheme, validTheme } from "./theme/theme";
 import { requestKeyStore, stableRequestKey } from "./api/requestKey";
 import { localToIso } from "./time";

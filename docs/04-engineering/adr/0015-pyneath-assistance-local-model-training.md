@@ -1,11 +1,11 @@
-# ADR-0015 — Pine Assistance and Local Model Training
+# ADR-0015 — Pyneath Assistance and Local Model Training
 
 - **Status:** Accepted
 - **Date:** 2026-09-15
 
 ## Decision
 
-The project will maintain a self-trained/fine-tuned Vietnamese Pine Assistance model path using reviewed QLoRA artifacts and the local inference service. Its permitted capabilities are `assisted_start`, `stuck_recovery` and `open_seed_draft` only.
+The project will maintain a self-trained/fine-tuned Vietnamese Pyneath Assistance model path using reviewed QLoRA artifacts and the local inference service. Its permitted capabilities are `assisted_start`, `stuck_recovery` and `open_seed_draft` only.
 
 The NestJS API is the sole client-facing model caller. It requests a structured response, validates it and requires user confirmation before persistence. Manual flows remain complete when inference fails.
 

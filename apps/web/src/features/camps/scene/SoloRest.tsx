@@ -1,0 +1,66 @@
+import { useEffect, useRef } from 'react';
+import { useFrame } from '@react-three/fiber';
+import { MartenModel } from './MartenModel';
+import { MartenCompanion } from './MartenCompanion';
+import type { LifeLevel } from './forestActivity';
+import { blinkMotion, dampMotion, motionDelta } from './motion';
+import { Group, Quaternion, Vector3 } from 'three';
+
+function Form({at,scale,color,rotation=[0,0,0]}:{at:[number,number,number];scale:[number,number,number];color:string;rotation?:[number,number,number]}) {
+  return <mesh position={at} scale={scale} rotation={rotation} castShadow receiveShadow><sphereGeometry args={[1,16,12]}/><meshStandardMaterial color={color} roughness={.9}/></mesh>;
+}
+function Limb({from,to,radius,color}:{from:[number,number,number];to:[number,number,number];radius:number;color:string}) {
+  const a=new Vector3(...from),b=new Vector3(...to),d=b.clone().sub(a);
+  return <mesh position={a.add(b).multiplyScalar(.5)} quaternion={new Quaternion().setFromUnitVectors(new Vector3(0,1,0),d.clone().normalize())} castShadow receiveShadow><capsuleGeometry args={[radius,Math.max(.01,d.length()-radius*2),6,12]}/><meshStandardMaterial color={color} roughness={.9}/></mesh>;
+}
+
+export function SoloRest({animate,life}:{animate:boolean;life?:LifeLevel}) {
+  const torso=useRef<Group>(null),head=useRef<Group>(null),marten=useRef<Group>(null);
+  const eyes=useRef<Group>(null),arm=useRef<Group>(null),elapsed=useRef(0);
+  useFrame((_,delta)=>{
+    if(!animate)return;
+    const dt=motionDelta(delta);elapsed.current+=dt;const t=elapsed.current;
+    if(torso.current)torso.current.scale.y=1+Math.sin(t*.85)*.006;
+    if(head.current){head.current.rotation.y=-.25+Math.sin(t*.17)*.04+(life?Math.sin(t*.027)*.12:0);head.current.rotation.x=-.16+(life?Math.pow(Math.max(0,Math.sin(t*.041)),4)*-.13:0);}
+    if(eyes.current)eyes.current.scale.y=dampMotion(eyes.current.scale.y,life?blinkMotion(t,6.7,.27):1,25,dt);
+    if(arm.current)arm.current.rotation.x=life?Math.pow(Math.max(0,Math.sin(t*.063)),10)*.025:0;
+    if(marten.current)marten.current.scale.y=1+Math.sin(t*1.2)*.012;
+  });
+  useEffect(()=>{if(!animate&&!life){if(torso.current)torso.current.scale.y=1;if(head.current)head.current.rotation.y=-.25;if(marten.current)marten.current.scale.y=1;}},[animate,life]);
+  const coat='#597666',pants='#454d47',skin='#d7aa83';
+  return <>
+    <group position={[-2.6,.11,-2.65]} rotation={[0,.08,0]}>
+      <Form at={[0,.18,0]} scale={[.32,.19,.28]} color={coat}/>
+      {/* One knee loosely raised, the other leg extended along the ground. */}
+      <Limb from={[-.16,.2,.1]} to={[-.28,.25,.61]} radius={.14} color={pants}/>
+      <Limb from={[-.28,.25,.61]} to={[-.35,.13,1.13]} radius={.11} color={pants}/>
+      <Form at={[-.35,.09,1.24]} scale={[.14,.12,.23]} color="#3a2c25" rotation={[0,-.12,0]}/>
+      <Limb from={[.16,.2,.08]} to={[.34,.43,.52]} radius={.145} color={pants}/>
+      <Limb from={[.34,.43,.52]} to={[.43,.11,.91]} radius={.11} color={pants}/>
+      <Form at={[.44,.08,1.02]} scale={[.14,.11,.22]} color="#3a2c25" rotation={[0,.22,0]}/>
+      <group ref={torso}>
+        <Form at={[0,.5,-.07]} scale={[.3,.39,.24]} color={coat} rotation={[-.17,0,0]}/>
+        <Limb from={[-.27,.69,-.08]} to={[-.35,.4,.16]} radius={.105} color={coat}/>
+        <Limb from={[-.35,.4,.16]} to={[-.27,.33,.49]} radius={.085} color={coat}/>
+        <Form at={[-.27,.32,.54]} scale={[.085,.06,.12]} color={skin}/>
+        <group ref={arm}><Limb from={[.27,.69,-.08]} to={[.4,.43,.12]} radius={.105} color={coat}/>
+        <Limb from={[.4,.43,.12]} to={[.34,.49,.44]} radius={.085} color={coat}/>
+        <Form at={[.34,.48,.5]} scale={[.085,.06,.12]} color={skin}/></group>
+        <mesh position={[0,.79,-.12]} rotation={[Math.PI/2,0,0]} castShadow><torusGeometry args={[.185,.06,8,20]}/><meshStandardMaterial color="#d9bd7d" roughness={1}/></mesh>
+        <Form at={[.09,.61,.155]} scale={[.065,.19,.035]} color="#d9bd7d"/>
+        {[0,1,2].map(i=><Form key={i} at={[0,.43+i*.1,.17]} scale={[.017,.017,.012]} color="#d1b98b"/>)}
+        <Form at={[0,.51,.16]} scale={[.009,.2,.014]} color="#3c5949"/>
+        <group ref={head} position={[0,1,-.14]} rotation={[-.16,-.25,-.065]}>
+          <Form at={[0,0,0]} scale={[.235,.26,.22]} color={skin}/>
+          <Form at={[0,.13,-.025]} scale={[.245,.19,.225]} color="#70513b"/>
+          {[-1,1].map(side=><Form key={side} at={[side*.23,-.01,0]} scale={[.045,.065,.045]} color={skin}/>)}
+          <Form at={[0,-.035,.214]} scale={[.035,.04,.035]} color={skin}/>
+          <group ref={eyes}>{[-1,1].map(side=><Form key={side} at={[side*.082,.012,.204]} scale={[.018,.018,.012]} color="#332920"/>)}</group>
+          <Form at={[0,.23,-.015]} scale={[.25,.15,.24]} color={coat}/>
+          <Form at={[0,.39,-.015]} scale={[.065,.065,.065]} color="#dfcda1"/>
+        </group>
+      </group>
+    </group>
+    <group position={[-1.55,.025,-1.95]} rotation={[0,1.05,0]}>{life?<MartenCompanion animate={animate} level={life} sleeping/>:<MartenModel animate={animate} sleeping ambient/>}</group>
+  </>;
+}

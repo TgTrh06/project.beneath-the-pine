@@ -1,13 +1,13 @@
-# Beneath the Pine
+# Pyneath
 
 > A mobile-first focus ritual for starting and returning to personal work — alone when possible, with trusted people when helpful.
 
-Beneath the Pine is designed around a single core loop:
+Pyneath is designed around a single core loop:
 ```text
 Return Card (or new intention) → activation step → solo or private Focus Pact → honest check-out → Open Seed → return or next pact
 ```
 
-Pine is **not** a task manager, public social network, or productivity game. It does not use streaks, punishment mechanics, public leaderboards, or gamified currencies. A session is valuable when a person takes one deliberate start, and a loop is valuable when they know exactly where to resume without confronting an overwhelming backlog.
+Pyneath is **not** a task manager, public social network, or productivity game. It does not use streaks, punishment mechanics, public leaderboards, or gamified currencies. A session is valuable when a person takes one deliberate start, and a loop is valuable when they know exactly where to resume without confronting an overwhelming backlog.
 
 ---
 
@@ -79,7 +79,7 @@ Launch the isolated PostgreSQL 17 container defined in `compose.local.yml`:
 pnpm db:local:up
 ```
 
-The container exposes PostgreSQL on `127.0.0.1:5433` (database: `btp_review`, user: `btp_local`, password: `btp_local_password`). Its named volume persists when the container stops. Do not use `pnpm db:local:down` as a database reset command.
+The container exposes PostgreSQL on `127.0.0.1:5433` (database: `pyneath_review`, user: `pyneath_local`, password: `pyneath_local_password`). Its named volume persists when the container stops. Do not use `pnpm db:local:down` as a database reset command.
 
 ### 3. Environment Configuration
 
@@ -90,7 +90,7 @@ The container exposes PostgreSQL on `127.0.0.1:5433` (database: `btp_review`, us
 For a **new, disposable development database only**, review the SQL in `apps/api/drizzle/`, then apply the existing migrations before starting the API:
 
 ```sh
-pnpm --filter @beneath-the-pine/api db:migrate
+pnpm --filter @pyneath/api db:migrate
 ```
 
 If the named local volume already contains data, inspect its migration state first. This command is not part of starting the web or API servers and was not run against the existing local database during the Step 6 verification.
@@ -127,7 +127,7 @@ Check `http://127.0.0.1:8081/health/live` for process liveness and `http://127.0
 | `pnpm db:local:down` | Stop and remove the local PostgreSQL container. |
 | `pnpm db:local:logs` | Follow logs from the local PostgreSQL container. |
 
-Database-gated API tests use `BTP_TEST_DATABASE_URL`. The opt-in Solo/Pact HTTP suites use `BTP_SOLO_DATABASE_URL`, `BTP_SOLO_API_URL` (for example `http://127.0.0.1:8081/api/v1`) and `BTP_SOLO_WEB_ORIGIN`; the Camp invite suite uses the database and origin variables. Point these only at **disposable** test services, never the existing local or pilot database. See [Step 6 integration evidence](docs/07-testing/integration-privacy-ui-verification.md) for the exact checks and their limits.
+Database-gated API tests use `PYNEATH_TEST_DATABASE_URL`. The opt-in Solo/Pact HTTP suites use `PYNEATH_SOLO_DATABASE_URL`, `PYNEATH_SOLO_API_URL` (for example `http://127.0.0.1:8081/api/v1`) and `PYNEATH_SOLO_WEB_ORIGIN`; the Camp invite suite uses the database and origin variables. Point these only at **disposable** test services, never the existing local or pilot database. See [Step 6 integration evidence](docs/07-testing/integration-privacy-ui-verification.md) for the exact checks and their limits.
 
 ---
 
@@ -139,4 +139,4 @@ The single source of truth for product direction, architecture, and standards li
 - **[04 — Engineering](docs/04-engineering/README.md)**: [System Architecture](docs/04-engineering/system-architecture.md), [Data Model](docs/04-engineering/data-model.md), [Core State Machines](docs/04-engineering/core-state-machines.md), [Architecture Decisions (ADRs)](docs/04-engineering/adr/README.md), and [Web/Mobile API Strategy](docs/04-engineering/web-mobile-api-strategy.md).
 - **[06 — Security & Privacy](docs/06-security-privacy/README.md)**: [Privacy by Design](docs/06-security-privacy/privacy-by-design.md) and [Data Rights and Retention](docs/06-security-privacy/data-rights-and-retention.md).
 - **[07 — Testing](docs/07-testing/README.md)**: Solo loop verification, pact discovery tests, and verification plans.
-- **[05 — Machine Learning](docs/05-machine-learning/README.md)**: Evaluation gates and data governance for prospective Pine Assistance.
+- **[05 — Machine Learning](docs/05-machine-learning/README.md)**: Evaluation gates and data governance for prospective Pyneath Assistance.

@@ -1,16 +1,16 @@
-# Beneath the Pine — Documentation Map
+# Pyneath — Documentation Map
 
 ## Current direction
 
-Beneath the Pine is mobile-first. It helps a person start and return to personal work through a solo ritual or a private Focus Pact with trusted people. Web validates shared contracts; mobile is the intended product client.
+Pyneath is mobile-first. It helps a person start and return to personal work through a solo ritual or a private Focus Pact with trusted people. Web validates shared contracts; mobile is the intended product client.
 
 | Question | Start here |
 | --- | --- |
-| Why does Pine exist and what is explicitly out? | [Foundation](00-foundation/README.md) |
+| Why does Pyneath exist and what is explicitly out? | [Foundation](00-foundation/README.md) |
 | What will the web pilot implement? | [MVP Scope](00-foundation/mvp-scope.md) and [PRD](02-product/prd.md) |
 | How is it evaluated? | [Research](01-research/README.md) and [Testing](07-testing/README.md) |
 | How do Circle/Pact/realtime work? | [Engineering](04-engineering/README.md) |
-| How will Pine train and govern assistance models? | [Pine Assistance and ML](05-machine-learning/README.md) |
+| How will Pyneath train and govern assistance models? | [Pyneath Assistance and ML](05-machine-learning/README.md) |
 | How is private data handled? | [Security & Privacy](06-security-privacy/README.md) |
 
 ## Reading rules

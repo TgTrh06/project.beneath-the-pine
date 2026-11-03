@@ -1,6 +1,6 @@
 import { Controller, Get, Patch, Req } from '@nestjs/common';
 import type { Request } from 'express';
-import { updatePreferencesSchema } from '@beneath-the-pine/contracts';
+import { updatePreferencesSchema } from '@pyneath/contracts';
 import { body, principal } from '../../platform/http/request';
 import { PreferencesService } from './preferences.service';
 

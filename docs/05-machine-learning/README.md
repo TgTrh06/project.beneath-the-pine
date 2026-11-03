@@ -1,6 +1,6 @@
-# 05 — Pine Assistance and Machine Learning
+# 05 — Pyneath Assistance and Machine Learning
 
-Pine Assistance is an optional, user-requested capability that helps a person choose a smaller start or draft an Open Seed. It is not required for the solo/Circle/realtime MVP and is not a free-form chatbot.
+Pyneath Assistance is an optional, user-requested capability that helps a person choose a smaller start or draft an Open Seed. It is not required for the solo/Circle/realtime MVP and is not a free-form chatbot.
 
 - [AI Product Spec](ai-product-spec.md)
 - [Output Contracts](ai-output-contracts.md)

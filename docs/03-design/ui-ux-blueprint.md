@@ -2,7 +2,7 @@
 
 ## Desired feeling
 
-Quiet, direct and companionable. Pine should make starting feel smaller without disguising a productivity scoreboard as care.
+Quiet, direct and companionable. Pyneath should make starting feel smaller without disguising a productivity scoreboard as care.
 
 ## Interaction rules
 

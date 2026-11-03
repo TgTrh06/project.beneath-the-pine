@@ -4,6 +4,23 @@ import type { View } from "../shared/types/domain";
 import { navigationItems } from "./router";
 import { Dialog } from "../shared/components/ui";
 import { ThemeSelect } from "../shared/theme/ThemeSelect";
+import { forestPlaces, type ForestPlace } from '../features/return/forestPlaces';
+import './forest-pages.css';
+import { ReturnScene } from '../features/return/ReturnScene';
+import './app-forest.css';
+
+const navPaths: Record<string, string> = {
+  home: 'M3 11 12 3l9 8M5 10v11h14V10M9 21v-7h6v7',
+  return: 'M9 5 3 11l6 6M3 11h11a6 6 0 0 1 0 12',
+  camps: 'm12 3-9 18h18L12 3ZM12 12l-5 9m5-9 5 9',
+  pacts: 'M5 5h14v16H5zM8 2v6m8-6v6M5 11h14m-10 4h2m3 0h2',
+  memory: 'M5 3h14v18l-7-4-7 4V3Z',
+  settings: 'M4 6h16M4 12h16M4 18h16M8 3v6m8 0v6m-6 0v6',
+  menu: 'M4 6h16M4 12h16M4 18h16',
+};
+function NavIcon({ name }: { name: string }) {
+  return <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d={navPaths[name]} stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>;
+}
 
 export function AppLayout({ view, onNavigate, onLogout, children }: {
   view: View;
@@ -13,38 +30,57 @@ export function AppLayout({ view, onNavigate, onLogout, children }: {
   children: ReactNode;
 }) {
   const contentRef = useRef<HTMLElement>(null);
+  const shellRef = useRef<HTMLDivElement>(null);
+  const bottomNavRef = useRef<HTMLElement>(null);
   const [menu, setMenu] = useState(false);
 
   useEffect(() => {
+    const nav = bottomNavRef.current;
+    if (!nav) return;
+    const observer = new ResizeObserver(() => {
+      shellRef.current?.style.setProperty('--mobile-nav-height', `${Math.max(72, nav.getBoundingClientRect().height)}px`);
+    });
+    observer.observe(nav);
+    return () => observer.disconnect();
+  }, [view]);
+
+  useEffect(() => {
     contentRef.current?.focus();
-    document.title = (navigationItems.find(item => item.view === view)?.label ?? "Beneath the Pine") + " — Beneath the Pine";
+    document.title = (navigationItems.find(item => item.view === view)?.label ?? "Pyneath") + " — Pyneath";
   }, [view]);
 
   const nav = <>
-    <a className="nav-item" href="#home">Về Beneath the Pine</a>
+    <a className="nav-item" href="#home"><NavIcon name="home"/><span>Về Pyneath</span></a>
     {navigationItems.map(item => {
       const active = view === item.view || (item.view === "pacts" && view === "pact") || (item.view === "camps" && ["camp", "invite"].includes(view));
       return <button
         key={item.view}
         className={active ? "nav-item active" : "nav-item"}
-        aria-current={view === item.view ? "page" : undefined}
+        aria-current={active ? "page" : undefined}
         onClick={() => { setMenu(false); onNavigate(item.view); }}
-      >{item.label}</button>;
+      ><NavIcon name={item.view}/><span>{item.label}</span></button>;
     })}
   </>;
 
-  return <div className="site-shell">
+  if (view === "camp") return <div className="camp-immersive-shell">
+    <a className="skip-link" href="#main-content" onClick={event => { event.preventDefault(); contentRef.current?.focus(); }}>Đến nội dung Camp</a>
+    <button type="button" className="camp-app-menu" aria-haspopup="dialog" aria-expanded={menu} onClick={() => setMenu(true)}>Menu <span aria-hidden="true">☰</span></button>
+    <main id="main-content" ref={contentRef} tabIndex={-1}>{children}</main>
+    {menu && <Dialog kind="menu" title="Điều hướng" onClose={() => setMenu(false)}><nav className="app-dialog-nav" aria-label="Điều hướng ứng dụng">{nav}</nav><ThemeSelect/><button className="text-action" onClick={onLogout}>Đăng xuất</button></Dialog>}
+  </div>;
+
+  const isReturn = ["return", "login", "register"].includes(view);
+  const shell = (controls: ReactNode) => <div ref={shellRef} className={`site-shell forest-shell forest-app forest-place-${view}${isReturn ? ' forest-shell-return' : ' forest-page-shell'}`}>
     <a className="skip-link" href="#main-content" onClick={event => { event.preventDefault(); contentRef.current?.focus(); }}>Đến nội dung chính</a>
     <header className="site-header">
       <div className="site-header-inner">
-        <button className="brand" onClick={() => onNavigate("return")} aria-label="Beneath the Pine, về điểm tiếp tục">
+        <button className="brand" onClick={() => onNavigate("return")} aria-label="Pyneath, về điểm tiếp tục">
           <svg width="28" height="32" viewBox="0 0 32 36" fill="none" aria-hidden="true"><path d="M16 31V5M16 5 8 15h5L5 25h22l-8-10h5L16 5Z" stroke="currentColor" strokeWidth="2"/></svg>
-          <span>Beneath the Pine.</span>
+          <span>Pyneath.</span>
         </button>
         <div className="header-actions">
-          <ThemeSelect/>
-          <button className="secondary app-menu-button" aria-haspopup="dialog" aria-expanded={menu} onClick={() => setMenu(true)}>Menu</button>
-          <button className="text-action app-logout" onClick={onLogout}>Đăng xuất</button>
+          {controls}
+          <button className="secondary forest-account-button" aria-haspopup="dialog" aria-expanded={menu} onClick={() => setMenu(true)}><NavIcon name="settings"/><span>Tài khoản</span></button>
         </div>
       </div>
     </header>
@@ -54,14 +90,22 @@ export function AppLayout({ view, onNavigate, onLogout, children }: {
         {nav}
       </nav>
       <div className="app-main-column">
-        <main className="content" id="main-content" ref={contentRef} tabIndex={-1}>{children}</main>
-        <footer>Có mặt và quay lại là đủ. Việc của bạn vẫn riêng tư.</footer>
+        <main className="content" id="main-content" ref={contentRef} tabIndex={-1}><div className={isReturn ? undefined : "forest-page-content"}>{children}</div></main>
+        <footer>{!isReturn && <img src={`/marten/3d/${forestPlaces[view as ForestPlace]?.pose ?? "sit"}.webp`} alt="" width="72" height="56"/>}<span>{forestPlaces[view as ForestPlace]?.label ?? "Dưới tán thông"}</span></footer>
       </div>
     </div>
+    <nav ref={bottomNavRef} className="forest-bottom-nav" aria-label="Điều hướng nhanh">
+      {navigationItems.filter(item => item.view !== "settings").map(item => {
+        const active = view === item.view || (item.view === "pacts" && view === "pact") || (item.view === "camps" && view === "invite");
+        return <button type="button" key={item.view} aria-current={active ? "page" : undefined} onClick={() => onNavigate(item.view)}><NavIcon name={item.view}/><span>{item.label}</span></button>;
+      })}
+      <button type="button" aria-label="Menu" aria-haspopup="dialog" aria-expanded={menu} aria-current={view === "settings" ? "page" : undefined} onClick={() => setMenu(true)}><NavIcon name="menu"/><span>Menu</span></button>
+    </nav>
     {menu && <Dialog kind="menu" title="Dưới tán thông" onClose={() => setMenu(false)}>
       <nav className="app-dialog-nav" aria-label="Điều hướng ứng dụng">{nav}</nav>
       <ThemeSelect/>
       <button className="text-action" onClick={onLogout}>Đăng xuất</button>
     </Dialog>}
   </div>;
+  return <ReturnScene place={(isReturn ? "return" : view) as ForestPlace}>{shell}</ReturnScene>;
 }

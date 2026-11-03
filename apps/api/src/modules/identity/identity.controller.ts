@@ -11,6 +11,7 @@ export class IdentityController {
   async session(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
     this.identity.limit(req);
     const current = await this.identity.session(req);
+    if (current) this.identity.migrateCookie(req, res, current.session.expiresAt);
     return current ? { authenticated: Boolean(current.account), account: current.account, csrfToken: current.session.csrfToken } : this.identity.issue(req, res, null);
   }
   @Public() @Post('auth/register')

@@ -1,7 +1,8 @@
 import { BadRequestException } from '@nestjs/common';
 import { z } from 'zod';
+import { idSchema, utcDateTimeSchema } from '@pyneath/contracts';
 
-const cursorSchema = z.object({ time: z.string().datetime(), id: z.string().uuid(), scope: z.string() }).strict();
+const cursorSchema = z.object({ time: utcDateTimeSchema, id: idSchema, scope: z.string() }).strict();
 export function decodeCursor(cursor: string | undefined, scope: string) {
   if (!cursor) return undefined;
   try {

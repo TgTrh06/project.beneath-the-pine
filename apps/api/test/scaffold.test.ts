@@ -6,6 +6,7 @@ import { Test } from '@nestjs/testing';
 import { ModulesContainer } from '@nestjs/core';
 import type { NestExpressApplication } from '@nestjs/platform-express';
 import request from 'supertest';
+import { gzipSync } from 'node:zlib';
 import { AppModule } from '../src/app.module';
 import { API_CONFIG, readApiConfig } from '../src/platform/config/api-config';
 import { DatabaseService } from '../src/platform/database/database.service';
@@ -54,7 +55,7 @@ test('application composition, HTTP foundation and fail-closed access', async t 
     assert.equal(notReady.body.requestId, notReady.headers['x-request-id']);
   });
   await t.test('private routes reject absent or forged credentials', async () => {
-    for (const headers of [{}, { Authorization: 'Bearer fabricated', Cookie: 'BTP_SESSION=fabricated', 'X-User-ID': 'owner' }]) {
+    for (const headers of [{}, { Authorization: 'Bearer fabricated', Cookie: 'PYNEATH_SESSION=fabricated', 'X-User-ID': 'owner' }]) {
       const response = await request(server).get('/test-only/protected').set(headers).expect(401);
       assert.equal(response.body.code, 'UNAUTHENTICATED');
       assert.ok(!JSON.stringify(response.body).includes('shouldNeverReach'));
@@ -72,6 +73,27 @@ test('application composition, HTTP foundation and fail-closed access', async t 
     const response = await request(server).get('/test-only/failure').expect(500);
     assert.equal(response.body.code, 'INTERNAL_ERROR');
     assert.ok(!JSON.stringify(response.body).includes('private-database'));
+  });
+  await t.test('compressed JSON is rejected safely and leaves the API available', async () => {
+    for (const encoding of ['gzip', 'deflate', 'br']) {
+      const result = await request(server).post('/test-only/protected').set('Content-Type', 'application/json')
+        .set('Content-Encoding', encoding).send(gzipSync('{"private":"text"}')).expect(415);
+      assert.equal(result.body.code, 'UNSUPPORTED_MEDIA_TYPE');
+      assert.ok(!JSON.stringify(result.body).includes('private'));
+      await request(server).get('/health/live').expect(200);
+    }
+  });
+  await t.test('all browser command preflights permit method, CSRF and idempotency headers', async () => {
+    for (const [path, method] of [['/api/v1/me/open-seed', 'PUT'], ['/api/v1/focus-sessions', 'POST'], ['/api/v1/camps/test/pacts', 'POST'], ['/api/v1/pacts/test/start', 'POST']]) {
+      const result = await request(server).options(path).set('Origin', config.API_WEB_ORIGIN)
+        .set('Access-Control-Request-Method', method).set('Access-Control-Request-Headers', 'content-type,x-xsrf-token,idempotency-key').expect(204);
+      assert.ok(result.headers['access-control-allow-methods'].split(',').includes(method));
+      const headers = result.headers['access-control-allow-headers'].toLowerCase().split(',');
+      for (const header of ['content-type', 'x-xsrf-token', 'idempotency-key']) assert.ok(headers.includes(header));
+      assert.equal(result.headers['access-control-allow-credentials'], 'true');
+      const denied = await request(server).options(path).set('Origin', 'https://other.example').set('Access-Control-Request-Method', method).expect(204);
+      assert.notEqual(denied.headers['access-control-allow-origin'], 'https://other.example');
+    }
   });
   await t.test('CORS uses the configured origin and does not reflect arbitrary origins', async () => {
     const allowed = await request(server).options('/health/live').set('Origin', config.API_WEB_ORIGIN)

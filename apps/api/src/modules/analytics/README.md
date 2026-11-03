@@ -1,6 +1,6 @@
 # AnalyticsModule — sự kiện sản phẩm tối thiểu
 
-Module ghi `product_events` từ các use case server đã xác nhận. Pine Assistance demo có endpoint chỉ nhận enum tương tác từ client đã đăng nhập; không có endpoint nhận metadata tùy ý hoặc dashboard đọc metric. Lỗi ghi tương tác analytics không làm hỏng thao tác core; đặt chỗ quota AI phải ghi thành công trước khi gọi provider.
+Module ghi `product_events` từ các use case server đã xác nhận. Pyneath Assistance demo có endpoint chỉ nhận enum tương tác từ client đã đăng nhập; không có endpoint nhận metadata tùy ý hoặc dashboard đọc metric. Lỗi ghi tương tác analytics không làm hỏng thao tác core; đặt chỗ quota AI phải ghi thành công trước khi gọi provider.
 
 `AnalyticsService.record` loại mọi metadata không thuộc allowlist theo **tên sự kiện** trước khi ghi:
 

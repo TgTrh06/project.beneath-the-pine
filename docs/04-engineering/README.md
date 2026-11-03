@@ -16,6 +16,6 @@ Target architecture is a NestJS modular monolith, PostgreSQL + Drizzle and a cli
 - [Sequence Diagrams](sequences/README.md)
 - [ADR Index](adr/README.md)
 
-Model training and assistance contracts are governed in [Pine Assistance and ML](../05-machine-learning/README.md).
+Model training and assistance contracts are governed in [Pyneath Assistance and ML](../05-machine-learning/README.md).
 
 The API now follows the target module vocabulary. PostgreSQL-backed end-to-end tests remain opt-in and require an explicitly disposable database.

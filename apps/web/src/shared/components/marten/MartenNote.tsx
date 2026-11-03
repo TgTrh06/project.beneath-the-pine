@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import { MartenIllustration } from "./MartenIllustration";
 import "./marten.css";
 
-export function MartenNote({ children, pose = "sit" }: { children: ReactNode; pose?: "sit" | "stretch" }) {
+export function MartenNote({ children, pose = "sit" }: { children: ReactNode; pose?: import("../../../features/camps/scene/martenPoses").MartenPose }) {
   return (
     <div className="marten-note">
       <MartenIllustration className={`marten-note__figure marten-note__figure--${pose}`} pose={pose} />

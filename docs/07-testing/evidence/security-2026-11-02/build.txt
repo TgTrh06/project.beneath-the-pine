@@ -1,0 +1,39 @@
+
+> pyneath@0.1.0 build D:\projects\apps\project.beneath-the-pine
+> pnpm -r --if-present build
+
+Scope: 3 of 4 workspace projects
+packages/contracts build$ tsc
+packages/contracts build: Done
+apps/web build$ tsc -b && vite build
+apps/api prebuild$ pnpm --filter @pyneath/contracts build
+apps/api prebuild: > @pyneath/contracts@0.1.0 build D:\projects\apps\project.beneath-the-pine\packages\contracts
+apps/api prebuild: > tsc
+apps/api prebuild: Done
+apps/api build$ nest build
+apps/web build: vite v7.3.7 building client environment for production...
+apps/web build: transforming...
+apps/web build: ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/util.js (400:0): A comment
+apps/web build: "// Wrapped in a `@__PURE__` IIFE: esbuild never tree-shakes a top-level initializer that contains a member access on `Number`, so the bare object literal survived into every bundle."
+apps/web build: in "../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/util.js" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+apps/web build: ../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/regexes.js (74:0): A comment
+apps/web build: "/** Anchors a pattern source. The interpolation lives here rather than at the call site because
+apps/web build:  * esbuild will not drop a `@__PURE__` call whose own argument interpolates a variable, but it
+apps/web build:  * will drop `anchor(dateSource)`. Keeping it inline pinned `date` into every bundle. */"
+apps/web build: in "../../node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/regexes.js" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+apps/api build: Done
+apps/web build: ✓ 276 modules transformed.
+apps/web build: rendering chunks...
+apps/web build: computing gzip size...
+apps/web build: dist/index.html                            1.73 kB │ gzip:   0.82 kB
+apps/web build: dist/assets/index-DVtxl3g3.css            98.60 kB │ gzip:  19.14 kB
+apps/web build: dist/assets/ReturnCanvas-CoEforis.js       1.53 kB │ gzip:   0.83 kB
+apps/web build: (!) Some chunks are larger than 500 kB after minification. Consider:
+apps/web build: - Using dynamic import() to code-split the application
+apps/web build: - Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+apps/web build: - Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+apps/web build: dist/assets/LandingCanvas-DtdG88Sf.js      5.08 kB │ gzip:   2.34 kB
+apps/web build: dist/assets/index-DD6ugtDn.js            470.16 kB │ gzip: 142.50 kB
+apps/web build: dist/assets/LodgeCanvas-C-G3Lrkz.js    1,004.43 kB │ gzip: 273.58 kB
+apps/web build: ✓ built in 25.02s
+apps/web build: Done

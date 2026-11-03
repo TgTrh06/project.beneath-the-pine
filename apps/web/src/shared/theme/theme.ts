@@ -1,7 +1,8 @@
 import { useSyncExternalStore } from "react";
+import { readBrandValue } from '../brandStorage';
 
 export type Theme = "system" | "light" | "dark";
-export const themeKey = "beneath-the-pine.theme";
+export const themeKey = "pyneath.theme";
 export const validTheme = (value: unknown): Theme => value === "light" || value === "dark" ? value : "system";
 export const resolveTheme = (value: Theme, dark: boolean) => value === "system" ? (dark ? "dark" : "light") : value;
 
@@ -21,7 +22,7 @@ export function initializeTheme() {
   if (initialized) return;
   initialized = true;
   try {
-    preference = validTheme(localStorage.getItem(themeKey));
+    preference = validTheme(readBrandValue(localStorage, themeKey));
   } catch {
     // Storage is optional.
   }

@@ -1,6 +1,6 @@
 import { Controller, Delete, Get, HttpCode, Req, Res } from '@nestjs/common';
 import type { Request, Response } from 'express';
-import { deleteAccountSchema } from '@beneath-the-pine/contracts';
+import { deleteAccountSchema } from '@pyneath/contracts';
 import { body, principal } from '../../platform/http/request';
 import { IdentityService } from '../identity/public-api';
 import { PrivacyService } from './privacy.service';

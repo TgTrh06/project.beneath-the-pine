@@ -9,6 +9,8 @@ import { drizzle } from 'drizzle-orm/node-postgres';
 import { eq } from 'drizzle-orm';
 import type { DatabaseService } from '../src/platform/database/database.service';
 import { accounts } from '../src/modules/identity/infrastructure/identity.schema';
+import { IdentityService } from '../src/modules/identity/identity.service';
+import { readApiConfig } from '../src/platform/config/api-config';
 import { IdentityStore } from '../src/modules/identity/identity.store';
 import { profiles } from '../src/modules/profile/infrastructure/profile.schema';
 import { AnalyticsService } from '../src/modules/analytics/analytics.service';
@@ -22,8 +24,8 @@ import { PreferencesService } from '../src/modules/preferences/preferences.servi
 import { accountPreferences } from '../src/modules/preferences/infrastructure/preferences.schema';
 import { PrivacyService } from '../src/modules/privacy/privacy.service';
 
-test('core PostgreSQL flow preserves ownership, reconnect state, seed uniqueness and shared milestone', { skip: !process.env.BTP_TEST_DATABASE_URL }, async () => {
-  const pool = new Pool({ connectionString: process.env.BTP_TEST_DATABASE_URL, max: 4 }); const client = await pool.connect(); const concurrentClient = await pool.connect(); const schema = `core_test_${randomBytes(8).toString('hex')}`;
+test('core PostgreSQL flow preserves ownership, reconnect state, seed uniqueness and shared milestone', { skip: !process.env.PYNEATH_TEST_DATABASE_URL }, async () => {
+  const pool = new Pool({ connectionString: process.env.PYNEATH_TEST_DATABASE_URL, max: 4 }); const client = await pool.connect(); const concurrentClient = await pool.connect(); const schema = `core_test_${randomBytes(8).toString('hex')}`;
   try {
     await client.query(`CREATE SCHEMA "${schema}"`); await client.query(`SET search_path TO "${schema}"`); await concurrentClient.query(`SET search_path TO "${schema}"`);
     const legacyAccountId = randomUUID(); const legacyCampId = randomUUID(); const legacyMembershipId = randomUUID(); const legacyEventId = randomUUID();
@@ -174,7 +176,7 @@ test('core PostgreSQL flow preserves ownership, reconnect state, seed uniqueness
     await focus.checkout(revokeSession.id, ids[0], { outcome: 'stopped' });
 
     const identityStore = new IdentityStore(database);
-    const exported = await new PrivacyService(database, identityStore).export(ids[1]);
+    const exported = await new PrivacyService(database, identityStore, new IdentityService(identityStore, readApiConfig({}))).export(ids[1]);
     assert.equal(exported.preferences?.remindAcceptedPacts, true, 'data export includes the owner preference');
     assert.ok(exported.pactReminders.some(receipt => receipt.pactId === duePact.id), 'data export includes the owner reminder receipt');
     await identityStore.deleteAccount(ids[1]);

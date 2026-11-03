@@ -1,4 +1,4 @@
-import type { AssistanceInteraction, AssistanceRequest, AssistanceResponse, Camp, CampInvitePreview, FocusPact, FocusSession, PactReminderClaim, Preferences, Profile, ReturnState } from "@beneath-the-pine/contracts";
+import type { AssistanceInteraction, AssistanceRequest, AssistanceResponse, Camp, CampInvitePreview, FocusPact, FocusSession, PactReminderClaim, Preferences, Profile, ReturnState } from "@pyneath/contracts";
 import { expireSession, getCsrfToken } from "../auth/auth";
 import { logFrontendError } from "../logging/logger";
 
@@ -91,11 +91,11 @@ export type HistoryEntry = {
 export const getHistory = () => request<{ sessions: HistoryEntry[] }>("/me/focus-history");
 
 export const listPacts = (group: string, cursor?: string, campId?: string) =>
-  request<import('@beneath-the-pine/contracts').PactPage>(`${campId ? `/camps/${campId}/pacts` : '/me/pacts'}?group=${encodeURIComponent(group)}${cursor ? `&cursor=${encodeURIComponent(cursor)}` : ''}`);
+  request<import('@pyneath/contracts').PactPage>(`${campId ? `/camps/${campId}/pacts` : '/me/pacts'}?group=${encodeURIComponent(group)}${cursor ? `&cursor=${encodeURIComponent(cursor)}` : ''}`);
 export const claimDuePactReminders = () => mutation<PactReminderClaim>('/me/pact-reminders/claim-due', 'POST');
 
 export const listCampInvites = (id: string, cursor?: string) =>
-  request<import('@beneath-the-pine/contracts').InvitePage>(`/camps/${id}/invites${cursor ? `?cursor=${encodeURIComponent(cursor)}` : ''}`);
+  request<import('@pyneath/contracts').InvitePage>(`/camps/${id}/invites${cursor ? `?cursor=${encodeURIComponent(cursor)}` : ''}`);
 
 export const setCampStatus = (id: string, status: 'active' | 'archived') =>
   mutation(`/camps/${id}`, 'PATCH', { status });
