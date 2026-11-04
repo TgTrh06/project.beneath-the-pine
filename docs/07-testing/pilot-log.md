@@ -7,6 +7,7 @@
 | Mục | Trạng thái / bằng chứng |
 | --- | --- |
 | CI và kiểm chứng local | Chưa ghi lượt Step 7; xem `pilot-preflight-verification.md` khi có kết quả. |
+| Gamification P1–P3D | P3C đã rollout local; [P3D](gamification-p3d-readiness.md) bổ sung kiểm chứng bàn phím/cấu trúc truy cập và kịch bản quan sát. Chưa có nghiên cứu người dùng; chưa thay thế preflight trên môi trường pilot. |
 | Screen reader thật, zoom 200%, nhiều engine | Chưa xác nhận cho Step 7. |
 | Host, DB, backup/restore, nguồn log, owner và phê duyệt deploy | Chưa chọn; cần kế hoạch riêng. |
 | Consent đã điền và nơi lưu ngoài repo | Chưa; không gửi lời mời. |
@@ -26,6 +27,20 @@
 | Lần người quan sát phải nhắc trực tiếp | — | Nếu có, ghi nhiệm vụ và lý do không nhận diện cá nhân. |
 
 ## Quan sát và lỗi
+
+### Gamification — chỉ điền sau quan sát có consent
+
+| Nhiệm vụ / chỉ số | Có cơ hội quan sát | Tự hoàn tất / hiểu đúng | Sau gợi ý | Chưa hoàn tất / hiểu nhầm | Ghi chú tổng hợp |
+| --- | ---: | ---: | ---: | ---: | --- |
+| Tìm thay đổi sau mốc mới | — | — | — | — | Tách tự phát hiện với tìm sau khi được giao nhiệm vụ. |
+| Hiểu mốc tích lũy, không mất tiến trình khi nghỉ | — | — | — | — | Không hỏi dẫn dắt trước khi ghi nhận. |
+| Cất và hiện lại vật phẩm | — | — | — | — | Chỉ áp dụng khi có vật phẩm đã đạt. |
+| Phân biệt tiến trình riêng và Camp | — | — | — | — | Tách tài khoản demo với dữ liệu người tham gia. |
+| Phản ánh áp lực / kết thúc phiên để lấy vật phẩm | — | Không áp dụng | Không áp dụng | — | Ghi số người có phản ánh và nguồn quan sát/tự báo cáo; áp dụng quy tắc tạm dừng. |
+
+Các ô để trống vì chưa có nghiên cứu; không chuyển thành 0 dựa trên kiểm thử tự động. Chỉ ghi số tổng hợp và mô tả không nhận diện cá nhân.
+
+### Vấn đề quan sát
 
 | Mã | Hành trình và bước tái hiện | Quan sát / ảnh hưởng | Mức độ | Phương án dự phòng, owner, trạng thái | Bằng chứng đã ẩn danh |
 | --- | --- | --- | --- | --- | --- |

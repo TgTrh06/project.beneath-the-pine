@@ -5,14 +5,17 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { appearanceIndex, wandererColors, type LodgeMember } from './lodgeState';
 import { Environment, Rain } from './SceneEnvironment';
 import type { DayPhase, Weather } from './environment';
-import { MartenModel } from './MartenModel';
+import { MartenModel, type MartenPose } from './MartenModel';
 import { SoloRest } from './SoloRest';
 import { ForestLife } from './ForestLife';
-import { activityStrength, windAt, type SessionLife, type LifeLevel } from './forestActivity';
+import { activityStrength, windAt, type SessionLife, type LifeLevel, type MartenAction } from './forestActivity';
 import { livingMaterial } from './forestMaterials';
 import { dampMotion, motionDelta } from './motion';
+import type { ForestThreshold } from '@pyneath/contracts';
+import { ForestGrowth } from '../../memory/ForestGrowth';
 
 type Props = {
+  growth?: readonly ForestThreshold[];
   solo?: boolean;
   life?: SessionLife;
   attempt: number;
@@ -71,8 +74,8 @@ function Wanderer({ member, seat, chosen, animate, onClick }: { member: LodgeMem
   </group>;
 }
 
-export function Marten({ animate, pose = "sit" }: { animate: boolean; pose?: "sit" | "stand" }) {
- return <group position={[-2.7,.025,-2]} rotation={[0,-.7,0]}><MartenModel animate={animate} pose={pose} ambient/></group>;
+export function Marten({ animate, pose = "sit", ambient = true, action }: { animate: boolean; pose?: MartenPose; ambient?: boolean; action?: MartenAction }) {
+ return <group name={`marten-${action ?? 'ambient'}`} position={[-2.7,.025,-2]} rotation={[0,-.7,0]}><MartenModel animate={animate} pose={pose} ambient={ambient} action={action}/></group>;
 }
 
 const flameProfile = [[0,-1],[.65,-.75],[1,-.25],[.72,.2],[.28,.65],[0,1]].map(([x,y])=>new Vector2(x,y));
@@ -180,6 +183,7 @@ export default function LodgeCanvas(props: Props) {
       <Suspense fallback={null}><Room onReady={props.onReady} attempt={props.attempt} weather={props.weather} animate={props.animate} solo={props.solo} life={props.life?.level}/></Suspense>
       {!props.solo && <Hearth animate={props.animate} />}
       {!props.solo && <Marten animate={props.animate} />}
+      {!props.solo && <ForestGrowth earned={props.growth ?? []} namespace="camp" origin={[3.4,.12,1.5]}/>}
       {!props.life&&<WindBranches animate={props.animate} weather={props.weather} />}
       {props.life&&<ForestLife animate={props.animate} level={props.life.level} drift={props.life.drift} phase={props.phase} weather={props.weather} close/>}
       {props.solo ? <SoloRest animate={props.animate} life={props.life?.level}/> : props.members.map((member, seat) => <Wanderer key={member.accountId} member={member} seat={seat} chosen={props.selected.includes(member.accountId)} animate={props.animate} onClick={() => props.onMember(member.accountId)} />)}

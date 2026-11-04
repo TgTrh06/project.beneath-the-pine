@@ -1,10 +1,12 @@
 import { CampPanel } from "./CampPanel";
 import { readBrandValue } from '../../../shared/brandStorage';
-import { Suspense, lazy, useCallback, useEffect, useRef, useState } from 'react';
+import { Suspense, lazy, useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 import { SceneBoundary } from './SceneBoundary';
 import { appearanceIndex, lodgeMembers, wandererColors, type LodgeMember } from './lodgeState';
 import './lodge.css';
 import { parseSettings, posterFor, resolveTime, resolveWeather, times, weathers, type TimeChoice, type WeatherChoice } from './environment';
+import type { CampForest } from '@pyneath/contracts';
+import { CampForestSummary } from '../../memory/CampForestSummary';
 
 const LodgeCanvas = lazy(() => import('./LodgeCanvas'));
 const emptyMembers: LodgeMember[] = [];
@@ -19,18 +21,24 @@ function readSettings() {
 }
 
 type Props = {
+  header?: ReactNode;
+  feedback?: ReactNode;
   members?: LodgeMember[];
   accountId: string;
   selected: string[];
   disabled: boolean;
   archived: boolean;
+  forest?: CampForest | null;
+  forestLoading?: boolean;
+  forestError?: string;
+  onReloadForest?: () => void;
   onToggleMember: (id: string) => void;
   onCompose: () => void;
   onPacts: () => void;
   onManage?: () => void;
 };
 
-export function CampLodge({ members = emptyMembers, accountId, selected, disabled, archived, onToggleMember, onCompose, onPacts, onManage }: Props) {
+export function CampLodge({ header, feedback, members = emptyMembers, accountId, selected, disabled, archived, forest, forestLoading = false, forestError = '', onReloadForest, onToggleMember, onCompose, onPacts, onManage }: Props) {
   const [settings, setSettings] = useState(readSettings);
   const [reducedMotion, setReducedMotion] = useState(true);
   const [visible, setVisible] = useState(false);
@@ -99,28 +107,30 @@ export function CampLodge({ members = emptyMembers, accountId, selected, disable
       <div className="lodge-static-weather" aria-hidden="true" />
       {entered && !settings.light && !failed && <SceneBoundary key={attempt} onFailure={onFailure}>
         <div className="lodge-render" style={{ opacity: ready ? 1 : 0, pointerEvents: ready ? 'auto' : 'none' }}><Suspense fallback={null}>
-          <LodgeCanvas attempt={attempt} phase={phase} weather={weather} members={people} selected={selected} animate={animate} visible={visible && pageVisible} onMember={inspect} onCompose={archived || disabled ? undefined : onCompose} onPacts={onPacts} onReady={onReady} onFailure={onFailure} />
+          <LodgeCanvas growth={forestLoading || forestError ? [] : forest?.milestones.map(item => item.threshold)} attempt={attempt} phase={phase} weather={weather} members={people} selected={selected} animate={animate} visible={visible && pageVisible} onMember={inspect} onCompose={archived || disabled ? undefined : onCompose} onPacts={onPacts} onReady={onReady} onFailure={onFailure} />
         </Suspense></div>
       </SceneBoundary>}
 
     </div>
-    <details className="camp-scene-settings"><summary>Hiển thị</summary><div className="lodge-controls">
+    <div className="camp-top-overlay">{header}<details className="camp-scene-settings"><summary>Hiển thị</summary><div className="lodge-controls">
       <label>Thời điểm<select value={settings.time} onChange={e=>updateSettings({...settings,time:e.target.value as TimeChoice})}>{Object.entries(times).map(([value,label])=><option key={value} value={value}>{label}</option>)}</select></label>
       <label>Thời tiết<select value={settings.weather} onChange={e=>updateSettings({...settings,weather:e.target.value as WeatherChoice})}>{Object.entries(weathers).map(([value,label])=><option key={value} value={value}>{label}</option>)}</select></label>
       <p className="lodge-environment-note">{times[phase]} · {weathers[weather]}<br />Thời tiết mô phỏng{settings.weather==='auto'?' · đổi mỗi 20 phút':''}.</p>
       <button type="button" className="text-action" aria-pressed={settings.light} onClick={() => { setReady(false); updateSettings({ ...settings, light: !settings.light }); }}>Chế độ nhẹ{settings.light ? ' · Bật' : ''}</button>
       <button type="button" className="text-action" aria-pressed={motionEnabled} disabled={settings.light || reducedMotion || archived || failed} onClick={() => updateSettings({ ...settings, motion: !settings.motion })}>Chuyển động · {motionEnabled ? 'Bật' : 'Tắt'}</button>
-    </div></details>
+    </div></details></div>
+    {feedback}
     <div className="camp-bottom-overlay"><p className="camp-gathering-caption">Có mặt cùng nhau là đủ.</p>
+    {person && !rosterOpen && <p className="camp-selection-note" role="status">{person.displayName ?? "Wanderer"}{selected.includes(person.accountId) ? " · Đã chọn để hẹn" : " · Thành viên Camp"}</p>}
     <nav className="camp-dock" aria-label="Thao tác trong Camp">
       {!archived && <button type="button" className="camp-start" disabled={disabled} onClick={onCompose}>Hẹn một chặng <span aria-hidden="true">↗</span></button>}
       <button type="button" onClick={() => setRosterOpen(true)}>Thành viên <span className="camp-count">{people.length}</span></button>
       <button type="button" onClick={onPacts}>Bảng hẹn</button>
       {onManage && <button type="button" onClick={onManage}>Quản lý</button>}
     </nav>
+    {onReloadForest && <CampForestSummary forest={forest ?? null} loading={forestLoading} error={forestError} onRetry={onReloadForest}/>}
     <p className="lodge-status field-hint" role="status">{failed ? <>Cảnh 3D chưa mở được. Bạn vẫn có thể dùng Camp. <button type="button" className="text-action" onClick={() => { setFailed(false); setReady(false); setAttempt(value => value + 1); updateSettings({ ...settings, light: false }); }}>Thử lại cảnh 3D</button></> : settings.light ? 'Đang dùng cảnh tĩnh để tiết kiệm tài nguyên.' : !ready ? 'Đang mở khoảng rừng… Bạn vẫn có thể hẹn một chặng.' : reducedMotion ? 'Chuyển động đã tắt theo cài đặt thiết bị.' : archived ? 'Camp đã lưu trữ. Những cuộc hẹn vẫn ở bảng hẹn.' : 'Nhân vật đại diện thành viên, không biểu thị ai đang online.'}</p>
     </div>
-    {person && !rosterOpen && <p className="camp-selection-note" role="status">{person.displayName ?? "Wanderer"}{selected.includes(person.accountId) ? " · Đã chọn để hẹn" : " · Thành viên Camp"}</p>}
     {rosterOpen && <CampPanel title="Những người quanh lửa" onClose={() => setRosterOpen(false)}><div className="lodge-roster-heading"><h3>Những người trong Camp</h3><span>{people.length}/8</span></div>
     <p className="field-hint lodge-presence-note">Nhân vật đại diện cho thành viên, không biểu thị ai đang online.</p>
     <ul className="lodge-roster">{people.map(member => {

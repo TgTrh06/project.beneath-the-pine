@@ -12,12 +12,15 @@ import { requestKeyStore } from "../../shared/api/requestKey";
 import { Dialog, DurationPicker, ErrorMessage, type Duration } from "../../shared/components/ui";
 import { deviceTimezone, formatTime, localToIso } from "../../shared/time";
 import { FirstTimeHint } from "../../shared/components/FirstTimeHint";
+import { useCampForest } from '../memory/useCampForest';
 export function CampView({ id, accountId, onPact, onLeave }: { id: string; accountId: string; onPact: (id: string) => void; onLeave: () => void; onNotice: (text: string) => void }) {
   const [panel, setPanel] = useState<'compose' | 'manage' | 'pacts' | null>(null);
   const openComposer = () => setPanel('compose');
   const openPacts = () => setPanel('pacts');
   const loader = useCallback(async () => { const [group,profile] = await Promise.all([getCamp(id),getProfile()]); return { ...group,timezone:profile.profile?.timezone ?? deviceTimezone() }; },[id]);
   const resource = useResource(loader); const camp = resource.data?.camp;
+  const recheckAccess = useCallback(() => { resource.setData(null); void resource.reload(); }, [resource.setData, resource.reload]);
+  const forest = useCampForest(id, recheckAccess);
   const recent = useResource(useCallback(() => getRecentPartners(id), [id]));
   const [copyMessage,setCopyMessage] = useState(""); const [copyError,setCopyError] = useState("");
   const [inviteRevision,setInviteRevision] = useState(0);
@@ -51,8 +54,8 @@ export function CampView({ id, accountId, onPact, onLeave }: { id: string; accou
   const recentIds = recent.data?.accountIds.filter(candidate => candidates.some(member => member.accountId === candidate)) ?? [];
   const owner = camp.myRole === "owner"; const archived = camp.status === "archived";
   const link = invite ? location.origin + location.pathname + "#invite/" + invite.token : "";
-  return <div className="camps-page camp-detail camp-detail--forest"><header className="camp-identity"><button type="button" className="camp-back" onClick={onLeave}><span aria-hidden="true">←</span> Các Camp của bạn</button><p className="eyebrow">DƯỚI TÁN TÙNG · {camp.memberCount}/8 THÀNH VIÊN</p><h1>{camp.name}</h1><p>{archived ? 'Camp đã lưu trữ' : 'Một khoảng yên, có nhau.'}</p></header><div className="camp-feedback"><ErrorMessage message={resource.error} retry={resource.reload}/>{message && <p className="notice" role="status">{message}</p>}</div>
-    <CampLodge members={camp.members} accountId={accountId} selected={selected} archived={archived} disabled={busy || archived} onToggleMember={memberId => setSelected(values => toggleLodgeMember(values, memberId, camp.members ?? [], accountId, busy || archived))} onCompose={openComposer} onPacts={openPacts} onManage={() => setPanel('manage')}/>
+  return <div className="camps-page camp-detail camp-detail--forest">
+    <CampLodge header={<header className="camp-identity"><p className="eyebrow">DƯỚI TÁN TÙNG · {camp.memberCount}/8 THÀNH VIÊN</p><h1>{camp.name}</h1><p>{archived ? 'Camp đã lưu trữ' : 'Một khoảng yên, có nhau.'}</p></header>} feedback={<div className="camp-feedback"><ErrorMessage message={resource.error} retry={resource.reload}/>{message && <p className="notice" role="status">{message}</p>}</div>} members={camp.members} accountId={accountId} selected={selected} archived={archived} disabled={busy || archived} forest={forest.data} forestLoading={forest.loading} forestError={forest.error} onReloadForest={forest.reload} onToggleMember={memberId => setSelected(values => toggleLodgeMember(values, memberId, camp.members ?? [], accountId, busy || archived))} onCompose={openComposer} onPacts={openPacts} onManage={() => setPanel('manage')}/>
     {panel === "compose" && !archived && <CampPanel title="Hẹn một chặng" onClose={() => { if (!busy) setPanel(null); }}><form id="camp-compose" className="camp-panel pact-composer" onSubmit={e => { e.preventDefault(); void act(async () => {
       const signature = JSON.stringify({selected,duration,scheduled,date,timezone});
       if (retry.start?.signature !== signature) retry.start = { signature,time:scheduled ? localToIso(date,timezone) ?? "" : new Date().toISOString() };

@@ -1,27 +1,33 @@
 /* The Camp is a full-viewport place. Business UI is a separate modal layer. */
-.camp-immersive-shell { position:fixed; inset:0; height:100dvh; background:#1c3535; overflow:hidden; }
-.camp-immersive-shell > main { width:100%; height:100%; }
-.camp-recovery { position:absolute; top:110px; left:50%; transform:translateX(-50%); width:min(560px,calc(100% - 32px)); padding:1.5rem; border-radius:10px; background:var(--paper); color:var(--ink); }
-.camps-page.camp-detail--forest { position:relative; width:100%; max-width:none; height:100%; margin:0; display:block; isolation:isolate; }
+.camp-immersive-shell { position:fixed; inset:0; height:100dvh; display:flex; flex-direction:column; overflow-y:auto; overflow-x:hidden; background:#1c3535; scroll-padding-block:1rem; }
+.camp-immersive-shell > main { width:100%; flex:1 0 auto; display:flex; flex-direction:column; min-width:0; }
+.camp-recovery { position:relative; z-index:2; width:min(560px,calc(100% - 32px)); margin:1rem auto; align-self:flex-start; padding:1.5rem; border-radius:10px; background:var(--paper); color:var(--ink); }
+.camps-page.camp-detail--forest { position:relative; flex:1; width:100%; max-width:none; margin:0; display:flex; min-width:0; isolation:isolate; }
 .camp-immersive-shell > main > .notice, .camp-immersive-shell > main > .error-notice,
-.camp-immersive-shell > main > p, .camp-immersive-shell > main > button { position:relative; margin:5rem 1.5rem 1rem; background:var(--surface); padding:1rem; border-radius:8px; }
+.camp-immersive-shell > main > p, .camp-immersive-shell > main > button { position:relative; z-index:2; margin:0 1rem 1rem; background:var(--surface); padding:1rem; border-radius:8px; }
 .camp-lodge { position:absolute; inset:0; }
+.camp-detail--forest .camp-lodge { position:relative; inset:auto; flex:1; width:100%; min-width:0; display:flex; flex-direction:column; gap:1.25rem; padding:0 max(32px,env(safe-area-inset-right)) max(18px,env(safe-area-inset-bottom)) max(32px,env(safe-area-inset-left)); pointer-events:none; }
 .lodge-stage, .lodge-poster, .lodge-canvas, .lodge-render { position:absolute; inset:0; width:100%; height:100%; }
 .lodge-stage { overflow:hidden; background:#1c3535; }
+.camp-detail--forest .lodge-stage { position:fixed; z-index:0; pointer-events:auto; }
 .lodge-poster { object-fit:cover; }
 .lodge-canvas { touch-action:pan-y; }
 .lodge-canvas canvas { touch-action:pan-y; }
-.camp-lodge::after { content:''; position:absolute; inset:0; pointer-events:none; background:linear-gradient(180deg,rgba(10,24,21,.85),rgba(10,24,21,.58) 20%,transparent 42%,transparent 65%,rgba(10,24,21,.82)); }
-.camp-identity { position:absolute; z-index:2; top:max(24px,env(safe-area-inset-top)); left:max(32px,env(safe-area-inset-left)); max-width:min(560px,calc(100% - 270px)); color:#f5efdc; pointer-events:none; }
-.camp-identity > * { pointer-events:auto; }
-.camp-identity .camp-back { display:inline-flex; align-items:center; gap:.65rem; padding:.3rem 0; min-height:44px; background:transparent; border:0; color:#e0e6d8; font-size:.8125rem; }
+.camp-lodge::after { content:""; position:absolute; inset:0; pointer-events:none; background:linear-gradient(180deg,rgba(10,24,21,.85),rgba(10,24,21,.58) 20%,transparent 42%,transparent 65%,rgba(10,24,21,.82)); }
+.camp-detail--forest .camp-lodge::after { position:fixed; z-index:1; }
+.camp-top-overlay { position:relative; z-index:2; display:flex; align-items:flex-start; flex-wrap:wrap; gap:1rem; pointer-events:none; }
+.camp-top-overlay > * { pointer-events:auto; }
+.camp-identity { flex:1 1 14rem; min-width:0; max-width:560px; color:#f5efdc; padding:.5rem .75rem; background:rgba(16,37,31,.9); border-radius:6px; }
+.camp-navigation { position:relative; z-index:3; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; flex-shrink:0; gap:.75rem; padding:max(18px,env(safe-area-inset-top)) max(32px,env(safe-area-inset-right)) 1rem max(32px,env(safe-area-inset-left)); pointer-events:none; }
+.camp-navigation > * { pointer-events:auto; }
+.camp-navigation .camp-back { display:inline-flex; align-items:center; gap:.65rem; min-width:0; min-height:44px; padding:.3rem 0; background:transparent; border:0; color:#e0e6d8; font-size:.8125rem; text-align:left; overflow-wrap:anywhere; }
 .camp-identity .eyebrow { color:#c0cbb8; margin:1rem 0 .45rem; font-size:.625rem; letter-spacing:.16em; }
 .camp-identity h1 { margin:0; font-family:var(--font-display); font-size:clamp(1.65rem,3.4vw,3.5rem); line-height:1.15; overflow-wrap:anywhere; }
 .camp-identity > p:last-child { color:#d3dccb; margin:.65rem 0 0; font-size:.8125rem; }
-.camp-app-menu { position:absolute; z-index:5; right:max(28px,env(safe-area-inset-right)); top:max(28px,env(safe-area-inset-top)); min-height:44px; display:flex; gap:.8rem; align-items:center; background:#20372d; border:1px solid #7e9078; color:#f4efdd; padding:.6rem 1rem; border-radius:6px; font-size:.8125rem; }
-.camp-scene-settings { position:absolute; z-index:4; right:145px; top:max(28px,env(safe-area-inset-top)); color:#f4efdd; }
+.camp-app-menu { position:static; min-height:44px; display:flex; gap:.8rem; align-items:center; background:#20372d; border:1px solid #7e9078; color:#f4efdd; padding:.6rem 1rem; border-radius:6px; font-size:.8125rem; margin-left:auto; }
+.camp-scene-settings { color:#f4efdd; max-width:100%; margin-left:auto; }
 .camp-scene-settings summary { min-height:44px; padding:.6rem .9rem; border:1px solid #7e9078; border-radius:6px; background:#20372d; color:#f4efdd; font-size:.8125rem; cursor:pointer; }
-.lodge-controls { position:absolute; right:0; top:calc(100% + .5rem); width:min(264px,calc(100vw - 32px)); max-height:calc(100dvh - 140px); overflow-y:auto; padding:.8rem; background:#20372d; border:1px solid #7e9078; border-radius:8px; display:grid; gap:.4rem; }
+.lodge-controls { position:static; width:min(264px,100%); margin-top:.5rem; padding:.8rem; background:#20372d; border:1px solid #7e9078; border-radius:8px; display:grid; gap:.4rem; }
 .lodge-controls label { display:grid; gap:.3rem; margin:0; color:#f4efdd; font-size:.8125rem; }
 .lodge-controls select { width:100%; min-height:44px; padding:.5rem; margin:0; background:#172a23; color:#f4efdd; border:1px solid #7e9078; border-radius:5px; font:inherit; color-scheme:dark; }
 .lodge-environment-note { margin:.3rem 0; font-size:.75rem; line-height:1.6; color:#d2dcca; }
@@ -34,20 +40,27 @@
 .camp-lodge[data-static="true"][data-weather="rain"] .lodge-static-weather { background:#5d808024; }
 .lodge-controls .text-action { color:#f4efdd; padding:.65rem .3rem; text-align:left; font-size:.8125rem; min-height:44px; }
 .lodge-controls .text-action:disabled { opacity:.55; }
-.camp-bottom-overlay { position:absolute; z-index:3; bottom:max(18px,env(safe-area-inset-bottom)); left:50%; transform:translateX(-50%); width:min(680px,calc(100% - 32px)); text-align:center; }
-.camp-gathering-caption { font-size:.875rem; letter-spacing:.04em; color:#eee7d0; margin:0 0 1.1rem; }
-.camp-dock { display:flex; gap:5px; justify-content:center; padding:6px; border:1px solid #72826b; background:#1c3028; border-radius:10px; width:fit-content; max-width:100%; margin:auto; box-shadow:0 8px 28px #071a1640; }
-.camp-dock button { display:inline-flex; align-items:center; justify-content:center; gap:.55rem; min-height:48px; padding:.65rem 1.15rem; font-size:.8125rem; border:0; border-radius:6px; background:transparent; color:#ece8d7; white-space:nowrap; }
+.camp-bottom-overlay { position:relative; z-index:2; width:min(680px,100%); margin:auto auto 0; text-align:center; pointer-events:auto; }
+.camp-gathering-caption { width:fit-content; max-width:100%; margin-inline:auto; padding:.25rem .5rem; background:rgba(16,37,31,.9); border-radius:4px; font-size:.875rem; letter-spacing:.04em; color:#eee7d0; margin:0 auto 1.1rem; }
+.camp-dock { display:flex; flex-wrap:wrap; gap:5px; justify-content:center; padding:6px; border:1px solid #72826b; background:#1c3028; border-radius:10px; width:fit-content; max-width:100%; margin:auto; box-shadow:0 8px 28px #071a1640; }
+.camp-dock button { display:inline-flex; align-items:center; justify-content:center; gap:.55rem; min-height:48px; padding:.65rem 1.15rem; font-size:.8125rem; border:0; border-radius:6px; background:transparent; color:#ece8d7; white-space:normal; overflow-wrap:anywhere; }
 .camp-dock button:hover { background:#304a39; }
 .camp-dock .camp-start { background:#e4cca0; color:#26362b; font-weight:700; }
 .camp-dock .camp-start:hover { background:#f0dab4; }
 .camp-count { color:#c4d0b6; font-size:.6875rem; }
-.camp-bottom-overlay .lodge-status { color:#d2dcca; font-size:.6875rem; line-height:1.6; margin:.65rem 0 0; min-height:1.6em; }
+.camp-bottom-overlay .lodge-status { padding:.25rem .5rem; background:rgba(16,37,31,.9); border-radius:4px; color:#d2dcca; font-size:.6875rem; line-height:1.6; margin:.65rem 0 0; min-height:1.6em; }
 .lodge-status .text-action { color:#fff1d4; padding:0 .4rem; min-height:44px; font-size:inherit; }
-.camp-selection-note { position:absolute; z-index:3; bottom:175px; left:50%; transform:translateX(-50%); max-width:calc(100% - 32px); background:#20372d; border:1px solid #7e9078; color:#f4efdd; padding:.65rem 1rem; border-radius:6px; font-size:.8125rem; text-align:center; }
-.camp-feedback { position:absolute; z-index:6; left:24px; right:24px; top:185px; pointer-events:none; }
+.camp-selection-note { width:fit-content; max-width:100%; margin:.5rem auto; background:#20372d; border:1px solid #7e9078; color:#f4efdd; padding:.65rem 1rem; border-radius:6px; font-size:.8125rem; text-align:center; overflow-wrap:anywhere; }
+.camp-forest-summary { display:flex; align-items:center; justify-content:center; gap:12px; margin:.6rem auto 0; padding:.35rem .7rem; background:#1c3028; border:1px solid #72826b; border-radius:6px; color:#ece8d7; text-align:left; }
+.camp-forest-summary .forest-preview { width:96px; flex:0 0 96px; color:#e1b77b; }
+.camp-forest-summary > div { min-width:0; }
+.camp-forest-summary p { margin:.2rem 0; font-size:.8125rem; line-height:1.5; overflow-wrap:anywhere; }
+.camp-forest-summary .text-action { color:#ffe0a5; min-height:44px; font-size:inherit; }
+.camp-forest-summary :focus-visible { outline-color:#ffe0a5!important; }
+.camp-feedback { position:relative; z-index:2; width:100%; pointer-events:auto; }
+.camp-feedback:empty { display:none; }
 .camp-feedback > * { width:fit-content; max-width:100%; margin:auto; pointer-events:auto; }
-.camp-task-panel { position:fixed; inset:18px 18px 18px auto; margin:0; width:min(450px,calc(100% - 36px)); max-width:none; height:calc(100dvh - 36px); max-height:none; padding:0; border:1px solid var(--line); border-radius:12px; color:var(--ink); background:var(--paper); box-shadow:0 15px 70px #071a1666; overflow:auto; overscroll-behavior:contain; }
+.camp-task-panel { pointer-events:auto; position:fixed; inset:18px 18px 18px auto; margin:0; width:min(450px,calc(100% - 36px)); max-width:none; height:calc(100dvh - 36px); max-height:none; padding:0; border:1px solid var(--line); border-radius:12px; color:var(--ink); background:var(--paper); box-shadow:0 15px 70px #071a1666; overflow:auto; overscroll-behavior:contain; }
 .camp-task-panel::backdrop { background:rgba(9,22,18,.32); }
 .camp-task-heading { position:sticky; top:0; z-index:2; display:flex; justify-content:space-between; align-items:center; gap:1rem; background:var(--paper); border-bottom:1px solid var(--line); padding:1.2rem 1.5rem; }
 .camp-task-heading .eyebrow { margin:0 0 .35rem; color:var(--chestnut); font-size:.625rem; }
@@ -74,31 +87,32 @@
 .lodge-member-mark { display:grid; place-items:center; width:32px; height:36px; flex-shrink:0; border-radius:12px 12px 7px 7px; color:#111c16; font-size:.8125rem; font-weight:700; }
 .lodge-roster strong { display:block; font-size:.875rem; overflow-wrap:anywhere; }
 .lodge-roster small { display:block; color:var(--muted); font-size:.75rem; margin-top:.2rem; }
-.camp-immersive-shell :is(.camp-dock,.camp-identity,.camp-scene-settings,.camp-app-menu) :focus-visible, .camp-app-menu:focus-visible { outline-color:#ffe0a5!important; }
+.camp-immersive-shell :is(.camp-dock,.camp-navigation,.camp-identity,.camp-scene-settings,.camp-app-menu) :focus-visible, .camp-app-menu:focus-visible { outline-color:#ffe0a5!important; }
 @media(max-width:700px) {
-  .camp-identity { top:max(15px,env(safe-area-inset-top)); left:18px; max-width:calc(100% - 36px); padding-right:90px; }
+  .camp-detail--forest .camp-lodge { padding-inline: max(12px,env(safe-area-inset-left)) max(12px,env(safe-area-inset-right)); }
+  .camp-navigation { padding-inline:max(18px,env(safe-area-inset-left)) max(16px,env(safe-area-inset-right)); }
   .camp-identity .eyebrow { margin-top:.7rem; font-size:.5625rem; }
   .camp-identity h1 { font-size:1.8rem; }
   .camp-identity > p:last-child { font-size:.75rem; }
-  .camp-app-menu { top:max(15px,env(safe-area-inset-top)); right:16px; padding:.5rem .7rem; }
-  .camp-scene-settings { top:70px; right:16px; }
+  .camp-app-menu { padding:.5rem .7rem; }
   .camp-scene-settings summary { font-size:.75rem; padding:.5rem .65rem; }
-  .camp-bottom-overlay { width:calc(100% - 24px); bottom:max(12px,env(safe-area-inset-bottom)); }
   .camp-gathering-caption { font-size:.75rem; margin-bottom:.75rem; }
   .camp-dock { width:100%; gap:2px; flex-wrap:wrap; }
   .camp-dock button { font-size:.6875rem; padding:.5rem .65rem; flex:1 1 auto; gap:.35rem; min-height:44px; }
   .camp-dock .camp-start { flex-basis:100%; }
   .lodge-status { font-size:.625rem; }
-  .camp-selection-note { bottom:205px; font-size:.75rem; }
+  .camp-selection-note { font-size:.75rem; }
+  .camp-forest-summary { gap:8px; }
+  .camp-forest-summary .forest-preview { width:64px; flex-basis:64px; }
+  .camp-dock button { white-space:normal; }
   .camp-task-panel { inset:auto 0 0; width:100%; height:min(86dvh,850px); max-height:100dvh; border-radius:16px 16px 0 0; }
   .camp-task-heading { padding:1rem 1.1rem; }
   .camp-task-body { padding:1rem 1.1rem max(1.25rem,env(safe-area-inset-bottom)); }
-  .camp-feedback { top:170px; left:16px; right:16px; }
 }
 @media(max-height:520px) {
   .camp-identity .eyebrow { margin:.2rem 0; }
   .camp-identity h1 { font-size:1.5rem; }
-  .camp-identity > p:last-child, .camp-gathering-caption { display:none; }
+  .camp-gathering-caption { display:none; }
   .camp-task-panel { inset:0 0 0 auto; height:100dvh; border-radius:0; }
   .camp-dock .camp-start { flex-basis:auto; }
 }
