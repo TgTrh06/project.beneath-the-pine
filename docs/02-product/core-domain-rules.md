@@ -10,6 +10,8 @@
 - Check-out outcomes are `completed`, `progress`, `stuck` and `stopped`; none is scored as failure.
 - Intention and Open Seed are account-private. Camp projections expose display name and presence only.
 - A shared-presence milestone is created once when a completed Camp session has at least two joined participants.
+- Camp forest stages summarize 1, 3 and 7 recorded shared-presence memories, with original record dates. Existing records count; missing historical records are not backfilled. Only active members can read the Camp summary, including archived Camps and memories before joining. See ADR-0028.
+- Personal forest memories appear at 1, 3 and 7 completed sessions, counting each joined session once regardless of outcome or duration. Active/cancelled sessions do not count; a Pact counts only after the whole session closes. Memories never expire from absence, stay account-private and include earlier eligible history. See ADR-0026.
 - An owner transfers ownership before leaving. Account deletion transfers to the oldest active member or deletes an empty Camp.
 
 All terminal commands are idempotent. Authorization is evaluated from the current server-side account and membership, never client-supplied ownership.

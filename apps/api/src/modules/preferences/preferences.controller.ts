@@ -1,6 +1,6 @@
 import { Controller, Get, Patch, Req } from '@nestjs/common';
 import type { Request } from 'express';
-import { updatePreferencesSchema } from '@pyneath/contracts';
+import { forestArrangementSchema, updatePreferencesSchema } from '@pyneath/contracts';
 import { body, principal } from '../../platform/http/request';
 import { PreferencesService } from './preferences.service';
 
@@ -19,5 +19,10 @@ export class PreferencesController {
       principal(request).id,
       body(updatePreferencesSchema, request),
     ) };
+  }
+
+  @Patch('forest')
+  async arrangeForest(@Req() request: Request) {
+    return { forestArrangement: await this.preferences.arrangeForest(principal(request).id, body(forestArrangementSchema, request)) };
   }
 }

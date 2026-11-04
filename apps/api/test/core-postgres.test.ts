@@ -30,7 +30,7 @@ test('core PostgreSQL flow preserves ownership, reconnect state, seed uniqueness
     await client.query(`CREATE SCHEMA "${schema}"`); await client.query(`SET search_path TO "${schema}"`); await concurrentClient.query(`SET search_path TO "${schema}"`);
     const legacyAccountId = randomUUID(); const legacyCampId = randomUUID(); const legacyMembershipId = randomUUID(); const legacyEventId = randomUUID();
     const legacyInviteId = randomUUID(); const legacyPactId = randomUUID(); const legacySessionId = randomUUID(); const legacyParticipantId = randomUUID(); const legacyMilestoneId = randomUUID();
-    for (const file of ['0000_core_baseline.sql', '0001_white_spacker_dave.sql', '0002_camp-rename.sql', '0003_account-preferences-and-pact-reminders.sql']) {
+    for (const file of ['0000_core_baseline.sql', '0001_white_spacker_dave.sql', '0002_camp-rename.sql', '0003_account-preferences-and-pact-reminders.sql', '0004_personal-forest-milestones.sql', '0005_personal-forest-arrangement.sql']) {
       const migration = readFileSync(resolve(__dirname, `../../drizzle/${file}`), 'utf8').replaceAll('"public"', `"${schema}"`);
       await client.query(migration);
       if (file === '0001_white_spacker_dave.sql') {

@@ -15,5 +15,7 @@
 | SessionParticipant | Session/account, join/check-out timestamps, minimal presence state |
 | OpenSeed | Account-owned private text; at most one current seed in MVP |
 | CampMilestone | Derived record of valid shared attendance; no score/points field |
+| PersonalMilestone | Account-private thresholds 1/3/7; unique account/threshold, source session ID and original completion date; cascades on account deletion (ADR-0026) |
+| Forest arrangement | Private account_preferences fields: one of three layouts, hidden earned thresholds and independent compare-and-save version; defaults preserve P1; exported/deleted with account (ADR-0027) |
 
 Foreign keys and ownership checks enforce private resource access. Intentions and seed text never belong to Camp or milestone entities.

@@ -2,6 +2,12 @@
 
 ## Current
 
+- [ADR-0028 — Camp forest projection](0028-camp-forest-projection.md) — Accepted for P3A implementation; rollout separately authorized.
+
+- [ADR-0027 — Personal forest arrangement](0027-personal-forest-arrangement.md) — Accepted; dev rollout separately authorized and completed.
+
+- [ADR-0026 — Personal forest milestones](0026-personal-forest-milestones.md) — Accepted for P1 implementation; migration rollout separately authorized.
+
 - [ADR-0025 — Realtime session revocation and private exports](0025-realtime-session-revocation.md) — Accepted for local security remediation.
 
 - [ADR-0024 — Pyneath naming and state transition](0024-pyneath-brand-transition.md) — Accepted for local implementation; preserves browser drafts/preferences and existing sessions.

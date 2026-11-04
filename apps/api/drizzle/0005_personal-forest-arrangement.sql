@@ -1,0 +1,6 @@
+ALTER TABLE "account_preferences" ADD COLUMN "forest_layout" text DEFAULT 'clearing' NOT NULL;--> statement-breakpoint
+ALTER TABLE "account_preferences" ADD COLUMN "forest_hidden" integer[] DEFAULT '{}'::integer[] NOT NULL;--> statement-breakpoint
+ALTER TABLE "account_preferences" ADD COLUMN "forest_version" integer DEFAULT 0 NOT NULL;--> statement-breakpoint
+ALTER TABLE "account_preferences" ADD CONSTRAINT "account_preferences_forest_layout_check" CHECK ("account_preferences"."forest_layout" IN ('clearing', 'gathered', 'arc'));--> statement-breakpoint
+ALTER TABLE "account_preferences" ADD CONSTRAINT "account_preferences_forest_hidden_check" CHECK ("account_preferences"."forest_hidden" <@ ARRAY[1,3,7] AND cardinality("account_preferences"."forest_hidden") <= 3 AND array_position("account_preferences"."forest_hidden", NULL) IS NULL);--> statement-breakpoint
+ALTER TABLE "account_preferences" ADD CONSTRAINT "account_preferences_forest_version_check" CHECK ("account_preferences"."forest_version" >= 0);

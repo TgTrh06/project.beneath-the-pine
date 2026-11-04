@@ -3,7 +3,7 @@ import { and, asc, eq, getTableColumns, ne, sql } from 'drizzle-orm';
 import { DatabaseService } from '../../platform/database/database.service';
 import { campInviteDeclines, campInvites, campMemberships, camps } from '../camp/public-api';
 import { accounts, IdentityService, IdentityStore, verifyPassword } from '../identity/public-api';
-import { campMilestones } from '../memory/public-api';
+import { campMilestones, personalMilestones } from '../memory/public-api';
 import { focusPactParticipants, focusPacts, pactReminderReceipts } from '../pact/public-api';
 import { profiles } from '../profile/public-api';
 import { accountPreferences } from '../preferences/public-api';
@@ -27,7 +27,9 @@ export class PrivacyService {
     const milestones = await this.database.db.select(getTableColumns(campMilestones)).from(campMilestones)
       .innerJoin(campMemberships, eq(campMemberships.campId, campMilestones.campId))
       .where(and(eq(campMemberships.accountId, accountId), eq(campMemberships.status, 'active')));
-    return { exportedAt: new Date().toISOString(), profile: profile[0] ?? null, preferences: preferences[0] ?? null, openSeed: seed[0] ?? null, camps: memberships, declinedCampInvites: declinedInvites, pacts, pactReminders, sessions, milestones };
+    const personalMemories = await this.database.db.select({ threshold: personalMilestones.threshold, sourceSessionId: personalMilestones.sourceSessionId, recordedAt: personalMilestones.recordedAt })
+      .from(personalMilestones).where(eq(personalMilestones.accountId, accountId));
+    return { exportedAt: new Date().toISOString(), profile: profile[0] ?? null, preferences: preferences[0] ?? null, openSeed: seed[0] ?? null, camps: memberships, declinedCampInvites: declinedInvites, pacts, pactReminders, sessions, milestones, personalMilestones: personalMemories };
   }
   async remove(accountId: string, password: string) {
     const account = await this.identity.findAccount((await this.database.db.select({ email: accounts.email }).from(accounts).where(eq(accounts.id, accountId)))[0]?.email ?? '');

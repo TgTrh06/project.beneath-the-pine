@@ -1,2 +1,1 @@
-export { MemoryService } from './memory.service';
-export { campMilestones } from './infrastructure/memory.schema';
+export { campMilestones, personalMilestones } from './infrastructure/memory.schema';
