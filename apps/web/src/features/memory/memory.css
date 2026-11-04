@@ -1,0 +1,47 @@
+.personal-forest-summary { margin-block:24px 8px; color:var(--ink); }
+.forest-shell-return .personal-forest-summary { --ink:#f4ecd9; --muted:#c1ceb7; --chestnut:#e1b77b; --chestnut-hover:#f1d3a3; --line:#49624a; --wash:#2b4736; --accent:#f4d7a5; background:#173126; padding:12px 16px; border-radius:8px; }
+.personal-forest-summary-row { display:flex; align-items:center; gap:12px; padding-block:12px; border-top:1px solid var(--line); }
+.personal-forest-summary-row p { margin:0 0 4px; font-size:.875rem; }
+.forest-memory-mark { display:block; width:112px; height:auto; flex-shrink:0; color:var(--chestnut); }
+.personal-forest-summary a,.forest-arrival a { display:inline-flex; align-items:center; min-height:44px; color:var(--chestnut); text-underline-offset:4px; font-size:.875rem; }
+.personal-forest-journal { margin-block:24px 32px; padding-block:20px; border-block:1px solid var(--line); }
+.personal-forest-heading { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+.personal-forest-heading h2 { margin:4px 0 12px; font-size:1.25rem; }
+.forest-milestones { padding:0; margin:20px 0 0; list-style:none; }
+.forest-milestones li { display:flex; align-items:center; gap:16px; padding:16px 0; border-top:1px solid var(--line); }
+.forest-milestones li[data-earned="false"] .forest-memory-mark { color:var(--muted); }
+.forest-milestones h3 { margin:0 0 6px; font-size:1rem; }
+.forest-milestones p { margin:4px 0; }
+.forest-arrival { display:flex; align-items:center; gap:12px; padding:10px 16px; border-left:3px solid var(--chestnut); background:var(--wash); border-radius:0 8px 8px 0; color:var(--ink); }
+.forest-arrival-marten { width:64px; height:64px; }
+.forest-arrival > div { min-width:0; }
+.forest-arrival p { margin:0; font-size:.875rem; }
+.session-ending .forest-arrival { margin-top:20px; }
+.forest-preview { display:block; width:240px; max-width:100%; height:auto; color:var(--chestnut); }
+.personal-forest-summary-row .forest-preview { width:112px; flex-shrink:0; }
+.forest-editor { padding-block:4px 28px; margin-bottom:28px; border-bottom:1px solid var(--line); }
+.forest-editor h2 { font-size:1.25rem; }
+.forest-editor > .forest-preview { margin:16px auto; }
+.forest-editor fieldset { border:0; padding:0; margin:20px 0; min-width:0; }
+.forest-editor legend { font-weight:600; margin-bottom:8px; }
+.forest-layout-choices { display:flex; flex-wrap:wrap; gap:8px 20px; }
+.forest-editor label { display:flex; align-items:center; gap:10px; min-height:44px; cursor:pointer; }
+.forest-editor input[type="radio"],.forest-editor input[type="checkbox"] { width:20px; height:20px; min-height:20px; padding:0; flex:0 0 20px; margin:0; accent-color:var(--chestnut); }
+.forest-editor input:focus-visible { outline:2px solid var(--ink); outline-offset:4px; }
+.forest-item-choice { padding-block:8px; border-bottom:1px solid var(--line); }
+.forest-item-choice p { margin:0 0 4px 30px; }
+.forest-editor .button-row { flex-wrap:wrap; }
+.camp-forest-journal { margin-block:24px; padding-top:20px; border-top:1px solid var(--line); overflow-wrap:anywhere; }
+.camp-forest-select { display:block; margin-bottom:24px; }
+.camp-forest-select select { display:block; width:100%; max-width:100%; margin-top:8px; }
+.camp-forest-journal > .forest-preview { margin:16px auto; }
+.camp-forest-journal .forest-milestones { margin-bottom:28px; }
+.camp-forest-journal .forest-pagination { flex-wrap:wrap; }
+@media(max-width:420px) {
+  .forest-arrival { padding-inline:10px; gap:8px; }
+  .forest-arrival-marten { width:48px; height:48px; }
+  .forest-milestones .forest-memory-mark { width:72px; }
+  .forest-milestones li { gap:10px; align-items:flex-start; }
+  .personal-forest-heading > .forest-memory-mark { width:80px; }
+  .personal-forest-summary-row .forest-memory-mark { width:80px; }
+}

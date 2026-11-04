@@ -1,15 +1,19 @@
-import { lazy, Suspense, useCallback, useEffect, useState, type ReactNode } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useLayoutEffect, useState, type ReactNode } from 'react';
 import type { ForestPlace } from './forestPlaces';
 import { ForestAppearance } from '../../app/ForestAppearance';
 import { SceneBoundary } from '../camps/scene/SceneBoundary';
 import { SessionLifeControls, useSessionLife } from '../focus/SessionLifeControls';
 import { parseSettings, resolveTime, resolveWeather, times, weathers, type SceneSettings, type TimeChoice, type WeatherChoice } from '../camps/scene/environment';
 
+import { usePersonalForest } from '../memory/PersonalForest';
+
 const Forest = lazy(() => import('./ReturnCanvas'));
 const key = 'pyneath:return-scene';
 function readSettings() { try { return parseSettings(JSON.parse(localStorage.getItem(key) ?? '{}')); } catch { return parseSettings(null); } }
 
 export function ReturnScene({ children, place = 'return', active = true }: { place?:ForestPlace; active?:boolean; children: (controls: ReactNode) => ReactNode }) {
+  const { data: personalForest, arrangement, reaction, setReactionAllowed } = usePersonalForest();
+  const growth = arrangement && (place === 'return' || place === 'memory') ? personalForest?.milestones.map(item => item.threshold) ?? [] : [];
   const [settings, setSettings] = useState(readSettings);
   const [life,setLife]=useSessionLife(settings.motion);
   const [reduced, setReduced] = useState(true), [visible, setVisible] = useState(false);
@@ -18,6 +22,11 @@ export function ReturnScene({ children, place = 'return', active = true }: { pla
   const staticScene = settings.light || reduced || failed;
   const session=place==='session';
   const animate = (session?active&&life.level!=='still':settings.motion) && !staticScene && visible;
+  const reactionAllowed = place === 'return' && animate;
+  useLayoutEffect(() => {
+    setReactionAllowed(reactionAllowed);
+    return () => setReactionAllowed(false);
+  }, [reactionAllowed, setReactionAllowed]);
   const onReady = useCallback(() => setReady(true), []), onFailure = useCallback(() => setFailed(true), []);
   useEffect(() => {
     const pref = matchMedia('(prefers-reduced-motion: reduce)');
@@ -47,7 +56,7 @@ export function ReturnScene({ children, place = 'return', active = true }: { pla
   return <>
     <div className="return-world" data-place={place} aria-hidden="true" data-ready={ready} data-weather={weather} data-static={staticScene || !ready}>
       <picture><source media="(max-width: 759px)" srcSet={`/forest/${place}-${phase}-mobile.webp`}/><img src={`/forest/${place}-${phase}.webp`} alt="" width="1600" height="1000"/></picture>
-      {!staticScene && <SceneBoundary key={attempt} onFailure={onFailure}><div className="return-world-render" style={{ opacity: ready ? 1 : 0 }}><Suspense fallback={null}><Forest place={place} life={session?life:undefined} phase={phase} weather={weather} animate={animate} visible={visible} attempt={attempt} onReady={onReady} onFailure={onFailure}/></Suspense></div></SceneBoundary>}
+      {!staticScene && <SceneBoundary key={attempt} onFailure={onFailure}><div className="return-world-render" style={{ opacity: ready ? 1 : 0 }}><Suspense fallback={null}><Forest growth={growth} arrangement={arrangement} reaction={reactionAllowed ? reaction : null} place={place} life={session?life:undefined} phase={phase} weather={weather} animate={animate} visible={visible} attempt={attempt} onReady={onReady} onFailure={onFailure}/></Suspense></div></SceneBoundary>}
       <div className="return-world-weather"/>
     </div>
     {children(controls)}
