@@ -1,6 +1,7 @@
 import type { AssistanceInteraction, AssistanceRequest, AssistanceResponse, Camp, CampInvitePreview, FocusPact, FocusSession, PactReminderClaim, Preferences, Profile, ReturnState } from "@pyneath/contracts";
 import { expireSession, getCsrfToken } from "../auth/auth";
 import { logFrontendError } from "../logging/logger";
+import { personalForestSchema, campForestsSchema, forestArrangementSchema, type ForestArrangement, type UpdatePreferences } from '@pyneath/contracts';
 
 const apiUrl = (import.meta.env.VITE_API_URL as string | undefined) || "/api/v1";
 
@@ -42,7 +43,8 @@ export const newRequestKey = () => crypto.randomUUID();
 export const getReturnState = () => request<ReturnState>("/me/return");
 export const getProfile = () => request<{ profile: Profile | null }>("/me/profile");
 export const getPreferences = () => request<{ preferences: Preferences }>("/me/preferences");
-export const updatePreferences = (value: Partial<Preferences>) => mutation<{ preferences: Preferences }>("/me/preferences", "PATCH", value);
+export const saveForestArrangement = async (value: ForestArrangement) => forestArrangementSchema.parse((await mutation<{ forestArrangement: ForestArrangement }>("/me/preferences/forest", "PATCH", value)).forestArrangement);
+export const updatePreferences = (value: UpdatePreferences) => mutation<{ preferences: Preferences }>("/me/preferences", "PATCH", value);
 export const updateProfile = (value: Partial<Profile>) => mutation<{ profile: Profile }>("/me/profile", "PATCH", value);
 export const startSolo = (value: { intention: string; durationMinutes: 5 | 10 | 25 | 50 }, key: string) => mutation<{ session: FocusSession }>("/focus-sessions", "POST", value, key);
 export const getSession = (id: string) => request<{ session: FocusSession }>(`/focus-sessions/${id}`);
@@ -72,6 +74,8 @@ export const getPact = (id: string) => request<{ pact: FocusPact }>(`/pacts/${id
 export const respondPact = (id: string, response: "accepted" | "declined") => mutation<{ pact: FocusPact }>(`/pacts/${id}/respond`, "POST", { response });
 export const startPact = (id: string, key: string) => mutation<{ session: FocusSession }>(`/pacts/${id}/start`, "POST", undefined, key);
 export const getMemory = () => request<{ milestones: Array<{ id: string; campId: string; recordedAt: string }> }>("/me/memory");
+export const getPersonalForest = async () => personalForestSchema.parse(await request<unknown>('/me/memory/personal'));
+export const getCampForests = async () => campForestsSchema.parse(await request<unknown>('/me/memory/camps'));
 export const exportData = () => request<unknown>("/me/data-export");
 export const deleteAccount = (password: string) => mutation<void>("/me/account", "DELETE", { password });
 export const updateCamp = (id: string, name: string) => mutation(`/camps/${id}`, "PATCH", { name });

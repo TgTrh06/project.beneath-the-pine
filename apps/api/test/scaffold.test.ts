@@ -62,6 +62,7 @@ test('application composition, HTTP foundation and fail-closed access', async t 
     }
     await request(server).post('/test-only/protected').send({ userId: 'owner' }).expect(401);
     await request(server).post('/api/v1/me/assistance').send({ capability: 'assisted_start', description: 'Mở tài liệu' }).expect(401);
+    await request(server).get('/api/v1/me/memory/personal').expect(401);
   });
   await t.test('malformed and oversized JSON use safe error envelopes', async () => {
     const invalid = await request(server).post('/test-only/protected').set('Content-Type', 'application/json').send('{"secret":').expect(400);

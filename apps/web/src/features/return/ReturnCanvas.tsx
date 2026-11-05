@@ -9,7 +9,11 @@ import { ForestLife } from '../camps/scene/ForestLife';
 import { MartenCompanion } from '../camps/scene/MartenCompanion';
 import type { SessionLife } from '../camps/scene/forestActivity';
 
-type Props = { place?:ForestPlace; life?:SessionLife; phase: DayPhase; weather: Weather; animate: boolean; visible: boolean; attempt: number; onReady: () => void; onFailure: () => void };
+import { ForestGrowth } from "../memory/ForestGrowth";
+import type { ForestArrangement, ForestThreshold } from "@pyneath/contracts";
+import { forestReactions, type ForestReaction } from '../memory/forestReaction';
+
+type Props = { growth?:ForestThreshold[]; arrangement?:ForestArrangement | null; reaction?:ForestReaction | null; place?:ForestPlace; life?:SessionLife; phase: DayPhase; weather: Weather; animate: boolean; visible: boolean; attempt: number; onReady: () => void; onFailure: () => void };
 function Viewpoint({ visible, onFailure, place = 'return' }: Pick<Props, 'visible' | 'onFailure' | 'place'>) {
   const { camera, size, gl, invalidate } = useThree();
   useEffect(() => {
@@ -32,11 +36,13 @@ function Viewpoint({ visible, onFailure, place = 'return' }: Pick<Props, 'visibl
 }
 
 export default function ReturnCanvas(props: Props) {
+  const reaction = props.reaction && props.reaction.expiresAt > performance.now() ? forestReactions[props.reaction.threshold] : null;
   return <Canvas orthographic camera={{ near: .1, far: 100 }} dpr={props.life?.level==='gentle'?1:props.life?[1,1.25]:[1,1.5]} shadows frameloop={!props.visible ? 'never' : props.animate ? 'always' : 'demand'} gl={{ antialias: true, alpha: false, powerPreference: 'low-power' }} onCreated={({ gl }) => { gl.toneMapping = ACESFilmicToneMapping; gl.toneMappingExposure = 1.15; gl.shadowMap.type = PCFSoftShadowMap; gl.shadowMap.autoUpdate = false; gl.shadowMap.needsUpdate = true; }}>
     <Viewpoint place={props.place} visible={props.visible} onFailure={props.onFailure}/>
     <Environment phase={props.phase} weather={props.weather} animate={props.animate} solo viewDistanceOffset={45} living={!!props.life}/>
+    <ForestGrowth earned={props.growth ?? []} arrangement={props.arrangement}/>
     <Rain weather={props.weather} animate={props.animate}/>
     <Suspense fallback={null}><Room solo onReady={props.onReady} attempt={props.attempt} weather={props.weather} animate={props.animate} life={props.life?.level}/></Suspense>
-    {props.life?<><group position={[-2.7,.025,-2]} rotation={[0,-.7,0]}><MartenCompanion animate={props.animate} level={props.life.level}/></group><ForestLife animate={props.animate} level={props.life.level} drift={props.life.drift} phase={props.phase} weather={props.weather}/></>:<><Marten animate={props.animate} pose="stand"/><WindBranches animate={props.animate} weather={props.weather}/></>}
+    {props.life?<><group position={[-2.7,.025,-2]} rotation={[0,-.7,0]}><MartenCompanion animate={props.animate} level={props.life.level}/></group><ForestLife animate={props.animate} level={props.life.level} drift={props.life.drift} phase={props.phase} weather={props.weather}/></>:<><Marten animate={props.animate} pose={reaction?.pose ?? 'stand'} action={reaction?.action} ambient={!reaction}/><WindBranches animate={props.animate} weather={props.weather}/></>}
   </Canvas>;
 }

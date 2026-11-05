@@ -64,7 +64,10 @@ export function AppLayout({ view, onNavigate, onLogout, children }: {
 
   if (view === "camp") return <div className="camp-immersive-shell">
     <a className="skip-link" href="#main-content" onClick={event => { event.preventDefault(); contentRef.current?.focus(); }}>Đến nội dung Camp</a>
-    <button type="button" className="camp-app-menu" aria-haspopup="dialog" aria-expanded={menu} onClick={() => setMenu(true)}>Menu <span aria-hidden="true">☰</span></button>
+    <nav className="camp-navigation" aria-label="Điều hướng Camp">
+      <button type="button" className="camp-back" onClick={() => onNavigate("camps")}><span aria-hidden="true">←</span> Các Camp của bạn</button>
+      <button type="button" className="camp-app-menu" aria-haspopup="dialog" aria-expanded={menu} onClick={() => setMenu(true)}>Menu <span aria-hidden="true">☰</span></button>
+    </nav>
     <main id="main-content" ref={contentRef} tabIndex={-1}>{children}</main>
     {menu && <Dialog kind="menu" title="Điều hướng" onClose={() => setMenu(false)}><nav className="app-dialog-nav" aria-label="Điều hướng ứng dụng">{nav}</nav><ThemeSelect/><button className="text-action" onClick={onLogout}>Đăng xuất</button></Dialog>}
   </div>;

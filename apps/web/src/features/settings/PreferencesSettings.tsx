@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { getPreferences, updatePreferences } from '../../shared/api/api';
 import { useResource } from '../../shared/api/useResource';
 import { ErrorMessage } from '../../shared/components/ui';
-import type { Preferences } from '@pyneath/contracts';
+import type { UpdatePreferences } from '@pyneath/contracts';
 
 export function PreferencesSettings() {
   const resource = useResource(getPreferences);
@@ -11,7 +11,7 @@ export function PreferencesSettings() {
   const [message, setMessage] = useState('');
   const preferences = resource.data?.preferences;
 
-  const save = async (patch: Partial<Preferences>, success: string) => {
+  const save = async (patch: UpdatePreferences, success: string) => {
     if (!preferences || busy) return;
     setBusy(true); setError(''); setMessage('');
     try {

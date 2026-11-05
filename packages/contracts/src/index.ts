@@ -9,3 +9,4 @@ export * from "./privacy";
 export * from "./events";
 export * from "./assistance";
 export * from "./preferences";
+export * from './memory';

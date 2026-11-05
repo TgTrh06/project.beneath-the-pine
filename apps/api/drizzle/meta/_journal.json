@@ -29,6 +29,20 @@
       "when": 1792805243092,
       "tag": "0003_account-preferences-and-pact-reminders",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1793647672535,
+      "tag": "0004_personal-forest-milestones",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1793653450544,
+      "tag": "0005_personal-forest-arrangement",
+      "breakpoints": true
     }
   ]
 }

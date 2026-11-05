@@ -11,6 +11,8 @@
 - [x] Late join/reconnect renders server-derived remaining time and permitted state for the tested single-instance browser flow. See `integration-privacy-ui-verification.md` and `realtime-recovery-verification.md`.
 - [x] One participant leaving or checking out does not corrupt the other participant/session state in the tested Pact flow. See `integration-privacy-ui-verification.md`.
 - [ ] Milestone requires defined valid attendance and never creates score/rank data.
+  - P3D mapped the current shared rule (completed Camp session, at least two joined participants) and linked existing uniqueness/access evidence. Keep this broad acceptance item open until the negative-case matrix is explicitly reconciled; see [P3D readiness](gamification-p3d-readiness.md).
 - [x] Tested console, `product_events`, group projections and cross-account export do not contain another account's private text; own export intentionally contains own data. Long-term production logs remain unverified. See `integration-privacy-ui-verification.md`.
 - [x] Solo start/check-out/resume and Camp invitation/Pact join/check-out were completed with keyboard controls in the in-app browser. Account switching used a direct test link; see `integration-privacy-ui-verification.md` for scope.
-- [ ] Actual screen-reader narration, verified 200% browser zoom, cross-engine browser parity and long-term pilot logs. The current environment did not provide conclusive evidence for these checks.
+- [ ] Actual screen-reader narration, complete 200% browser-zoom coverage, cross-engine browser parity and long-term pilot logs.
+  - [P3E](gamification-p3e-device-verification.md) verifies native Edge zoom 200% and records a light/static keyboard journey. Dark/3D coverage, actual narration and physical iPhone checks remain pending. [P3D](gamification-p3d-readiness.md) ARIA snapshots do not establish spoken output.
