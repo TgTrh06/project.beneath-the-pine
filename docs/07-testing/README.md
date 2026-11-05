@@ -1,5 +1,7 @@
 # 07 — Testing
 
+- [P3E — browser zoom, narration and physical-device verification (in progress)](gamification-p3e-device-verification.md)
+
 - [P3D — gamification evidence and pilot preparation](gamification-p3d-readiness.md)
 
 - [P3C — completed local dev rollout](camp-layout-p3c-dev-rollout.md)

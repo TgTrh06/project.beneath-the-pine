@@ -8,7 +8,7 @@
 | --- | --- |
 | CI và kiểm chứng local | Chưa ghi lượt Step 7; xem `pilot-preflight-verification.md` khi có kết quả. |
 | Gamification P1–P3D | P3C đã rollout local; [P3D](gamification-p3d-readiness.md) bổ sung kiểm chứng bàn phím/cấu trúc truy cập và kịch bản quan sát. Chưa có nghiên cứu người dùng; chưa thay thế preflight trên môi trường pilot. |
-| Screen reader thật, zoom 200%, nhiều engine | Chưa xác nhận cho Step 7. |
+| Screen reader thật, zoom 200%, nhiều engine | [P3E](gamification-p3e-device-verification.md) đã xác minh zoom thật 200% trên Edge và ghi hành trình bàn phím light/static. Đang chờ xác nhận lời đọc Narrator và phiên Safari iPhone; chưa đóng cổng Step 7. |
 | Host, DB, backup/restore, nguồn log, owner và phê duyệt deploy | Chưa chọn; cần kế hoạch riêng. |
 | Consent đã điền và nơi lưu ngoài repo | Chưa; không gửi lời mời. |
 | Health, auth/privacy/realtime smoke trên môi trường pilot | Chưa; không gửi lời mời. |
