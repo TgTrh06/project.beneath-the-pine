@@ -1,7 +1,14 @@
 import { Module } from '@nestjs/common';
 import { DatabaseModule } from '../../platform/database/database.module';
-import { AnalyticsService } from './analytics.service';
+import { randomUUID } from 'node:crypto';
+import { AnalyticsService } from './application/analytics.service';
+import { ANALYTICS } from './application/analytics.ports';
+import { DrizzleAnalyticsRepository } from './infrastructure/analytics.repository';
+import { PostgresUnitOfWork } from '../../platform/database/postgres-unit-of-work';
 
-/** Review boundary only. See README.md; no business providers or routes yet. */
-@Module({ imports: [DatabaseModule], providers: [AnalyticsService], exports: [AnalyticsService] })
+@Module({ imports: [DatabaseModule], providers: [DrizzleAnalyticsRepository, {
+  provide: ANALYTICS, inject: [DrizzleAnalyticsRepository, PostgresUnitOfWork],
+  useFactory: (repository: DrizzleAnalyticsRepository, transactions: PostgresUnitOfWork) =>
+    new AnalyticsService(repository, transactions, { now: () => new Date() }, randomUUID),
+}], exports: [ANALYTICS] })
 export class AnalyticsModule {}

@@ -1,18 +1,18 @@
-import { Controller, Get, Param, Post, Req } from '@nestjs/common';
+import { Controller, Get, Inject, Param, Post, Req } from '@nestjs/common';
 import type { Request } from 'express';
 import { checkOutSchema, startSoloSessionSchema } from '@pyneath/contracts';
 import { body, idempotencyKey, principal } from '../../platform/http/request';
 import { PactService } from '../pact/public-api';
-import { ProfileService } from '../profile/public-api';
-import { SeedService } from '../seed/public-api';
+import { PROFILE_ACCESS, type ProfileAccess } from '../profile/public-api';
+import { SEED_ACCESS, type SeedAccess } from '../seed/public-api';
 import { FocusService } from './focus.service';
 
 @Controller('api/v1')
 export class FocusController {
   constructor(
     private readonly focus: FocusService,
-    private readonly profiles: ProfileService,
-    private readonly seeds: SeedService,
+    @Inject(PROFILE_ACCESS) private readonly profiles: ProfileAccess,
+    @Inject(SEED_ACCESS) private readonly seeds: SeedAccess,
     private readonly pacts: PactService
   ) { }
 

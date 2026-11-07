@@ -1,5 +1,11 @@
 import { ArgumentsHost, Catch, ExceptionFilter, HttpException, Logger } from '@nestjs/common';
 import type { Response } from 'express';
+import { BusinessError, type BusinessErrorCode } from '../../shared/kernel/business-error';
+
+const businessStatuses: Record<BusinessErrorCode, number> = {
+  VALIDATION_FAILED: 400, UNAUTHENTICATED: 401, FORBIDDEN: 403,
+  NOT_FOUND: 404, STATE_CONFLICT: 409, RATE_LIMITED: 429,
+};
 
 const errors: Record<number, [string, string]> = {
   400: ['VALIDATION_FAILED', 'The request could not be processed.'],
@@ -24,7 +30,7 @@ export class ApiErrorFilter implements ExceptionFilter {
 
   catch(error: unknown, host: ArgumentsHost): void {
     const response = host.switchToHttp().getResponse<Response>();
-    const status = error instanceof HttpException ? error.getStatus() : 500;
+    const status = error instanceof BusinessError ? businessStatuses[error.code] : error instanceof HttpException ? error.getStatus() : 500;
     const requestId = response.getHeader('X-Request-ID');
 
     if (status >= 500) this.logger.error({ event: 'request_failed', requestId, status });

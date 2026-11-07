@@ -1,4 +1,3 @@
-export { IdentityService, sessionHash } from './identity.service';
-export { IdentityStore } from './identity.store';
+export { IDENTITY_ACCESS, type IdentityAccess } from './application/identity.ports';
+export type { AccountIdentity, SessionIdentity } from './domain/identity';
 export { accounts, sessions } from './infrastructure/identity.schema';
-export { verifyPassword } from './password';

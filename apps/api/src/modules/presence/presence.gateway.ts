@@ -4,7 +4,9 @@ import { Namespace, Socket } from 'socket.io';
 import { heartbeatSchema, realtimeEvents, setPresenceSchema, subscribeSessionSchema } from '@pyneath/contracts';
 import { API_CONFIG, ApiConfig } from '../../platform/config/api-config';
 import { Inject } from '@nestjs/common';
-import { IdentityService, sessionHash } from '../identity/public-api';
+import { IDENTITY_ACCESS, type IdentityAccess } from '../identity/public-api';
+import { sessionTokenFromCookie } from '../../platform/http/session-cookie';
+import type { EventSubscription } from '../../shared/kernel/events';
 import { FocusService } from '../focus/public-api';
 import { PreferencesService } from '../preferences/public-api';
 import type { Subscription } from 'rxjs';
@@ -17,18 +19,18 @@ export class PresenceGateway implements OnGatewayInit, OnGatewayDisconnect, OnMo
   private readonly sockets = new Map<string, PineSocket>();
   private readonly expiryTimers = new Map<string, NodeJS.Timeout>();
   private readonly disconnectTimers = new Set<NodeJS.Timeout>();
-  private readonly identitySubscriptions: Subscription[] = [];
+  private readonly identitySubscriptions: EventSubscription[] = [];
   private destroyed = false;
   private subscription?: Subscription;
   private presenceSubscription?: Subscription;
   private preferenceSubscription?: Subscription;
-  constructor(private readonly identity: IdentityService, private readonly focus: FocusService, private readonly preferences: PreferencesService, @Inject(API_CONFIG) private readonly config: ApiConfig) {}
+  constructor(@Inject(IDENTITY_ACCESS) private readonly identity: IdentityAccess, private readonly focus: FocusService, private readonly preferences: PreferencesService, @Inject(API_CONFIG) private readonly config: ApiConfig) {}
   onModuleInit() {
     this.identitySubscriptions.push(
       this.identity.revokedSessions.subscribe(hash => {
         for (const socket of this.sockets.values()) {
-          const token = this.identity.tokenFromCookie(socket.handshake.headers.cookie);
-          if (token && sessionHash(token) === hash) this.deny(socket, 'UNAUTHENTICATED');
+          const token = sessionTokenFromCookie(socket.handshake.headers.cookie);
+          if (token && this.identity.hashToken(token) === hash) this.deny(socket, 'UNAUTHENTICATED');
         }
       }),
       this.identity.deletedAccounts.subscribe(id => {
@@ -58,7 +60,7 @@ export class PresenceGateway implements OnGatewayInit, OnGatewayDisconnect, OnMo
   private async authenticated(socket: PineSocket): Promise<boolean> {
     if (this.destroyed || !socket.connected || !this.sockets.has(socket.id)) return false;
     try {
-      const current = await this.identity.sessionFromCookie(socket.handshake.headers.cookie);
+      const current = await this.identity.session(sessionTokenFromCookie(socket.handshake.headers.cookie));
       if (!socket.connected || !this.sockets.has(socket.id)) return false;
       if (!current?.account || current.account.id !== socket.data.account?.id || current.session.expiresAt.getTime() <= Date.now()) {
         this.deny(socket, 'UNAUTHENTICATED'); return false;
@@ -72,7 +74,7 @@ export class PresenceGateway implements OnGatewayInit, OnGatewayDisconnect, OnMo
     server.use((socket: PineSocket, next) => {
       void (async () => {
         const current = socket.handshake.headers.origin === this.config.API_WEB_ORIGIN
-          ? await this.identity.sessionFromCookie(socket.handshake.headers.cookie) : undefined;
+          ? await this.identity.session(sessionTokenFromCookie(socket.handshake.headers.cookie)) : undefined;
         if (!current?.account || current.session.expiresAt.getTime() <= Date.now()) return next(new Error('Authentication required'));
         if (this.destroyed || socket.conn.readyState !== 'open') return next(new Error('Authentication unavailable'));
         socket.conn.once('close', () => {

@@ -18,7 +18,13 @@ const schema = z.object({
     }).optional()),
   API_DB_POOL_MAX: integer(1, 20).default(5),
   API_DB_TIMEOUT_MS: integer(100, 30000).default(3000),
-  API_ASSISTANCE_PROVIDER: z.enum(['disabled', 'openai']).default('disabled'),
+  API_ASSISTANCE_PROVIDER: z.enum(['disabled', 'openai', 'local']).default('disabled'),
+  API_LOCAL_AI_URL: z.string().url().refine(value => {
+    const url = new URL(value);
+    return ['http:', 'https:'].includes(url.protocol) && !url.username && !url.password && !url.search && !url.hash && url.pathname === '/';
+  }).optional(),
+  API_LOCAL_AI_TOKEN: z.string().min(24).optional(),
+  API_LOCAL_AI_MODEL: z.string().min(1).optional(),
   OPENAI_API_KEY: z.string().optional(),
   OPENAI_MODEL: z.string().min(1).default('gpt-6-luna'),
 });
@@ -30,6 +36,10 @@ export class ConfigError extends Error {
 export function readApiConfig(env: NodeJS.ProcessEnv = process.env) {
   const result = schema.safeParse(env);
   if (!result.success) throw new ConfigError(result.error.issues.map(issue => issue.path.join('.')));
+  if (result.data.API_ASSISTANCE_PROVIDER === 'local') {
+    const missing = (['API_LOCAL_AI_URL', 'API_LOCAL_AI_TOKEN', 'API_LOCAL_AI_MODEL'] as const).filter(key => !result.data[key]);
+    if (missing.length) throw new ConfigError(missing);
+  }
   return Object.freeze(result.data);
 }
 

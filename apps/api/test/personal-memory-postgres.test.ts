@@ -17,17 +17,19 @@ import { configureHttp } from '../src/platform/http/configure-http';
 import type { DatabaseService as DatabaseType } from '../src/platform/database/database.service';
 import { DatabaseService } from '../src/platform/database/database.service';
 import { accounts } from '../src/modules/identity/infrastructure/identity.schema';
-import { IdentityStore } from '../src/modules/identity/identity.store';
-import { IdentityService, sessionHash } from '../src/modules/identity/identity.service';
+import { createIdentityStore } from './helpers/module-fixtures';
+import { IDENTITY_REPOSITORY } from '../src/modules/identity/application/identity.ports';
+import { createIdentity } from './helpers/module-fixtures';
+import { sessionHash } from '../src/modules/identity/infrastructure/identity-crypto';
 import { sessions } from '../src/modules/identity/infrastructure/identity.schema';
-import { hashPassword } from '../src/modules/identity/password';
+import { hashPassword } from '../src/modules/identity/infrastructure/password';
 import { MemoryService } from '../src/modules/memory/memory.service';
 import { personalMilestones } from '../src/modules/memory/infrastructure/memory.schema';
 import { FocusService } from '../src/modules/focus/focus.service';
 import { focusSessions, sessionParticipants } from '../src/modules/focus/infrastructure/focus.schema';
 import { CampService } from '../src/modules/camp/camp.service';
 import { PactService } from '../src/modules/pact/pact.service';
-import { AnalyticsService } from '../src/modules/analytics/analytics.service';
+import { createAnalytics } from './helpers/module-fixtures';
 import { PrivacyService } from '../src/modules/privacy/privacy.service';
 
 test('personal forest: forward migration, lifetime milestones, races, privacy and failure isolation', { skip: !process.env.PYNEATH_TEST_DATABASE_URL }, async t => {
@@ -52,12 +54,12 @@ test('personal forest: forward migration, lifetime milestones, races, privacy an
     await db.insert(sessionParticipants).values({ sessionId: legacy, accountId: owner, presence: 'checked_out', outcome: 'stuck', intention: 'PRIVATE_WORK_MARKER' });
     for (const file of files.filter(file => file >= '0004_')) await client.query(readFileSync(resolve(folder, file), 'utf8').replaceAll('"public"', `"${schema}"`));
     const memory = new MemoryService(database), concurrentMemory = new MemoryService(secondDatabase);
-    const analytics = new AnalyticsService(database), camps = new CampService(database, analytics), pacts = new PactService(database, camps, analytics);
+    const analytics = createAnalytics(database), camps = new CampService(database, analytics), pacts = new PactService(database, camps, analytics);
     const focus = new FocusService(database, pacts, analytics);
-    const otherAnalytics = new AnalyticsService(secondDatabase), otherCamps = new CampService(secondDatabase, otherAnalytics), otherPacts = new PactService(secondDatabase, otherCamps, otherAnalytics);
+    const otherAnalytics = createAnalytics(secondDatabase), otherCamps = new CampService(secondDatabase, otherAnalytics), otherPacts = new PactService(secondDatabase, otherCamps, otherAnalytics);
     const otherFocus = new FocusService(secondDatabase, otherPacts, otherAnalytics);
-    const store = new IdentityStore(database), identity = new IdentityService(store, readApiConfig({}));
-    const privacy = new PrivacyService(database, store, identity);
+    const store = createIdentityStore(database), identity = createIdentity(store, readApiConfig({}));
+    const privacy = new PrivacyService(database, identity.core);
     await t.test('existing history is materialized once with original dates, never private text', async () => {
       const races = await Promise.all([memory.personal(owner), concurrentMemory.personal(owner)]);
       assert.deepEqual(races[0], races[1]);

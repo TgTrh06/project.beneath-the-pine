@@ -1,17 +1,17 @@
 import { decodeCursor, encodeCursor } from '../../platform/http/pagination';
 import type { PactListQuery } from '@pyneath/contracts';
-import { ConflictException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, ForbiddenException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { and, eq, inArray, isNull, or, lt, gt, gte, lte, asc, desc, sql } from 'drizzle-orm';
 import { DatabaseService } from '../../platform/database/database.service';
 import { CampService, camps, campMemberships, campInvites } from '../camp/public-api';
 import { profiles } from '../profile/public-api';
-import { AnalyticsService } from '../analytics/public-api';
+import { ANALYTICS, type Analytics } from '../analytics/public-api';
 import { accountPreferences } from '../preferences/public-api';
 import { focusPactParticipants, focusPacts, pactReminderReceipts } from './infrastructure/pact.schema';
 
 @Injectable()
 export class PactService {
-  constructor(private readonly database: DatabaseService, private readonly camps: CampService, private readonly analytics: AnalyticsService) {}
+  constructor(private readonly database: DatabaseService, private readonly camps: CampService, @Inject(ANALYTICS) private readonly analytics: Analytics) {}
   async claimDueReminders(accountId: string) {
     return this.database.db.transaction(async tx => {
       const [preferences] = await tx.select({enabled:accountPreferences.remindAcceptedPacts})

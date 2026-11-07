@@ -9,9 +9,10 @@ import { drizzle } from 'drizzle-orm/node-postgres';
 import { eq } from 'drizzle-orm';
 import type { DatabaseService } from '../src/platform/database/database.service';
 import { accounts } from '../src/modules/identity/infrastructure/identity.schema';
-import { IdentityStore } from '../src/modules/identity/identity.store';
-import { IdentityService } from '../src/modules/identity/identity.service';
-import { hashPassword } from '../src/modules/identity/password';
+import { createIdentityStore } from './helpers/module-fixtures';
+import { IDENTITY_REPOSITORY } from '../src/modules/identity/application/identity.ports';
+import { createIdentity } from './helpers/module-fixtures';
+import { hashPassword } from '../src/modules/identity/infrastructure/password';
 import { readApiConfig } from '../src/platform/config/api-config';
 import { camps, campMemberships } from '../src/modules/camp/infrastructure/camp.schema';
 import { campMilestones } from '../src/modules/memory/infrastructure/memory.schema';
@@ -28,8 +29,8 @@ test('PostgreSQL export excludes revoked Camp activity and deletion notifies onl
       await client.query(readFileSync(resolve(folder, file), 'utf8').replaceAll('"public"', `"${schema}"`));
     }
     const db = drizzle(client), database = { db } as unknown as DatabaseService;
-    const store = new IdentityStore(database), identity = new IdentityService(store, readApiConfig({}));
-    const privacy = new PrivacyService(database, store, identity);
+    const store = createIdentityStore(database), identity = createIdentity(store, readApiConfig({}));
+    const privacy = new PrivacyService(database, identity.core);
     const [owner, member, outsider] = [randomUUID(), randomUUID(), randomUUID()];
     const password = 'test-only-deletion-password';
     await db.insert(accounts).values(await Promise.all([owner, member, outsider].map(async (id, i) => ({ id, email: `privacy${i}@example.test`, passwordHash: await hashPassword(password) }))));
@@ -51,10 +52,10 @@ test('PostgreSQL export excludes revoked Camp activity and deletion notifies onl
       assert.ok((await privacy.export(owner)).milestones.length > 1);
       await db.update(campMemberships).set({ status: 'active', removedAt: null }).where(eq(campMemberships.accountId, member));
     }
-    const deleted: string[] = []; identity.deletedAccounts.subscribe(id => deleted.push(id));
+    const deleted: string[] = []; identity.core.deletedAccounts.subscribe(id => deleted.push(id));
     await assert.rejects(privacy.remove(member, 'incorrect-password')); assert.deepEqual(deleted, []);
     const failingDatabase = { db: { select: db.select.bind(db), transaction: async () => { throw new Error('transaction failed'); } } } as unknown as DatabaseService;
-    await assert.rejects(new PrivacyService(failingDatabase, store, identity).remove(member, password));
+    await assert.rejects(new PrivacyService(failingDatabase, identity.core).remove(member, password));
     assert.deepEqual(deleted, []); assert.equal((await db.select().from(accounts).where(eq(accounts.id, member))).length, 1);
     await privacy.remove(member, password);
     assert.deepEqual(deleted, [member]); assert.deepEqual(await db.select().from(accounts).where(eq(accounts.id, member)), []);

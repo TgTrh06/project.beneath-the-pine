@@ -16,9 +16,11 @@ import { API_CONFIG, readApiConfig } from '../src/platform/config/api-config';
 import { configureHttp } from '../src/platform/http/configure-http';
 import { DatabaseService } from '../src/platform/database/database.service';
 import { accounts, sessions } from '../src/modules/identity/infrastructure/identity.schema';
-import { IdentityService, sessionHash } from '../src/modules/identity/identity.service';
-import { IdentityStore } from '../src/modules/identity/identity.store';
-import { hashPassword } from '../src/modules/identity/password';
+import { createIdentity } from './helpers/module-fixtures';
+import { sessionHash } from '../src/modules/identity/infrastructure/identity-crypto';
+import { createIdentityStore } from './helpers/module-fixtures';
+import { IDENTITY_REPOSITORY } from '../src/modules/identity/application/identity.ports';
+import { hashPassword } from '../src/modules/identity/infrastructure/password';
 import { personalMilestones } from '../src/modules/memory/infrastructure/memory.schema';
 import { MemoryService } from '../src/modules/memory/memory.service';
 import { focusSessions, sessionParticipants } from '../src/modules/focus/infrastructure/focus.schema';
@@ -44,7 +46,7 @@ test('forest arrangement: migration, entitlement, compare-and-save, HTTP and pri
     await client.query('INSERT INTO account_preferences (account_id,share_presence,preset_duration_minutes,preset_soundscape_id) VALUES ($1,true,25,$2)', [owner, 'rain']);
     for (const file of files.filter(file => file >= '0005_')) await client.query(readFileSync(resolve(folder, file), 'utf8').replaceAll('"public"', `"${schema}"`));
     const service = new PreferencesService(database), secondService = new PreferencesService(secondDatabase), memory = new MemoryService(database);
-    const store = new IdentityStore(database), identity = new IdentityService(store, readApiConfig({})), privacy = new PrivacyService(database, store, identity);
+    const store = createIdentityStore(database), identity = createIdentity(store, readApiConfig({})), privacy = new PrivacyService(database, identity.core);
     await t.test('forward migration preserves existing preferences and supplies P1 defaults', async () => {
       const current = await service.get(owner);
       assert.equal(current.sharePresence, true);

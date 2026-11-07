@@ -1,2 +1,1 @@
-export { AnalyticsService } from './analytics.service';
-export { productEvents } from './infrastructure/analytics.schema';
+export { ANALYTICS, type Analytics } from './application/analytics.ports';

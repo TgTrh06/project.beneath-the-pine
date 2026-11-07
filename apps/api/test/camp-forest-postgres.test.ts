@@ -16,7 +16,7 @@ import { API_CONFIG, readApiConfig } from '../src/platform/config/api-config';
 import { configureHttp } from '../src/platform/http/configure-http';
 import { DatabaseService } from '../src/platform/database/database.service';
 import { accounts, sessions } from '../src/modules/identity/infrastructure/identity.schema';
-import { sessionHash } from '../src/modules/identity/identity.service';
+import { sessionHash } from '../src/modules/identity/infrastructure/identity-crypto';
 import { camps, campMemberships } from '../src/modules/camp/infrastructure/camp.schema';
 import { campMilestones } from '../src/modules/memory/infrastructure/memory.schema';
 import { MemoryService } from '../src/modules/memory/memory.service';

@@ -8,9 +8,10 @@ import request from 'supertest';
 import { AppModule } from '../src/app.module';
 import { API_CONFIG, readApiConfig } from '../src/platform/config/api-config';
 import { configureHttp } from '../src/platform/http/configure-http';
-import { IdentityStore } from '../src/modules/identity/identity.store';
-import { hashPassword, verifyPassword } from '../src/modules/identity/password';
-import { sessionHash } from '../src/modules/identity/identity.service';
+import { createIdentityStore } from './helpers/module-fixtures';
+import { IDENTITY_REPOSITORY } from '../src/modules/identity/application/identity.ports';
+import { hashPassword, verifyPassword } from '../src/modules/identity/infrastructure/password';
+import { sessionHash } from '../src/modules/identity/infrastructure/identity-crypto';
 
 type Account = { id: string; email: string; passwordHash: string; createdAt: Date };
 type Session = { tokenHash: string; accountId: string | null; csrfToken: string; expiresAt: Date };
@@ -40,7 +41,7 @@ async function setup(t: { after: (fn: () => Promise<void>) => void }) {
   const store = new MemoryStore();
   const config = readApiConfig({ API_WEB_ORIGIN: origin });
   const module = await Test.createTestingModule({ imports: [AppModule] }).overrideProvider(API_CONFIG).useValue(config)
-    .overrideProvider(IdentityStore).useValue(store).compile();
+    .overrideProvider(IDENTITY_REPOSITORY).useValue(store).compile();
   const app = module.createNestApplication<NestExpressApplication>({ logger: false, bodyParser: false });
   configureHttp(app, config); await app.init(); t.after(() => app.close());
   const server = app.getHttpServer();

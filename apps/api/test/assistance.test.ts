@@ -1,12 +1,13 @@
+import { assistanceConfiguration } from '../src/modules/assistance/infrastructure/assistance-configuration';
 import 'reflect-metadata';
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { assistanceRequestSchema, assistanceResponseSchema } from '@pyneath/contracts';
-import { safeProductMetadata } from '../src/modules/analytics/analytics.service';
-import type { AnalyticsService } from '../src/modules/analytics/analytics.service';
-import type { AssistanceProvider } from '../src/modules/assistance/assistance.provider';
-import { OpenAiAssistanceProvider } from '../src/modules/assistance/assistance.provider';
-import { AssistanceService } from '../src/modules/assistance/assistance.service';
+import { safeProductMetadata } from '../src/modules/analytics/domain/event-policy';
+import type { Analytics } from '../src/modules/analytics/public-api';
+import type { AssistanceProvider } from '../src/modules/assistance/application/assistance-provider';
+import { OpenAiAssistanceProvider } from '../src/modules/assistance/infrastructure/openai-assistance.provider';
+import { AssistanceService } from '../src/modules/assistance/application/assistance.service';
 import { readApiConfig } from '../src/platform/config/api-config';
 
 const privateText = 'PRIVATE_INTENTION_AND_SEED_MARKER';
@@ -18,9 +19,9 @@ function fixture(provider: AssistanceProvider, enabled = true, quota = true) {
     reserveAssistanceRequest: async () => { reservations++; return quota ? '00000000-0000-4000-8000-000000000001' : null; },
     ownsAssistanceRequest: async (accountId: string, id: string) => accountId === 'owner' && id === '00000000-0000-4000-8000-000000000001',
     record: async (_accountId: string, name: string, subjectId?: string, metadata?: unknown) => { events.push({ name, subjectId, metadata }); }
-  } as unknown as AnalyticsService;
+  } as unknown as Analytics;
   const config = readApiConfig({ API_ASSISTANCE_PROVIDER: enabled ? 'openai' : 'disabled', OPENAI_API_KEY: enabled ? 'test-key' : undefined });
-  return { service: new AssistanceService(config, provider, analytics), events, reservations: () => reservations };
+  return { service: new AssistanceService(assistanceConfiguration(config), provider, analytics), events, reservations: () => reservations };
 }
 
 test('assistance contract validates capability inputs and rejects private extra fields', () => {
@@ -41,8 +42,8 @@ test('disabled provider keeps manual path usable without quota or model call', a
 
 test('start and Seed suggestions use the same validated response contract', async () => {
   const provider: AssistanceProvider = { generate: async input => input.capability === 'assisted_start'
-    ? { kind: 'suggestion', text: 'Mở tài liệu và đọc một đoạn.', estimatedMinutes: 5 }
-    : { kind: 'suggestion', text: 'Đọc lại đoạn vừa đánh dấu.' } };
+    ? { kind: 'validated', output: { capability: 'assisted_start', version: '1', needsHumanSupport: false, fallback: 'manual_step', activationStep: 'Mở tài liệu và đọc một đoạn.', estimatedMinutes: 5 } }
+    : { kind: 'validated', output: { capability: 'open_seed_draft', version: '1', needsHumanSupport: false, fallback: 'manual_step', openSeedDraft: 'Đọc lại đoạn vừa đánh dấu.' } } };
   const { service } = fixture(provider);
   const start = await service.suggest('owner', { capability: 'assisted_start', description: privateText });
   const seed = await service.suggest('owner', { capability: 'open_seed_draft', context: privateText });
@@ -55,7 +56,7 @@ test('start and Seed suggestions use the same validated response contract', asyn
 });
 
 test('quota, invalid provider result and crisis cues return safe responses', async () => {
-  const badProvider: AssistanceProvider = { generate: async () => ({ kind: 'suggestion', text: privateText.repeat(100), estimatedMinutes: 9 as 5 }) };
+  const badProvider: AssistanceProvider = { generate: async () => ({ kind: 'validated', output: { capability: 'assisted_start', version: '1', needsHumanSupport: false, fallback: 'manual_step', activationStep: privateText.repeat(100), estimatedMinutes: 9 as 5 } }) };
   const limited = fixture(badProvider, true, false);
   assert.equal((await limited.service.suggest('owner', { capability: 'assisted_start', description: 'Mở tài liệu' })).status, 'fallback');
   const invalid = fixture(badProvider);
@@ -90,7 +91,7 @@ test('OpenAI adapter sends only explicit text with store disabled and validates 
   t.after(() => { globalThis.fetch = originalFetch; });
   const adapter = new OpenAiAssistanceProvider(readApiConfig({ OPENAI_API_KEY: 'test-key', OPENAI_MODEL: 'gpt-6-luna' }));
   const result = await adapter.generate({ capability: 'assisted_start', description: privateText });
-  assert.deepEqual(result, { kind: 'suggestion', text: 'Mở tài liệu và đọc đoạn đầu.', estimatedMinutes: 5 });
+  assert.deepEqual(result, { kind: 'validated', output: { capability: 'assisted_start', version: '1', needsHumanSupport: false, fallback: 'manual_step', activationStep: 'Mở tài liệu và đọc đoạn đầu.', estimatedMinutes: 5 } });
   const generation = requests.find(request => request.path.endsWith('/responses'))?.body;
   assert.equal(generation?.store, false);
   assert.equal(generation?.model, 'gpt-6-luna');

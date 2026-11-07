@@ -8,6 +8,8 @@ import { Pool } from 'pg';
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { eq } from 'drizzle-orm';
 import { accounts, sessions } from '../src/modules/identity/infrastructure/identity.schema';
+import { createIdentityStore } from './helpers/module-fixtures';
+import type { DatabaseService } from '../src/platform/database/database.service';
 
 // Opt-in only: never uses API_DATABASE_URL or the user's normal schema.
 test('PostgreSQL migration enforces unique accounts and session cascade', { skip: !process.env.PYNEATH_TEST_DATABASE_URL }, async () => {
@@ -28,6 +30,17 @@ test('PostgreSQL migration enforces unique accounts and session cascade', { skip
     await db.insert(sessions).values({ tokenHash: 'fixture-token', accountId: before.id, csrfToken: 'fixture-csrf', expiresAt: new Date(Date.now() + 1000) });
     await db.delete(accounts).where(eq(accounts.id, before.id));
     assert.equal((await db.select().from(sessions)).length, 0);
+    const repository = createIdentityStore({ db } as unknown as DatabaseService);
+    const future = new Date(Date.now() + 60000), past = new Date(0);
+    await db.insert(sessions).values([
+      { tokenHash: 'old-token', accountId: null, csrfToken: 'old-csrf', expiresAt: future },
+      { tokenHash: 'collision', accountId: null, csrfToken: 'other-csrf', expiresAt: future },
+      { tokenHash: 'expired-token', accountId: null, csrfToken: 'expired-csrf', expiresAt: past },
+    ]);
+    await assert.rejects(repository.rotateSession('old-token', { tokenHash: 'collision', accountId: null, csrfToken: 'new-csrf', expiresAt: future }));
+    assert.deepEqual((await db.select().from(sessions)).map(row => row.tokenHash).sort(), ['collision', 'expired-token', 'old-token']);
+    await repository.rotateSession('old-token', { tokenHash: 'new-token', accountId: null, csrfToken: 'new-csrf', expiresAt: future });
+    assert.deepEqual((await db.select().from(sessions)).map(row => row.tokenHash).sort(), ['collision', 'new-token']);
   } finally {
     await client.query('SET search_path TO public');
     await client.query(`DROP SCHEMA IF EXISTS "${schema}" CASCADE`);

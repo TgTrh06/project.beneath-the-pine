@@ -1,12 +1,12 @@
-import { Controller, Delete, Get, HttpCode, Put, Req } from '@nestjs/common';
+import { Controller, Delete, Get, HttpCode, Inject, Put, Req } from '@nestjs/common';
 import type { Request } from 'express';
 import { upsertOpenSeedSchema } from '@pyneath/contracts';
-import { body, principal } from '../../platform/http/request';
-import { SeedService } from './seed.service';
+import { body, principal } from '../../../platform/http/request';
+import { SEED_ACCESS, type SeedAccess } from '../application/seed.ports';
 
 @Controller('api/v1/me/open-seed')
 export class SeedController {
-  constructor(private readonly seeds: SeedService) { }
+  constructor(@Inject(SEED_ACCESS) private readonly seeds: SeedAccess) { }
 
   @Get()
   async get(@Req() req: Request) {

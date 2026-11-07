@@ -7,7 +7,7 @@ import { resolve } from 'node:path';
 import { Pool } from 'pg';
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { accounts } from '../src/modules/identity/infrastructure/identity.schema';
-import { AnalyticsService } from '../src/modules/analytics/analytics.service';
+import { createAnalytics } from './helpers/module-fixtures';
 import type { DatabaseService } from '../src/platform/database/database.service';
 
 test('assistance quotas reserve atomically on isolated PostgreSQL', { skip: !process.env.PYNEATH_TEST_DATABASE_URL }, async () => {
@@ -23,7 +23,7 @@ test('assistance quotas reserve atomically on isolated PostgreSQL', { skip: !pro
     }
     pool = new Pool({ connectionString: process.env.PYNEATH_TEST_DATABASE_URL, max: 12, options: `-c search_path=${schema}` });
     const db = drizzle(pool);
-    const analytics = new AnalyticsService({ db } as unknown as DatabaseService);
+    const analytics = createAnalytics({ db } as unknown as DatabaseService);
     const ids = Array.from({ length: 11 }, () => randomUUID());
     await db.insert(accounts).values(ids.map((id, index) => ({ id, email: `assist-${index}@example.test`, passwordHash: 'fixture' })));
     const sameAccount = await Promise.all(Array.from({ length: 12 }, () => analytics.reserveAssistanceRequest(ids[0], 'assisted_start')));

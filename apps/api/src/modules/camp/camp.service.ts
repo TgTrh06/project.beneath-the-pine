@@ -1,11 +1,11 @@
 import { decodeCursor, encodeCursor } from '../../platform/http/pagination';
 import type { CampInvitePreview, InviteListQuery } from '@pyneath/contracts';
-import { ConflictException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, ForbiddenException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { and, eq, desc, lt, or, sql } from 'drizzle-orm';
 import { createHash, randomBytes } from 'node:crypto';
 import { DatabaseService } from '../../platform/database/database.service';
 import { profiles } from '../profile/public-api';
-import { AnalyticsService } from '../analytics/public-api';
+import { ANALYTICS, type Analytics } from '../analytics/public-api';
 import { campInviteDeclines, campInvites, campMemberships, camps } from './infrastructure/camp.schema';
 
 const tokenHash = (token: string) => createHash('sha256').update(token).digest('hex');
@@ -15,7 +15,7 @@ const inviteHash = (token: string) => {
 };
 @Injectable()
 export class CampService {
-  constructor(private readonly database: DatabaseService, private readonly analytics: AnalyticsService) {}
+  constructor(private readonly database: DatabaseService, @Inject(ANALYTICS) private readonly analytics: Analytics) {}
   async membership(campId: string, accountId: string, reader: Pick<DatabaseService['db'],'select'> = this.database.db) {
     return (await reader.select().from(campMemberships).where(and(eq(campMemberships.campId, campId), eq(campMemberships.accountId, accountId), eq(campMemberships.status, 'active'))))[0];
   }

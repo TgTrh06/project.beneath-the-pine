@@ -1,24 +1,12 @@
+import type { AssistanceProvider, ProviderResult } from '../application/assistance-provider';
+import { boundaryWords, isUnsafeSuggestion } from '../domain/assistance-policy';
 import { Inject, Injectable } from '@nestjs/common';
 import { z } from 'zod';
 import type { AssistanceRequest } from '@pyneath/contracts';
-import { API_CONFIG, type ApiConfig } from '../../platform/config/api-config';
-
-export type ProviderResult =
-  | { kind: 'suggestion'; text: string; estimatedMinutes?: 3 | 5 | 10 }
-  | { kind: 'boundary' };
-
-export interface AssistanceProvider { generate(input: AssistanceRequest): Promise<ProviderResult>; }
-export const ASSISTANCE_PROVIDER = Symbol('ASSISTANCE_PROVIDER');
+import { API_CONFIG, type ApiConfig } from '../../../platform/config/api-config';
 
 const startResult = z.object({ activationStep: z.string().trim().min(1).max(280), estimatedMinutes: z.union([z.literal(3), z.literal(5), z.literal(10)]) }).strict();
 const seedResult = z.object({ openSeedDraft: z.string().trim().min(1).max(500) }).strict();
-const boundaryWords = /(?:tự\s*(?:tử|sát)|muốn\s+chết|suicide|kill\s+myself|chẩn\s+đoán|đơn\s+thuốc|diagnos(?:e|is)|medication)/i;
-const listMarker = /(?:^|\n)\s*(?:[-*•]|\d+[.)])\s+/;
-
-function isUnsafeSuggestion(value: string): boolean {
-  return boundaryWords.test(value) || listMarker.test(value) || value.includes('\n') || /(?:bạn đã hoàn thành|you have completed)/i.test(value);
-}
-
 @Injectable()
 export class OpenAiAssistanceProvider implements AssistanceProvider {
   constructor(@Inject(API_CONFIG) private readonly config: ApiConfig) { }
@@ -42,6 +30,7 @@ export class OpenAiAssistanceProvider implements AssistanceProvider {
   }
 
   async generate(input: AssistanceRequest): Promise<ProviderResult> {
+    if (input.capability === 'stuck_recovery') return { kind: 'fallback' };
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), 6000);
     try {
@@ -70,9 +59,9 @@ export class OpenAiAssistanceProvider implements AssistanceProvider {
       const proposal = start ? startResult.parse(parsed) : seedResult.parse(parsed);
       const suggestion = 'activationStep' in proposal ? proposal.activationStep : proposal.openSeedDraft;
       if (isUnsafeSuggestion(suggestion) || await this.flagged(suggestion, controller.signal)) throw new Error('Unsafe suggestion');
-      return 'activationStep' in proposal
-        ? { kind: 'suggestion', text: proposal.activationStep, estimatedMinutes: proposal.estimatedMinutes }
-        : { kind: 'suggestion', text: proposal.openSeedDraft };
+      return { kind: 'validated', output: {
+        capability: input.capability, version: '1', needsHumanSupport: false, fallback: 'manual_step', ...proposal,
+      } };
     } finally { clearTimeout(timer); }
   }
 }

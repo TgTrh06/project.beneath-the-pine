@@ -1,5 +1,5 @@
 import { campMemberships, camps } from '../camp/public-api';
-import { ConflictException, ForbiddenException, Injectable, NotFoundException, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
+import { ConflictException, ForbiddenException, Inject, Injectable, NotFoundException, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
 import { and, desc, eq, inArray, isNull, lte, ne, sql } from 'drizzle-orm';
 import { alias } from 'drizzle-orm/pg-core';
 import { DatabaseService } from '../../platform/database/database.service';
@@ -8,7 +8,7 @@ import { focusPactParticipants, focusPacts, PactService } from '../pact/public-a
 import { profiles } from '../profile/public-api';
 import { accountPreferences } from '../preferences/public-api';
 import { openSeeds } from '../seed/public-api';
-import { AnalyticsService } from '../analytics/public-api';
+import { ANALYTICS, type Analytics } from '../analytics/public-api';
 import { focusSessions, sessionParticipants } from './infrastructure/focus.schema';
 import { Subject } from 'rxjs';
 
@@ -19,7 +19,7 @@ export class FocusService implements OnModuleInit, OnModuleDestroy {
   private timer?: NodeJS.Timeout;
   readonly changes = new Subject<string>();
   readonly presenceChanges = new Subject<PresenceChange>();
-  constructor(private readonly database: DatabaseService, private readonly pacts: PactService, private readonly analytics: AnalyticsService) {}
+  constructor(private readonly database: DatabaseService, private readonly pacts: PactService, @Inject(ANALYTICS) private readonly analytics: Analytics) {}
   onModuleInit() { this.timer = setInterval(() => void this.finalizeExpired().catch(() => undefined), 30000); this.timer.unref(); }
   onModuleDestroy() { if (this.timer) clearInterval(this.timer); }
   private async ensureFree(accountId: string, reader: Pick<DatabaseService['db'],'select'> = this.database.db) { const [active] = await reader.select({ id: sessionParticipants.id }).from(sessionParticipants).where(eq(sessionParticipants.activeSlotAccountId, accountId)); if (active) throw new ConflictException(); }

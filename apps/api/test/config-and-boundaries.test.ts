@@ -3,8 +3,9 @@ import { test } from 'node:test';
 import { resolve } from 'node:path';
 import { readApiConfig, ConfigError } from '../src/platform/config/api-config';
 
-const { boundaryError, checkBoundaries } = require('../../scripts/check-boundaries.cjs') as {
+const { boundaryError, publicExportError, checkBoundaries } = require('../../scripts/check-boundaries.cjs') as {
   boundaryError(source: string, target: string): string | undefined;
+  publicExportError(source: string, target: string, names: string[]): string | undefined;
   checkBoundaries(root: string): { files: number; errors: string[] };
 };
 
@@ -33,9 +34,19 @@ test('module checks reject cross-owner persistence, infrastructure in domain and
   assert.ok(boundaryError('modules/focus/application/start.ts', 'modules/pact/infrastructure/pact.schema.ts'));
   assert.ok(boundaryError('modules/pact/domain/pact.ts', 'drizzle-orm/pg-core'));
   assert.ok(boundaryError('modules/pact/application/create.ts', '@nestjs/common'));
+  assert.ok(boundaryError('modules/pact/domain/pact.ts', 'modules/pact/application/create.ts'));
+  assert.ok(boundaryError('shared/kernel/transaction.ts', 'drizzle-orm'));
+  assert.ok(boundaryError('shared/kernel/transaction.ts', 'platform/database/database.service.ts'));
   assert.ok(boundaryError('platform/http/controller.ts', 'modules/pact/public-api.ts'));
   assert.equal(boundaryError('modules/focus/application/start.ts', 'modules/pact/public-api.ts'), undefined);
   assert.equal(boundaryError('modules/focus/focus.module.ts', 'modules/pact/pact.module.ts'), undefined);
   assert.equal(boundaryError('modules/pact/infrastructure/repository.ts', 'drizzle-orm'), undefined);
   assert.deepEqual(checkBoundaries(resolve(__dirname, '../../src')).errors, []);
+});
+
+test('public module interfaces reject new concrete exports even under a renamed implementation file', () => {
+  assert.ok(publicExportError('modules/analytics/public-api.ts', './infrastructure/analytics.repository', ['DrizzleAnalyticsRepository']));
+  assert.ok(publicExportError('modules/analytics/public-api.ts', './application/analytics.service', ['AnalyticsService']));
+  assert.ok(publicExportError('modules/analytics/public-api.ts', './implementation', ['ConcreteAnalytics']));
+  assert.equal(publicExportError('modules/analytics/public-api.ts', './application/analytics.ports', ['ANALYTICS', 'Analytics']), undefined);
 });

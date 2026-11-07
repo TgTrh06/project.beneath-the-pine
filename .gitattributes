@@ -1,0 +1,3 @@
+# These hash-bound protocol/config files must have identical bytes on Windows and Colab.
+ml/configs/assistance-protocol-v2.json text eol=lf
+ml/configs/qlora-v2.yaml text eol=lf

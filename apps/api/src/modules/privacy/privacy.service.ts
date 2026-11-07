@@ -1,8 +1,8 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import { ForbiddenException, Inject, Injectable } from '@nestjs/common';
 import { and, asc, eq, getTableColumns, ne, sql } from 'drizzle-orm';
 import { DatabaseService } from '../../platform/database/database.service';
 import { campInviteDeclines, campInvites, campMemberships, camps } from '../camp/public-api';
-import { accounts, IdentityService, IdentityStore, verifyPassword } from '../identity/public-api';
+import { accounts, IDENTITY_ACCESS, type IdentityAccess } from '../identity/public-api';
 import { campMilestones, personalMilestones } from '../memory/public-api';
 import { focusPactParticipants, focusPacts, pactReminderReceipts } from '../pact/public-api';
 import { profiles } from '../profile/public-api';
@@ -12,7 +12,7 @@ import { focusSessions, sessionParticipants } from '../focus/public-api';
 
 @Injectable()
 export class PrivacyService {
-  constructor(private readonly database: DatabaseService, private readonly identity: IdentityStore, private readonly sessions: IdentityService) {}
+  constructor(private readonly database: DatabaseService, @Inject(IDENTITY_ACCESS) private readonly identity: IdentityAccess) {}
   async export(accountId: string) {
     const [profile, preferences, seed, memberships, declinedInvites, pacts, sessions, pactReminders] = await Promise.all([
       this.database.db.select().from(profiles).where(eq(profiles.accountId, accountId)),
@@ -32,13 +32,13 @@ export class PrivacyService {
     return { exportedAt: new Date().toISOString(), profile: profile[0] ?? null, preferences: preferences[0] ?? null, openSeed: seed[0] ?? null, camps: memberships, declinedCampInvites: declinedInvites, pacts, pactReminders, sessions, milestones, personalMilestones: personalMemories };
   }
   async remove(accountId: string, password: string) {
-    const account = await this.identity.findAccount((await this.database.db.select({ email: accounts.email }).from(accounts).where(eq(accounts.id, accountId)))[0]?.email ?? '');
-    if (!account || !await verifyPassword(password, account.passwordHash)) throw new ForbiddenException();
+    const email = (await this.database.db.select({ email: accounts.email }).from(accounts).where(eq(accounts.id, accountId)))[0]?.email ?? '';
+    if (!await this.identity.verifyAccountPassword(email, password)) throw new ForbiddenException();
     await this.database.db.transaction(async tx => {
       const owned = await tx.select().from(camps).where(eq(camps.ownerAccountId, accountId)).for('update');
       for (const camp of owned) { const [successor] = await tx.select().from(campMemberships).where(and(eq(campMemberships.campId, camp.id), eq(campMemberships.status, 'active'), ne(campMemberships.accountId, accountId))).orderBy(asc(campMemberships.joinedAt)).limit(1); if (successor) { await tx.update(campMemberships).set({ role: 'owner' }).where(eq(campMemberships.id, successor.id)); await tx.update(camps).set({ ownerAccountId: successor.accountId, updatedAt: new Date() }).where(eq(camps.id, camp.id)); } else await tx.delete(camps).where(eq(camps.id, camp.id)); }
       await tx.delete(accounts).where(eq(accounts.id, accountId));
     });
-    this.sessions.deletedAccounts.next(accountId);
+    this.identity.notifyAccountDeleted(accountId);
   }
 }

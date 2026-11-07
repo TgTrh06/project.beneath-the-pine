@@ -1,3 +1,4 @@
+import { IDENTITY_ACCESS } from '../src/modules/identity/public-api';
 import 'reflect-metadata';
 import assert from 'node:assert/strict';
 import { test, type TestContext } from 'node:test';
@@ -7,8 +8,9 @@ import { Test } from '@nestjs/testing';
 import { realtimeEvents } from '@pyneath/contracts';
 import { API_CONFIG, readApiConfig } from '../src/platform/config/api-config';
 import { PineSocketAdapter } from '../src/platform/realtime/socket.adapter';
-import { IdentityService, sessionHash } from '../src/modules/identity/identity.service';
-import type { IdentityStore } from '../src/modules/identity/identity.store';
+import { createIdentity } from './helpers/module-fixtures';
+import { sessionHash } from '../src/modules/identity/infrastructure/identity-crypto';
+import type { IdentityRepository } from '../src/modules/identity/application/identity.ports';
 import { FocusService } from '../src/modules/focus/focus.service';
 import { PreferencesService } from '../src/modules/preferences/preferences.service';
 import { PresenceGateway } from '../src/modules/presence/presence.gateway';
@@ -30,14 +32,14 @@ async function setup(t: TestContext, ttl = 60000) {
     revoke: async (hash: string) => { sessions.delete(hash); },
     rotateSession: async (hash: string) => { sessions.delete(hash); },
   };
-  const identity = new IdentityService(store as unknown as IdentityStore, config);
+  const identity = createIdentity(store as unknown as IdentityRepository, config);
   const focus = {
     changes: new Subject<string>(), presenceChanges: new Subject<{ sessionId: string; accountId: string; presence: 'break' }>(),
     snapshot: async () => ({ id: sessionId, status: 'active', intention: 'private fixture', participants: [{ accountId: account.id, presence: 'break' }] }),
     markConnected: async () => { writes++; }, setPresence: async () => { writes++; },
   };
   const module = await Test.createTestingModule({ providers: [PresenceGateway,
-    { provide: IdentityService, useValue: identity }, { provide: FocusService, useValue: focus },
+    { provide: IDENTITY_ACCESS, useValue: identity.core }, { provide: FocusService, useValue: focus },
     { provide: PreferencesService, useValue: { presenceSharingChanges: new Subject<string>() } }, { provide: API_CONFIG, useValue: config },
   ] }).compile();
   const app = module.createNestApplication({ logger: false });
@@ -68,7 +70,7 @@ test('rotation and account deletion disconnect only the intended credentials', a
   const h = await setup(t); const a = await h.connect(), b = await h.connect(tokenB);
   const rotated = wait(a, 'disconnect'); await h.identity.issue(request(), response, account); await rotated;
   assert.equal(b.connected, true);
-  const deleted = wait(b, 'disconnect'); h.sessions.clear(); h.identity.deletedAccounts.next(account.id); await deleted;
+  const deleted = wait(b, 'disconnect'); h.sessions.clear(); h.identity.core.notifyAccountDeleted(account.id); await deleted;
 });
 test('expiry disconnects an idle socket without waiting for a heartbeat', async t => {
   const h = await setup(t, 600); const a = await h.connect();

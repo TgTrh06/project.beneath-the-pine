@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { AnalyticsService, safeProductMetadata } from '../src/modules/analytics/analytics.service';
+import { createAnalytics } from './helpers/module-fixtures';
+import { safeProductMetadata } from '../src/modules/analytics/domain/event-policy';
 import type { DatabaseService } from '../src/platform/database/database.service';
 
 test('analytics metadata permits only documented event fields', async () => {
@@ -12,7 +13,7 @@ test('analytics metadata permits only documented event fields', async () => {
 
   const writes: unknown[] = [];
   const database = { db: { insert: () => ({ values: async (value: unknown) => { writes.push(value); } }) } } as unknown as DatabaseService;
-  const analytics = new AnalyticsService(database);
+  const analytics = createAnalytics(database);
   await analytics.record('account-id', 'session_checked_out', 'session-id', { outcome: 'stuck', note: privateText });
   assert.equal(writes.length, 1);
   assert.equal(JSON.stringify(writes[0]).includes(privateText), false);
