@@ -7,6 +7,7 @@ Pyneath Assistance is an optional, user-requested capability that helps a person
 - [Dataset Governance](dataset-governance.md)
 - [Dataset Specification](dataset-spec.md)
 - [Training Runbook](training-runbook.md)
+- [Local AI implementation and Colab workflow](local-ai-runbook.md)
 - [Evaluation](ai-evaluation.md)
 - [Safety Policy](ai-safety-policy.md)
 - [Prompt Registry](prompt-registry.md)

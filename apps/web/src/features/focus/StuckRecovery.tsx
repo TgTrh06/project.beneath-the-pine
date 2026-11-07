@@ -1,6 +1,7 @@
-import { useEffect, useId, useState, type Dispatch, type SetStateAction } from 'react';
+import { useEffect, useId, useRef, useState, type Dispatch, type SetStateAction } from 'react';
 import { putSeed } from '../../shared/api/api';
 import { ErrorMessage } from '../../shared/components/ui';
+import { AssistanceCoach } from '../assistance/AssistanceCoach';
 
 type Props = {
   microstep: string;
@@ -23,6 +24,8 @@ export function StuckRecovery({ microstep, setMicrostep, seedDraft, setSeedDraft
   const [message, setMessage] = useState('');
   const [now, setNow] = useState(Date.now);
   const panelId = useId();
+  const microstepInput = useRef<HTMLTextAreaElement>(null);
+  const returnFromBreak = useRef<HTMLButtonElement>(null);
   useEffect(() => {
     if (breakUntil === null) return;
     const timer = window.setInterval(() => setNow(Date.now()), 1000);
@@ -39,6 +42,7 @@ export function StuckRecovery({ microstep, setMicrostep, seedDraft, setSeedDraft
     const startedAt = Date.now();
     setNow(startedAt);
     setBreakUntil(startedAt + 120000);
+    requestAnimationFrame(() => returnFromBreak.current?.focus());
   };
   const endBreak = () => {
     if (pact && connection !== 'live') {
@@ -67,11 +71,12 @@ export function StuckRecovery({ microstep, setMicrostep, seedDraft, setSeedDraft
     {!embedded&&<button type="button" className="text-action" aria-expanded={open} aria-controls={panelId} onClick={() => setOpen(value => !value)}>Mình đang bị kẹt</button>}
     {(open||embedded) && <section id={panelId} aria-label="Chọn bước tiếp theo khi bị kẹt">
       <h2>Một bước tiếp theo là đủ.</h2>
-      <label>Thu nhỏ việc trước mắt thành một hành động<textarea value={microstep} maxLength={280} onChange={event => setMicrostep(event.target.value)} placeholder="Ví dụ: mở tài liệu và đọc đoạn đầu"/></label>
+      <AssistanceRecovery onChoose={value => { setMicrostep(value); requestAnimationFrame(() => microstepInput.current?.focus()); }} onTakeBreak={startBreak} breakDisabled={breakUntil !== null || (pact && connection !== 'live')} />
+      <label>Thu nhỏ việc trước mắt thành một hành động<textarea ref={microstepInput} value={microstep} maxLength={280} onChange={event => setMicrostep(event.target.value)} placeholder="Ví dụ: mở tài liệu và đọc đoạn đầu"/></label>
       <p className="field-hint">{embedded?'Bản nháp này chỉ nằm trong tab của bạn.':'Bản nháp này chỉ nằm trong tab của bạn, không hiện cho Camp.'}</p>
       <div className="button-row"><button type="button" className="secondary" onClick={startBreak} disabled={breakUntil !== null}>Nghỉ ngắn 2 phút</button>
         <button type="button" className="secondary" onClick={onFinish}>Kết thúc và checkout</button></div>
-      {breakUntil !== null && <div role="status"><p>{now < breakUntil ? `Còn ${Math.ceil((breakUntil - now) / 1000)} giây nghỉ. Đồng hồ Focus vẫn chạy.` : 'Khoảng nghỉ đã hết. Bạn có thể trở lại khi sẵn sàng.'}</p><button type="button" className="text-action" onClick={endBreak}>Trở lại tập trung</button></div>}
+      {breakUntil !== null && <div role="status"><p>{now < breakUntil ? `Còn ${Math.ceil((breakUntil - now) / 1000)} giây nghỉ. Đồng hồ Focus vẫn chạy.` : 'Khoảng nghỉ đã hết. Bạn có thể trở lại khi sẵn sàng.'}</p><button ref={returnFromBreak} type="button" className="text-action" onClick={endBreak}>Trở lại tập trung</button></div>}
       <label>Lưu một điểm tiếp tục riêng cho lần sau<textarea value={seedDraft} maxLength={500} onChange={event => setSeedDraft(event.target.value)} /></label>
       <p className="field-hint">{seedDraft.length}/500 ký tự · Lưu Seed không khép phiên.</p>
       <button type="button" className="secondary" disabled={busy || !seedDraft.trim()} onClick={() => void saveSeed()}>{busy ? 'Đang lưu…' : 'Lưu Open Seed'}</button>
@@ -79,4 +84,10 @@ export function StuckRecovery({ microstep, setMicrostep, seedDraft, setSeedDraft
       {message && <p role="status">{message}</p>}
     </section>}
   </div>;
+}
+
+function AssistanceRecovery({ onChoose, onTakeBreak, breakDisabled }: { onChoose: (value: string) => void; onTakeBreak: () => void; breakDisabled: boolean }) {
+  const [currentStep, setCurrentStep] = useState('');
+  if (import.meta.env.VITE_ASSISTANCE_DEMO !== 'true') return null;
+  return <AssistanceCoach capability="stuck_recovery" value={currentStep} onValueChange={setCurrentStep} onChoose={onChoose} onTakeBreak={onTakeBreak} breakDisabled={breakDisabled} />;
 }

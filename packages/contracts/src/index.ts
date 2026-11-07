@@ -8,5 +8,6 @@ export * from "./realtime";
 export * from "./privacy";
 export * from "./events";
 export * from "./assistance";
+export * from "./assistance-prompt";
 export * from "./preferences";
 export * from './memory';

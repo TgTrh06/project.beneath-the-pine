@@ -1,19 +1,13 @@
-/* Validate JSONL against the actual TypeScript/Zod contract, compiled in memory.
- * Uses existing repository dependencies; writes no JS build output.
- */
+/* Validate JSONL against the actual built Zod contract. Build contracts first. */
 const fs = require('node:fs');
 const path = require('node:path');
 const readline = require('node:readline');
 const crypto = require('node:crypto');
-const { createRequire } = require('node:module');
-const ts = require('typescript');
 
 async function main() {
   const sourcePath = path.resolve(__dirname, '../../packages/contracts/src/assistance.ts');
   const source = fs.readFileSync(sourcePath, 'utf8');
-  const compiled = ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } });
-  const contract = {};
-  new Function('require', 'exports', compiled.outputText)(createRequire(sourcePath), contract);
+  const contract = require('../../packages/contracts/dist');
   const input = readline.createInterface({ input: fs.createReadStream(process.argv[2], { encoding: 'utf8' }), crlfDelay: Infinity });
   let rows = 0;
   for await (const line of input) {

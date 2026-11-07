@@ -1,5 +1,7 @@
 # Colab Setup
 
+**Superseded execution instructions:** use [the v2 notebook](notebooks/pyneath-qlora-colab.ipynb) and [local AI runbook](../docs/05-machine-learning/local-ai-runbook.md). The unpinned installation commands below are historical and must not be used for v2. The compatibility entry point requires a reviewed frozen manifest and durable checkpoint store.
+
 1. Create a private Google Colab notebook with GPU runtime.
 2. Clone this repository at the tagged commit for the run.
 3. Install the versions recorded in the notebook output: `pip install unsloth trl datasets peft accelerate`.

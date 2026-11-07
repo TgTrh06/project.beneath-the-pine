@@ -1,6 +1,6 @@
 # Pyneath Assistance — Product Specification
 
-- **Status:** Two-capability local/preview demo behind disabled-by-default flags; not a pilot or MVP release
+- **Status:** Three-capability local-provider implementation behind disabled-by-default flags. OpenAI preview supports the original two capabilities. No v2 model has passed release gates.
 
 ## Purpose
 
@@ -14,7 +14,7 @@ Pyneath Assistance reduces activation friction inside the Pyneath ritual. It app
 | `stuck_recovery` | Current private step and selected stuck mode | One smaller/reversible step or short break | Edit, accept or dismiss |
 | `open_seed_draft` | User-provided check-out context | One short private restart sentence | Edit, save or discard |
 
-The demo implements `assisted_start` and `open_seed_draft`. `stuck_recovery` remains future work. The start suggestion's 3/5/10-minute estimate describes the suggested action; it does not change the selected Focus duration of 5/10/25/50 minutes.
+The local provider implements contracts for all three capabilities; `stuck_recovery` accepts the current step and one of four stuck modes, then offers an editable step or an explicitly accepted two-minute break. Its UI appears only when runtime configuration advertises support. The start suggestion's 3/5/10-minute estimate describes the suggested action; it does not change the selected Focus duration of 5/10/25/50 minutes. Training, human review and actual-model evaluation remain outstanding; see [local AI runbook](local-ai-runbook.md).
 
 ## Boundaries
 

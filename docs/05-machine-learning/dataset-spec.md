@@ -1,6 +1,7 @@
 # Pyneath Assistance Dataset Specification
 
 - **Status:** Proposed; target dataset for Pyneath Assistance
+- **V2 implementation:** 1,500 unreviewed development candidates; independent 300-case holdout still requires authorship. See [v2 dataset card](../../ml/dataset-card.pyneath-assistance-vi-v2.md) and [freeze/review procedure](local-ai-runbook.md).
 
 ## Coverage
 

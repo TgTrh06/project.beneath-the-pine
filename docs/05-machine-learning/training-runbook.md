@@ -1,5 +1,7 @@
 # Training Runbook
 
+The active three-capability workflow is [Local AI runbook](local-ai-runbook.md). The v1 configuration below is retained as historical experiment context; the compatibility entry point now enforces the v2 review/manifest gates.
+
 ## Approved training shape
 
 Use the existing QLoRA configuration as an experiment baseline: `Qwen/Qwen2.5-1.5B-Instruct`, deterministic split, pinned config and recorded seed. A run creates a new adapter artifact; it does not authorize serving it.

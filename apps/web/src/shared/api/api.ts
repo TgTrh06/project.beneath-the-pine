@@ -105,4 +105,5 @@ export const setCampStatus = (id: string, status: 'active' | 'archived') =>
   mutation(`/camps/${id}`, 'PATCH', { status });
 
 export const requestAssistance = (value: AssistanceRequest) => mutation<AssistanceResponse>('/me/assistance', 'POST', value);
+export const getAssistanceConfig = () => request<import('@pyneath/contracts').AssistanceConfig>('/me/assistance/config');
 export const recordAssistanceInteraction = (value: AssistanceInteraction) => mutation<void>('/me/assistance/interactions', 'POST', value);

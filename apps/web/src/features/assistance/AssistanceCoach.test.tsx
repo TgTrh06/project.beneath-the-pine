@@ -10,15 +10,20 @@ describe('Pyneath Assistance demo controls', () => {
     expect(renderToStaticMarkup(<AssistanceCoach capability="assisted_start" value="Mở tài liệu" onChoose={() => {}} />)).toBe('');
   });
 
-  it('discloses the external processor before an explicit request and limits blank input', async () => {
+  it('waits for runtime capability config before rendering an AI control', async () => {
     vi.stubEnv('VITE_ASSISTANCE_DEMO', 'true');
     const { AssistanceCoach } = await import('./AssistanceCoach');
     const start = renderToStaticMarkup(<AssistanceCoach capability="assisted_start" value="Mở tài liệu giả" onChoose={() => {}} />);
     const emptySeed = renderToStaticMarkup(<AssistanceCoach capability="open_seed_draft" value="" onChoose={() => {}} />);
-    expect(start).toContain('gửi nội dung vừa nhập tới OpenAI');
-    expect(start).toContain('chỉ nhập dữ liệu giả');
-    expect(start).toContain('Gợi ý một bước 3–10 phút');
-    expect(emptySeed).toContain('Gợi ý câu quay lại');
-    expect(emptySeed).toContain('disabled');
+    expect(start).toBe('');
+    expect(emptySeed).toBe('');
+  });
+
+  it('uses the selected mode in recovery requests and discloses the actual processor', async () => {
+    const { makeAssistanceRequest, assistanceDisclosure } = await import('./AssistanceCoach');
+    expect(makeAssistanceRequest('stuck_recovery', '  Mở tài liệu  ', 'low_energy')).toEqual({ capability: 'stuck_recovery', currentStep: 'Mở tài liệu', stuckMode: 'low_energy' });
+    expect(assistanceDisclosure('self_hosted')).toContain('máy chủ Pyneath');
+    expect(assistanceDisclosure('self_hosted')).not.toContain('OpenAI');
+    expect(assistanceDisclosure('external')).toContain('OpenAI');
   });
 });
