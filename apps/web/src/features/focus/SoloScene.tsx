@@ -1,11 +1,11 @@
 import { lazy, memo, Suspense, useCallback, useEffect, useState, type ReactNode } from 'react';
-import { ForestAppearance } from '../../app/ForestAppearance';
-import { SceneBoundary } from '../camps/scene/SceneBoundary';
+import { ForestAppearance } from '../../shared/components/ForestAppearance';
+import { SceneBoundary } from '../../shared/scene/SceneBoundary';
 import { readBrandValue } from '../../shared/brandStorage';
-import { parseSettings, resolveTime, resolveWeather, times, weathers, type TimeChoice, type WeatherChoice } from '../camps/scene/environment';
-import '../camps/scene/lodge.css';
+import { parseSettings, resolveTime, resolveWeather, times, weathers, type TimeChoice, type WeatherChoice } from '../../shared/scene/environment';
+import '../../shared/scene/lodge.css';
 import { SessionLifeControls, useSessionLife } from './SessionLifeControls';
-const Canvas = lazy(()=>import('../camps/scene/LodgeCanvas'));
+const Canvas = lazy(()=>import('../../shared/scene/LodgeCanvas'));
 const key = 'pyneath:solo-scene';
 function readSettings() {try{return parseSettings(JSON.parse(readBrandValue(localStorage,key)??readBrandValue(localStorage,'pyneath:camp-scene')??'{}'));}catch{return parseSettings(null);}}
 export const SoloScene = memo(function SoloScene({active,children}:{active:boolean;children:(controls:ReactNode,scene:ReactNode)=>ReactNode}) {

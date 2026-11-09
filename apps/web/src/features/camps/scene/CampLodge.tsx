@@ -1,14 +1,15 @@
+import { appearanceIndex, wandererColors } from '../../../shared/scene/wandererAppearance';
 import { CampPanel } from "./CampPanel";
 import { readBrandValue } from '../../../shared/brandStorage';
 import { Suspense, lazy, useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
-import { SceneBoundary } from './SceneBoundary';
-import { appearanceIndex, lodgeMembers, wandererColors, type LodgeMember } from './lodgeState';
-import './lodge.css';
-import { parseSettings, posterFor, resolveTime, resolveWeather, times, weathers, type TimeChoice, type WeatherChoice } from './environment';
+import { SceneBoundary } from '../../../shared/scene/SceneBoundary';
+import { lodgeMembers, type LodgeMember } from './lodgeState';
+import '../../../shared/scene/lodge.css';
+import { parseSettings, posterFor, resolveTime, resolveWeather, times, weathers, type TimeChoice, type WeatherChoice } from '../../../shared/scene/environment';
 import type { CampForest } from '@pyneath/contracts';
-import { CampForestSummary } from '../../memory/CampForestSummary';
+import { CampForestSummary } from '../../memory/public-api';
 
-const LodgeCanvas = lazy(() => import('./LodgeCanvas'));
+const LodgeCanvas = lazy(() => import('./CampCanvas'));
 const emptyMembers: LodgeMember[] = [];
 const settingKey = 'pyneath:camp-scene';
 

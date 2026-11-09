@@ -1,10 +1,10 @@
 import { Suspense, useEffect, useRef } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { ACESFilmicToneMapping, PerspectiveCamera, PCFSoftShadowMap, Group } from 'three';
-import { Room } from '../camps/scene/LodgeCanvas';
-import { Environment, Rain } from '../camps/scene/SceneEnvironment';
+import { Room } from '../../shared/scene/LodgeCanvas';
+import { Environment, Rain } from '../../shared/scene/SceneEnvironment';
 import { LandingSky } from './LandingSky';
-import type { DayPhase, Weather } from '../camps/scene/environment';
+import type { DayPhase, Weather } from '../../shared/scene/environment';
 
 type Props = { phase: DayPhase; weather: Weather; animate: boolean; visible: boolean; attempt: number; onReady: () => void; onFailure: () => void };
 

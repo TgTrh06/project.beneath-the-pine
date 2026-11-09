@@ -1,8 +1,8 @@
-import { Suspense, useEffect, useMemo, useRef } from 'react';
+import { type ReactNode, Suspense, useEffect, useMemo, useRef } from 'react';
 import { Canvas, useFrame, useLoader, useThree, type ThreeEvent } from '@react-three/fiber';
 import { ACESFilmicToneMapping, Group, Mesh, MeshStandardMaterial, OrthographicCamera, PCFSoftShadowMap, Vector2 } from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-import { appearanceIndex, wandererColors, type LodgeMember } from './lodgeState';
+import { appearanceIndex, wandererColors, type SceneMember } from './wandererAppearance';
 import { Environment, Rain } from './SceneEnvironment';
 import type { DayPhase, Weather } from './environment';
 import { MartenModel, type MartenPose } from './MartenModel';
@@ -11,16 +11,14 @@ import { ForestLife } from './ForestLife';
 import { activityStrength, windAt, type SessionLife, type LifeLevel, type MartenAction } from './forestActivity';
 import { livingMaterial } from './forestMaterials';
 import { dampMotion, motionDelta } from './motion';
-import type { ForestThreshold } from '@pyneath/contracts';
-import { ForestGrowth } from '../../memory/ForestGrowth';
 
-type Props = {
-  growth?: readonly ForestThreshold[];
+export type LodgeCanvasProps = {
+  growth?: ReactNode;
   solo?: boolean;
   life?: SessionLife;
   attempt: number;
   phase: DayPhase; weather: Weather;
-  members: LodgeMember[]; selected: string[]; animate: boolean; visible: boolean;
+  members: SceneMember[]; selected: string[]; animate: boolean; visible: boolean;
   onMember: (id: string) => void; onCompose?: () => void; onPacts: () => void;
   onReady: () => void; onFailure: () => void;
 };
@@ -29,7 +27,7 @@ function Pebble({ at, scale, color, rotation }: { at: [number, number, number]; 
   return <mesh position={at} scale={scale} rotation={rotation} castShadow><sphereGeometry args={[1, 16, 12]} /><meshStandardMaterial color={color} roughness={.9} /></mesh>;
 }
 
-function Wanderer({ member, seat, chosen, animate, onClick }: { member: LodgeMember; seat: number; chosen: boolean; animate: boolean; onClick: () => void }) {
+function Wanderer({ member, seat, chosen, animate, onClick }: { member: SceneMember; seat: number; chosen: boolean; animate: boolean; onClick: () => void }) {
   const body = useRef<Group>(null);
   const head = useRef<Group>(null);
   const phase = appearanceIndex(member.accountId);
@@ -154,7 +152,7 @@ export function Room({ onReady, attempt, weather, animate, solo, landing, life }
   return <primitive object={room} dispose={null} />;
 }
 
-function CameraAndLifecycle({ visible, onFailure, memberKey, solo }: Pick<Props, 'visible' | 'onFailure' | 'solo'> & { memberKey: string }) {
+function CameraAndLifecycle({ visible, onFailure, memberKey, solo }: Pick<LodgeCanvasProps, 'visible' | 'onFailure' | 'solo'> & { memberKey: string }) {
   const { camera, size, gl, invalidate } = useThree();
   useEffect(() => {
     const cam = camera as OrthographicCamera;
@@ -174,7 +172,7 @@ function CameraAndLifecycle({ visible, onFailure, memberKey, solo }: Pick<Props,
   return null;
 }
 
-export default function LodgeCanvas(props: Props) {
+export default function LodgeCanvas(props: LodgeCanvasProps) {
   return <div className="lodge-canvas" aria-hidden="true">
     <Canvas orthographic camera={{ near: .1, far: 80, zoom: 45 }} dpr={props.life?.level==='gentle'?1:props.life?[1,1.25]:[1,1.5]} shadows frameloop={!props.visible ? 'never' : props.animate ? 'always' : 'demand'} gl={{ antialias: true, alpha: false, powerPreference: 'low-power' }} onCreated={({ gl }) => { gl.toneMapping = ACESFilmicToneMapping; gl.toneMappingExposure = 1.15; gl.shadowMap.type = PCFSoftShadowMap; gl.shadowMap.autoUpdate = false; gl.shadowMap.needsUpdate = true; }} fallback={<span>Thiết bị đang dùng cảnh tĩnh.</span>}>
       <Environment phase={props.phase} weather={props.weather} animate={props.animate} solo={props.solo} living={!!props.life}/>
@@ -183,7 +181,7 @@ export default function LodgeCanvas(props: Props) {
       <Suspense fallback={null}><Room onReady={props.onReady} attempt={props.attempt} weather={props.weather} animate={props.animate} solo={props.solo} life={props.life?.level}/></Suspense>
       {!props.solo && <Hearth animate={props.animate} />}
       {!props.solo && <Marten animate={props.animate} />}
-      {!props.solo && <ForestGrowth earned={props.growth ?? []} namespace="camp" origin={[3.4,.12,1.5]}/>}
+      {!props.solo && props.growth}
       {!props.life&&<WindBranches animate={props.animate} weather={props.weather} />}
       {props.life&&<ForestLife animate={props.animate} level={props.life.level} drift={props.life.drift} phase={props.phase} weather={props.weather} close/>}
       {props.solo ? <SoloRest animate={props.animate} life={props.life?.level}/> : props.members.map((member, seat) => <Wanderer key={member.accountId} member={member} seat={seat} chosen={props.selected.includes(member.accountId)} animate={props.animate} onClick={() => props.onMember(member.accountId)} />)}

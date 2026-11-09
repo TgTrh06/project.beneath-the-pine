@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { PactListItem } from '@pyneath/contracts';
-import { listPacts, respondPact, getProfile } from '../../shared/api/api';
+import { listPacts, respondPact } from '../../shared/api/clients/pacts';
+import { getProfile } from '../../shared/api/clients/profile';
 import { useResource } from '../../shared/api/useResource';
 import { ErrorMessage } from '../../shared/components/ui';
 import { deviceTimezone, formatTime } from '../../shared/time';
-import '../camps/camps.css';
+import '../../shared/styles/camps.css';
 
 const groups = {pending:'Lời mời',upcoming:'Sắp tới',active:'Đang diễn ra',past:'Đã qua'} as const;
 const status = {scheduled:'Đã hẹn',active:'Đang diễn ra',completed:'Đã khép lại',cancelled:'Đã hủy',expired:'Đã hết hạn'};

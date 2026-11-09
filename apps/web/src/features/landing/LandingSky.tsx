@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useRef } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import { BackSide, Color, ShaderMaterial, Vector3 } from 'three';
-import { canopySkyPalette, canopySunDirection } from '../camps/scene/canopySky';
-import type { DayPhase, Weather } from '../camps/scene/environment';
+import { canopySkyPalette, canopySunDirection } from '../../shared/scene/canopySky';
+import type { DayPhase, Weather } from '../../shared/scene/environment';
 
 const vertexShader = `
   varying vec3 direction;

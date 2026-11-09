@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react';
 import { defaultForestArrangement, type ForestArrangement } from '@pyneath/contracts';
-import { ApiRequestError } from '../../shared/api/api';
+import { ApiRequestError } from '../../shared/api/transport';
 import { forestMemories, usePersonalForest } from './PersonalForest';
 import { ForestPreview } from './ForestPreview';
 import { forestLayouts } from './forestArrangement';

@@ -1,6 +1,10 @@
-import "../camps/camps.css";
+import "../../shared/styles/camps.css";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { ApiRequestError, cancelPact, getPact, getProfile, getSession, joinSession, newRequestKey, respondPact, startPact } from "../../shared/api/api";
+import { ApiRequestError } from '../../shared/api/transport';
+import { cancelPact, getPact, respondPact, startPact } from '../../shared/api/clients/pacts';
+import { getProfile } from '../../shared/api/clients/profile';
+import { getSession, joinSession } from '../../shared/api/clients/focus';
+import { newRequestKey } from '../../shared/api/requestKey';
 import { useResource } from "../../shared/api/useResource";
 import { requestKeyStore } from "../../shared/api/requestKey";
 import { Dialog, ErrorMessage } from "../../shared/components/ui";

@@ -1,7 +1,8 @@
+import { appearanceIndex } from '../../../shared/scene/wandererAppearance';
 import { describe, expect, it } from 'vitest';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { CampLodge } from './CampLodge';
-import { appearanceIndex, lodgeMembers, toggleLodgeMember, type LodgeMember } from './lodgeState';
+import { lodgeMembers, toggleLodgeMember, type LodgeMember } from './lodgeState';
 
 const members: LodgeMember[] = [
   { accountId: 'me', displayName: 'An', role: 'owner', joinedAt: '2026-10-01T00:00:00Z' },

@@ -1,5 +1,5 @@
 import { useEffect, useRef, type ReactNode } from 'react';
-import { ThemeSelect } from '../shared/theme/ThemeSelect';
+import { ThemeSelect } from '../theme/ThemeSelect';
 
 export function ForestAppearance({ children }: { children?: ReactNode }) {
   const panel = useRef<HTMLDetailsElement>(null);

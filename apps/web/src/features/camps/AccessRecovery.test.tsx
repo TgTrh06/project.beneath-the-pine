@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { CampView } from './CampView';
-import { PactView } from '../pacts/PactView';
-import { ReturnView } from '../return/ReturnView';
+import { PactView } from '../pacts/public-api';
+import { ReturnView } from '../return/public-api';
 
 let resource: { loading: boolean; error: string; data: unknown; reload: () => Promise<void> };
 vi.mock('../../shared/api/useResource', () => ({ useResource: () => resource }));

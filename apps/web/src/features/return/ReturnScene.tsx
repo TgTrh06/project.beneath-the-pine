@@ -1,11 +1,11 @@
 import { lazy, Suspense, useCallback, useEffect, useLayoutEffect, useState, type ReactNode } from 'react';
 import type { ForestPlace } from './forestPlaces';
-import { ForestAppearance } from '../../app/ForestAppearance';
-import { SceneBoundary } from '../camps/scene/SceneBoundary';
-import { SessionLifeControls, useSessionLife } from '../focus/SessionLifeControls';
-import { parseSettings, resolveTime, resolveWeather, times, weathers, type SceneSettings, type TimeChoice, type WeatherChoice } from '../camps/scene/environment';
+import { ForestAppearance } from '../../shared/components/ForestAppearance';
+import { SceneBoundary } from '../../shared/scene/SceneBoundary';
+import { SessionLifeControls, useSessionLife } from '../focus/controls-api';
+import { parseSettings, resolveTime, resolveWeather, times, weathers, type SceneSettings, type TimeChoice, type WeatherChoice } from '../../shared/scene/environment';
 
-import { usePersonalForest } from '../memory/PersonalForest';
+import { usePersonalForest } from '../memory/public-api';
 
 const Forest = lazy(() => import('./ReturnCanvas'));
 const key = 'pyneath:return-scene';

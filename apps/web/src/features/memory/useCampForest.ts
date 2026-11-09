@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { CampForest } from '@pyneath/contracts';
-import { ApiRequestError, getCampForests } from '../../shared/api/api';
+import { ApiRequestError } from '../../shared/api/transport';
+import { getCampForests } from '../../shared/api/clients/memory';
 
 type State = { campId: string; data: CampForest | null; loading: boolean; error: string };
 

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { deleteAccount, exportData, getProfile, updateProfile } from "../../shared/api/api";
+import { deleteAccount, exportData } from '../../shared/api/clients/privacy';
+import { getProfile, updateProfile } from '../../shared/api/clients/profile';
 import { expireSession } from "../../shared/auth/auth";
 import { useResource } from "../../shared/api/useResource";
 import { Dialog, ErrorMessage } from "../../shared/components/ui";

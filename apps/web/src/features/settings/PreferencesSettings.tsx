@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { getPreferences, updatePreferences } from '../../shared/api/api';
+import { getPreferences, updatePreferences } from '../../shared/api/clients/preferences';
 import { useResource } from '../../shared/api/useResource';
 import { ErrorMessage } from '../../shared/components/ui';
 import type { UpdatePreferences } from '@pyneath/contracts';

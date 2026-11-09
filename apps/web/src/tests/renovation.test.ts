@@ -1,12 +1,12 @@
 import { describe, expect, it } from "vitest";
 import type { FocusPact, FocusSession } from "@pyneath/contracts";
-import { resolveTheme, validTheme } from "./theme/theme";
-import { requestKeyStore, stableRequestKey } from "./api/requestKey";
-import { localToIso } from "./time";
-import { safeFrontendErrorRecord } from "./logging/logger";
+import { resolveTheme, validTheme } from "../shared/theme/theme";
+import { requestKeyStore, stableRequestKey } from "../shared/api/requestKey";
+import { localToIso } from "../shared/time";
+import { safeFrontendErrorRecord } from "../shared/logging/logger";
 import { resolveHashRoute } from "../app/routePaths";
-import { canCheckOut, remainingSeconds, seedPayload, shouldAcceptSnapshot } from "../features/focus/sessionState";
-import { pactActions } from "../features/pacts/pactState";
+import { canCheckOut, remainingSeconds, seedPayload, shouldAcceptSnapshot } from "../features/focus/controls-api";
+import { pactActions } from "../features/pacts/public-api";
 
 describe("theme and private navigation", () => {
   it("keeps a manual theme despite system preference and handles unknown storage", () => {

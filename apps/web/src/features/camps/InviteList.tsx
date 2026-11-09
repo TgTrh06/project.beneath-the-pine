@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import type { InviteListItem } from '@pyneath/contracts';
-import { listCampInvites, revokeInvite } from '../../shared/api/api';
+import { listCampInvites, revokeInvite } from '../../shared/api/clients/camps';
 import { Dialog, ErrorMessage } from '../../shared/components/ui';
 import { formatTime } from '../../shared/time';
 export function InviteList({id,timezone,revision,onRevoked}:{id:string;timezone:string;revision:number;onRevoked?:(id:string)=>void}) {

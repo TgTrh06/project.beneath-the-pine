@@ -1,9 +1,9 @@
 import { useState, type Dispatch, type SetStateAction } from 'react';
 import type { FocusPreset } from '@pyneath/contracts';
-import { getPreferences, updatePreferences } from '../../shared/api/api';
+import { getPreferences, updatePreferences } from '../../shared/api/clients/preferences';
 import { useResource } from '../../shared/api/useResource';
 import { ErrorMessage, type Duration } from '../../shared/components/ui';
-import { soundNames, type SoundId } from '../focus/Soundscape';
+import { soundNames, type SoundId } from '../focus/controls-api';
 
 export function PresetFocus({duration, setDuration, sound, setSound}: {
   duration:Duration; setDuration:Dispatch<SetStateAction<Duration>>;

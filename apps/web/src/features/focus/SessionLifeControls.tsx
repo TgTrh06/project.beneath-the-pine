@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { lifeLevels, parseSessionLife, type SessionLife } from '../camps/scene/forestActivity';
+import { lifeLevels, parseSessionLife, type SessionLife } from '../../shared/scene/forestActivity';
 
 const key = 'pyneath:session-life';
 export function useSessionLife(motion: boolean) {

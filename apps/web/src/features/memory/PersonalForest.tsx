@@ -1,6 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useReducer, useRef, useState, type ReactNode } from 'react';
 import { defaultForestArrangement, forestArrangementSchema, type ForestArrangement, type ForestThreshold, type PersonalForest, type PersonalMilestone } from '@pyneath/contracts';
-import { getPersonalForest, getPreferences, saveForestArrangement } from '../../shared/api/api';
+import { getPersonalForest } from '../../shared/api/clients/memory';
+import { getPreferences, saveForestArrangement } from '../../shared/api/clients/preferences';
 import { ForestPreview } from './ForestPreview';
 import { formatTime } from '../../shared/time';
 import { MartenIllustration } from '../../shared/components/marten/MartenIllustration';

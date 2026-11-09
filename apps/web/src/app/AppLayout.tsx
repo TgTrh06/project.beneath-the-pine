@@ -4,9 +4,9 @@ import type { View } from "../shared/types/domain";
 import { navigationItems } from "./router";
 import { Dialog } from "../shared/components/ui";
 import { ThemeSelect } from "../shared/theme/ThemeSelect";
-import { forestPlaces, type ForestPlace } from '../features/return/forestPlaces';
-import './forest-pages.css';
-import { ReturnScene } from '../features/return/ReturnScene';
+import { forestPlaces, type ForestPlace } from '../features/return/scene-api';
+import '../shared/styles/forest-pages.css';
+import { ReturnScene } from '../features/return/scene-api';
 import './app-forest.css';
 
 const navPaths: Record<string, string> = {

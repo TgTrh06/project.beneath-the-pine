@@ -3,19 +3,23 @@ import type { ReactNode } from "react";
 import { StartHelp } from "./StartHelp";
 import "./return.css";
 import { useRef, useState } from "react";
-import { ApiRequestError, deleteSeed, getProfile, getReturnState, newRequestKey, putSeed, startSolo, updateProfile } from "../../shared/api/api";
+import { ApiRequestError } from '../../shared/api/transport';
+import { deleteSeed, putSeed } from '../../shared/api/clients/seed';
+import { getProfile, updateProfile } from '../../shared/api/clients/profile';
+import { getReturnState, startSolo } from '../../shared/api/clients/focus';
+import { newRequestKey } from '../../shared/api/requestKey';
 import { stableRequestKey } from "../../shared/api/requestKey";
 import { useResource } from "../../shared/api/useResource";
 import { Dialog, DurationPicker, ErrorMessage, type Duration } from "../../shared/components/ui";
 import { deviceTimezone, formatTime, validTimezone } from "../../shared/time";
 import { usePrivateDraft } from "../../shared/auth/usePrivateDraft";
-import { AssistanceCoach } from "../assistance/AssistanceCoach";
+import { AssistanceCoach } from "../assistance/public-api";
 import { PresetFocus } from './PresetFocus';
-import type { SoundId } from '../focus/Soundscape';
+import type { SoundId } from '../focus/controls-api';
 import { draftOwner, writePrivateDraft } from '../../shared/auth/privateDrafts';
 import { FirstTimeHint } from '../../shared/components/FirstTimeHint';
 
-import { PersonalForestSummary } from "../memory/PersonalForest";
+import { PersonalForestSummary } from "../memory/public-api";
 
 function ReturnNote({ children }: { children: ReactNode }) {
   return <div className="return-marten-note"><img src="/return/marten.webp" width="88" height="72" alt=""/><p>{children}</p></div>;

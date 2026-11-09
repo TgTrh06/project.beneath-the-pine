@@ -2,22 +2,24 @@ import { MartenNote } from "../../shared/components/marten/MartenNote";
 import "./session.css";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { FocusSession } from "@pyneath/contracts";
-import { checkOut, getPact, getReturnState, getSession, putSeed } from "../../shared/api/api";
+import { checkOut, getReturnState, getSession } from '../../shared/api/clients/focus';
+import { getPact } from '../../shared/api/clients/pacts';
+import { putSeed } from '../../shared/api/clients/seed';
 import { useSessionRealtime } from "../../shared/realtime/useSessionRealtime";
 import { Dialog, ErrorMessage } from "../../shared/components/ui";
 import { ThemeSelect } from "../../shared/theme/ThemeSelect";
 import { canCheckOut, outcomes, remainingSeconds, seedPayload, shouldAcceptSnapshot, type Outcome } from "./sessionState";
 import { usePrivateDraft } from "../../shared/auth/usePrivateDraft";
-import { AssistanceCoach } from "../assistance/AssistanceCoach";
+import { AssistanceCoach } from "../assistance/public-api";
 import { StuckRecovery } from './StuckRecovery';
 import type { ReactNode } from "react";
-import { ReturnScene } from "../return/ReturnScene";
+import { ReturnScene } from "../return/scene-api";
 import { SoloScene } from "./SoloScene";
 import { SoloToolPanel } from "./SoloToolPanel";
 import "./solo.css";
 import { Soundscape } from './Soundscape';
 
-import { ForestArrival, usePersonalForest } from "../memory/PersonalForest";
+import { ForestArrival, usePersonalForest } from "../memory/public-api";
 
 export function SessionView({ id, accountId, onReturn, onRepeatPact }: { id: string; accountId: string; onReturn: () => void; onRepeatPact: (campId: string, pactId: string) => void; onNotice: (text: string) => void }) {
   const { refresh: refreshForest } = usePersonalForest();

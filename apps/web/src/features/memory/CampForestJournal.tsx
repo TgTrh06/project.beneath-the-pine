@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { CampForest, ForestThreshold } from '@pyneath/contracts';
-import { getCampForests, getMemory } from '../../shared/api/api';
+import { getCampForests, getMemory } from '../../shared/api/clients/memory';
 import { ErrorMessage } from '../../shared/components/ui';
 import { formatTime } from '../../shared/time';
 import { ForestMemoryMark } from './PersonalForest';

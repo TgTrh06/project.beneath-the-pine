@@ -20,7 +20,7 @@ describe('Pyneath Assistance demo controls', () => {
   });
 
   it('uses the selected mode in recovery requests and discloses the actual processor', async () => {
-    const { makeAssistanceRequest, assistanceDisclosure } = await import('./AssistanceCoach');
+    const { makeAssistanceRequest, assistanceDisclosure } = await import('./assistanceState');
     expect(makeAssistanceRequest('stuck_recovery', '  Mở tài liệu  ', 'low_energy')).toEqual({ capability: 'stuck_recovery', currentStep: 'Mở tài liệu', stuckMode: 'low_energy' });
     expect(assistanceDisclosure('self_hosted')).toContain('máy chủ Pyneath');
     expect(assistanceDisclosure('self_hosted')).not.toContain('OpenAI');

@@ -1,6 +1,6 @@
-import "./camps.css";
+import "../../shared/styles/camps.css";
 import { useRef, useState } from "react";
-import { createCamp, listCamps } from "../../shared/api/api";
+import { createCamp, listCamps } from '../../shared/api/clients/camps';
 import { useResource } from "../../shared/api/useResource";
 import { Dialog, ErrorMessage } from "../../shared/components/ui";
 import { FirstTimeHint } from '../../shared/components/FirstTimeHint';

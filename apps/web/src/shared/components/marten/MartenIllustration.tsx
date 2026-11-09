@@ -1,4 +1,4 @@
-import type { MartenPose } from '../../../features/camps/scene/martenPoses';
+import type { MartenPose } from '../../scene/martenPoses';
 import './marten.css';
 type IllustrationPose = MartenPose | 'peek' | 'loaf' | 'look-right' | 'perch' | 'nap';
 const aliases:Partial<Record<IllustrationPose,MartenPose>>={peek:'stand',loaf:'rest','look-right':'look-back',perch:'sit',nap:'side-sleep'};

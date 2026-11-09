@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import type { FocusPreset } from '@pyneath/contracts';
-import { getPreferences } from '../../shared/api/api';
+import { getPreferences } from '../../shared/api/clients/preferences';
 import { usePrivateDraft } from '../../shared/auth/usePrivateDraft';
 
 export type SoundId = NonNullable<FocusPreset['soundscapeId']>;

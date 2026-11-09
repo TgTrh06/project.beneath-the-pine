@@ -13,3 +13,5 @@ export function requestKeyStore(create: () => string) {
     clear() { key = ""; payload = ""; },
   };
 }
+
+export const newRequestKey = () => crypto.randomUUID();

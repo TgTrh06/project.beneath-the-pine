@@ -1,6 +1,7 @@
-import "./camps.css";
+import "../../shared/styles/camps.css";
 import { useCallback, useRef, useState } from "react";
-import { acceptCampInvite, ApiRequestError, declineCampInvite, getCampInvitePreview } from "../../shared/api/api";
+import { acceptCampInvite, declineCampInvite, getCampInvitePreview } from '../../shared/api/clients/camps';
+import { ApiRequestError } from '../../shared/api/transport';
 import { useResource } from "../../shared/api/useResource";
 import { ErrorMessage } from "../../shared/components/ui";
 

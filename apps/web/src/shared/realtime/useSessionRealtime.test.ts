@@ -20,7 +20,9 @@ vi.mock('socket.io-client', () => ({ io: () => ({
   removeAllListeners: () => h.handlers.clear(),
 }) }));
 vi.mock('../auth/auth', () => ({ expireSession: h.expire }));
-vi.mock('../api/api', () => ({ getSession: h.get, realtimeUrl: undefined, ApiRequestError: class extends Error {} }));
+vi.mock('../api/clients/focus', () => ({ getSession: h.get }));
+vi.mock('../api/config', () => ({ realtimeUrl: undefined }));
+vi.mock('../api/transport', () => ({ ApiRequestError: class extends Error {} }));
 import { useSessionRealtime } from './useSessionRealtime';
 
 beforeEach(() => {

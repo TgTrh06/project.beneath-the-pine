@@ -2,7 +2,9 @@ import { expireSession } from "../auth/auth";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { focusSessionSchema, realtimeEvents, type FocusSession } from "@pyneath/contracts";
 import { io, type Socket } from "socket.io-client";
-import { ApiRequestError, getSession, realtimeUrl } from "../api/api";
+import { ApiRequestError } from '../api/transport';
+import { getSession } from '../api/clients/focus';
+import { realtimeUrl } from '../api/config';
 
 type Connection = "connecting" | "live" | "reconnecting" | "offline";
 

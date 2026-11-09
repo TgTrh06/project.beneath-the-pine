@@ -1,9 +1,9 @@
 import { lazy, Suspense, useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
-import { SceneBoundary } from '../camps/scene/SceneBoundary';
-import { canopyPoster } from '../camps/scene/canopySky';
+import { SceneBoundary } from '../../shared/scene/SceneBoundary';
+import { canopyPoster } from '../../shared/scene/canopySky';
 import { ThemeSelect } from '../../shared/theme/ThemeSelect';
 import { readBrandValue } from '../../shared/brandStorage';
-import { parseSettings, resolveTime, resolveWeather, times, weathers, type SceneSettings, type TimeChoice, type WeatherChoice } from '../camps/scene/environment';
+import { parseSettings, resolveTime, resolveWeather, times, weathers, type SceneSettings, type TimeChoice, type WeatherChoice } from '../../shared/scene/environment';
 
 const Forest = lazy(() => import('./LandingCanvas'));
 const key = 'pyneath:landing-scene';

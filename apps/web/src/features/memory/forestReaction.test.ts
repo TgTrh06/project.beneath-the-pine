@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { ForestThreshold } from '@pyneath/contracts';
 import { forestReactionDuration, forestReactionReducer as reduce, forestReactions, initialForestReaction } from './forestReaction';
-import { resolveMartenPose } from '../camps/scene/martenPoses';
+import { resolveMartenPose } from '../../shared/scene/martenPoses';
 
 const arrival = (threshold: ForestThreshold = 1, now = 100) => ({
   type: 'arrival' as const, milestone: { threshold, sourceSessionId: `session-${threshold}`, recordedAt: '2026-11-03T00:00:00Z' },

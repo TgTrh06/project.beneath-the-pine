@@ -1,18 +1,23 @@
 import { CampPanel } from "./scene/CampPanel";
 import { CampLodge } from "./scene/CampLodge";
 import { toggleLodgeMember } from "./scene/lodgeState";
-import { PactsView } from "../pacts/PactsView";
+import { PactsView } from "../pacts/public-api";
 import { InviteList } from "./InviteList";
-import "./camps.css";
+import "../../shared/styles/camps.css";
 import { usePrivateDraft } from "../../shared/auth/usePrivateDraft";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { setCampStatus, ApiRequestError, createCampInvite, createPact, getCamp, getPact, getProfile, getRecentPartners, leaveCamp, newRequestKey, removeMember, revokeInvite, transferCamp, updateCamp } from "../../shared/api/api";
+import { setCampStatus, createCampInvite, getCamp, leaveCamp, removeMember, revokeInvite, transferCamp, updateCamp } from '../../shared/api/clients/camps';
+import { ApiRequestError } from '../../shared/api/transport';
+import { createPact, getPact } from '../../shared/api/clients/pacts';
+import { getProfile } from '../../shared/api/clients/profile';
+import { getRecentPartners } from '../../shared/api/clients/focus';
+import { newRequestKey } from '../../shared/api/requestKey';
 import { useResource } from "../../shared/api/useResource";
 import { requestKeyStore } from "../../shared/api/requestKey";
 import { Dialog, DurationPicker, ErrorMessage, type Duration } from "../../shared/components/ui";
 import { deviceTimezone, formatTime, localToIso } from "../../shared/time";
 import { FirstTimeHint } from "../../shared/components/FirstTimeHint";
-import { useCampForest } from '../memory/useCampForest';
+import { useCampForest } from '../memory/public-api';
 export function CampView({ id, accountId, onPact, onLeave }: { id: string; accountId: string; onPact: (id: string) => void; onLeave: () => void; onNotice: (text: string) => void }) {
   const [panel, setPanel] = useState<'compose' | 'manage' | 'pacts' | null>(null);
   const openComposer = () => setPanel('compose');
@@ -55,7 +60,8 @@ export function CampView({ id, accountId, onPact, onLeave }: { id: string; accou
   const owner = camp.myRole === "owner"; const archived = camp.status === "archived";
   const link = invite ? location.origin + location.pathname + "#invite/" + invite.token : "";
   return <div className="camps-page camp-detail camp-detail--forest">
-    <CampLodge header={<header className="camp-identity"><p className="eyebrow">DƯỚI TÁN TÙNG · {camp.memberCount}/8 THÀNH VIÊN</p><h1>{camp.name}</h1><p>{archived ? 'Camp đã lưu trữ' : 'Một khoảng yên, có nhau.'}</p></header>} feedback={<div className="camp-feedback"><ErrorMessage message={resource.error} retry={resource.reload}/>{message && <p className="notice" role="status">{message}</p>}</div>} members={camp.members} accountId={accountId} selected={selected} archived={archived} disabled={busy || archived} forest={forest.data} forestLoading={forest.loading} forestError={forest.error} onReloadForest={forest.reload} onToggleMember={memberId => setSelected(values => toggleLodgeMember(values, memberId, camp.members ?? [], accountId, busy || archived))} onCompose={openComposer} onPacts={openPacts} onManage={() => setPanel('manage')}/>
+    <CampLodge header={<header className="camp-identity"><p className="eyebrow">DƯỚI TÁN TÙNG · {camp.memberCount}/8 THÀNH VIÊN</p><h1>{camp.name}</h1><p>{archived ? 'Camp đã lưu trữ' : 'Một khoảng yên, có nhau.'}</p></header>} feedback={<div className="camp-feedback"><ErrorMessage message={resource.error} retry={resource.reload}/>{message && <p className="notice" role="status">{message}</p>}</div>
+} members={camp.members} accountId={accountId} selected={selected} archived={archived} disabled={busy || archived} forest={forest.data} forestLoading={forest.loading} forestError={forest.error} onReloadForest={forest.reload} onToggleMember={memberId => setSelected(values => toggleLodgeMember(values, memberId, camp.members ?? [], accountId, busy || archived))} onCompose={openComposer} onPacts={openPacts} onManage={() => setPanel('manage')}/>
     {panel === "compose" && !archived && <CampPanel title="Hẹn một chặng" onClose={() => { if (!busy) setPanel(null); }}><form id="camp-compose" className="camp-panel pact-composer" onSubmit={e => { e.preventDefault(); void act(async () => {
       const signature = JSON.stringify({selected,duration,scheduled,date,timezone});
       if (retry.start?.signature !== signature) retry.start = { signature,time:scheduled ? localToIso(date,timezone) ?? "" : new Date().toISOString() };

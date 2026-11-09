@@ -1,6 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { PactReminderClaim } from '@pyneath/contracts';
-import { ApiRequestError, claimDuePactReminders, getPact, getPreferences, getProfile } from '../../shared/api/api';
+import { ApiRequestError } from '../../shared/api/transport';
+import { claimDuePactReminders, getPact } from '../../shared/api/clients/pacts';
+import { getPreferences } from '../../shared/api/clients/preferences';
+import { getProfile } from '../../shared/api/clients/profile';
 import { ErrorMessage } from '../../shared/components/ui';
 import { deviceTimezone, formatTimeWithOffset } from '../../shared/time';
 import './PactReminder.css';

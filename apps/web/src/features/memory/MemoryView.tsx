@@ -1,9 +1,9 @@
 import {useState} from 'react';
-import { getHistory } from "../../shared/api/api";
+import { getHistory } from '../../shared/api/clients/focus';
 import { useResource } from "../../shared/api/useResource";
 import { ErrorMessage } from "../../shared/components/ui";
 import { formatTime } from "../../shared/time";
-import { outcomes } from "../focus/sessionState";
+import { outcomes } from "../focus/controls-api";
 import { PersonalForestJournal } from "./PersonalForest";
 import { ForestArrangementEditor } from './ForestArrangementEditor';
 import { CampForestJournal } from './CampForestJournal';

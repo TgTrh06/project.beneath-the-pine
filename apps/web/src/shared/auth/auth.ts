@@ -2,7 +2,7 @@ import { logFrontendError } from "../logging/logger";
 import { accountSessionSchema, type AccountSessionPayload } from "@pyneath/contracts";
 import { discardPrivateDrafts, setDraftOwner } from "./privateDrafts";
 
-const apiUrl = (import.meta.env.VITE_API_URL as string | undefined) || "/api/v1";
+import { apiUrl } from '../api/config';
 export const isAuthConfigured = Boolean(apiUrl);
 
 export type AuthSession = Readonly<{ subject: string; email: string }>;

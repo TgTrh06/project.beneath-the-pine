@@ -1,17 +1,17 @@
 import { Suspense, useEffect } from 'react';
 import { Canvas, useThree } from '@react-three/fiber';
 import { ACESFilmicToneMapping, OrthographicCamera, PCFSoftShadowMap } from 'three';
-import { Room, Marten, WindBranches } from '../camps/scene/LodgeCanvas';
-import { Environment, Rain } from '../camps/scene/SceneEnvironment';
+import { Room, Marten, WindBranches } from '../../shared/scene/LodgeCanvas';
+import { Environment, Rain } from '../../shared/scene/SceneEnvironment';
 import { forestPlaces, type ForestPlace } from './forestPlaces';
-import type { DayPhase, Weather } from '../camps/scene/environment';
-import { ForestLife } from '../camps/scene/ForestLife';
-import { MartenCompanion } from '../camps/scene/MartenCompanion';
-import type { SessionLife } from '../camps/scene/forestActivity';
+import type { DayPhase, Weather } from '../../shared/scene/environment';
+import { ForestLife } from '../../shared/scene/ForestLife';
+import { MartenCompanion } from '../../shared/scene/MartenCompanion';
+import type { SessionLife } from '../../shared/scene/forestActivity';
 
-import { ForestGrowth } from "../memory/ForestGrowth";
+import { ForestGrowth } from "../memory/scene-api";
 import type { ForestArrangement, ForestThreshold } from "@pyneath/contracts";
-import { forestReactions, type ForestReaction } from '../memory/forestReaction';
+import { forestReactions, type ForestReaction } from '../memory/scene-api';
 
 type Props = { growth?:ForestThreshold[]; arrangement?:ForestArrangement | null; reaction?:ForestReaction | null; place?:ForestPlace; life?:SessionLife; phase: DayPhase; weather: Weather; animate: boolean; visible: boolean; attempt: number; onReady: () => void; onFailure: () => void };
 function Viewpoint({ visible, onFailure, place = 'return' }: Pick<Props, 'visible' | 'onFailure' | 'place'>) {

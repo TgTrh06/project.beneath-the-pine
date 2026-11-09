@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type SubmitEventHandler } from "react";
-import { ReturnScene } from "../return/ReturnScene";
-import "../../app/forest-pages.css";
+import { ReturnScene } from "../return/scene-api";
+import "../../shared/styles/forest-pages.css";
 
 import { login, register } from "../../shared/auth/auth";
 

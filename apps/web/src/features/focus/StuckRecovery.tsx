@@ -1,7 +1,7 @@
 import { useEffect, useId, useRef, useState, type Dispatch, type SetStateAction } from 'react';
-import { putSeed } from '../../shared/api/api';
+import { putSeed } from '../../shared/api/clients/seed';
 import { ErrorMessage } from '../../shared/components/ui';
-import { AssistanceCoach } from '../assistance/AssistanceCoach';
+import { AssistanceCoach } from '../assistance/public-api';
 
 type Props = {
   microstep: string;
