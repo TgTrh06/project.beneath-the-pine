@@ -14,6 +14,7 @@ From the repository root:
 pnpm --filter @pyneath/contracts build
 node ml/scripts/export_protocol.cjs --check
 python -m pip install -r ml/training/requirements-ci.txt
+python ml/scripts/check_boundaries.py
 python ml/scripts/draft_v2.py --source ml/data/private/pyneath-assistance-vi-v1/all.jsonl --output ml/data/private/pyneath-assistance-vi-v2-draft
 python ml/scripts/prepare_v2.py ml/data/private/pyneath-assistance-vi-v2-draft/train.jsonl ml/data/private/pyneath-assistance-vi-v2-draft/validation.jsonl --allow-drafts
 ```

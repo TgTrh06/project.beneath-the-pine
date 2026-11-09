@@ -5,7 +5,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from pyneath_dataset import split_rows, validate_file, validate_row
+from ml.common.v1_dataset import split_rows, validate_file, validate_row
 
 
 def fixture(capability="assisted_start", status="suggestion"):

@@ -48,6 +48,7 @@ jobs:
         run: |
           python -m pip install -r ml/training/requirements-ci.txt
           node ml/scripts/export_protocol.cjs --check
+          python ml/scripts/check_boundaries.py
           python -m unittest discover -s ml/tests -v
           python -m unittest discover -s ml/scripts -p 'test_pyneath_dataset.py' -v
       - name: Build API container

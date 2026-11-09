@@ -7,15 +7,19 @@ Read [ML governance](../docs/05-machine-learning/README.md) before creating a da
 ## Assets
 
 - `notebooks/pyneath-qlora-colab.ipynb`: private Colab workflow, mandatory smoke run and reviewed-data gate.
-- `training/`: v2 preflight, assistant-only token masking, QLoRA and checksum-verified resume.
+- `common/`: protocol, dataset/review validation, checksum/file I/O, approved config, frozen manifests, checkpoint identity/publication and redirect policy. This layer does not import training, evaluation, export or GPU libraries.
+- `authoring/`: unreviewed candidate generation, separate from training and CLI parsing.
+- `training/`: environment preflight, assistant-only token masking and the QLoRA workflow. Resume uses the same `common/checkpoints.py` verifier as scoring and export.
 - `scripts/prepare_v2.py` and `scripts/draft_v2.py`: review candidates, strict validation and manifest freeze; never fabricate human approval.
 - `evaluation/`: baseline/adapter/GGUF predictions, blind review, scoring and candidate selection.
 - `export/`: exact-base merge, GGUF conversion and evidence-bound promotion; no deployment.
+- CLI modules retain their documented names and arguments and call implementation modules (`workflow`, `predictions`, `scoring`, `measurement`, `selection`, `review`, `conversion`, `promotion`). Implementations never import CLI entry points.
+- `scripts/check_boundaries.py`: AST import ownership and cycle checks, exercised by negative fixtures in `tests/test_architecture.py` and CI.
 - `dataset-card.pyneath-assistance-vi-v2.md`: current draft status and outstanding author/reviewer work.
 
 - `dataset-card.pyneath-assistance-vi-v1.md`: 80,000-row **unreviewed** Vietnamese Assistance draft, coverage, checksums and measured limitations.
 - `scripts/generate_pyneath_dataset.py`: reproducible generation from private authoring banks; refuses overwriting existing artifacts.
-- `scripts/pyneath_dataset.py`: strict Assistance v1 validation and family-level split logic. `validate_dataset.py --require-reviewed` rejects the current draft.
+- `common/v1_dataset.py`: strict Assistance v1 validation and family-level split logic. The existing `scripts/validate_dataset.py --require-reviewed` command still rejects the current draft. Legacy fixture validation lives in `common/legacy_validation.py`; both generations keep their original contracts.
 - `scripts/audit_pyneath_dataset.py`: full exact/group checks and a bounded, disclosed near-duplicate sample.
 - `scripts/validate_pyneath_contract.cjs`: validates every row against the actual repository Zod contracts using existing dependencies.
 - `scripts/test_pyneath_dataset.py`: focused validation, review-gate and split-isolation tests.

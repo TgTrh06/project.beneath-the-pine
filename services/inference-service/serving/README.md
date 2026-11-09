@@ -1,6 +1,6 @@
 # Local llama-server runtime
 
-This directory is separate from the legacy FastAPI `app/`. No FastAPI process is required for the new local provider. Nothing is enabled or deployed by adding these files.
+This directory contains the standalone llama-server launcher. The unused FastAPI experiment and its dependency declaration were removed under ADR-0030. Nothing is enabled or deployed by adding these files. Existing private environments and model files remain local and untouched.
 
 Build llama-server and llama-quantize from the same clean, immutable llama.cpp revision used for export. Record binary hashes and `--help`/version output in the hardware report. The launcher requires a model manifest and an explicit binary SHA-256; it does not download binaries or models.
 

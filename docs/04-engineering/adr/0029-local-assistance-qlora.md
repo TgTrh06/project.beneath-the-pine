@@ -5,7 +5,7 @@
 
 ## Decision
 
-Train an adapter for Qwen2.5-1.5B-Instruct on reviewed fictional Vietnamese data using Colab Free. Keep training in `ml/` and inference in an independently managed llama-server process. The existing FastAPI experiment remains unchanged and is not on the new request path. No LangGraph, tools, retrieval, queue or database migration is introduced.
+Train an adapter for Qwen2.5-1.5B-Instruct on reviewed fictional Vietnamese data using Colab Free. Keep training in `ml/` and inference in an independently managed llama-server process. The original decision retained the FastAPI experiment outside the new request path; that retention decision is superseded by [ADR-0030](0030-module-ownership-refactor.md), and the unused experiment has been removed. No LangGraph, tools, retrieval, queue or database migration is introduced.
 
 NestJS retains authentication, per-account/global quotas, the public response envelope, validation and fixed fallback/boundary messages. Add `stuck_recovery` with either one editable microstep or an explicitly accepted two-minute break. Existing start/Seed requests retain their wire format. Local requests never fall back to OpenAI or use external moderation.
 
