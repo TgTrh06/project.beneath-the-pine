@@ -1,2 +1,3 @@
-export { focusPacts, focusPactParticipants, pactReminderReceipts } from './infrastructure/pact.schema';
-export { PactService } from './pact.service';
+export { PACT_ACCESS, type PactAccess } from './application/pact.ports';
+
+export type { PactPrivacyAccess } from './application/pact.ports';

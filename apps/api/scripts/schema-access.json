@@ -1,0 +1,186 @@
+[
+  {
+    "source": "modules/analytics/infrastructure/analytics.schema.ts",
+    "target": "modules/identity/infrastructure/identity.schema.ts",
+    "imports": [
+      "accounts"
+    ],
+    "kind": "foreign_key",
+    "reason": "Existing foreign-key references; no schema definition changes."
+  },
+  {
+    "source": "modules/camp/infrastructure/camp.repository.ts",
+    "target": "modules/profile/infrastructure/profile.schema.ts",
+    "imports": [
+      "profiles"
+    ],
+    "kind": "read_model",
+    "reason": "Member and inviter display names."
+  },
+  {
+    "source": "modules/camp/infrastructure/camp.schema.ts",
+    "target": "modules/identity/infrastructure/identity.schema.ts",
+    "imports": [
+      "accounts"
+    ],
+    "kind": "foreign_key",
+    "reason": "Existing foreign-key references; no schema definition changes."
+  },
+  {
+    "source": "modules/focus/infrastructure/focus.repository.ts",
+    "target": "modules/camp/infrastructure/camp.schema.ts",
+    "imports": [
+      "campMemberships",
+      "camps"
+    ],
+    "kind": "read_model",
+    "reason": "Active membership and revoked-participant reconciliation."
+  },
+  {
+    "source": "modules/focus/infrastructure/focus.repository.ts",
+    "target": "modules/pact/infrastructure/pact.schema.ts",
+    "imports": [
+      "focusPactParticipants"
+    ],
+    "kind": "read_model",
+    "reason": "Invited participants who have not joined."
+  },
+  {
+    "source": "modules/focus/infrastructure/focus.repository.ts",
+    "target": "modules/profile/infrastructure/profile.schema.ts",
+    "imports": [
+      "profiles"
+    ],
+    "kind": "read_model",
+    "reason": "Participant display names."
+  },
+  {
+    "source": "modules/focus/infrastructure/focus.repository.ts",
+    "target": "modules/preferences/infrastructure/preferences.schema.ts",
+    "imports": [
+      "accountPreferences"
+    ],
+    "kind": "read_model",
+    "reason": "Presence visibility in authorized snapshots."
+  },
+  {
+    "source": "modules/focus/infrastructure/focus.schema.ts",
+    "target": "modules/identity/infrastructure/identity.schema.ts",
+    "imports": [
+      "accounts"
+    ],
+    "kind": "foreign_key",
+    "reason": "Existing foreign-key references; no schema definition changes."
+  },
+  {
+    "source": "modules/focus/infrastructure/focus.schema.ts",
+    "target": "modules/camp/infrastructure/camp.schema.ts",
+    "imports": [
+      "camps"
+    ],
+    "kind": "foreign_key",
+    "reason": "Existing foreign-key references; no schema definition changes."
+  },
+  {
+    "source": "modules/memory/infrastructure/memory.repository.ts",
+    "target": "modules/camp/infrastructure/camp.schema.ts",
+    "imports": [
+      "campMemberships",
+      "camps"
+    ],
+    "kind": "read_model",
+    "reason": "Authorized shared milestone history."
+  },
+  {
+    "source": "modules/memory/infrastructure/memory.repository.ts",
+    "target": "modules/focus/infrastructure/focus.schema.ts",
+    "imports": [
+      "focusSessions",
+      "sessionParticipants"
+    ],
+    "kind": "read_model",
+    "reason": "Personal milestone completion history."
+  },
+  {
+    "source": "modules/memory/infrastructure/memory.schema.ts",
+    "target": "modules/camp/infrastructure/camp.schema.ts",
+    "imports": [
+      "camps"
+    ],
+    "kind": "foreign_key",
+    "reason": "Existing foreign-key references; no schema definition changes."
+  },
+  {
+    "source": "modules/memory/infrastructure/memory.schema.ts",
+    "target": "modules/identity/infrastructure/identity.schema.ts",
+    "imports": [
+      "accounts"
+    ],
+    "kind": "foreign_key",
+    "reason": "Existing foreign-key references; no schema definition changes."
+  },
+  {
+    "source": "modules/pact/infrastructure/pact.repository.ts",
+    "target": "modules/camp/infrastructure/camp.schema.ts",
+    "imports": [
+      "campMemberships",
+      "camps"
+    ],
+    "kind": "read_model",
+    "reason": "Inbox, upcoming Pact and reminder membership eligibility."
+  },
+  {
+    "source": "modules/pact/infrastructure/pact.repository.ts",
+    "target": "modules/profile/infrastructure/profile.schema.ts",
+    "imports": [
+      "profiles"
+    ],
+    "kind": "read_model",
+    "reason": "Participant display names."
+  },
+  {
+    "source": "modules/pact/infrastructure/pact.schema.ts",
+    "target": "modules/identity/infrastructure/identity.schema.ts",
+    "imports": [
+      "accounts"
+    ],
+    "kind": "foreign_key",
+    "reason": "Existing foreign-key references; no schema definition changes."
+  },
+  {
+    "source": "modules/pact/infrastructure/pact.schema.ts",
+    "target": "modules/camp/infrastructure/camp.schema.ts",
+    "imports": [
+      "camps"
+    ],
+    "kind": "foreign_key",
+    "reason": "Existing foreign-key references; no schema definition changes."
+  },
+  {
+    "source": "modules/preferences/infrastructure/preferences.schema.ts",
+    "target": "modules/identity/infrastructure/identity.schema.ts",
+    "imports": [
+      "accounts"
+    ],
+    "kind": "foreign_key",
+    "reason": "Existing foreign-key references; no schema definition changes."
+  },
+  {
+    "source": "modules/profile/infrastructure/profile.schema.ts",
+    "target": "modules/identity/infrastructure/identity.schema.ts",
+    "imports": [
+      "accounts"
+    ],
+    "kind": "foreign_key",
+    "reason": "Existing foreign-key references; no schema definition changes."
+  },
+  {
+    "source": "modules/seed/infrastructure/seed.schema.ts",
+    "target": "modules/identity/infrastructure/identity.schema.ts",
+    "imports": [
+      "accounts"
+    ],
+    "kind": "foreign_key",
+    "reason": "Existing foreign-key references; no schema definition changes."
+  }
+]

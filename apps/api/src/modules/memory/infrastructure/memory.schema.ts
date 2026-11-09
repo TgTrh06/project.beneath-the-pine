@@ -1,7 +1,7 @@
 import { sql } from 'drizzle-orm';
 import { check, integer, pgEnum, pgTable, primaryKey, timestamp, uniqueIndex, uuid } from 'drizzle-orm/pg-core';
-import { camps } from '../../camp/public-api';
-import { accounts } from '../../identity/public-api';
+import { camps } from '../../camp/infrastructure/camp.schema';
+import { accounts } from '../../identity/infrastructure/identity.schema';
 
 export const milestoneType = pgEnum('camp_milestone_type', ['shared_presence']);
 export const campMilestones = pgTable('camp_milestones', {

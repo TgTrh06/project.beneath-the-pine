@@ -15,15 +15,13 @@ import { createIdentityStore } from './helpers/module-fixtures';
 import { IDENTITY_REPOSITORY } from '../src/modules/identity/application/identity.ports';
 import { profiles } from '../src/modules/profile/infrastructure/profile.schema';
 import { createAnalytics } from './helpers/module-fixtures';
-import { CampService } from '../src/modules/camp/camp.service';
-import { PactService } from '../src/modules/pact/pact.service';
+import { createCamps, createPacts, createFocus } from './helpers/module-fixtures';
 import { focusPacts, pactReminderReceipts } from '../src/modules/pact/infrastructure/pact.schema';
-import { FocusService } from '../src/modules/focus/focus.service';
-import { MemoryService } from '../src/modules/memory/memory.service';
+import { createMemory } from './helpers/module-fixtures';
 import { createSeeds } from './helpers/module-fixtures';
-import { PreferencesService } from '../src/modules/preferences/preferences.service';
+import { createPreferences } from './helpers/module-fixtures';
 import { accountPreferences } from '../src/modules/preferences/infrastructure/preferences.schema';
-import { PrivacyService } from '../src/modules/privacy/privacy.service';
+import { createPrivacy } from './helpers/module-fixtures';
 
 test('core PostgreSQL flow preserves ownership, reconnect state, seed uniqueness and shared milestone', { skip: !process.env.PYNEATH_TEST_DATABASE_URL }, async () => {
   const pool = new Pool({ connectionString: process.env.PYNEATH_TEST_DATABASE_URL, max: 4 }); const client = await pool.connect(); const concurrentClient = await pool.connect(); const schema = `core_test_${randomBytes(8).toString('hex')}`;
@@ -58,7 +56,7 @@ test('core PostgreSQL flow preserves ownership, reconnect state, seed uniqueness
     assert.deepEqual(preserved.rows, [{ invite_id: legacyInviteId, pact_id: legacyPactId, session_id: legacySessionId, participant_id: legacyParticipantId, milestone_id: legacyMilestoneId }]);
     const renamedForeignKeys = await client.query("SELECT conname FROM pg_constraint c JOIN pg_namespace n ON n.oid=c.connamespace WHERE n.nspname=$1 AND conname IN ('camp_invites_camp_id_camps_id_fk','camp_milestones_camp_id_camps_id_fk','focus_sessions_camp_id_camps_id_fk','focus_pacts_camp_id_camps_id_fk')", [schema]);
     assert.equal(renamedForeignKeys.rowCount, 4, 'renamed relationships remain constrained');
-    const db = drizzle(client); const concurrentDb = drizzle(concurrentClient); const database = { db } as unknown as DatabaseService; const concurrentDatabase = { db: concurrentDb } as unknown as DatabaseService; const analytics = createAnalytics(database); const concurrentAnalytics = createAnalytics(concurrentDatabase); const camps = new CampService(database, analytics); const concurrentCamps = new CampService(concurrentDatabase, concurrentAnalytics); const pacts = new PactService(database, camps, analytics); const concurrentPacts = new PactService(concurrentDatabase, concurrentCamps, concurrentAnalytics); const focus = new FocusService(database, pacts, analytics); const concurrentFocus = new FocusService(concurrentDatabase, concurrentPacts, concurrentAnalytics); const memory = new MemoryService(database); const seeds = createSeeds(database); const preferences = new PreferencesService(database);
+    const db = drizzle(client); const concurrentDb = drizzle(concurrentClient); const database = { db } as unknown as DatabaseService; const concurrentDatabase = { db: concurrentDb } as unknown as DatabaseService; const analytics = createAnalytics(database); const concurrentAnalytics = createAnalytics(concurrentDatabase); const camps = createCamps(database, analytics); const concurrentCamps = createCamps(concurrentDatabase, concurrentAnalytics); const pacts = createPacts(database, camps, analytics); const concurrentPacts = createPacts(concurrentDatabase, concurrentCamps, concurrentAnalytics); const focus = createFocus(database, pacts, analytics); const concurrentFocus = createFocus(concurrentDatabase, concurrentPacts, concurrentAnalytics); const memory = createMemory(database); const seeds = createSeeds(database); const preferences = createPreferences(database);
     assert.equal((await camps.membership(legacyCampId, legacyAccountId))?.role, 'owner', 'migrated owner retains access');
     assert.equal((await pacts.get(legacyPactId, legacyAccountId)).id, legacyPactId, 'migrated Pact remains readable');
     assert.equal((await focus.snapshot(legacySessionId, legacyAccountId)).id, legacySessionId, 'migrated session remains readable');
@@ -177,7 +175,7 @@ test('core PostgreSQL flow preserves ownership, reconnect state, seed uniqueness
     await focus.checkout(revokeSession.id, ids[0], { outcome: 'stopped' });
 
     const identityStore = createIdentityStore(database);
-    const exported = await new PrivacyService(database, createIdentity(identityStore, readApiConfig({})).core).export(ids[1]);
+    const exported = await createPrivacy(database, createIdentity(identityStore, readApiConfig({})).core).export(ids[1]);
     assert.equal(exported.preferences?.remindAcceptedPacts, true, 'data export includes the owner preference');
     assert.ok(exported.pactReminders.some(receipt => receipt.pactId === duePact.id), 'data export includes the owner reminder receipt');
     await identityStore.deleteAccount(ids[1]);

@@ -1,8 +1,8 @@
 import { BadRequestException, Controller, Delete, Get, HttpCode, Param, Post, Req } from '@nestjs/common';
 import type { Request } from 'express';
 import { inviteListQuerySchema, createCampInviteSchema, createCampSchema, transferOwnershipSchema } from '@pyneath/contracts';
-import { body, principal } from '../../platform/http/request';
-import { CampService } from './camp.service';
+import { body, principal } from '../../../platform/http/request';
+import { CampService } from '../application/camp.service';
 
 @Controller('api/v1')
 export class CampController {

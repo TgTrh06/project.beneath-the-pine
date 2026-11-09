@@ -1,6 +1,6 @@
 import { index, integer, pgEnum, pgTable, text, timestamp, uniqueIndex, uuid } from 'drizzle-orm/pg-core';
-import { accounts } from '../../identity/public-api';
-import { camps } from '../../camp/public-api';
+import { accounts } from '../../identity/infrastructure/identity.schema';
+import { camps } from '../../camp/infrastructure/camp.schema';
 
 export const focusKind = pgEnum('focus_session_kind', ['solo', 'pact']);
 export const focusStatus = pgEnum('focus_session_status', ['active', 'completed', 'cancelled']);

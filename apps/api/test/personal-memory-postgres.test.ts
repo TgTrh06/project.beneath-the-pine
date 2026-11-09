@@ -23,14 +23,12 @@ import { createIdentity } from './helpers/module-fixtures';
 import { sessionHash } from '../src/modules/identity/infrastructure/identity-crypto';
 import { sessions } from '../src/modules/identity/infrastructure/identity.schema';
 import { hashPassword } from '../src/modules/identity/infrastructure/password';
-import { MemoryService } from '../src/modules/memory/memory.service';
+import { createMemory } from './helpers/module-fixtures';
 import { personalMilestones } from '../src/modules/memory/infrastructure/memory.schema';
-import { FocusService } from '../src/modules/focus/focus.service';
 import { focusSessions, sessionParticipants } from '../src/modules/focus/infrastructure/focus.schema';
-import { CampService } from '../src/modules/camp/camp.service';
-import { PactService } from '../src/modules/pact/pact.service';
+import { createCamps, createPacts, createFocus } from './helpers/module-fixtures';
 import { createAnalytics } from './helpers/module-fixtures';
-import { PrivacyService } from '../src/modules/privacy/privacy.service';
+import { createPrivacy } from './helpers/module-fixtures';
 
 test('personal forest: forward migration, lifetime milestones, races, privacy and failure isolation', { skip: !process.env.PYNEATH_TEST_DATABASE_URL }, async t => {
   const pool = new Pool({ connectionString: process.env.PYNEATH_TEST_DATABASE_URL, max: 4 });
@@ -53,13 +51,13 @@ test('personal forest: forward migration, lifetime milestones, races, privacy an
     await db.insert(focusSessions).values({ id: legacy, kind: 'solo', status: 'completed', startedByAccountId: owner, startedAt: oldDate, endsAt: oldDate, completedAt: oldDate, durationMinutes: 5, requestKey: randomUUID() });
     await db.insert(sessionParticipants).values({ sessionId: legacy, accountId: owner, presence: 'checked_out', outcome: 'stuck', intention: 'PRIVATE_WORK_MARKER' });
     for (const file of files.filter(file => file >= '0004_')) await client.query(readFileSync(resolve(folder, file), 'utf8').replaceAll('"public"', `"${schema}"`));
-    const memory = new MemoryService(database), concurrentMemory = new MemoryService(secondDatabase);
-    const analytics = createAnalytics(database), camps = new CampService(database, analytics), pacts = new PactService(database, camps, analytics);
-    const focus = new FocusService(database, pacts, analytics);
-    const otherAnalytics = createAnalytics(secondDatabase), otherCamps = new CampService(secondDatabase, otherAnalytics), otherPacts = new PactService(secondDatabase, otherCamps, otherAnalytics);
-    const otherFocus = new FocusService(secondDatabase, otherPacts, otherAnalytics);
+    const memory = createMemory(database), concurrentMemory = createMemory(secondDatabase);
+    const analytics = createAnalytics(database), camps = createCamps(database, analytics), pacts = createPacts(database, camps, analytics);
+    const focus = createFocus(database, pacts, analytics);
+    const otherAnalytics = createAnalytics(secondDatabase), otherCamps = createCamps(secondDatabase, otherAnalytics), otherPacts = createPacts(secondDatabase, otherCamps, otherAnalytics);
+    const otherFocus = createFocus(secondDatabase, otherPacts, otherAnalytics);
     const store = createIdentityStore(database), identity = createIdentity(store, readApiConfig({}));
-    const privacy = new PrivacyService(database, identity.core);
+    const privacy = createPrivacy(database, identity.core);
     await t.test('existing history is materialized once with original dates, never private text', async () => {
       const races = await Promise.all([memory.personal(owner), concurrentMemory.personal(owner)]);
       assert.deepEqual(races[0], races[1]);
@@ -68,7 +66,7 @@ test('personal forest: forward migration, lifetime milestones, races, privacy an
       assert.deepEqual(first.milestones, [{ threshold: 1, sourceSessionId: legacy, recordedAt: oldDate.toISOString() }]);
       assert.ok(!JSON.stringify(first).includes('PRIVATE_WORK_MARKER'));
       assert.deepEqual(await memory.personal(outsider), { completedSessions: 0, milestones: [] });
-      await assert.rejects(memory.personal(randomUUID()), { status: 404 });
+      await assert.rejects(memory.personal(randomUUID()), { code: 'NOT_FOUND' });
       await assert.rejects(db.insert(personalMilestones).values({ accountId: owner, threshold: 2, sourceSessionId: legacy, recordedAt: oldDate }));
     });
     await t.test('all checkout outcomes count equally and duplicate checkout never adds a chặng', async () => {

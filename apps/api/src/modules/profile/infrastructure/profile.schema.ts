@@ -1,5 +1,5 @@
 import { pgTable, uuid, text, timestamp } from 'drizzle-orm/pg-core';
-import { accounts } from '../../identity/public-api';
+import { accounts } from '../../identity/infrastructure/identity.schema';
 
 export const profiles = pgTable('profiles', {
   accountId: uuid('account_id').primaryKey().references(() => accounts.id, { onDelete: 'cascade' }),

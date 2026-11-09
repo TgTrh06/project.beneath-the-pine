@@ -4,9 +4,27 @@ import { PactModule } from '../pact/pact.module';
 import { ProfileModule } from '../profile/profile.module';
 import { SeedModule } from '../seed/seed.module';
 import { AnalyticsModule } from '../analytics/analytics.module';
-import { FocusController } from './focus.controller';
-import { FocusService } from './focus.service';
+import { FocusController } from './presentation/focus.controller';
+import { FocusService } from './application/focus.service';
+import { FOCUS_ACCESS } from './application/focus.ports';
+import { DrizzleFocusRepository } from './infrastructure/focus.repository';
+import { FocusMaintenance } from './infrastructure/focus-maintenance';
+import { CampModule } from '../camp/camp.module';
+import { MemoryModule } from '../memory/memory.module';
+import { CAMP_ACCESS, type CampAccess } from '../camp/public-api';
+import { PACT_ACCESS, type PactAccess } from '../pact/public-api';
+import { SEED_ACCESS, type SeedAccess } from '../seed/public-api';
+import { SHARED_MEMORY, type SharedMemory } from '../memory/public-api';
+import { ANALYTICS, type Analytics } from '../analytics/public-api';
+import { PostgresUnitOfWork } from '../../platform/database/postgres-unit-of-work';
+import { Subject } from 'rxjs';
+import type { PresenceChange } from './domain/focus';
 
-/** Review boundary only. See README.md; no business providers or routes yet. */
-@Module({ imports: [DatabaseModule, PactModule, ProfileModule, SeedModule, AnalyticsModule], controllers: [FocusController], providers: [FocusService], exports: [FocusService] })
+@Module({ imports: [DatabaseModule, CampModule, PactModule, ProfileModule, SeedModule, MemoryModule, AnalyticsModule], controllers: [FocusController],
+  providers: [DrizzleFocusRepository, FocusMaintenance,
+    { provide: FocusService, inject: [DrizzleFocusRepository, PostgresUnitOfWork, CAMP_ACCESS, PACT_ACCESS, SEED_ACCESS, SHARED_MEMORY, ANALYTICS],
+      useFactory: (repository: DrizzleFocusRepository, transactions: PostgresUnitOfWork, camps: CampAccess, pacts: PactAccess, seeds: SeedAccess, memory: SharedMemory, analytics: Analytics) =>
+        new FocusService(repository, transactions, camps, pacts, seeds, memory, analytics, { now: () => new Date() }, { changes: new Subject<string>(), presenceChanges: new Subject<PresenceChange>() }) },
+    { provide: FOCUS_ACCESS, useExisting: FocusService },
+  ], exports: [FOCUS_ACCESS] })
 export class FocusModule {}

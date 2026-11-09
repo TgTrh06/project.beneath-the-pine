@@ -1,6 +1,6 @@
 import { boolean, check, integer, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core';
 import { sql } from 'drizzle-orm';
-import { accounts } from '../../identity/public-api';
+import { accounts } from '../../identity/infrastructure/identity.schema';
 
 export const accountPreferences = pgTable('account_preferences', {
   accountId: uuid('account_id').primaryKey().references(() => accounts.id, { onDelete: 'cascade' }),

@@ -1,5 +1,5 @@
 import { index, jsonb, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core';
-import { accounts } from '../../identity/public-api';
+import { accounts } from '../../identity/infrastructure/identity.schema';
 
 export const productEvents = pgTable('product_events', {
     id: uuid('id').defaultRandom().primaryKey(),

@@ -1,5 +1,5 @@
 import { index, pgEnum, pgTable, primaryKey, text, timestamp, uniqueIndex, uuid } from 'drizzle-orm/pg-core';
-import { accounts } from '../../identity/public-api';
+import { accounts } from '../../identity/infrastructure/identity.schema';
 
 export const campStatus = pgEnum('camp_status', ['active', 'archived']);
 export const campRole = pgEnum('camp_role', ['owner', 'member']);

@@ -1,8 +1,8 @@
 import { BadRequestException, Controller, Patch, Get, Param, Post, Req } from '@nestjs/common';
 import type { Request } from 'express';
 import { createPactSchema, respondPactSchema, pactListQuerySchema, updateCampSchema } from '@pyneath/contracts';
-import { body, idempotencyKey, principal } from '../../platform/http/request';
-import { PactService } from './pact.service';
+import { body, idempotencyKey, principal } from '../../../platform/http/request';
+import { PactService } from '../application/pact.service';
 @Controller('api/v1')
 export class PactController {
   constructor(private readonly pacts: PactService) {}

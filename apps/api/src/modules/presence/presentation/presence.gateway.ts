@@ -1,15 +1,15 @@
+import { BusinessError } from '../../../shared/kernel/business-error';
 import { ConflictException, ForbiddenException, Injectable, NotFoundException, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
 import { ConnectedSocket, MessageBody, OnGatewayInit, OnGatewayDisconnect, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Namespace, Socket } from 'socket.io';
 import { heartbeatSchema, realtimeEvents, setPresenceSchema, subscribeSessionSchema } from '@pyneath/contracts';
-import { API_CONFIG, ApiConfig } from '../../platform/config/api-config';
+import { API_CONFIG, ApiConfig } from '../../../platform/config/api-config';
 import { Inject } from '@nestjs/common';
-import { IDENTITY_ACCESS, type IdentityAccess } from '../identity/public-api';
-import { sessionTokenFromCookie } from '../../platform/http/session-cookie';
-import type { EventSubscription } from '../../shared/kernel/events';
-import { FocusService } from '../focus/public-api';
-import { PreferencesService } from '../preferences/public-api';
-import type { Subscription } from 'rxjs';
+import { IDENTITY_ACCESS, type IdentityAccess } from '../../identity/public-api';
+import { sessionTokenFromCookie } from '../../../platform/http/session-cookie';
+import type { EventSubscription } from '../../../shared/kernel/events';
+import { FOCUS_ACCESS, type FocusAccess } from '../../focus/public-api';
+import { PREFERENCES_ACCESS, type PreferencesAccess } from '../../preferences/public-api';
 
 type PineSocket = Socket & { data: { account?: { id: string; email: string }; sessions?: Set<string> } };
 @Injectable()
@@ -21,10 +21,10 @@ export class PresenceGateway implements OnGatewayInit, OnGatewayDisconnect, OnMo
   private readonly disconnectTimers = new Set<NodeJS.Timeout>();
   private readonly identitySubscriptions: EventSubscription[] = [];
   private destroyed = false;
-  private subscription?: Subscription;
-  private presenceSubscription?: Subscription;
-  private preferenceSubscription?: Subscription;
-  constructor(@Inject(IDENTITY_ACCESS) private readonly identity: IdentityAccess, private readonly focus: FocusService, private readonly preferences: PreferencesService, @Inject(API_CONFIG) private readonly config: ApiConfig) {}
+  private subscription?: EventSubscription;
+  private presenceSubscription?: EventSubscription;
+  private preferenceSubscription?: EventSubscription;
+  constructor(@Inject(IDENTITY_ACCESS) private readonly identity: IdentityAccess, @Inject(FOCUS_ACCESS) private readonly focus: FocusAccess, @Inject(PREFERENCES_ACCESS) private readonly preferences: PreferencesAccess, @Inject(API_CONFIG) private readonly config: ApiConfig) {}
   onModuleInit() {
     this.identitySubscriptions.push(
       this.identity.revokedSessions.subscribe(hash => {
@@ -156,8 +156,17 @@ export class PresenceGateway implements OnGatewayInit, OnGatewayDisconnect, OnMo
   private room(id: string) { return `session:${id}`; }
   private fail(socket: PineSocket, code: string) { socket.emit(realtimeEvents.error, { code, message: 'Realtime request could not be completed.' }); }
   private async unsubscribe(socket:PineSocket,sessionId:string) { socket.data.sessions?.delete(sessionId); await socket.leave(this.room(sessionId)); }
-  private errorCode(error:unknown,fallback:string) { return error instanceof ForbiddenException ? 'FORBIDDEN' : error instanceof NotFoundException ? 'NOT_FOUND' : error instanceof ConflictException ? 'CONFLICT' : fallback; }
-  private shouldLeave(error:unknown) { return error instanceof ForbiddenException || error instanceof NotFoundException || error instanceof ConflictException; }
+  private errorCode(error: unknown, fallback: string) {
+    if (error instanceof BusinessError) {
+      if (error.code === 'STATE_CONFLICT') return 'CONFLICT';
+      return ['FORBIDDEN', 'NOT_FOUND'].includes(error.code) ? error.code : fallback;
+    }
+    return error instanceof ForbiddenException ? 'FORBIDDEN' : error instanceof NotFoundException ? 'NOT_FOUND' : error instanceof ConflictException ? 'CONFLICT' : fallback;
+  }
+  private shouldLeave(error: unknown) {
+    if (error instanceof BusinessError) return ['FORBIDDEN', 'NOT_FOUND', 'STATE_CONFLICT'].includes(error.code);
+    return error instanceof ForbiddenException || error instanceof NotFoundException || error instanceof ConflictException;
+  }
   private async publishPresence(change: { sessionId: string; accountId: string; presence: 'active' | 'break' | 'disconnected' }) {
     if (!this.server) return;
     const sockets = [...this.sockets.values()].filter(socket => socket.rooms.has(this.room(change.sessionId)));

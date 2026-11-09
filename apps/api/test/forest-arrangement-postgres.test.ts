@@ -22,11 +22,11 @@ import { createIdentityStore } from './helpers/module-fixtures';
 import { IDENTITY_REPOSITORY } from '../src/modules/identity/application/identity.ports';
 import { hashPassword } from '../src/modules/identity/infrastructure/password';
 import { personalMilestones } from '../src/modules/memory/infrastructure/memory.schema';
-import { MemoryService } from '../src/modules/memory/memory.service';
+import { createMemory } from './helpers/module-fixtures';
 import { focusSessions, sessionParticipants } from '../src/modules/focus/infrastructure/focus.schema';
-import { PreferencesService } from '../src/modules/preferences/preferences.service';
+import { createPreferences } from './helpers/module-fixtures';
 import { accountPreferences } from '../src/modules/preferences/infrastructure/preferences.schema';
-import { PrivacyService } from '../src/modules/privacy/privacy.service';
+import { createPrivacy } from './helpers/module-fixtures';
 
 test('forest arrangement: migration, entitlement, compare-and-save, HTTP and privacy', { skip: !process.env.PYNEATH_TEST_DATABASE_URL }, async t => {
   const pool = new Pool({ connectionString: process.env.PYNEATH_TEST_DATABASE_URL, max: 4 });
@@ -45,8 +45,8 @@ test('forest arrangement: migration, entitlement, compare-and-save, HTTP and pri
     await db.insert(accounts).values([{ id: owner, email: 'arrangement@example.test', passwordHash: await hashPassword(password) }, { id: outsider, email: 'outside@example.test', passwordHash: 'fixture' }]);
     await client.query('INSERT INTO account_preferences (account_id,share_presence,preset_duration_minutes,preset_soundscape_id) VALUES ($1,true,25,$2)', [owner, 'rain']);
     for (const file of files.filter(file => file >= '0005_')) await client.query(readFileSync(resolve(folder, file), 'utf8').replaceAll('"public"', `"${schema}"`));
-    const service = new PreferencesService(database), secondService = new PreferencesService(secondDatabase), memory = new MemoryService(database);
-    const store = createIdentityStore(database), identity = createIdentity(store, readApiConfig({})), privacy = new PrivacyService(database, identity.core);
+    const service = createPreferences(database), secondService = createPreferences(secondDatabase), memory = createMemory(database);
+    const store = createIdentityStore(database), identity = createIdentity(store, readApiConfig({})), privacy = createPrivacy(database, identity.core);
     await t.test('forward migration preserves existing preferences and supplies P1 defaults', async () => {
       const current = await service.get(owner);
       assert.equal(current.sharePresence, true);
@@ -58,7 +58,7 @@ test('forest arrangement: migration, entitlement, compare-and-save, HTTP and pri
       await assert.rejects(client.query('UPDATE account_preferences SET forest_version=-1'));
     });
     await t.test('locked items rejected; history projection grants items without changing dates or counts', async () => {
-      await assert.rejects(service.arrangeForest(owner, { ...defaultForestArrangement, hidden: [1] }), { status: 403 });
+      await assert.rejects(service.arrangeForest(owner, { ...defaultForestArrangement, hidden: [1] }), { code: 'FORBIDDEN' });
       const rows = Array.from({ length: 7 }, () => ({ id: randomUUID(), kind: 'solo' as const, status: 'completed' as const, startedByAccountId: owner, durationMinutes: 5, startedAt: new Date('2026-01-01'), endsAt: new Date('2026-01-01'), completedAt: new Date('2026-01-01'), requestKey: randomUUID() }));
       await db.insert(focusSessions).values(rows);
       await db.insert(sessionParticipants).values(rows.map(row => ({ sessionId: row.id, accountId: owner, presence: 'checked_out' as const, outcome: 'stuck' as const })));
@@ -70,18 +70,18 @@ test('forest arrangement: migration, entitlement, compare-and-save, HTTP and pri
       assert.equal((await service.get(owner)).sharePresence, true);
       await service.update(owner, { remindAcceptedPacts: true });
       assert.deepEqual((await service.get(owner)).forestArrangement, saved);
-      await assert.rejects(service.arrangeForest(outsider, { ...defaultForestArrangement, hidden: [7] }), { status: 403 });
+      await assert.rejects(service.arrangeForest(outsider, { ...defaultForestArrangement, hidden: [7] }), { code: 'FORBIDDEN' });
     });
     await t.test('simultaneous and first-write saves have exactly one winner and retry cannot overwrite', async () => {
       for (const [id, version] of [[owner, 1], [outsider, 0]] as const) {
         const result = await Promise.allSettled([service.arrangeForest(id, { layout: 'gathered', hidden: [], version }), secondService.arrangeForest(id, { layout: 'arc', hidden: [], version })]);
         assert.equal(result.filter(item => item.status === 'fulfilled').length, 1);
         const rejected = result.find(item => item.status === 'rejected') as PromiseRejectedResult;
-        assert.equal(rejected.reason.status, 409);
+        assert.equal(rejected.reason.code, 'STATE_CONFLICT');
         assert.equal((await service.get(id)).forestArrangement.version, version + 1);
-        await assert.rejects(service.arrangeForest(id, { layout: 'clearing', hidden: [], version }), { status: 409 });
+        await assert.rejects(service.arrangeForest(id, { layout: 'clearing', hidden: [], version }), { code: 'STATE_CONFLICT' });
       }
-      await assert.rejects(service.arrangeForest(randomUUID(), defaultForestArrangement), { status: 404 });
+      await assert.rejects(service.arrangeForest(randomUUID(), defaultForestArrangement), { code: 'NOT_FOUND' });
     });
     await t.test('HTTP validates strict bodies, owner, CSRF, version and safe dependency failure', async () => {
       const config = readApiConfig({});

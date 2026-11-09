@@ -1,8 +1,8 @@
 import { Controller, Get, Patch, Req } from '@nestjs/common';
 import type { Request } from 'express';
 import { forestArrangementSchema, updatePreferencesSchema } from '@pyneath/contracts';
-import { body, principal } from '../../platform/http/request';
-import { PreferencesService } from './preferences.service';
+import { body, principal } from '../../../platform/http/request';
+import { PreferencesService } from '../application/preferences.service';
 
 @Controller('api/v1/me/preferences')
 export class PreferencesController {

@@ -1,7 +1,7 @@
 import { Controller, Get, Req } from '@nestjs/common';
 import type { Request } from 'express';
-import { principal } from '../../platform/http/request';
-import { MemoryService } from './memory.service';
+import { principal } from '../../../platform/http/request';
+import { MemoryService } from '../application/memory.service';
 
 @Controller('api/v1/me/memory')
 export class MemoryController {

@@ -1,3 +1,4 @@
+import { createFocus } from './helpers/module-fixtures';
 import { IDENTITY_ACCESS } from '../src/modules/identity/public-api';
 import 'reflect-metadata';
 import assert from 'node:assert/strict';
@@ -9,10 +10,10 @@ import type { NestExpressApplication } from '@nestjs/platform-express';
 import { presenceUpdatedEventSchema, realtimeEvents } from '@pyneath/contracts';
 import { API_CONFIG, readApiConfig } from '../src/platform/config/api-config';
 import { PineSocketAdapter } from '../src/platform/realtime/socket.adapter';
-import { FocusService } from '../src/modules/focus/focus.service';
+import { FOCUS_ACCESS } from '../src/modules/focus/public-api';
 import { focusSessions, sessionParticipants } from '../src/modules/focus/infrastructure/focus.schema';
-import { PresenceGateway } from '../src/modules/presence/presence.gateway';
-import { PreferencesService } from '../src/modules/preferences/preferences.service';
+import { PresenceGateway } from '../src/modules/presence/presentation/presence.gateway';
+import { PREFERENCES_ACCESS } from '../src/modules/preferences/public-api';
 
 const waitFor = <T>(socket: Socket, event: string) => new Promise<T>((resolve, reject) => { const timer = setTimeout(() => reject(new Error(`Timed out: ${event}`)), 2000); socket.once(event, value => { clearTimeout(timer); resolve(value); }); });
 test('realtime authenticates Origin/session, authorizes subscribe and returns durable snapshot', async t => {
@@ -27,7 +28,7 @@ test('realtime authenticates Origin/session, authorizes subscribe and returns du
   } };
   let authorized = true;
   const focus = { changes, presenceChanges, snapshot: async (id: string) => { calls.push(id); if (!authorized) throw new Error('Membership revoked'); return snapshot; }, markConnected: async () => undefined, setPresence: async () => undefined };
-  const module = await Test.createTestingModule({ providers: [PresenceGateway, { provide: IDENTITY_ACCESS, useValue: identity }, { provide: FocusService, useValue: focus }, { provide: PreferencesService, useValue: { presenceSharingChanges: new Subject<string>() } }, { provide: API_CONFIG, useValue: config }] }).compile();
+  const module = await Test.createTestingModule({ providers: [PresenceGateway, { provide: IDENTITY_ACCESS, useValue: identity }, { provide: FOCUS_ACCESS, useValue: focus }, { provide: PREFERENCES_ACCESS, useValue: { presenceSharingChanges: new Subject<string>() } }, { provide: API_CONFIG, useValue: config }] }).compile();
   const app = module.createNestApplication<NestExpressApplication>(); app.useWebSocketAdapter(new PineSocketAdapter(app, config)); await app.listen(0, '127.0.0.1'); t.after(() => app.close()); const address = app.getHttpServer().address(); if (!address || typeof address === 'string') throw new Error('No test port'); const url = `http://127.0.0.1:${address.port}/realtime`;
   const client = io(url, { transports: ['websocket'], reconnection: false, extraHeaders: { Origin: origin, Cookie: `PYNEATH_SESSION=${'a'.repeat(64)}` } }); t.after(() => client.close()); await waitFor(client, 'connect'); client.emit(realtimeEvents.subscribe, { sessionId: snapshot.id }); const received = await waitFor<{ id: string; intention: string }>(client, realtimeEvents.snapshot); assert.equal(received.id, snapshot.id); assert.equal(received.intention, 'private'); assert.deepEqual(calls, [snapshot.id,snapshot.id]);
   const second = io(url, { transports: ['websocket'], reconnection: false, extraHeaders: { Origin: origin, Cookie: `PYNEATH_SESSION=${'a'.repeat(64)}` } }); t.after(() => second.close()); await waitFor(second, 'connect');
@@ -68,7 +69,7 @@ test('focus presence publishes only persisted state transitions', async () => {
       update: () => ({ set: (value: { presence: typeof storedPresence }) => ({ where: async () => { storedPresence = value.presence; } }) })
     })
   };
-  const focus = new FocusService({ db } as unknown as import('../src/platform/database/database.service').DatabaseService, {} as never, {} as never);
+  const focus = createFocus({ db } as unknown as import('../src/platform/database/database.service').DatabaseService, {} as never, {} as never);
   const emitted: Array<{ sessionId: string; accountId: string; presence: string }> = [];
   focus.presenceChanges.subscribe(value => emitted.push(value));
   await focus.setPresence(sessionId, accountId, 'active');

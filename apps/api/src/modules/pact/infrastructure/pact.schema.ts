@@ -1,6 +1,6 @@
 import { index, integer, pgEnum, pgTable, primaryKey, text, timestamp, uniqueIndex, uuid } from 'drizzle-orm/pg-core';
-import { accounts } from '../../identity/public-api';
-import { camps } from '../../camp/public-api';
+import { accounts } from '../../identity/infrastructure/identity.schema';
+import { camps } from '../../camp/infrastructure/camp.schema';
 
 export const pactStatus = pgEnum('pact_status', ['scheduled', 'active', 'completed', 'cancelled', 'expired']);
 export const pactResponse = pgEnum('pact_response', ['invited', 'accepted', 'declined']);

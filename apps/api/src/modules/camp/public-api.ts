@@ -1,2 +1,3 @@
-export { CampService } from './camp.service';
-export { camps, campMemberships, campInvites, campInviteDeclines } from './infrastructure/camp.schema';
+export { CAMP_ACCESS, type CampAccess } from './application/camp.ports';
+
+export type { CampPrivacyAccess } from './application/camp.ports';

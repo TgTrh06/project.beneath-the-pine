@@ -1,6 +1,6 @@
 # ADR-0030 — Framework-independent use cases and module-owned persistence
 
-Status: accepted for implementation, 2026-11-07. Implementation is in progress.
+Status: accepted 2026-11-07; implemented and locally verified 2026-11-09. See the [verification report](../../07-testing/architecture-refactor-verification.md) for acceptance evidence and its limits.
 
 The approved project-wide refactor precedes data review and model training. Keep the NestJS modular monolith, React/Vite client, shared wire contracts, offline ML workspace and independent llama-server runtime. Do not change database schema, HTTP/Socket.IO contracts, transaction boundaries, lock order or product behavior.
 

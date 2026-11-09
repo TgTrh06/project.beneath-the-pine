@@ -1,54 +1,12 @@
-# Export, xóa và retention — PrivacyModule
+# Export và xóa tài khoản — PrivacyModule
 
-- **Trạng thái code:** Nest module được đăng ký; chưa có controller, use case, repository hoặc schema nghiệp vụ.
-- **Thứ tự triển khai:** P0 thiết kế; cùng mọi slice.
-- **Phạm vi hiện tại:** Core thủ công, không AI.
+Privacy điều phối đồng bộ hai endpoint đã có, với principal do Identity xác thực:
 
-## Trách nhiệm và dữ liệu
+- `GET /api/v1/me/data-export`: lấy dữ liệu qua port của Profile, Preferences, Seed, Camp, Pact, Focus và Memory. Không export credential hoặc nội dung Camp đã mất quyền truy cập.
+- `DELETE /api/v1/me/account`: kiểm tra lại mật khẩu; chuyển quyền hoặc xóa Camp, sau đó xóa account trong cùng transaction. Phát thông báo thu hồi sau commit; controller đăng xuất và xóa cookie theo hành vi hiện có.
 
-Điều phối yêu cầu dữ liệu theo principal và tập module thực sự có dữ liệu.
+`application/privacy.service.ts` chứa điều phối thuần TypeScript. `application/privacy.ports.ts` tổng hợp các interface của module sở hữu dữ liệu. `presentation/privacy.controller.ts` xử lý HTTP và cookie; `privacy.module.ts` nối dependency bằng NestJS factory.
 
-**Dữ liệu sở hữu dự kiến:** data_rights_requests/progress nếu cần; không sở hữu bảng nghiệp vụ module khác. Đây là inventory thiết kế, chưa là migration.
+Privacy không sở hữu bảng, không truy vấn SQL và không thêm job retention. Camp sở hữu chuyển quyền/xóa Camp, Identity sở hữu xóa account, và các foreign key hiện có giữ quy tắc cascade. Export giữ nguyên các trường lưu trữ và thứ tự truy vấn hiện có, không tạo snapshot transaction mới.
 
-## Use case cần xây
-
-- RequestExport: xác thực lại nếu policy yêu cầu, tập hợp dữ liệu từng owner.
-- RequestAccountDeletion: khóa truy cập, xóa dữ liệu theo thứ tự dependency và báo trạng thái.
-- ApplyRetention: operation có kiểm soát; chưa chọn scheduler/worker.
-
-## API dự kiến
-
-Các route dưới đây dùng prefix `/api/v1` khi được triển khai; chưa hoạt động trong scaffold.
-
-- POST /me/data-export
-- DELETE /me/account
-- GET /me/data-requests/:id
-
-## Phụ thuộc và interface
-
-Một chiều gọi identity khóa account và các module có dữ liệu; module khác không import privacy.
-
-**Public application interface dự kiến:** Data rights status contract cho client; contributor contract được định nghĩa khi có owner implementation đầu tiên. Chỉ tạo interface/provider code khi có use case hoặc consumer thực sự; hiện chưa có stub trả kết quả giả.
-
-## Invariant và boundary
-
-- Không đánh dấu hoàn tất khi một owner thất bại.
-- Không export credentials, internal secrets hoặc dữ liệu người khác.
-- Không dùng mọi repository trong một global query; owner module cung cấp interface.
-- Không tự tạo background job nếu chưa thiết kế durability.
-
-## Acceptance criteria cho implementation
-
-- [ ] Export đúng owner; deletion failure hiện rõ và retry an toàn.
-- [ ] Không giữ orphan row; mọi module mới phải bổ sung coverage.
-- [ ] Link tải/export expiry và authentication kiểm tra nếu được thêm.
-
-## Privacy và retention
-
-Request metadata cũng có retention; output phải hết hạn và được kiểm soát quyền truy cập.
-
-## Cần chốt trước slice
-
-Synchronous giới hạn hay job durable, retention obligations, re-auth và thứ tự deletion cụ thể.
-
-Xem [Module delivery plan](../../../../../docs/04-engineering/module-delivery-plan.md) và [module catalog](../../../../../docs/02-product/application-modules-spec.md). Module `privacy` là boundary bên trong một API deployable, không phải microservice.
+Kiểm thử PostgreSQL xác nhận dữ liệu export theo quyền, từ chối mật khẩu sai, rollback chuyển quyền/xóa Camp và cascade khi xóa account thất bại, cùng sự kiện chỉ xuất hiện sau commit. Xem [bản đồ ownership](../../../../../docs/04-engineering/module-ownership.md) và [báo cáo kiểm chứng](../../../../../docs/07-testing/architecture-refactor-verification.md).
