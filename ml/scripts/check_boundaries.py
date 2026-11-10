@@ -12,6 +12,7 @@ CLI_MODULES = {
     'ml.scripts.prepare_v2', 'ml.scripts.draft_v2',
     'ml.scripts.generate_pyneath_dataset', 'ml.scripts.generate_local_synthetic_dataset',
     'ml.scripts.audit_pyneath_dataset', 'ml.scripts.split_dataset', 'ml.scripts.validate_dataset',
+    'ml.scripts.review_dataset',
 }
 GPU_PACKAGES = {'torch', 'transformers', 'unsloth', 'trl', 'peft', 'datasets', 'bitsandbytes', 'accelerate'}
 

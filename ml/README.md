@@ -11,6 +11,7 @@ Read [ML governance](../docs/05-machine-learning/README.md) before creating a da
 - `authoring/`: unreviewed candidate generation, separate from training and CLI parsing.
 - `training/`: environment preflight, assistant-only token masking and the QLoRA workflow. Resume uses the same `common/checkpoints.py` verifier as scoring and export.
 - `scripts/prepare_v2.py` and `scripts/draft_v2.py`: review candidates, strict validation and manifest freeze; never fabricate human approval.
+- `scripts/review_dataset.py`: immutable local review snapshots, content-bound human forms, revisions, coverage/duplicate audit, cached-tokenizer check and reviewed handoff before freeze. See [Vietnamese reviewer guide](../docs/05-machine-learning/dataset-review.md). Calibration is prepared; human approval and independent holdout authorship are still missing.
 - `evaluation/`: baseline/adapter/GGUF predictions, blind review, scoring and candidate selection.
 - `export/`: exact-base merge, GGUF conversion and evidence-bound promotion; no deployment.
 - CLI modules retain their documented names and arguments and call implementation modules (`workflow`, `predictions`, `scoring`, `measurement`, `selection`, `review`, `conversion`, `promotion`). Implementations never import CLI entry points.

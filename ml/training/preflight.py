@@ -31,6 +31,18 @@ def tokenize_row(tokenizer, row, limit):
     return {'input_ids': tokens, 'attention_mask': [1] * len(tokens), 'labels': [-100] * len(prefix) + tokens[len(prefix):]}
 
 
+def dataset_token_report(tokenizer, rows, limit):
+    """Check final edited rows without truncation or model allocation; report IDs only."""
+    lengths, violations = [], []
+    for row in rows:
+        try:
+            lengths.append(len(tokenize_row(tokenizer, row, limit)['input_ids']))
+        except ValueError:
+            violations.append({'scenario_id': row['scenario_id'], 'reason': 'token limit or assistant-prefix mismatch'})
+    return {'rows': len(rows), 'limit': limit, 'max_tokens': max(lengths, default=0),
+            'violations': violations, 'passed': bool(rows) and not violations}
+
+
 class CompletionCollator:
     """Preserve preflight label masks; pad labels with ignore_index."""
     def __init__(self, pad_token_id):
