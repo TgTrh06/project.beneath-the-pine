@@ -8,6 +8,8 @@ The candidate environment is pinned in `ml/training/requirements-colab.txt`; ins
 
 ## 1. Shared protocol and draft data
 
+Before the freeze commands below, use the [content-bound review workflow](dataset-review.md). The original draft remains unchanged; a separate 1,510-candidate review snapshot includes a 90-row edited calibration batch. The user will review; no reviewer ID or approval has been recorded and no independent holdout author is available yet. The [holdout brief](holdout-authoring-brief.md) is separate from development examples. Do not regenerate over the existing private draft directory.
+
 From the repository root:
 
 ```sh
