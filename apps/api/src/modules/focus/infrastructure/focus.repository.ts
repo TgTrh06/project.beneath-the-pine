@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { focusContextSchema } from '@pyneath/contracts';
 import { and, desc, eq, inArray, isNull, lte, ne, sql } from 'drizzle-orm';
 import { alias } from 'drizzle-orm/pg-core';
 import { PostgresUnitOfWork } from '../../../platform/database/postgres-unit-of-work';
@@ -13,6 +14,20 @@ import { focusSessions, sessionParticipants } from './focus.schema';
 
 @Injectable()
 export class DrizzleFocusRepository implements FocusRepository {
+  async readOwnContext(accountId: string) {
+    const [row] = await this.transactions.reader().select({ kind: focusSessions.kind, intention: sessionParticipants.intention,
+      durationMinutes: focusSessions.durationMinutes, endsAt: focusSessions.endsAt, presence: sessionParticipants.presence })
+      .from(sessionParticipants).innerJoin(focusSessions, eq(focusSessions.id, sessionParticipants.sessionId))
+      .where(and(eq(sessionParticipants.accountId, accountId), eq(sessionParticipants.activeSlotAccountId, accountId),
+        isNull(sessionParticipants.checkedOutAt), inArray(sessionParticipants.presence, activePresence),
+        eq(focusSessions.status, 'active'), sql`${focusSessions.endsAt} > now()`,
+        sql`(${focusSessions.kind} = 'solo' or exists (
+          select 1 from ${campMemberships} inner join ${camps} on ${camps.id} = ${campMemberships.campId}
+          where ${campMemberships.campId} = ${focusSessions.campId} and ${campMemberships.accountId} = ${accountId}
+          and ${campMemberships.status} = 'active' and ${camps.status} = 'active'
+        ))`)).limit(1);
+    return row ? focusContextSchema.parse({ ...row, status: 'active', endsAt: row.endsAt.toISOString() }) : null;
+  }
   exportSessions(accountId: string) {
     return this.transactions.reader().select({ id: focusSessions.id, kind: focusSessions.kind, startedAt: focusSessions.startedAt, endsAt: focusSessions.endsAt, status: focusSessions.status, intention: sessionParticipants.intention, outcome: sessionParticipants.outcome })
       .from(sessionParticipants).innerJoin(focusSessions, eq(focusSessions.id, sessionParticipants.sessionId)).where(eq(sessionParticipants.accountId, accountId));

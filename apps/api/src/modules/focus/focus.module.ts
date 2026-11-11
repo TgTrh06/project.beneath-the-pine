@@ -7,6 +7,7 @@ import { AnalyticsModule } from '../analytics/analytics.module';
 import { FocusController } from './presentation/focus.controller';
 import { FocusService } from './application/focus.service';
 import { FOCUS_ACCESS } from './application/focus.ports';
+import { FOCUS_CONTEXT_READER } from './application/focus-context.ports';
 import { DrizzleFocusRepository } from './infrastructure/focus.repository';
 import { FocusMaintenance } from './infrastructure/focus-maintenance';
 import { CampModule } from '../camp/camp.module';
@@ -26,5 +27,6 @@ import type { PresenceChange } from './domain/focus';
       useFactory: (repository: DrizzleFocusRepository, transactions: PostgresUnitOfWork, camps: CampAccess, pacts: PactAccess, seeds: SeedAccess, memory: SharedMemory, analytics: Analytics) =>
         new FocusService(repository, transactions, camps, pacts, seeds, memory, analytics, { now: () => new Date() }, { changes: new Subject<string>(), presenceChanges: new Subject<PresenceChange>() }) },
     { provide: FOCUS_ACCESS, useExisting: FocusService },
-  ], exports: [FOCUS_ACCESS] })
+    { provide: FOCUS_CONTEXT_READER, useExisting: DrizzleFocusRepository },
+  ], exports: [FOCUS_ACCESS, FOCUS_CONTEXT_READER] })
 export class FocusModule {}

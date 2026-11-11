@@ -18,7 +18,11 @@ const schema = z.object({
     }).optional()),
   API_DB_POOL_MAX: integer(1, 20).default(5),
   API_DB_TIMEOUT_MS: integer(100, 30000).default(3000),
-  API_ASSISTANCE_PROVIDER: z.enum(['disabled', 'openai', 'local']).default('disabled'),
+  API_ASSISTANCE_PROVIDER: z.enum(['disabled', 'openai', 'local', 'gemini', 'openrouter']).default('disabled'),
+  OPENROUTER_API_KEY: z.string().trim().min(1).optional(),
+  OPENROUTER_MODEL: z.literal('deepseek/deepseek-v4-flash-0731').default('deepseek/deepseek-v4-flash-0731'),
+  GEMINI_API_KEY: z.string().trim().min(1).optional(),
+  GEMINI_MODEL: z.string().regex(/^gemini-[a-z0-9.-]+$/).optional(),
   API_LOCAL_AI_URL: z.string().url().refine(value => {
     const url = new URL(value);
     return ['http:', 'https:'].includes(url.protocol) && !url.username && !url.password && !url.search && !url.hash && url.pathname === '/';
@@ -40,6 +44,11 @@ export function readApiConfig(env: NodeJS.ProcessEnv = process.env) {
     const missing = (['API_LOCAL_AI_URL', 'API_LOCAL_AI_TOKEN', 'API_LOCAL_AI_MODEL'] as const).filter(key => !result.data[key]);
     if (missing.length) throw new ConfigError(missing);
   }
+  if (result.data.API_ASSISTANCE_PROVIDER === 'gemini') {
+    const missing = (['GEMINI_API_KEY', 'GEMINI_MODEL'] as const).filter(key => !result.data[key]);
+    if (missing.length) throw new ConfigError(missing);
+  }
+  if (result.data.API_ASSISTANCE_PROVIDER === 'openrouter' && !result.data.OPENROUTER_API_KEY) throw new ConfigError(['OPENROUTER_API_KEY']);
   return Object.freeze(result.data);
 }
 
