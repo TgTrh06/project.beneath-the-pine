@@ -1,5 +1,11 @@
 # Delivery Plan
 
+## Current internship MVP — 2026-11-11
+
+The approved internship scope now includes real AI Assistance using OpenRouter and `deepseek/deepseek-v4-flash-0731`, covering assisted start, stuck recovery and Open Seed drafts. This supersedes the AI exclusion/conditional-demo restriction below for the local internship milestone only. Historical results remain historical.
+
+Acceptance requires real responses for all three capabilities, editable suggestions, explicitly selected private context, bounded cost and failure recovery, plus a current core regression check. A trained local model is not required. See [MVP scope](../00-foundation/mvp-scope.md), [ADR-0031](../04-engineering/adr/0031-openrouter-internship-mvp.md) and [current evidence](../07-testing/internship-mvp-ai-readiness.md). Pilot rollout and real-user effectiveness remain separate gates.
+
 ## Current core closeout — 2026-10-24
 
 Stage 1 was estimated at **8–12 engineering days** for C01–C05, including the breaking Circle → Camp migration and browser acceptance. The local core gate is now **met on an isolated PostgreSQL database and one API instance**. Remaining pre-pilot verification is **XS–S**: force a lost start response in a browser, then repeat smoke checks on the chosen pilot environment. This is relative effort, not a calendar promise. Earlier Circle evidence below remains historical; current Camp results are in [C01 baseline](../07-testing/core-c01-baseline.md) and the [demo record](../07-testing/core-closeout-demo.md).

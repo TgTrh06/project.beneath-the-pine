@@ -33,3 +33,5 @@
 - [ADR-0007](0007-node-typescript-primary-stack.md) and [ADR-0009](0009-redis-rabbitmq-microservices.md) — historical/superseded.
 
 ADR numbers are permanent history and are never renumbered.
+
+- [ADR-0031 — OpenRouter Assistance in the internship MVP](0031-openrouter-internship-mvp.md) — Accepted for local implementation and bounded real-provider verification.

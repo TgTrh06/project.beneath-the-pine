@@ -1,5 +1,7 @@
 # Release Checklist
 
+For the internship **local demo**, AI Assistance is required under the [2026-11-11 MVP revision](../00-foundation/mvp-scope.md). Its evidence is recorded [separately](../07-testing/internship-mvp-ai-readiness.md): three real model flows, editing/selection/discard, scoped context, cost bounds and failure recovery. Completing that milestone does not check off the pilot gates below. Dataset/training revision gates apply only when shipping a self-trained model; the OpenRouter demo instead records provider/model/prompt and live-call evidence.
+
 - [ ] Product slice matches approved PRD and scope.
 - [ ] Authorization, private-text handling, data rights and recovery tests pass.
 - [ ] Realtime join/reconnect/terminal-race checks pass when relevant.
