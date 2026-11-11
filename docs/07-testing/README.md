@@ -1,5 +1,7 @@
 # 07 — Testing
 
+- [Internship MVP with OpenRouter AI — local acceptance, 2026-11-11](internship-mvp-ai-readiness.md)
+
 - [P3E — browser zoom, narration and physical-device verification (in progress)](gamification-p3e-device-verification.md)
 
 - [P3D — gamification evidence and pilot preparation](gamification-p3d-readiness.md)

@@ -1,0 +1,52 @@
+TAP version 13
+# (node:29616) ExperimentalWarning: The MockTimers API is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: OpenRouter needs its own key, pins the approved model, and exposes all three capabilities
+ok 1 - OpenRouter needs its own key, pins the approved model, and exposes all three capabilities
+  ---
+  duration_ms: 13.1007
+  ...
+# Subtest: each capability uses a single bounded JSON request, with price/privacy routing and reasoning off
+ok 2 - each capability uses a single bounded JSON request, with price/privacy routing and reasoning off
+  ---
+  duration_ms: 43.3948
+  ...
+# Subtest: only selected context is read once, included as untrusted data, without extra model calls
+ok 3 - only selected context is read once, included as untrusted data, without extra model calls
+  ---
+  duration_ms: 2.3624
+  ...
+# Subtest: context errors, oversized context, unknown and duplicate tools never reach the provider
+ok 4 - context errors, oversized context, unknown and duplicate tools never reach the provider
+  ---
+  duration_ms: 2.0439
+  ...
+# Subtest: errors, invalid JSON, schema violations, truncation, tool calls and oversized bodies fail without retry
+ok 5 - errors, invalid JSON, schema violations, truncation, tool calls and oversized bodies fail without retry
+  ---
+  duration_ms: 9.9139
+  ...
+# Subtest: provider refusal and sensitive context produce boundary without exposing provider messages
+ok 6 - provider refusal and sensitive context produce boundary without exposing provider messages
+  ---
+  duration_ms: 1.2872
+  ...
+# Subtest: deadline includes an unresponsive provider and context reads; no late model call after abort
+ok 7 - deadline includes an unresponsive provider and context reads; no late model call after abort
+  ---
+  duration_ms: 2.4846
+  ...
+# Subtest: quota exhaustion and unavailable provider preserve the service fallback without raw errors
+ok 8 - quota exhaustion and unavailable provider preserve the service fallback without raw errors
+  ---
+  duration_ms: 4.904
+  ...
+1..8
+# tests 8
+# suites 0
+# pass 8
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1102.9422

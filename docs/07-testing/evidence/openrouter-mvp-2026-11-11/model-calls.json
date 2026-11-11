@@ -1,0 +1,182 @@
+{
+  "attempts": 11,
+  "authorizedMaximum": 12,
+  "data": "fictional",
+  "reportedCostUsd": 0.0005860826,
+  "unknownCostAttempts": [
+    3
+  ],
+  "calls": [
+    {
+      "attempt": 1,
+      "capability": "assisted_start",
+      "model": "deepseek/deepseek-v4-flash-0731",
+      "contextNames": [],
+      "started": "2026-11-11T12:22:26.805Z",
+      "httpStatus": 200,
+      "elapsedMs": 3112,
+      "result": "schema_rejected_before_branch_schema_refinement",
+      "promptTokens": 665,
+      "completionTokens": 114,
+      "reasoningTokens": 0,
+      "reportedCostUsd": 0.000063061
+    },
+    {
+      "attempt": 2,
+      "capability": "assisted_start",
+      "model": "deepseek/deepseek-v4-flash-0731",
+      "contextNames": [],
+      "started": "2026-11-11T12:25:13.780Z",
+      "httpStatus": 200,
+      "elapsedMs": 7185,
+      "result": "accepted_suggestion",
+      "promptTokens": 708,
+      "completionTokens": 83,
+      "reasoningTokens": 0,
+      "reportedCostUsd": 0.0000556272
+    },
+    {
+      "attempt": 3,
+      "capability": "assisted_start",
+      "model": "deepseek/deepseek-v4-flash-0731",
+      "contextNames": [
+        "get_my_open_seed"
+      ],
+      "started": "2026-11-11T12:29:44.043Z",
+      "httpStatus": "transport_failure",
+      "elapsedMs": 12814,
+      "result": "timeout_no_usage_received",
+      "promptTokens": null,
+      "completionTokens": null,
+      "reasoningTokens": null,
+      "reportedCostUsd": null
+    },
+    {
+      "attempt": 4,
+      "capability": "assisted_start",
+      "model": "deepseek/deepseek-v4-flash-0731",
+      "contextNames": [
+        "get_my_open_seed"
+      ],
+      "started": "2026-11-11T12:35:49.211Z",
+      "httpStatus": 200,
+      "elapsedMs": 4789,
+      "result": "accepted_suggestion",
+      "promptTokens": 734,
+      "completionTokens": 95,
+      "reasoningTokens": 0,
+      "reportedCostUsd": 0.0000603556
+    },
+    {
+      "attempt": 5,
+      "capability": "stuck_recovery",
+      "model": "deepseek/deepseek-v4-flash-0731",
+      "contextNames": [
+        "get_current_focus_context"
+      ],
+      "started": "2026-11-11T12:36:32.000Z",
+      "httpStatus": 200,
+      "elapsedMs": 3275,
+      "result": "policy_rejected_before_prompt_refinement",
+      "promptTokens": 777,
+      "completionTokens": 122,
+      "reasoningTokens": 0,
+      "reportedCostUsd": 0.0000703218
+    },
+    {
+      "attempt": 6,
+      "capability": "assisted_start",
+      "model": "deepseek/deepseek-v4-flash-0731",
+      "contextNames": [
+        "get_my_open_seed"
+      ],
+      "started": "2026-11-11T12:38:22.833Z",
+      "httpStatus": 200,
+      "elapsedMs": 3008,
+      "result": "accepted_suggestion",
+      "promptTokens": 888,
+      "completionTokens": 70,
+      "reasoningTokens": 0,
+      "reportedCostUsd": 0.0000552384
+    },
+    {
+      "attempt": 7,
+      "capability": "stuck_recovery",
+      "model": "deepseek/deepseek-v4-flash-0731",
+      "contextNames": [
+        "get_current_focus_context"
+      ],
+      "started": "2026-11-11T12:39:10.381Z",
+      "httpStatus": 200,
+      "elapsedMs": 2197,
+      "result": "accepted_suggestion",
+      "promptTokens": 931,
+      "completionTokens": 66,
+      "reasoningTokens": 0,
+      "reportedCostUsd": 0.0000602054
+    },
+    {
+      "attempt": 8,
+      "capability": "assisted_start",
+      "model": "deepseek/deepseek-v4-flash-0731",
+      "contextNames": [
+        "get_my_open_seed"
+      ],
+      "started": "2026-11-11T12:40:17.397Z",
+      "httpStatus": 200,
+      "elapsedMs": 3251,
+      "result": "accepted_suggestion",
+      "promptTokens": 888,
+      "completionTokens": 70,
+      "reasoningTokens": 0,
+      "reportedCostUsd": 0.000053088
+    },
+    {
+      "attempt": 9,
+      "capability": "stuck_recovery",
+      "model": "deepseek/deepseek-v4-flash-0731",
+      "contextNames": [
+        "get_current_focus_context"
+      ],
+      "started": "2026-11-11T12:41:06.313Z",
+      "httpStatus": 200,
+      "elapsedMs": 1843,
+      "result": "accepted_suggestion",
+      "promptTokens": 931,
+      "completionTokens": 64,
+      "reasoningTokens": 0,
+      "reportedCostUsd": 0.0000531542
+    },
+    {
+      "attempt": 10,
+      "capability": "stuck_recovery",
+      "model": "deepseek/deepseek-v4-flash-0731",
+      "contextNames": [
+        "get_current_focus_context"
+      ],
+      "started": "2026-11-11T15:45:56.695Z",
+      "httpStatus": 200,
+      "elapsedMs": 2345,
+      "result": "accepted_suggestion",
+      "promptTokens": 931,
+      "completionTokens": 66,
+      "reasoningTokens": 0,
+      "reportedCostUsd": 0.0000602054,
+      "qualityNote": "Stray opening brace in sentence; edited before use in browser."
+    },
+    {
+      "attempt": 11,
+      "capability": "open_seed_draft",
+      "model": "deepseek/deepseek-v4-flash-0731",
+      "contextNames": [],
+      "started": "2026-11-11T15:45:59.526Z",
+      "httpStatus": 200,
+      "elapsedMs": 1680,
+      "result": "accepted_suggestion",
+      "promptTokens": 852,
+      "completionTokens": 81,
+      "reasoningTokens": 0,
+      "reportedCostUsd": 0.0000548256
+    }
+  ]
+}

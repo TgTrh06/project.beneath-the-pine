@@ -1,0 +1,8 @@
+{
+  "unauthenticatedRoutesDenied": 3,
+  "crossAccountContextHidden": true,
+  "stolenGrantRejectedBeforeModel": true,
+  "staleGrantRejectedBeforeModel": true,
+  "malformedInputsRejected": 2,
+  "externalCalls": 0
+}

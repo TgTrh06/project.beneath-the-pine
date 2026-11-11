@@ -1,0 +1,60 @@
+{
+  "results": [
+    {
+      "name": "resume verification at recovery; start AI evidence retained from earlier run",
+      "passed": true
+    },
+    {
+      "name": "Gợi ý cách tiếp tục",
+      "status": "suggestion",
+      "output": {
+        "capability": "stuck_recovery",
+        "version": "1",
+        "needsHumanSupport": false,
+        "recoveryAction": "smaller_step",
+        "recoveryStep": "Gõ một câu duy nhất nêu mục tiêu cốt lõi của ứng dụng.{",
+        "fallback": "manual_step"
+      }
+    },
+    {
+      "name": "recovery-desktop",
+      "width": 1280,
+      "scroll": 1280
+    },
+    {
+      "name": "Gợi ý câu quay lại",
+      "status": "suggestion",
+      "output": {
+        "capability": "open_seed_draft",
+        "version": "1",
+        "needsHumanSupport": false,
+        "openSeedDraft": "Mở tài liệu ứng dụng và viết mô tả luồng tạo phiên tập trung từ lúc người dùng mở màn hình tới khi bấm bắt đầu.",
+        "fallback": "manual_step"
+      }
+    },
+    {
+      "name": "seed-desktop",
+      "width": 1280,
+      "scroll": 1280
+    },
+    {
+      "name": "seed-320",
+      "width": 320,
+      "scroll": 320
+    },
+    {
+      "name": "seed persists only after checkout and resumes after reload",
+      "passed": true
+    },
+    {
+      "name": "failure-preserves-draft",
+      "width": 1280,
+      "scroll": 1280
+    },
+    {
+      "name": "mocked request error and discard preserve manual input",
+      "passed": true
+    }
+  ],
+  "errors": []
+}

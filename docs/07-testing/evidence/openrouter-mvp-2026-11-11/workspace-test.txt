@@ -1,0 +1,665 @@
+
+> pyneath@0.1.0 test <workspace>
+> pnpm -r --if-present test && node --test scripts/check-audit.test.cjs
+
+Scope: 3 of 4 workspace projects
+apps/api pretest$ pnpm --filter @pyneath/contracts build
+apps/web test$ vitest run src && node --test scripts/*.test.cjs
+apps/api pretest: > @pyneath/contracts@0.1.0 build <workspace>\packages\contracts
+apps/api pretest: > tsc
+apps/web test:  RUN  v5.0.5 D:/projects/apps/project.beneath-the-pine/apps/web
+apps/web test:  Test Files  26 passed (26)
+apps/web test:       Tests  109 passed (109)
+apps/web test:    Start at  19:20:37
+apps/web test:    Duration  4.18s (import 38%, tests 36%, transform 21%, worker 6%)
+apps/web test:     Isolate  26 workers spawned · ~910ms startup each (spawn + environment, per file)
+apps/web test:              at least ~1.24s faster with isolate: false — reuses workers across files instead of one per file
+apps/api pretest: Done
+apps/api test$ node scripts/clean-test-output.cjs && tsc -p tsconfig.test.json && node --test dist-test/test/*.test.js
+apps/web test: TAP version 13
+apps/web test: # Subtest: rejects inward shared dependencies and private cross-feature imports
+apps/web test: ok 1 - rejects inward shared dependencies and private cross-feature imports
+apps/web test:   ---
+apps/web test:   duration_ms: 592.1856
+apps/web test:   ...
+apps/web test: # Subtest: detects barrel imports that make Three.js eager while allowing an explicit lazy canvas
+apps/web test: ok 2 - detects barrel imports that make Three.js eager while allowing an explicit lazy canvas
+apps/web test:   ---
+apps/web test:   duration_ms: 19.8703
+apps/web test:   ...
+apps/web test: 1..2
+apps/web test: # tests 2
+apps/web test: # suites 0
+apps/web test: # pass 2
+apps/web test: # fail 0
+apps/web test: # cancelled 0
+apps/web test: # skipped 0
+apps/web test: # todo 0
+apps/web test: # duration_ms 1073.6321
+apps/web test: Done
+apps/api test: TAP version 13
+apps/api test: # Subtest: analytics metadata permits only documented event fields
+apps/api test: ok 1 - analytics metadata permits only documented event fields
+apps/api test:   ---
+apps/api test:   duration_ms: 4.803
+apps/api test:   ...
+apps/api test: # Subtest: assistance quotas reserve atomically on isolated PostgreSQL
+apps/api test: ok 2 - assistance quotas reserve atomically on isolated PostgreSQL
+apps/api test:   ---
+apps/api test:   duration_ms: 2088.6404
+apps/api test:   ...
+apps/api test: # Subtest: assistance contract validates capability inputs and rejects private extra fields
+apps/api test: ok 3 - assistance contract validates capability inputs and rejects private extra fields
+apps/api test:   ---
+apps/api test:   duration_ms: 10.0049
+apps/api test:   ...
+apps/api test: # Subtest: disabled provider keeps manual path usable without quota or model call
+apps/api test: ok 4 - disabled provider keeps manual path usable without quota or model call
+apps/api test:   ---
+apps/api test:   duration_ms: 10.412
+apps/api test:   ...
+apps/api test: # Subtest: start and Seed suggestions use the same validated response contract
+apps/api test: ok 5 - start and Seed suggestions use the same validated response contract
+apps/api test:   ---
+apps/api test:   duration_ms: 2.3105
+apps/api test:   ...
+apps/api test: # Subtest: quota, invalid provider result and crisis cues return safe responses
+apps/api test: ok 6 - quota, invalid provider result and crisis cues return safe responses
+apps/api test:   ---
+apps/api test:   duration_ms: 4.4879
+apps/api test:   ...
+apps/api test: # Subtest: interaction records and metadata never include prompt or suggestion text
+apps/api test: ok 7 - interaction records and metadata never include prompt or suggestion text
+apps/api test:   ---
+apps/api test:   duration_ms: 2.7612
+apps/api test:   ...
+apps/api test: # Subtest: OpenAI adapter sends only explicit text with store disabled and validates moderation
+apps/api test: ok 8 - OpenAI adapter sends only explicit text with store disabled and validates moderation
+apps/api test:   ---
+apps/api test:   duration_ms: 65.5891
+apps/api test:   ...
+apps/api test: # Subtest: OpenAI adapter refuses unsafe or malformed generated output
+apps/api test: ok 9 - OpenAI adapter refuses unsafe or malformed generated output
+apps/api test:   ---
+apps/api test:   duration_ms: 3.3117
+apps/api test:   ...
+apps/api test: # Subtest: OpenAI adapter aborts a stalled provider within the six-second budget
+apps/api test: ok 10 - OpenAI adapter aborts a stalled provider within the six-second budget
+apps/api test:   ---
+apps/api test:   duration_ms: 6012.0959
+apps/api test:   ...
+apps/api test: # Subtest: Camp forest: durable aggregation, membership boundaries and HTTP failures
+apps/api test:     # Subtest: 0/1/2/3/6/7/>7 use original dates and never count duplicate sessions
+apps/api test:     ok 1 - 0/1/2/3/6/7/>7 use original dates and never count duplicate sessions
+apps/api test:       ---
+apps/api test:       duration_ms: 140.2034
+apps/api test:       ...
+apps/api test:     # Subtest: separate Camps, archived history, equal timestamps and repeat reads remain stable
+apps/api test:     ok 2 - separate Camps, archived history, equal timestamps and repeat reads remain stable
+apps/api test:       ---
+apps/api test:       duration_ms: 20.046
+apps/api test:       ...
+apps/api test:     # Subtest: removal hides names/counts/dates; rejoining sees earlier Camp history
+apps/api test:     ok 3 - removal hides names/counts/dates; rejoining sees earlier Camp history
+apps/api test:       ---
+apps/api test:       duration_ms: 24.344
+apps/api test:       ...
+apps/api test:     # Subtest: HTTP authenticates, ignores forged owners, uses no-store and sanitizes dependency failures
+apps/api test:     ok 4 - HTTP authenticates, ignores forged owners, uses no-store and sanitizes dependency failures
+apps/api test:       ---
+apps/api test:       duration_ms: 640.6062
+apps/api test:       ...
+apps/api test:     # Subtest: member deletion preserves shared history; Camp deletion removes its memories only
+apps/api test:     ok 5 - member deletion preserves shared history; Camp deletion removes its memories only
+apps/api test:       ---
+apps/api test:       duration_ms: 57.769
+apps/api test:       ...
+apps/api test:     1..5
+apps/api test: ok 11 - Camp forest: durable aggregation, membership boundaries and HTTP failures
+apps/api test:   ---
+apps/api test:   duration_ms: 1413.4182
+apps/api test:   ...
+apps/api test: # Subtest: Camp invitation preview, decline and membership lifecycle on isolated local database
+apps/api test: ok 12 - Camp invitation preview, decline and membership lifecycle on isolated local database # SKIP
+apps/api test:   ---
+apps/api test:   duration_ms: 2.0205
+apps/api test:   ...
+apps/api test: # Subtest: Camp owner transfer and invitation failures retain atomic writes and post-commit telemetry
+apps/api test: ok 13 - Camp owner transfer and invitation failures retain atomic writes and post-commit telemetry
+apps/api test:   ---
+apps/api test:   duration_ms: 889.6804
+apps/api test:   ...
+apps/api test: # Subtest: API config is isolated from legacy environment, with bounded values and redacted errors
+apps/api test: ok 14 - API config is isolated from legacy environment, with bounded values and redacted errors
+apps/api test:   ---
+apps/api test:   duration_ms: 18.6198
+apps/api test:   ...
+apps/api test: # Subtest: module checks reject cross-owner persistence, infrastructure in domain and inward platform imports
+apps/api test: ok 15 - module checks reject cross-owner persistence, infrastructure in domain and inward platform imports
+apps/api test:   ---
+apps/api test:   duration_ms: 775.3635
+apps/api test:   ...
+apps/api test: # Subtest: public module interfaces reject new concrete exports even under a renamed implementation file
+apps/api test: ok 16 - public module interfaces reject new concrete exports even under a renamed implementation file
+apps/api test:   ---
+apps/api test:   duration_ms: 1.0245
+apps/api test:   ...
+apps/api test: # Subtest: schema inventory permits existing infrastructure reads without permitting foreign writes
+apps/api test: ok 17 - schema inventory permits existing infrastructure reads without permitting foreign writes
+apps/api test:   ---
+apps/api test:   duration_ms: 1.5175
+apps/api test:   ...
+apps/api test: # (node:17652) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+apps/api test: # (Use `node --trace-deprecation ...` to show where the warning was created)
+apps/api test: # Subtest: core PostgreSQL flow preserves ownership, reconnect state, seed uniqueness and shared milestone
+apps/api test: ok 18 - core PostgreSQL flow preserves ownership, reconnect state, seed uniqueness and shared milestone
+apps/api test:   ---
+apps/api test:   duration_ms: 6324.1794
+apps/api test:   ...
+apps/api test: # Subtest: no database configuration makes no connection and reports unavailable
+apps/api test: ok 19 - no database configuration makes no connection and reports unavailable
+apps/api test:   ---
+apps/api test:   duration_ms: 10.0975
+apps/api test:   ...
+apps/api test: # [Nest] 28292  - 11/11/2026, 7:20:52 PM    WARN [DatabaseService] Object(1) {
+apps/api test: #   event: 'database_unreachable'
+apps/api test: # }
+apps/api test: # Subtest: an unavailable PostgreSQL driver fails within the configured timeout and closes cleanly
+apps/api test: ok 20 - an unavailable PostgreSQL driver fails within the configured timeout and closes cleanly
+apps/api test:   ---
+apps/api test:   duration_ms: 141.6062
+apps/api test:   ...
+apps/api test: # Subtest: Focus shares rollback with Pact and Seed, then publishes and derives memory after commit
+apps/api test: ok 21 - Focus shares rollback with Pact and Seed, then publishes and derives memory after commit
+apps/api test:   ---
+apps/api test:   duration_ms: 1290.829
+apps/api test:   ...
+apps/api test: # Subtest: forest arrangement: migration, entitlement, compare-and-save, HTTP and privacy
+apps/api test:     # Subtest: forward migration preserves existing preferences and supplies P1 defaults
+apps/api test:     ok 1 - forward migration preserves existing preferences and supplies P1 defaults
+apps/api test:       ---
+apps/api test:       duration_ms: 22.5617
+apps/api test:       ...
+apps/api test:     # Subtest: locked items rejected; history projection grants items without changing dates or counts
+apps/api test:     ok 2 - locked items rejected; history projection grants items without changing dates or counts
+apps/api test:       ---
+apps/api test:       duration_ms: 124.0068
+apps/api test:       ...
+apps/api test:     # Subtest: simultaneous and first-write saves have exactly one winner and retry cannot overwrite
+apps/api test:     ok 3 - simultaneous and first-write saves have exactly one winner and retry cannot overwrite
+apps/api test:       ---
+apps/api test:       duration_ms: 79.0427
+apps/api test:       ...
+apps/api test: # (node:26752) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+apps/api test: # (Use `node --trace-deprecation ...` to show where the warning was created)
+apps/api test:     # Subtest: HTTP validates strict bodies, owner, CSRF, version and safe dependency failure
+apps/api test:     ok 4 - HTTP validates strict bodies, owner, CSRF, version and safe dependency failure
+apps/api test:       ---
+apps/api test:       duration_ms: 910.7116
+apps/api test:       ...
+apps/api test:     # Subtest: export includes only own arrangement; deletion cascades without altering other account
+apps/api test:     ok 5 - export includes only own arrangement; deletion cascades without altering other account
+apps/api test:       ---
+apps/api test:       duration_ms: 831.3876
+apps/api test:       ...
+apps/api test:     1..5
+apps/api test: ok 22 - forest arrangement: migration, entitlement, compare-and-save, HTTP and privacy
+apps/api test:   ---
+apps/api test:   duration_ms: 3305.7118
+apps/api test:   ...
+apps/api test: # (node:26980) ExperimentalWarning: The MockTimers API is an experimental feature and might change at any time
+apps/api test: # (Use `node --trace-warnings ...` to show where the warning was created)
+apps/api test: # Subtest: Gemini configuration is explicit and errors do not reveal keys; contracts reject excess grants
+apps/api test: ok 23 - Gemini configuration is explicit and errors do not reveal keys; contracts reject excess grants
+apps/api test:   ---
+apps/api test:   duration_ms: 25.2997
+apps/api test:   ...
+apps/api test: # Subtest: Gemini generates each capability with one bounded external request and no moderation/retry
+apps/api test: ok 24 - Gemini generates each capability with one bounded external request and no moderation/retry
+apps/api test:   ---
+apps/api test:   duration_ms: 68.79
+apps/api test:   ...
+apps/api test: # Subtest: Gemini calls only approved tools once and preserves model thought signatures for second round
+apps/api test: ok 25 - Gemini calls only approved tools once and preserves model thought signatures for second round
+apps/api test:   ---
+apps/api test:   duration_ms: 7.0809
+apps/api test:   ...
+apps/api test: # Subtest: invalid, unconsented, duplicate or repeated tools fail closed without unauthorized reads
+apps/api test: ok 26 - invalid, unconsented, duplicate or repeated tools fail closed without unauthorized reads
+apps/api test:   ---
+apps/api test:   duration_ms: 22.3154
+apps/api test:   ...
+apps/api test: # Subtest: Gemini rejects errors, oversized bodies, truncated output, invalid JSON and wrong capability
+apps/api test: ok 27 - Gemini rejects errors, oversized bodies, truncated output, invalid JSON and wrong capability
+apps/api test:   ---
+apps/api test:   duration_ms: 12.3101
+apps/api test:   ...
+apps/api test: # Subtest: provider safety blocks map to backend boundary, never raw provider text
+apps/api test: ok 28 - provider safety blocks map to backend boundary, never raw provider text
+apps/api test:   ---
+apps/api test:   duration_ms: 3.2527
+apps/api test:   ...
+apps/api test: # Subtest: six-second direct deadline aborts even an unresponsive transport
+apps/api test: ok 29 - six-second direct deadline aborts even an unresponsive transport
+apps/api test:   ---
+apps/api test:   duration_ms: 3.1947
+apps/api test:   ...
+apps/api test: # Subtest: twelve-second tool deadline includes tool reads and never starts a late second model call
+apps/api test: ok 30 - twelve-second tool deadline includes tool reads and never starts a late second model call
+apps/api test:   ---
+apps/api test:   duration_ms: 3.0106
+apps/api test:   ...
+apps/api test: # Subtest: consent binds account, tool, contents, TTL and one read; preview does not mutate or expose IDs
+apps/api test: ok 31 - consent binds account, tool, contents, TTL and one read; preview does not mutate or expose IDs
+apps/api test:   ---
+apps/api test:   duration_ms: 11.7241
+apps/api test:   ...
+apps/api test: # Subtest: tools share existing quota and fallback without a provider call when consent is stale
+apps/api test: ok 32 - tools share existing quota and fallback without a provider call when consent is stale
+apps/api test:   ---
+apps/api test:   duration_ms: 4.0372
+apps/api test:   ...
+apps/api test: # Subtest: rotation failure produces neither a revocation event nor a replacement cookie
+apps/api test: ok 33 - rotation failure produces neither a revocation event nor a replacement cookie
+apps/api test:   ---
+apps/api test:   duration_ms: 27.5058
+apps/api test:   ...
+apps/api test: # Subtest: successful rotation persists expiry before publishing revocation and returning safe account data
+apps/api test: ok 34 - successful rotation persists expiry before publishing revocation and returning safe account data
+apps/api test:   ---
+apps/api test:   duration_ms: 1.8316
+apps/api test:   ...
+apps/api test: # Subtest: unknown-account login still runs dummy password verification and exposes only the auth error
+apps/api test: ok 35 - unknown-account login still runs dummy password verification and exposes only the auth error
+apps/api test:   ---
+apps/api test:   duration_ms: 1.6504
+apps/api test:   ...
+apps/api test: # Subtest: failed revocation emits no event and duplicate valid logout tokens are processed once
+apps/api test: ok 36 - failed revocation emits no event and duplicate valid logout tokens are processed once
+apps/api test:   ---
+apps/api test:   duration_ms: 2.0891
+apps/api test:   ...
+apps/api test: # Subtest: PostgreSQL migration enforces unique accounts and session cascade
+apps/api test: ok 37 - PostgreSQL migration enforces unique accounts and session cascade
+apps/api test:   ---
+apps/api test:   duration_ms: 496.3773
+apps/api test:   ...
+apps/api test: # Subtest: registration normalizes email, rotates session and returns a safe account DTO
+apps/api test: ok 38 - registration normalizes email, rotates session and returns a safe account DTO
+apps/api test:   ---
+apps/api test:   duration_ms: 2304.6156
+apps/api test:   ...
+apps/api test: # Subtest: legacy cookie migrates without changing token, CSRF or expiry and logout revokes both names
+apps/api test: ok 39 - legacy cookie migrates without changing token, CSRF or expiry and logout revokes both names
+apps/api test:   ---
+apps/api test:   duration_ms: 796.1786
+apps/api test:   ...
+apps/api test: # Subtest: new cookie takes precedence and legacy support does not bypass authentication or CSRF
+apps/api test: ok 40 - new cookie takes precedence and legacy support does not bypass authentication or CSRF
+apps/api test:   ---
+apps/api test:   duration_ms: 666.6658
+apps/api test:   ...
+apps/api test: # Subtest: CSRF rejects absent, forged, stale tokens and foreign origins without registering
+apps/api test: ok 41 - CSRF rejects absent, forged, stale tokens and foreign origins without registering
+apps/api test:   ---
+apps/api test:   duration_ms: 53.4005
+apps/api test:   ...
+apps/api test: # Subtest: login errors do not disclose account existence; logout and expiry revoke access
+apps/api test: ok 42 - login errors do not disclose account existence; logout and expiry revoke access
+apps/api test:   ---
+apps/api test:   duration_ms: 2436.3922
+apps/api test:   ...
+apps/api test: # Subtest: identity separation is server enforced and the removed admin route stays absent
+apps/api test: ok 43 - identity separation is server enforced and the removed admin route stays absent
+apps/api test:   ---
+apps/api test:   duration_ms: 766.721
+apps/api test:   ...
+apps/api test: # Subtest: password hashing verifies without exposing or reusing salts
+apps/api test: ok 44 - password hashing verifies without exposing or reusing salts
+apps/api test:   ---
+apps/api test:   duration_ms: 1454.0977
+apps/api test:   ...
+apps/api test: # Subtest: auth requests are rate limited
+apps/api test: ok 45 - auth requests are rate limited
+apps/api test:   ---
+apps/api test:   duration_ms: 77.5894
+apps/api test:   ...
+apps/api test: # Subtest: recovery contract accepts step/break and rejects cross-task or extra fields
+apps/api test: ok 46 - recovery contract accepts step/break and rejects cross-task or extra fields
+apps/api test:   ---
+apps/api test:   duration_ms: 13.6182
+apps/api test:   ...
+apps/api test: # Subtest: local configuration is opt-in and never exposes secrets in errors
+apps/api test: ok 47 - local configuration is opt-in and never exposes secrets in errors
+apps/api test:   ---
+apps/api test:   duration_ms: 8.7844
+apps/api test:   ...
+apps/api test: # Subtest: fake inference HTTP server: bounded response, strict policy, no external calls
+apps/api test: ok 48 - fake inference HTTP server: bounded response, strict policy, no external calls
+apps/api test:   ---
+apps/api test:   duration_ms: 211.1258
+apps/api test:   ...
+apps/api test: # Subtest: local service normalizes boundary text and keeps quota/interaction metadata private
+apps/api test: ok 49 - local service normalizes boundary text and keeps quota/interaction metadata private
+apps/api test:   ---
+apps/api test:   duration_ms: 4.1404
+apps/api test:   ...
+apps/api test: # Subtest: config endpoint uses identity guard and exposes only client-safe metadata
+apps/api test: ok 50 - config endpoint uses identity guard and exposes only client-safe metadata
+apps/api test:   ---
+apps/api test:   duration_ms: 436.2869
+apps/api test:   ...
+apps/api test: # Subtest: local provider aborts stalled response without retry or hosted fallback
+apps/api test: ok 51 - local provider aborts stalled response without retry or hosted fallback
+apps/api test:   ---
+apps/api test:   duration_ms: 6005.4934
+apps/api test:   ...
+apps/api test: # Subtest: unit of work scopes contexts to the owning transaction and invalidates them after success or failure
+apps/api test: ok 52 - unit of work scopes contexts to the owning transaction and invalidates them after success or failure
+apps/api test:   ---
+apps/api test:   duration_ms: 5.4031
+apps/api test:   ...
+apps/api test: # Subtest: profile use case preserves patch defaults and rejects invalid timezone before repository access
+apps/api test: ok 53 - profile use case preserves patch defaults and rejects invalid timezone before repository access
+apps/api test:   ---
+apps/api test:   duration_ms: 4.0176
+apps/api test:   ...
+apps/api test: # Subtest: unit of work preserves explicit isolation and leaves the default transaction configuration unchanged
+apps/api test: ok 54 - unit of work preserves explicit isolation and leaves the default transaction configuration unchanged
+apps/api test:   ---
+apps/api test:   duration_ms: 1.3263
+apps/api test:   ...
+apps/api test: # Subtest: quota policy passes the same context through lock, UTC counts and reservation
+apps/api test: ok 55 - quota policy passes the same context through lock, UTC counts and reservation
+apps/api test:   ---
+apps/api test:   duration_ms: 1.937
+apps/api test:   ...
+apps/api test: # Subtest: business errors retain the existing public HTTP error envelope
+apps/api test: ok 56 - business errors retain the existing public HTTP error envelope
+apps/api test:   ---
+apps/api test:   duration_ms: 0.9207
+apps/api test:   ...
+apps/api test: # (node:29540) ExperimentalWarning: The MockTimers API is an experimental feature and might change at any time
+apps/api test: # (Use `node --trace-warnings ...` to show where the warning was created)
+apps/api test: # Subtest: OpenRouter needs its own key, pins the approved model, and exposes all three capabilities
+apps/api test: ok 57 - OpenRouter needs its own key, pins the approved model, and exposes all three capabilities
+apps/api test:   ---
+apps/api test:   duration_ms: 13.4412
+apps/api test:   ...
+apps/api test: # Subtest: each capability uses a single bounded JSON request, with price/privacy routing and reasoning off
+apps/api test: ok 58 - each capability uses a single bounded JSON request, with price/privacy routing and reasoning off
+apps/api test:   ---
+apps/api test:   duration_ms: 66.7023
+apps/api test:   ...
+apps/api test: # Subtest: only selected context is read once, included as untrusted data, without extra model calls
+apps/api test: ok 59 - only selected context is read once, included as untrusted data, without extra model calls
+apps/api test:   ---
+apps/api test:   duration_ms: 3.8846
+apps/api test:   ...
+apps/api test: # Subtest: context errors, oversized context, unknown and duplicate tools never reach the provider
+apps/api test: ok 60 - context errors, oversized context, unknown and duplicate tools never reach the provider
+apps/api test:   ---
+apps/api test:   duration_ms: 4.0842
+apps/api test:   ...
+apps/api test: # Subtest: errors, invalid JSON, schema violations, truncation, tool calls and oversized bodies fail without retry
+apps/api test: ok 61 - errors, invalid JSON, schema violations, truncation, tool calls and oversized bodies fail without retry
+apps/api test:   ---
+apps/api test:   duration_ms: 17.7844
+apps/api test:   ...
+apps/api test: # Subtest: provider refusal and sensitive context produce boundary without exposing provider messages
+apps/api test: ok 62 - provider refusal and sensitive context produce boundary without exposing provider messages
+apps/api test:   ---
+apps/api test:   duration_ms: 1.6966
+apps/api test:   ...
+apps/api test: # Subtest: deadline includes an unresponsive provider and context reads; no late model call after abort
+apps/api test: ok 63 - deadline includes an unresponsive provider and context reads; no late model call after abort
+apps/api test:   ---
+apps/api test:   duration_ms: 4.4158
+apps/api test:   ...
+apps/api test: # Subtest: quota exhaustion and unavailable provider preserve the service fallback without raw errors
+apps/api test: ok 64 - quota exhaustion and unavailable provider preserve the service fallback without raw errors
+apps/api test:   ---
+apps/api test:   duration_ms: 5.9451
+apps/api test:   ...
+apps/api test: # Subtest: pact lists, membership, invitation metadata and archive on existing local database
+apps/api test: ok 65 - pact lists, membership, invitation metadata and archive on existing local database # SKIP
+apps/api test:   ---
+apps/api test:   duration_ms: 1.9823
+apps/api test:   ...
+apps/api test: # Subtest: personal forest: forward migration, lifetime milestones, races, privacy and failure isolation
+apps/api test:     # Subtest: existing history is materialized once with original dates, never private text
+apps/api test:     ok 1 - existing history is materialized once with original dates, never private text
+apps/api test:       ---
+apps/api test:       duration_ms: 86.4089
+apps/api test:       ...
+apps/api test:     # Subtest: all checkout outcomes count equally and duplicate checkout never adds a chặng
+apps/api test:     ok 2 - all checkout outcomes count equally and duplicate checkout never adds a chặng
+apps/api test:       ---
+apps/api test:       duration_ms: 346.1661
+apps/api test:       ...
+apps/api test:     # Subtest: expiry and shared sessions count only after the session closes
+apps/api test:     ok 3 - expiry and shared sessions count only after the session closes
+apps/api test:       ---
+apps/api test:       duration_ms: 536.4504
+apps/api test:       ...
+apps/api test:     # Subtest: lifetime counts exceed the history cap without reminting or changing milestones
+apps/api test:     ok 4 - lifetime counts exceed the history cap without reminting or changing milestones
+apps/api test:       ---
+apps/api test:       duration_ms: 64.568
+apps/api test:       ...
+apps/api test: # (node:31504) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+apps/api test: # (Use `node --trace-deprecation ...` to show where the warning was created)
+apps/api test:     # Subtest: HTTP uses the authenticated owner, ignores forged owner parameters and fails safely
+apps/api test:     ok 5 - HTTP uses the authenticated owner, ignores forged owner parameters and fails safely
+apps/api test:       ---
+apps/api test:       duration_ms: 427.6002
+apps/api test:       ...
+apps/api test:     # Subtest: export is private and account deletion cascades without deleting others memories
+apps/api test:     ok 6 - export is private and account deletion cascades without deleting others memories
+apps/api test:       ---
+apps/api test:       duration_ms: 662.0206
+apps/api test:       ...
+apps/api test:     1..6
+apps/api test: ok 66 - personal forest: forward migration, lifetime milestones, races, privacy and failure isolation
+apps/api test:   ---
+apps/api test:   duration_ms: 3378.441
+apps/api test:   ...
+apps/api test: # Subtest: preference updates preserve omitted values and publish sharing changes only after persistence
+apps/api test: ok 67 - preference updates preserve omitted values and publish sharing changes only after persistence
+apps/api test:   ---
+apps/api test:   duration_ms: 7.6921
+apps/api test:   ...
+apps/api test: # (node:30840) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+apps/api test: # (Use `node --trace-deprecation ...` to show where the warning was created)
+apps/api test: # Subtest: PostgreSQL export excludes revoked Camp activity and deletion notifies only after commit
+apps/api test:     # Subtest: account deletion rolls back Camp transfer, Camp deletion and cascading data before notification
+apps/api test:     ok 1 - account deletion rolls back Camp transfer, Camp deletion and cascading data before notification
+apps/api test:       ---
+apps/api test:       duration_ms: 1127.7207
+apps/api test:       ...
+apps/api test:     1..1
+apps/api test: ok 68 - PostgreSQL export excludes revoked Camp activity and deletion notifies only after commit
+apps/api test:   ---
+apps/api test:   duration_ms: 4600.9512
+apps/api test:   ...
+apps/api test: # Subtest: logout disconnects every socket for that session but preserves another session
+apps/api test: ok 69 - logout disconnects every socket for that session but preserves another session
+apps/api test:   ---
+apps/api test:   duration_ms: 679.0098
+apps/api test:   ...
+apps/api test: # Subtest: rotation and account deletion disconnect only the intended credentials
+apps/api test: ok 70 - rotation and account deletion disconnect only the intended credentials
+apps/api test:   ---
+apps/api test:   duration_ms: 49.0702
+apps/api test:   ...
+apps/api test: # Subtest: expiry disconnects an idle socket without waiting for a heartbeat
+apps/api test: ok 71 - expiry disconnects an idle socket without waiting for a heartbeat
+apps/api test:   ---
+apps/api test:   duration_ms: 608.7513
+apps/api test:   ...
+apps/api test: # Subtest: database revocation prevents session.subscribe without an in-process notification
+apps/api test: ok 72 - database revocation prevents session.subscribe without an in-process notification
+apps/api test:   ---
+apps/api test:   duration_ms: 27.5987
+apps/api test:   ...
+apps/api test: # Subtest: database revocation prevents presence.heartbeat without an in-process notification
+apps/api test: ok 73 - database revocation prevents presence.heartbeat without an in-process notification
+apps/api test:   ---
+apps/api test:   duration_ms: 38.1003
+apps/api test:   ...
+apps/api test: # Subtest: database revocation prevents presence.set without an in-process notification
+apps/api test: ok 74 - database revocation prevents presence.set without an in-process notification
+apps/api test:   ---
+apps/api test:   duration_ms: 31.1074
+apps/api test:   ...
+apps/api test: # Subtest: server push fails closed for snapshot
+apps/api test: ok 75 - server push fails closed for snapshot
+apps/api test:   ---
+apps/api test:   duration_ms: 33.8811
+apps/api test:   ...
+apps/api test: # Subtest: server push fails closed for presence
+apps/api test: ok 76 - server push fails closed for presence
+apps/api test:   ---
+apps/api test:   duration_ms: 20.8287
+apps/api test:   ...
+apps/api test: # Subtest: server push fails closed for outage
+apps/api test: ok 77 - server push fails closed for outage
+apps/api test:   ---
+apps/api test:   duration_ms: 26.2448
+apps/api test:   ...
+apps/api test: # Subtest: server push fails closed for changed-owner
+apps/api test: ok 78 - server push fails closed for changed-owner
+apps/api test:   ---
+apps/api test:   duration_ms: 20.7079
+apps/api test:   ...
+apps/api test: # Subtest: database outage prevents session.subscribe from writing presence
+apps/api test: ok 79 - database outage prevents session.subscribe from writing presence
+apps/api test:   ---
+apps/api test:   duration_ms: 21.2452
+apps/api test:   ...
+apps/api test: # Subtest: database outage prevents presence.heartbeat from writing presence
+apps/api test: ok 80 - database outage prevents presence.heartbeat from writing presence
+apps/api test:   ---
+apps/api test:   duration_ms: 16.5536
+apps/api test:   ...
+apps/api test: # Subtest: database outage prevents presence.set from writing presence
+apps/api test: ok 81 - database outage prevents presence.set from writing presence
+apps/api test:   ---
+apps/api test:   duration_ms: 20.3889
+apps/api test:   ...
+apps/api test: # Subtest: application NOT_FOUND preserves the socket error and removes the room subscription
+apps/api test: ok 82 - application NOT_FOUND preserves the socket error and removes the room subscription
+apps/api test:   ---
+apps/api test:   duration_ms: 19.0376
+apps/api test:   ...
+apps/api test: # Subtest: application FORBIDDEN preserves the socket error and removes the room subscription
+apps/api test: ok 83 - application FORBIDDEN preserves the socket error and removes the room subscription
+apps/api test:   ---
+apps/api test:   duration_ms: 19.6918
+apps/api test:   ...
+apps/api test: # Subtest: application STATE_CONFLICT preserves the socket error and removes the room subscription
+apps/api test: ok 84 - application STATE_CONFLICT preserves the socket error and removes the room subscription
+apps/api test:   ---
+apps/api test:   duration_ms: 19.0969
+apps/api test:   ...
+apps/api test: # Subtest: realtime authenticates Origin/session, authorizes subscribe and returns durable snapshot
+apps/api test: ok 85 - realtime authenticates Origin/session, authorizes subscribe and returns durable snapshot
+apps/api test:   ---
+apps/api test:   duration_ms: 1643.5723
+apps/api test:   ...
+apps/api test: # Subtest: focus presence publishes only persisted state transitions
+apps/api test: ok 86 - focus presence publishes only persisted state transitions
+apps/api test:   ---
+apps/api test:   duration_ms: 3.1029
+apps/api test:   ...
+apps/api test: # Subtest: application composition, HTTP foundation and fail-closed access
+apps/api test:     # Subtest: target core modules compose and removed legacy routes stay absent
+apps/api test:     ok 1 - target core modules compose and removed legacy routes stay absent
+apps/api test:       ---
+apps/api test:       duration_ms: 98.6903
+apps/api test:       ...
+apps/api test:     # Subtest: liveness works without DB and readiness reports unavailable truthfully
+apps/api test:     ok 2 - liveness works without DB and readiness reports unavailable truthfully
+apps/api test:       ---
+apps/api test:       duration_ms: 21.3787
+apps/api test:       ...
+apps/api test:     # Subtest: private routes reject absent or forged credentials
+apps/api test:     ok 3 - private routes reject absent or forged credentials
+apps/api test:       ---
+apps/api test:       duration_ms: 70.4846
+apps/api test:       ...
+apps/api test:     # Subtest: malformed and oversized JSON use safe error envelopes
+apps/api test:     ok 4 - malformed and oversized JSON use safe error envelopes
+apps/api test:       ---
+apps/api test:       duration_ms: 20.8356
+apps/api test:       ...
+apps/api test:     # Subtest: unexpected errors redact private exception details
+apps/api test:     ok 5 - unexpected errors redact private exception details
+apps/api test:       ---
+apps/api test:       duration_ms: 6.9649
+apps/api test:       ...
+apps/api test:     # Subtest: compressed JSON is rejected safely and leaves the API available
+apps/api test:     ok 6 - compressed JSON is rejected safely and leaves the API available
+apps/api test:       ---
+apps/api test:       duration_ms: 39.7191
+apps/api test:       ...
+apps/api test:     # Subtest: all browser command preflights permit method, CSRF and idempotency headers
+apps/api test:     ok 7 - all browser command preflights permit method, CSRF and idempotency headers
+apps/api test:       ---
+apps/api test:       duration_ms: 51.9731
+apps/api test:       ...
+apps/api test:     # Subtest: CORS uses the configured origin and does not reflect arbitrary origins
+apps/api test:     ok 8 - CORS uses the configured origin and does not reflect arbitrary origins
+apps/api test:       ---
+apps/api test:       duration_ms: 15.7624
+apps/api test:       ...
+apps/api test:     1..8
+apps/api test: ok 87 - application composition, HTTP foundation and fail-closed access
+apps/api test:   ---
+apps/api test:   duration_ms: 827.6058
+apps/api test:   ...
+apps/api test: # Subtest: readiness success reports connectivity only with an injected reachable database
+apps/api test: ok 88 - readiness success reports connectivity only with an injected reachable database
+apps/api test:   ---
+apps/api test:   duration_ms: 82.2091
+apps/api test:   ...
+apps/api test: # Subtest: solo HTTP lifecycle on an existing local database
+apps/api test: ok 89 - solo HTTP lifecycle on an existing local database # SKIP
+apps/api test:   ---
+apps/api test:   duration_ms: 1.9697
+apps/api test:   ...
+apps/api test: # Subtest: owner repositories roll back together and commit together on the same PostgreSQL transaction
+apps/api test: ok 90 - owner repositories roll back together and commit together on the same PostgreSQL transaction
+apps/api test:   ---
+apps/api test:   duration_ms: 648.1028
+apps/api test:   ...
+apps/api test: 1..90
+apps/api test: # tests 115
+apps/api test: # suites 0
+apps/api test: # pass 112
+apps/api test: # fail 0
+apps/api test: # cancelled 0
+apps/api test: # skipped 3
+apps/api test: # todo 0
+apps/api test: # duration_ms 15211.11
+apps/api test: Done
+TAP version 13
+# Subtest: audit exceptions match exact advisory, version, path, severity and expiry
+ok 1 - audit exceptions match exact advisory, version, path, severity and expiry
+  ---
+  duration_ms: 1.6442
+  ...
+# Subtest: audit fails closed on registry errors and malformed or missing findings
+ok 2 - audit fails closed on registry errors and malformed or missing findings
+  ---
+  duration_ms: 0.4189
+  ...
+1..2
+# tests 2
+# suites 0
+# pass 2
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 84.5614
