@@ -24,6 +24,11 @@ describe('Pyneath Assistance demo controls', () => {
     expect(makeAssistanceRequest('stuck_recovery', '  Mở tài liệu  ', 'low_energy')).toEqual({ capability: 'stuck_recovery', currentStep: 'Mở tài liệu', stuckMode: 'low_energy' });
     expect(assistanceDisclosure('self_hosted')).toContain('máy chủ Pyneath');
     expect(assistanceDisclosure('self_hosted')).not.toContain('OpenAI');
-    expect(assistanceDisclosure('external')).toContain('OpenAI');
+    expect(assistanceDisclosure('external')).not.toContain('OpenAI');
+    expect(assistanceDisclosure('external', 'gemini')).toContain('Google Gemini');
+    expect(assistanceDisclosure('external', 'gemini')).toContain('free tier');
+    expect(assistanceDisclosure('external', 'openrouter')).toContain('OpenRouter');
+    expect(assistanceDisclosure('external', 'openrouter')).toContain('DeepSeek');
+    expect(assistanceDisclosure('external', 'openrouter')).not.toContain('Gemini');
   });
 });

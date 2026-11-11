@@ -3,3 +3,10 @@
 .assistance-coach__proposal { margin-top:1rem; }
 .assistance-coach__proposal textarea { min-height:5rem; font-size:1rem; line-height:1.6; }
 .assistance-coach__proposal .button-row { margin-top:.75rem; flex-wrap:wrap; }
+.assistance-coach__proposal > button + button { margin-inline-start:.5rem; }
+.assistance-coach__context { min-width:0; margin-block:.75rem; padding:.75rem; border:1px solid var(--line); }
+.assistance-coach__context legend { max-width:100%; padding-inline:.25rem; }
+.assistance-coach__context-item { margin-block:.75rem; overflow-wrap:anywhere; }
+.assistance-coach__context-item label { display:flex; align-items:flex-start; gap:.5rem; min-height:44px; }
+.assistance-coach__context-item input[type=checkbox] { flex:none; width:1.25rem; height:1.25rem; margin-top:.15rem; }
+.assistance-coach__context-item p { white-space:pre-wrap; }

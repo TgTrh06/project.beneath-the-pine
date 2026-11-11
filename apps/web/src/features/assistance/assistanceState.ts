@@ -9,10 +9,12 @@ export function makeAssistanceRequest(capability: AssistanceCapability, value: s
     : capability === 'open_seed_draft' ? { capability, context: text }
     : { capability, currentStep: text, stuckMode };
 }
-export function assistanceDisclosure(processing: AssistanceConfig['processing']) {
+export function assistanceDisclosure(processing: AssistanceConfig['processing'], provider?: string) {
+  if (provider === 'openrouter') return 'AI có thể gợi ý chưa phù hợp. Nội dung bạn gửi và ngữ cảnh bạn chọn được chuyển qua OpenRouter tới nhà cung cấp chạy DeepSeek để tạo gợi ý. Hãy kiểm tra và sửa trước khi dùng; không gửi thông tin nhạy cảm.';
+  if (provider === 'gemini') return 'Bản demo: chỉ nhập dữ liệu giả. Nội dung bạn gửi và ngữ cảnh bạn chọn có thể được chuyển tới Google Gemini. Với API free tier, Google có thể dùng đầu vào và phản hồi để cải thiện sản phẩm. Không gửi thông tin riêng tư hoặc nhạy cảm.';
   return processing === 'self_hosted'
     ? 'Bản demo: chỉ nhập dữ liệu giả. Nội dung vừa nhập được gửi đến máy chủ Pyneath để tạo gợi ý.'
-    : 'Bản demo: chỉ nhập dữ liệu giả. Yêu cầu này gửi nội dung vừa nhập tới OpenAI để tạo gợi ý. OpenAI không dùng dữ liệu API để huấn luyện theo mặc định; log chống lạm dụng có thể giữ nội dung tối đa 30 ngày.';
+    : 'Bản demo: chỉ nhập dữ liệu giả. Nội dung vừa nhập được gửi tới dịch vụ AI bên ngoài để tạo gợi ý. Không gửi thông tin riêng tư hoặc nhạy cảm.';
 }
 
 export interface AssistanceState {
