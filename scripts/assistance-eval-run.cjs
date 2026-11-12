@@ -21,7 +21,7 @@ const manifestFile = path.join(root, 'manifest.json');
 function revision() {
   const files = [
     'scripts/assistance-eval-cases.cjs', 'scripts/assistance-eval-budget.cjs', 'scripts/assistance-eval-inference.cjs',
-    'scripts/assistance-eval-server.cjs', 'scripts/assistance-eval-run.cjs',
+    'scripts/assistance-eval-server.cjs', 'scripts/assistance-eval-run.cjs', 'scripts/assistance-eval-reconcile.cjs',
     'apps/api/src/modules/assistance/infrastructure/beeknoee-assistance.provider.ts',
     'apps/api/src/modules/assistance/application/assistance.service.ts',
     'apps/api/src/modules/assistance/domain/assistance-policy.ts',
