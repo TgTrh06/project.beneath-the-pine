@@ -30,5 +30,8 @@ describe('Pyneath Assistance demo controls', () => {
     expect(assistanceDisclosure('external', 'openrouter')).toContain('OpenRouter');
     expect(assistanceDisclosure('external', 'openrouter')).toContain('DeepSeek');
     expect(assistanceDisclosure('external', 'openrouter')).not.toContain('Gemini');
+    expect(assistanceDisclosure('external', 'beeknoee')).toContain('Beeknoee');
+    expect(assistanceDisclosure('external', 'beeknoee')).toContain('nhà cung cấp');
+    expect(assistanceDisclosure('external', 'beeknoee')).not.toContain('OpenRouter');
   });
 });

@@ -1,6 +1,7 @@
 import { useEffect, useReducer, useRef, useState } from 'react';
-import { assistanceConfigSchema, assistanceResponseSchema, assistanceContextSchema, assistanceToolsConfigSchema, type AssistanceContext, type AssistanceToolName, type AssistanceToolsConfig, type AssistanceCapability, type AssistanceConfig, type StuckMode } from '@pyneath/contracts';
+import { assistanceConfigSchema, assistanceResponseSchema, assistanceContextSchema, assistanceToolsConfigSchema, type AssistanceContext, type AssistanceToolName, type AssistanceToolsConfig, type AssistanceCapability, type AssistanceConfig, type StuckMode, type AssistanceInteraction } from '@pyneath/contracts';
 import { getAssistanceConfig, getAssistanceToolsConfig, getAssistanceContext, requestAssistanceWithTools, recordAssistanceInteraction, requestAssistance } from '../../shared/api/clients/assistance';
+import { ApiRequestError } from '../../shared/api/transport';
 import { assistanceReducer, initialAssistanceState, makeAssistanceRequest, visibleAssistanceResult } from './assistanceState';
 
 const enabled = import.meta.env.VITE_ASSISTANCE_DEMO === 'true';
@@ -21,6 +22,7 @@ export function useAssistance({ capability, value, onChoose, disabled = false, o
   const [contextError, setContextError] = useState('');
   const contextLoading = useRef(false);
   const [mode, setMode] = useState<StuckMode>('too_large');
+  const [feedbackReason, setFeedbackReason] = useState<AssistanceInteraction['reason']>();
   const [state, dispatch] = useReducer(assistanceReducer, initialAssistanceState);
   const { draft, pending, error } = state;
   const active = useRef(false);
@@ -59,8 +61,8 @@ export function useAssistance({ capability, value, onChoose, disabled = false, o
     setSelectedTools(previous => checked ? [...new Set([...previous, name])] : previous.filter(item => item !== name));
   };
 
-  const track = (action: 'viewed' | 'selected' | 'edited' | 'discarded', response = visibleResult) => {
-    if (response?.status === 'suggestion' && response.suggestionId) void recordAssistanceInteraction({ capability, suggestionId: response.suggestionId, action }).catch(() => undefined);
+  const track = (action: AssistanceInteraction['action'], response = visibleResult, reason?: AssistanceInteraction['reason']) => {
+    if (response?.status === 'suggestion' && response.suggestionId) void recordAssistanceInteraction({ capability, suggestionId: response.suggestionId, action, ...(reason ? { reason } : {}) }).catch(() => undefined);
   };
   const ask = async () => {
     if (active.current || disabled || !value.trim()) return;
@@ -73,11 +75,21 @@ export function useAssistance({ capability, value, onChoose, disabled = false, o
       if (!mounted.current || revision.current !== sentRevision) return;
       if (response.output.capability !== capability) throw new Error('Capability mismatch');
       dispatch({ type: 'response', response, sentRevision, currentRevision: revision.current });
-      if (response.status === 'suggestion') {
-        edited.current = false; focusProposal = response.output.recoveryAction !== 'take_break'; track('viewed', response);
+      if (response.reason === 'context_expired') {
+        setSelectedTools([]); setContext(null);
+        setContextError('Ngữ cảnh đã thay đổi hoặc quyền chọn đã hết hạn. Hãy xem và chọn lại ngữ cảnh. Nội dung bạn nhập vẫn được giữ.');
       }
-    } catch {
-      if (mounted.current && revision.current === sentRevision) dispatch({ type: 'failure', sentRevision, currentRevision: revision.current });
+      if (response.status === 'suggestion') {
+        edited.current = false; setFeedbackReason(undefined); focusProposal = response.output.recoveryAction !== 'take_break'; track('viewed', response);
+      }
+    } catch (failure) {
+      if (mounted.current && revision.current === sentRevision) {
+        dispatch({ type: 'failure', sentRevision, currentRevision: revision.current,
+          connection: failure instanceof ApiRequestError && failure.status === undefined });
+        if (failure instanceof ApiRequestError && failure.status === 409 && grants.length) {
+          setSelectedTools([]); setContext(null); setContextError('Ngữ cảnh đã thay đổi hoặc quyền chọn đã hết hạn. Hãy xem và chọn lại ngữ cảnh. Nội dung bạn nhập vẫn được giữ.');
+        }
+      }
     } finally {
       active.current = false;
       if (mounted.current) {
@@ -86,7 +98,7 @@ export function useAssistance({ capability, value, onChoose, disabled = false, o
       }
     }
   };
-  const dismiss = () => { track('discarded'); dispatch({ type: 'dismiss' }); requestAnimationFrame(() => trigger.current?.focus()); };
+  const dismiss = () => { track('discarded', visibleResult, feedbackReason); setFeedbackReason(undefined); dispatch({ type: 'dismiss' }); requestAnimationFrame(() => trigger.current?.focus()); };
   const choose = () => {
     if (!draft.trim() || disabled || !visibleResult) return;
     track('selected'); dispatch({ type: 'choose' }); onChoose(draft.trim());
@@ -100,5 +112,5 @@ export function useAssistance({ capability, value, onChoose, disabled = false, o
     if (!edited.current) { edited.current = true; track('edited'); }
   };
   return { available, config, toolsConfig, context, contextPending, contextError, selectedTools, loadContext, toggleTool,
-    mode, setMode, visibleResult, draft, pending, error, trigger, proposalInput, ask, dismiss, choose, takeBreak, editDraft };
+    mode, setMode, visibleResult, draft, pending, error, feedbackReason, setFeedbackReason, trigger, proposalInput, ask, dismiss, choose, takeBreak, editDraft };
 }
