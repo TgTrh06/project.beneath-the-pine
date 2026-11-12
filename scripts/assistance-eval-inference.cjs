@@ -29,7 +29,7 @@ function matchUsage(data, row) {
   return entry;
 }
 async function reconcile(key, row) {
-  for (let i = 0; i < 4; i++) {
+  for (let i = 0; i < 10; i++) {
     if (i) await wait(1500);
     const usage = await management('usage?limit=200', key);
     const entry = matchUsage(usage.data, row);
