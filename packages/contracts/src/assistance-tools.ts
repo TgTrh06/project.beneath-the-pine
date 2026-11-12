@@ -21,6 +21,6 @@ export const assistanceToolRequestSchema = z.object({ request: assistanceRequest
   grants: z.array(assistanceToolGrantSchema).min(1).max(2).refine(items => new Set(items.map(i => i.name)).size === items.length)
 }).strict();
 export type AssistanceToolRequest = z.infer<typeof assistanceToolRequestSchema>;
-export const assistanceToolsConfigSchema = z.object({ enabled: z.boolean(), provider: z.enum(['gemini', 'openrouter', 'openai', 'local', 'disabled']),
+export const assistanceToolsConfigSchema = z.object({ enabled: z.boolean(), provider: z.enum(['gemini', 'openrouter', 'beeknoee', 'openai', 'local', 'disabled']),
   tools: z.array(assistanceToolNameSchema).max(2) }).strict();
 export type AssistanceToolsConfig = z.infer<typeof assistanceToolsConfigSchema>;

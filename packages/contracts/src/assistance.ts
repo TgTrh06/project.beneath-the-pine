@@ -55,8 +55,10 @@ export type AssistanceOutput = z.infer<typeof assistanceOutputSchema>;
 export const assistanceResponseSchema = z.object({
   status: z.enum(["suggestion", "fallback", "boundary"]),
   output: assistanceOutputSchema,
-  suggestionId: idSchema.optional()
+  suggestionId: idSchema.optional(),
+  reason: z.enum(['quota', 'context_expired', 'invalid_output', 'timeout', 'unavailable']).optional()
 }).strict().superRefine((response, context) => {
+  if (response.reason && response.status !== 'fallback') context.addIssue({ code: 'custom', message: 'Reason requires fallback' });
   if (response.status === "suggestion" && (!response.suggestionId || response.output.message || response.output.needsHumanSupport)) context.addIssue({ code: "custom", message: "Invalid suggestion response" });
   if (response.status !== "suggestion" && (response.suggestionId || !response.output.message || response.output.needsHumanSupport !== (response.status === "boundary"))) context.addIssue({ code: "custom", message: "Invalid fallback response" });
 });
@@ -65,6 +67,9 @@ export type AssistanceResponse = z.infer<typeof assistanceResponseSchema>;
 export const assistanceInteractionSchema = z.object({
   capability: assistanceCapabilitySchema,
   suggestionId: idSchema,
-  action: z.enum(["viewed", "selected", "edited", "discarded"])
-}).strict();
+  action: z.enum(["viewed", "selected", "edited", "discarded"]),
+  reason: z.enum(["irrelevant", "too_large_or_vague", "unclear", "inappropriate", "other"]).optional()
+}).strict().superRefine((value, context) => {
+  if (value.reason && value.action !== 'discarded') context.addIssue({ code: 'custom', message: 'Reason requires discarded action' });
+});
 export type AssistanceInteraction = z.infer<typeof assistanceInteractionSchema>;

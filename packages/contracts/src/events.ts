@@ -13,6 +13,7 @@ export const productEventNames = [
     "camp_milestone_recorded",
     "assistance_requested",
     "assistance_fallback",
+    "assistance_result",
     "assistance_viewed",
     "assistance_selected",
     "assistance_edited",
