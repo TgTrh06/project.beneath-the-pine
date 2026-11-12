@@ -1,0 +1,149 @@
+{
+  "review": "Manual review of all fictional outputs; small demo sample, not an accuracy benchmark",
+  "quality": [
+    {
+      "model": "bee-tok/claude-haiku-5-5",
+      "caseId": "start-report",
+      "valid": true,
+      "qualityPass": true,
+      "reason": "Vietnamese, relevant to work/context, concrete short action; no policy violation observed."
+    },
+    {
+      "model": "bee-tok/claude-haiku-5-5",
+      "caseId": "start-ui",
+      "valid": true,
+      "qualityPass": true,
+      "reason": "Vietnamese, relevant to work/context, concrete short action; no policy violation observed."
+    },
+    {
+      "model": "bee-tok/claude-haiku-5-5",
+      "caseId": "start-seed",
+      "valid": true,
+      "qualityPass": false,
+      "reason": "Generic feature description ignores selected Seed instruction to write the first Focus creation step."
+    },
+    {
+      "model": "bee-tok/claude-haiku-5-5",
+      "caseId": "recovery-large",
+      "valid": true,
+      "qualityPass": true,
+      "reason": "Vietnamese, relevant to work/context, concrete short action; no policy violation observed."
+    },
+    {
+      "model": "bee-tok/claude-haiku-5-5",
+      "caseId": "recovery-next",
+      "valid": true,
+      "qualityPass": true,
+      "reason": "Vietnamese, relevant to work/context, concrete short action; no policy violation observed."
+    },
+    {
+      "model": "bee-tok/claude-haiku-5-5",
+      "caseId": "recovery-distracted",
+      "valid": true,
+      "qualityPass": true,
+      "reason": "Vietnamese, relevant to work/context, concrete short action; no policy violation observed."
+    },
+    {
+      "model": "bee-tok/claude-haiku-5-5",
+      "caseId": "seed-report",
+      "valid": true,
+      "qualityPass": true,
+      "reason": "Vietnamese, relevant to work/context, concrete short action; no policy violation observed."
+    },
+    {
+      "model": "bee-tok/claude-haiku-5-5",
+      "caseId": "seed-test",
+      "valid": true,
+      "qualityPass": true,
+      "reason": "Vietnamese, relevant to work/context, concrete short action; no policy violation observed."
+    },
+    {
+      "model": "bee-tok/claude-haiku-5-5",
+      "caseId": "seed-ui",
+      "valid": true,
+      "qualityPass": true,
+      "reason": "Vietnamese, relevant to work/context, concrete short action; no policy violation observed."
+    },
+    {
+      "model": "bee/gpt-6-luna",
+      "caseId": "start-report",
+      "valid": true,
+      "qualityPass": true,
+      "reason": "Vietnamese, relevant to work/context, concrete short action; no policy violation observed."
+    },
+    {
+      "model": "bee/gpt-6-luna",
+      "caseId": "start-ui",
+      "valid": true,
+      "qualityPass": true,
+      "reason": "Vietnamese, relevant to work/context, concrete short action; no policy violation observed."
+    },
+    {
+      "model": "bee/gpt-6-luna",
+      "caseId": "start-seed",
+      "valid": true,
+      "qualityPass": true,
+      "reason": "Vietnamese, relevant to work/context, concrete short action; no policy violation observed."
+    },
+    {
+      "model": "bee/gpt-6-luna",
+      "caseId": "recovery-large",
+      "valid": true,
+      "qualityPass": true,
+      "reason": "Vietnamese, relevant to work/context, concrete short action; no policy violation observed."
+    },
+    {
+      "model": "bee/gpt-6-luna",
+      "caseId": "recovery-next",
+      "valid": true,
+      "qualityPass": true,
+      "reason": "Vietnamese, relevant to work/context, concrete short action; no policy violation observed."
+    },
+    {
+      "model": "bee/gpt-6-luna",
+      "caseId": "recovery-distracted",
+      "valid": true,
+      "qualityPass": true,
+      "reason": "Vietnamese, relevant to work/context, concrete short action; no policy violation observed."
+    },
+    {
+      "model": "bee/gpt-6-luna",
+      "caseId": "seed-report",
+      "valid": true,
+      "qualityPass": true,
+      "reason": "Vietnamese, relevant to work/context, concrete short action; no policy violation observed."
+    },
+    {
+      "model": "bee/gpt-6-luna",
+      "caseId": "seed-test",
+      "valid": true,
+      "qualityPass": true,
+      "reason": "Vietnamese, relevant to work/context, concrete short action; no policy violation observed."
+    },
+    {
+      "model": "bee/gpt-6-luna",
+      "caseId": "seed-ui",
+      "valid": true,
+      "qualityPass": true,
+      "reason": "Vietnamese, relevant to work/context, concrete short action; no policy violation observed."
+    }
+  ],
+  "scores": [
+    {
+      "model": "bee-tok/claude-haiku-5-5",
+      "validated": 9,
+      "qualityPassed": 8,
+      "costVND": 19.31,
+      "medianMs": 2330
+    },
+    {
+      "model": "bee/gpt-6-luna",
+      "validated": 9,
+      "qualityPassed": 9,
+      "costVND": 10.36,
+      "medianMs": 3281
+    }
+  ],
+  "selected": "bee/gpt-6-luna",
+  "format": "json_schema"
+}

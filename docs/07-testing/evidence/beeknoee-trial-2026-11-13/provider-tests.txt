@@ -1,0 +1,151 @@
+TAP version 13
+# (node:25236) ExperimentalWarning: The MockTimers API is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: configured JSON modes are fixed per request, validated locally, and never negotiated by retries
+ok 1 - configured JSON modes are fixed per request, validated locally, and never negotiated by retries
+  ---
+  duration_ms: 63.2849
+  ...
+# Subtest: Beeknoee needs its own key, allows only the two approved models, and exposes all three capabilities
+ok 2 - Beeknoee needs its own key, allows only the two approved models, and exposes all three capabilities
+  ---
+  duration_ms: 4.6146
+  ...
+# Subtest: each capability uses a single bounded JSON request, without OpenRouter-specific routing
+ok 3 - each capability uses a single bounded JSON request, without OpenRouter-specific routing
+  ---
+  duration_ms: 8.5991
+  ...
+# Subtest: only selected context is read once, included as untrusted data, without extra model calls
+ok 4 - only selected context is read once, included as untrusted data, without extra model calls
+  ---
+  duration_ms: 2.8559
+  ...
+# Subtest: context errors, oversized context, unknown and duplicate tools never reach the provider
+ok 5 - context errors, oversized context, unknown and duplicate tools never reach the provider
+  ---
+  duration_ms: 1.9539
+  ...
+# Subtest: errors, invalid JSON, schema violations, truncation, tool calls and oversized bodies fail without retry
+ok 6 - errors, invalid JSON, schema violations, truncation, tool calls and oversized bodies fail without retry
+  ---
+  duration_ms: 12.2564
+  ...
+# Subtest: provider refusal and sensitive context produce boundary without exposing provider messages
+ok 7 - provider refusal and sensitive context produce boundary without exposing provider messages
+  ---
+  duration_ms: 2.5032
+  ...
+# Subtest: deadline includes an unresponsive provider and context reads; no late model call after abort
+ok 8 - deadline includes an unresponsive provider and context reads; no late model call after abort
+  ---
+  duration_ms: 3.4578
+  ...
+# Subtest: quota exhaustion and unavailable provider preserve the service fallback without raw errors
+ok 9 - quota exhaustion and unavailable provider preserve the service fallback without raw errors
+  ---
+  duration_ms: 3.3295
+  ...
+# (node:22832) ExperimentalWarning: The MockTimers API is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: Gemini configuration is explicit and errors do not reveal keys; contracts reject excess grants
+ok 10 - Gemini configuration is explicit and errors do not reveal keys; contracts reject excess grants
+  ---
+  duration_ms: 20.4684
+  ...
+# Subtest: Gemini generates each capability with one bounded external request and no moderation/retry
+ok 11 - Gemini generates each capability with one bounded external request and no moderation/retry
+  ---
+  duration_ms: 46.2821
+  ...
+# Subtest: Gemini calls only approved tools once and preserves model thought signatures for second round
+ok 12 - Gemini calls only approved tools once and preserves model thought signatures for second round
+  ---
+  duration_ms: 5.8227
+  ...
+# Subtest: invalid, unconsented, duplicate or repeated tools fail closed without unauthorized reads
+ok 13 - invalid, unconsented, duplicate or repeated tools fail closed without unauthorized reads
+  ---
+  duration_ms: 16.0307
+  ...
+# Subtest: Gemini rejects errors, oversized bodies, truncated output, invalid JSON and wrong capability
+ok 14 - Gemini rejects errors, oversized bodies, truncated output, invalid JSON and wrong capability
+  ---
+  duration_ms: 7.5288
+  ...
+# Subtest: provider safety blocks map to backend boundary, never raw provider text
+ok 15 - provider safety blocks map to backend boundary, never raw provider text
+  ---
+  duration_ms: 2.9452
+  ...
+# Subtest: six-second direct deadline aborts even an unresponsive transport
+ok 16 - six-second direct deadline aborts even an unresponsive transport
+  ---
+  duration_ms: 2.207
+  ...
+# Subtest: twelve-second tool deadline includes tool reads and never starts a late second model call
+ok 17 - twelve-second tool deadline includes tool reads and never starts a late second model call
+  ---
+  duration_ms: 1.9656
+  ...
+# Subtest: consent binds account, tool, contents, TTL and one read; preview does not mutate or expose IDs
+ok 18 - consent binds account, tool, contents, TTL and one read; preview does not mutate or expose IDs
+  ---
+  duration_ms: 7.237
+  ...
+# Subtest: tools share existing quota and fallback without a provider call when consent is stale
+ok 19 - tools share existing quota and fallback without a provider call when consent is stale
+  ---
+  duration_ms: 3.1971
+  ...
+# (node:25268) ExperimentalWarning: The MockTimers API is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: OpenRouter needs its own key, pins the approved model, and exposes all three capabilities
+ok 20 - OpenRouter needs its own key, pins the approved model, and exposes all three capabilities
+  ---
+  duration_ms: 12.4518
+  ...
+# Subtest: each capability uses a single bounded JSON request, with price/privacy routing and reasoning off
+ok 21 - each capability uses a single bounded JSON request, with price/privacy routing and reasoning off
+  ---
+  duration_ms: 58.5373
+  ...
+# Subtest: only selected context is read once, included as untrusted data, without extra model calls
+ok 22 - only selected context is read once, included as untrusted data, without extra model calls
+  ---
+  duration_ms: 2.5355
+  ...
+# Subtest: context errors, oversized context, unknown and duplicate tools never reach the provider
+ok 23 - context errors, oversized context, unknown and duplicate tools never reach the provider
+  ---
+  duration_ms: 2.2355
+  ...
+# Subtest: errors, invalid JSON, schema violations, truncation, tool calls and oversized bodies fail without retry
+ok 24 - errors, invalid JSON, schema violations, truncation, tool calls and oversized bodies fail without retry
+  ---
+  duration_ms: 13.1307
+  ...
+# Subtest: provider refusal and sensitive context produce boundary without exposing provider messages
+ok 25 - provider refusal and sensitive context produce boundary without exposing provider messages
+  ---
+  duration_ms: 1.0551
+  ...
+# Subtest: deadline includes an unresponsive provider and context reads; no late model call after abort
+ok 26 - deadline includes an unresponsive provider and context reads; no late model call after abort
+  ---
+  duration_ms: 1.9854
+  ...
+# Subtest: quota exhaustion and unavailable provider preserve the service fallback without raw errors
+ok 27 - quota exhaustion and unavailable provider preserve the service fallback without raw errors
+  ---
+  duration_ms: 2.7158
+  ...
+1..27
+# tests 27
+# suites 0
+# pass 27
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 2210.803

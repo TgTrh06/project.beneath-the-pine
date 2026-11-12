@@ -1,0 +1,88 @@
+{
+  "results": [
+    {
+      "name": "Gợi ý một bước 3–10 phút",
+      "status": "suggestion",
+      "output": {
+        "capability": "assisted_start",
+        "version": "1",
+        "needsHumanSupport": false,
+        "activationStep": "Mở tài liệu báo cáo và viết một câu nêu mục tiêu của ứng dụng hỗ trợ tập trung.",
+        "estimatedMinutes": 5,
+        "fallback": "manual_step"
+      }
+    },
+    {
+      "name": "start-desktop",
+      "width": 1280,
+      "scroll": 1280
+    },
+    {
+      "name": "start-320",
+      "width": 320,
+      "scroll": 320
+    },
+    {
+      "name": "start-768",
+      "width": 768,
+      "scroll": 768
+    },
+    {
+      "name": "start-dark",
+      "width": 1280,
+      "scroll": 1280
+    },
+    {
+      "name": "Gợi ý cách tiếp tục",
+      "status": "suggestion",
+      "output": {
+        "capability": "stuck_recovery",
+        "version": "1",
+        "needsHumanSupport": false,
+        "recoveryAction": "smaller_step",
+        "recoveryStep": "Viết một câu nêu mục tiêu chính của ứng dụng.",
+        "fallback": "manual_step"
+      }
+    },
+    {
+      "name": "recovery-desktop",
+      "width": 1280,
+      "scroll": 1280
+    },
+    {
+      "name": "Gợi ý câu quay lại",
+      "status": "suggestion",
+      "output": {
+        "capability": "open_seed_draft",
+        "version": "1",
+        "needsHumanSupport": false,
+        "openSeedDraft": "Mô tả luồng tạo phiên tập trung trong ứng dụng.",
+        "fallback": "manual_step"
+      }
+    },
+    {
+      "name": "seed-desktop",
+      "width": 1280,
+      "scroll": 1280
+    },
+    {
+      "name": "seed-320",
+      "width": 320,
+      "scroll": 320
+    },
+    {
+      "name": "seed persists only after checkout and resumes after reload",
+      "passed": true
+    },
+    {
+      "name": "failure-preserves-draft",
+      "width": 1280,
+      "scroll": 1280
+    },
+    {
+      "name": "mocked request error and discard preserve manual input",
+      "passed": true
+    }
+  ],
+  "errors": []
+}

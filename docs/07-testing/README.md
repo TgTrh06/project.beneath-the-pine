@@ -1,5 +1,8 @@
 # 07 — Testing
 
+- [Beeknoee local trial — Luna selected, 2026-11-13](beeknoee-trial-readiness.md)
+- [Assistance quality v1 implementation and eval readiness](assistance-quality-v1-readiness.md)
+
 - [Internship MVP with OpenRouter AI — local acceptance, 2026-11-11](internship-mvp-ai-readiness.md)
 
 - [P3E — browser zoom, narration and physical-device verification (in progress)](gamification-p3e-device-verification.md)
