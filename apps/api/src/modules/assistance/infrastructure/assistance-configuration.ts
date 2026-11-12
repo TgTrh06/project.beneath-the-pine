@@ -1,6 +1,7 @@
 import type { AssistanceConfig } from '@pyneath/contracts';
 import type { ApiConfig } from '../../../platform/config/api-config';
 export function assistanceConfiguration(config: ApiConfig): AssistanceConfig {
+  if (config.API_ASSISTANCE_PROVIDER === 'beeknoee' && config.BEEKNOEE_API_KEY) return { enabled: true, processing: 'external', capabilities: ['assisted_start', 'open_seed_draft', 'stuck_recovery'] };
   if (config.API_ASSISTANCE_PROVIDER === 'openrouter' && config.OPENROUTER_API_KEY) return { enabled: true, processing: 'external', capabilities: ['assisted_start', 'open_seed_draft', 'stuck_recovery'] };
   if (config.API_ASSISTANCE_PROVIDER === 'gemini' && config.GEMINI_API_KEY && config.GEMINI_MODEL) return { enabled: true, processing: 'external', capabilities: ['assisted_start', 'open_seed_draft', 'stuck_recovery'] };
   if (config.API_ASSISTANCE_PROVIDER === 'local') return { enabled: true, processing: 'self_hosted', capabilities: ['assisted_start', 'open_seed_draft', 'stuck_recovery'] };

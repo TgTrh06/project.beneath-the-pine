@@ -6,6 +6,7 @@ import { assistanceRequestSchema, assistanceResponseSchema } from '@pyneath/cont
 import { safeProductMetadata } from '../src/modules/analytics/domain/event-policy';
 import type { Analytics } from '../src/modules/analytics/public-api';
 import type { AssistanceProvider } from '../src/modules/assistance/application/assistance-provider';
+import { ProviderRateLimitError } from '../src/modules/assistance/application/assistance-provider';
 import { OpenAiAssistanceProvider } from '../src/modules/assistance/infrastructure/openai-assistance.provider';
 import { AssistanceService } from '../src/modules/assistance/application/assistance.service';
 import { readApiConfig } from '../src/platform/config/api-config';
@@ -76,6 +77,36 @@ test('interaction records and metadata never include prompt or suggestion text',
   assert.equal(JSON.stringify(events).includes(privateText), false);
   assert.deepEqual(safeProductMetadata('assistance_selected', { capability: 'assisted_start', prompt: privateText, suggestion: privateText }), { capability: 'assisted_start' });
   assert.deepEqual(safeProductMetadata('assistance_fallback', { capability: privateText }), {});
+  assert.deepEqual(safeProductMetadata('assistance_discarded', { capability: 'assisted_start', reason: 'irrelevant', prompt: privateText }), { capability: 'assisted_start', reason: 'irrelevant' });
+  assert.deepEqual(safeProductMetadata('assistance_result', { capability: 'assisted_start', outcome: 'suggestion', provider: 'beeknoee', model: 'bee/gpt-6-luna', promptRevision: 'pyneath-assistance-v2.1', policyRevision: 'assistance-policy-v1', elapsedMs: 1200, promptTokens: 500, completionTokens: 80, costUsd: 0.001, prompt: privateText }),
+    { capability: 'assisted_start', outcome: 'suggestion', provider: 'beeknoee', model: 'bee/gpt-6-luna', promptRevision: 'pyneath-assistance-v2.1', policyRevision: 'assistance-policy-v1', elapsedMs: 1200, promptTokens: 500, completionTokens: 80, costUsd: 0.001 });
+  assert.deepEqual(safeProductMetadata('assistance_result', { capability: 'stuck_recovery', outcome: 'timeout', response: privateText }), { capability: 'stuck_recovery', outcome: 'timeout' });
+});
+
+test('versioned diagnostics are opt-in, coded, and report provider usage only when supplied', async () => {
+  const provider: AssistanceProvider = { generate: async () => ({ kind: 'validated', usage: { promptTokens: 12, completionTokens: 6, costUsd: 0.0001 },
+    output: { capability: 'assisted_start', version: '1', needsHumanSupport: false, fallback: 'manual_step', activationStep: 'Mở tài liệu giả.', estimatedMinutes: 3 } }) };
+  const off = fixture(provider);
+  await off.service.suggest('owner', { capability: 'assisted_start', description: privateText });
+  await off.service.interaction('owner', { capability: 'assisted_start', suggestionId: '00000000-0000-4000-8000-000000000001', action: 'discarded', reason: 'irrelevant' });
+  assert.equal(off.events.some((event: any) => event.name === 'assistance_result'), false);
+  assert.equal((off.events.at(-1) as any).metadata.reason, undefined);
+  const events: any[] = [];
+  const analytics = { reserveAssistanceRequest: async () => '00000000-0000-4000-8000-000000000001', ownsAssistanceRequest: async () => true,
+    record: async (_accountId: string, name: string, _subjectId?: string, metadata?: unknown) => { events.push({ name, metadata }); } } as Analytics;
+  const service = new AssistanceService(assistanceConfiguration(readApiConfig({ API_ASSISTANCE_PROVIDER: 'openai', OPENAI_API_KEY: 'test-key' })),
+    provider, analytics, undefined, { provider: 'beeknoee', model: 'bee/gpt-6-luna', diagnostics: true });
+  await service.suggest('owner', { capability: 'assisted_start', description: privateText });
+  await service.interaction('owner', { capability: 'assisted_start', suggestionId: '00000000-0000-4000-8000-000000000001', action: 'discarded', reason: 'irrelevant' });
+  assert.equal(events.find(event => event.name === 'assistance_result').metadata.promptTokens, 12);
+  assert.equal(events.at(-1).metadata.reason, 'irrelevant');
+  assert.equal(JSON.stringify(events).includes(privateText), false);
+});
+
+test('provider rate limit has a distinct quota fallback', async () => {
+  const { service } = fixture({ generate: async () => { throw new ProviderRateLimitError(); } });
+  const result = await service.suggest('owner', { capability: 'assisted_start', description: 'Việc giả' });
+  assert.equal(result.reason, 'quota');
 });
 
 test('OpenAI adapter sends only explicit text with store disabled and validates moderation', async t => {

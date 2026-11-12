@@ -14,7 +14,7 @@ export class AssistanceToolsController {
   @Get('config')
   configuration(@Req() req: Request): AssistanceToolsConfig {
     principal(req);
-    const enabled = ['gemini', 'openrouter'].includes(this.config.API_ASSISTANCE_PROVIDER) && this.assistance.configuration().enabled;
+    const enabled = ['gemini', 'openrouter', 'beeknoee'].includes(this.config.API_ASSISTANCE_PROVIDER) && this.assistance.configuration().enabled;
     return { enabled, provider: this.config.API_ASSISTANCE_PROVIDER, tools: enabled ? ['get_current_focus_context', 'get_my_open_seed'] : [] };
   }
   @Get('context')
