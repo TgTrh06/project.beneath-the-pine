@@ -12,5 +12,6 @@ Pyneath Assistance is an optional, user-requested capability that helps a person
 - [Safety Policy](ai-safety-policy.md)
 - [Prompt Registry](prompt-registry.md)
 - [Cost and Limits](ai-cost-and-limits.md)
+- [Luna internship quality, UX and versioned eval](assistance-quality-v1.md)
 
 `ml/` holds reproducible training assets. `services/inference-service/` is a local-only inference adapter; neither is an approved production integration until the gates in this directory pass.

@@ -1,6 +1,6 @@
 # MVP Scope — Web Validation
 
-- **Status:** Approved internship MVP revision — 2026-11-11 (Asia/Saigon).
+- **Status:** Approved internship MVP revision — 2026-11-13 (Asia/Saigon).
 
 ## Goal
 
@@ -18,8 +18,8 @@ Mốc báo cáo thực tập yêu cầu bản web chạy local có **AI Assistan
 - Realtime presence và server-authoritative timer.
 - Camp milestone tối giản sau pact hoàn tất.
 - Privacy/data-rights baseline, event logging và pilot feedback.
-- AI Assistance qua OpenRouter, model `deepseek/deepseek-v4-flash-0731`: gợi ý bước bắt đầu, hỗ trợ khi mắc kẹt, bản nháp Open Seed. Người dùng chủ động yêu cầu, sửa/dùng/bỏ; AI không tự lưu hoặc thay đổi phiên.
-- Người dùng có thể xem và chọn gửi ngữ cảnh phiên/Seed của chính mình. Mỗi gợi ý OpenRouter dùng tối đa một lượt gọi, có quota, giới hạn token, timeout và fallback giữ nguyên nội dung.
+- AI Assistance qua Beeknoee, model `bee/gpt-6-luna` cho demo local; OpenRouter/DeepSeek là phương án thay thế. Ba chức năng: bước bắt đầu, hỗ trợ khi mắc kẹt, bản nháp Open Seed. Người dùng chủ động yêu cầu, sửa/dùng/bỏ; AI không tự lưu hoặc thay đổi phiên.
+- Người dùng có thể xem và chọn gửi ngữ cảnh phiên/Seed của chính mình. Mỗi gợi ý dùng tối đa một lượt gọi, có quota, giới hạn token, timeout và fallback giữ nguyên nội dung.
 
 ## Not included
 
@@ -31,7 +31,7 @@ Mobile native, public rooms, stranger matching, voice/video, DM, task board, hab
 - Cả ba chức năng AI có đầu ra từ model thật, qua kiểm tra schema và dùng được trong giao diện. Mock hoặc luôn fallback không đủ để nghiệm thu AI.
 - Người dùng sửa/dùng/bỏ được gợi ý; preview ngữ cảnh không gọi model, dữ liệu người khác không được gửi. Lỗi/quota/timeout không làm mất bản nháp hoặc tự thay đổi trạng thái Focus/Seed.
 - Ghi rõ model, ngày kiểm chứng, số lượt gọi, usage/chi phí khi provider cung cấp và giới hạn chất lượng. Gợi ý chưa tối ưu có thể tiếp tục cải thiện; không tuyên bố đã chứng minh hiệu quả với người dùng thật.
-- Xem [ADR-0031](../04-engineering/adr/0031-openrouter-internship-mvp.md) và [biên bản nghiệm thu](../07-testing/internship-mvp-ai-readiness.md).
+- Xem [ADR-0032](../04-engineering/adr/0032-beeknoee-local-trial.md), [biên bản Luna](../07-testing/beeknoee-trial-readiness.md) và [kế hoạch chất lượng](../05-machine-learning/assistance-quality-v1.md). Bộ eval 60 case chưa chạy inference; không tính là bằng chứng nghiệm thu chất lượng mới.
 
 ## Product pilot exit evidence (separate from internship demo)
 

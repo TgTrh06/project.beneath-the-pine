@@ -20,7 +20,8 @@ The platform is designed to be client-independent, separating business logic and
 - **Web Validation Client (`apps/web`)**: **React 19** + **Vite** web application serving as the first pilot client to validate domain models, user rituals, and real-time contracts.
 - **Target Mobile Client**: **React Native + Expo** is the intended long-term product client, sharing the same NestJS API without requiring backend architectural rewrites.
 - **Experimental & Research Assets (`ml/`, `services/inference-service/`)**: Standalone local inference and fine-tuning experiments (QLoRA, GGUF) governed under ML safety standards. They are strictly decoupled and **not** a runtime dependency for the MVP product loop.
-- **MVP AI Assistance**: OpenRouter serves `deepseek/deepseek-v4-flash-0731` for an editable starting step, stuck recovery and Open Seed draft. AI runs only after a user request; manual Focus/Seed flows remain available during provider failures. Self-trained weights are not required for the internship milestone.
+- **MVP AI Assistance**: Editable starting steps, stuck recovery and Open Seed drafts use Beeknoee `bee/gpt-6-luna` in the verified local demo. OpenRouter `deepseek/deepseek-v4-flash-0731` remains available as an alternative. AI runs only after a user request; manual Focus/Seed flows remain available during provider failures. Self-trained weights are not required for the internship milestone.
+- [Assistance quality plan](docs/05-machine-learning/assistance-quality-v1.md): failure UX, user control, 60 fictional eval cases, versioned reports and privacy gates. The new paid eval has not run.
 
 ---
 
@@ -114,7 +115,9 @@ Check `http://127.0.0.1:8081/health/live` for process liveness and `http://127.0
 
 ## 🧪 Verification & Workspace Commands
 
-For the approved local AI demo, configure `API_ASSISTANCE_PROVIDER=openrouter`, `OPENROUTER_MODEL=deepseek/deepseek-v4-flash-0731` and a server-only `OPENROUTER_API_KEY` in `apps/api/.env`; set `VITE_ASSISTANCE_DEMO=true` in `apps/web/.env` and restart both servers. Never put the key in a `VITE_` variable. Use fictional content for verification. Setup, limits and evidence: [OpenRouter internship MVP](docs/07-testing/internship-mvp-ai-readiness.md). Deployment and the user pilot have separate approval gates.
+The current verified local demo selects `API_ASSISTANCE_PROVIDER=beeknoee`, `BEEKNOEE_MODEL=bee/gpt-6-luna` and `BEEKNOEE_RESPONSE_FORMAT=json_schema`. Keep `BEEKNOEE_API_KEY` only in `apps/api/.env`, enable `VITE_ASSISTANCE_DEMO=true`, and restart API/web. Keep `API_ASSISTANCE_DIAGNOSTICS=false` until retention/deletion and reporting access are approved. [Beeknoee results and setup](docs/07-testing/beeknoee-trial-readiness.md): 23 real calls, 36.90 VND total, three UI flows verified. The trial spend guard applies to operator tooling; normal demo usage consumes credit under app quotas.
+
+To use the previously verified OpenRouter option, configure `API_ASSISTANCE_PROVIDER=openrouter`, `OPENROUTER_MODEL=deepseek/deepseek-v4-flash-0731` and a server-only `OPENROUTER_API_KEY` in `apps/api/.env`; set `VITE_ASSISTANCE_DEMO=true` in `apps/web/.env` and restart both servers. Never put the key in a `VITE_` variable. Use fictional content for verification. Setup, limits and evidence: [OpenRouter internship MVP](docs/07-testing/internship-mvp-ai-readiness.md). Deployment and the user pilot have separate approval gates.
 
 | Command | Action |
 | --- | --- |

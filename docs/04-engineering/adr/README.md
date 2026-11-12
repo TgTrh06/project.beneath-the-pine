@@ -34,4 +34,6 @@
 
 ADR numbers are permanent history and are never renumbered.
 
+- [ADR-0032 — Beeknoee local Assistance trial](0032-beeknoee-local-trial.md) — Accepted; bounded trial completed and Luna selected locally.
+
 - [ADR-0031 — OpenRouter Assistance in the internship MVP](0031-openrouter-internship-mvp.md) — Accepted for local implementation and bounded real-provider verification.

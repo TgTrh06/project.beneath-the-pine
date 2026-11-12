@@ -1,10 +1,10 @@
 # Delivery Plan
 
-## Current internship MVP — 2026-11-11
+## Current internship MVP — 2026-11-13
 
-The approved internship scope now includes real AI Assistance using OpenRouter and `deepseek/deepseek-v4-flash-0731`, covering assisted start, stuck recovery and Open Seed drafts. This supersedes the AI exclusion/conditional-demo restriction below for the local internship milestone only. Historical results remain historical.
+The approved internship scope includes real AI Assistance using Beeknoee `bee/gpt-6-luna` for the local demo, covering assisted start, stuck recovery and Open Seed drafts. OpenRouter/DeepSeek remains a configured alternative. This supersedes the AI exclusion/conditional-demo restriction below for the local internship milestone only. Historical results remain historical.
 
-Acceptance requires real responses for all three capabilities, editable suggestions, explicitly selected private context, bounded cost and failure recovery, plus a current core regression check. A trained local model is not required. See [MVP scope](../00-foundation/mvp-scope.md), [ADR-0031](../04-engineering/adr/0031-openrouter-internship-mvp.md) and [current evidence](../07-testing/internship-mvp-ai-readiness.md). Pilot rollout and real-user effectiveness remain separate gates.
+Acceptance requires real responses for all three capabilities, editable suggestions, explicitly selected private context, bounded cost and failure recovery, plus a current core regression check. A trained local model is not required. See [MVP scope](../00-foundation/mvp-scope.md), [Luna evidence](../07-testing/beeknoee-trial-readiness.md) and [quality plan](../05-machine-learning/assistance-quality-v1.md). Pilot rollout and real-user effectiveness remain separate gates.
 
 ## Current core closeout — 2026-10-24
 
