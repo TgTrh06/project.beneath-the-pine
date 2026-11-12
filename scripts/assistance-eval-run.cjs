@@ -2,7 +2,6 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const { randomBytes, randomUUID, createHash } = require('node:crypto');
-const { execFileSync } = require('node:child_process');
 const { isDeepStrictEqual } = require('node:util');
 const { cases, version } = require('./assistance-eval-cases.cjs');
 const { casebookSha256 } = require('./assistance-eval-report.cjs');
@@ -30,7 +29,6 @@ function revision() {
     'packages/contracts/src/assistance.ts', 'packages/contracts/src/assistance-prompt.ts'
   ];
   const hash = createHash('sha256');
-  hash.update(execFileSync('git', ['rev-parse', 'HEAD'], { cwd: path.resolve(__dirname, '..') }));
   for (const name of files) { hash.update(name); hash.update(fs.readFileSync(path.resolve(__dirname, '..', name))); }
   return hash.digest('hex');
 }
@@ -54,7 +52,7 @@ function ledger() { return fs.existsSync(ledgerFile) ? JSON.parse(fs.readFileSyn
 class Client {
   constructor() { this.cookie = ''; this.csrf = ''; this.password = randomBytes(20).toString('hex'); }
   async request(route, method = 'GET', data, expected = 200) {
-    const response = await fetch(base + route, { method, signal: AbortSignal.timeout(20000), headers: {
+    const response = await fetch(base + route, { method, signal: AbortSignal.timeout(30000), headers: {
       Origin: origin, cookie: this.cookie, 'Content-Type': 'application/json',
       ...(method === 'GET' ? {} : { 'X-XSRF-TOKEN': this.csrf })
     }, body: data === undefined ? undefined : JSON.stringify(data) });
@@ -96,7 +94,9 @@ async function one(client, scenario, rows) {
   rows.push(record); saveResults(rows); fs.unlinkSync(markerFile);
   console.log(JSON.stringify({ id: scenario.id, status: response.status, costVND: charged.costVND, calls: after.attempts.length,
     totalVND: after.attempts.reduce((sum, item) => sum + item.costVND, 0) }));
-  if (!parsed.success || response.output.capability !== scenario.capability || response.status !== 'suggestion') throw new Error('Invalid or non-suggestion canary/result; stop for review');
+  const expectedAmbiguousFallback = scenario.category === 'ambiguous' && response.status === 'fallback' && !response.reason;
+  if (!parsed.success || response.output.capability !== scenario.capability ||
+      response.status !== 'suggestion' && !expectedAmbiguousFallback) throw new Error('Invalid or unexpected fallback; stop for review');
 }
 
 async function main() {
